@@ -1,0 +1,9 @@
+#-----------------------------------------------------------------------------
+#
+# OpenCASCADE3rdparty.cmake - OpenCASCADE CMake file 
+# with paths to used 3rdparty libraries and dlls
+#
+# This file is configured by OpenCASCADE.
+#
+
+@SET_OpenCASCADE_3RDPARTY@

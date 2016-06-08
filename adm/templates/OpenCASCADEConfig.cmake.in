@@ -71,6 +71,12 @@ foreach(f ${CONFIG_FILES})
   include(${f})
 endforeach()
 
+# Import OpenCASCADE paths to used 3rdparty libraries and dlls for each installed configuration.
+file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/OpenCASCADE3rdparty-*.cmake")
+foreach(f ${CONFIG_FILES})
+  include(${f})
+endforeach()
+
 if (NOT OpenCASCADE_FIND_COMPONENTS)
   set (OpenCASCADE_FIND_COMPONENTS ${OpenCASCADE_MODULES})
 endif ()
