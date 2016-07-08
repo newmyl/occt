@@ -6,4 +6,34 @@
 # This file is configured by OpenCASCADE.
 #
 
+macro (CREATE_IMPORTED_TARGET TARGET_NAME CONFIGURATION TARGET_LIBRARY_FILE_PATH IS_DYNAMIC_LIBRARY)
+  # Create imported target
+  if (NOT TARGET ${TARGET_NAME})
+    add_library(${TARGET_NAME} SHARED IMPORTED)
+  endif()
+  
+  # Append new configuration to the target
+  get_property (TARGET_IMPORTED_CONFIGURATIONS TARGET ${TARGET_NAME} PROPERTY IMPORTED_CONFIGURATIONS)
+  list (FIND TARGET_IMPORTED_CONFIGURATIONS ${CONFIGURATION} IS_ALREADY_ADDED)
+  if (${IS_ALREADY_ADDED} EQUAL -1)
+    set_property(TARGET ${TARGET_NAME} APPEND PROPERTY IMPORTED_CONFIGURATIONS ${CONFIGURATION})
+  endif()
+
+  if (IS_DYNAMIC_LIBRARY)
+    # Add *.dll(Windows)/*.so(Linux)/*.dylib(MacOS) library to the target
+    if (NOT "${TARGET_LIBRARY_FILE_PATH}" STREQUAL "")
+      set_target_properties(${TARGET_NAME} PROPERTIES IMPORTED_LOCATION_${CONFIGURATION} "${TARGET_LIBRARY_FILE_PATH}")
+      list(APPEND _IMPORT_CHECK_FILES_FOR_${TARGET_NAME} "${TARGET_LIBRARY_FILE_PATH}" )
+    endif()
+  else()
+    # Add library *.lib to the target for Windows platform
+    if (WIN32)
+      if (NOT "${TARGET_LIBRARY_FILE_PATH}" STREQUAL "")
+        set_target_properties(${TARGET_NAME} PROPERTIES IMPORTED_IMPLIB_${CONFIGURATION} "${TARGET_LIBRARY_FILE_PATH}")
+        list(APPEND _IMPORT_CHECK_FILES_FOR_${TARGET_NAME} "${TARGET_LIBRARY_FILE_PATH}")
+      endif()
+    endif()
+  endif()
+endmacro()
+
 @SET_OpenCASCADE_3RDPARTY@
