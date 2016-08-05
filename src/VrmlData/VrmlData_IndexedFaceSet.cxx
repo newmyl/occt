@@ -29,6 +29,26 @@
 #include <Poly.hxx>
 #include <TShort_HArray1OfShortReal.hxx>
 
+#include <TopoDS_Face.hxx>
+#include <BRep_Tool.hxx>
+#include <TopoDS_Vertex.hxx>
+#include <TopoDS_Wire.hxx>
+#include <BRepBuilderAPI_Sewing.hxx>
+#include <TopoDS_Compound.hxx>
+#include <BRep_Builder.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
+#include <BRepBuilderAPI_CellFilter.hxx>
+#include <StlMesh_Mesh.hxx>
+#include <StlMesh_MeshExplorer.hxx>
+#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <BRepBuilderAPI_MakePolygon.hxx>
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <StlAPI.hxx>
+#include <ShapeUpgrade_UnifySameDomain.hxx>
+#include <BRepClass3d_SolidClassifier.hxx>
+#include <ShapeUpgrade_CombineToCylinder.hxx>
+
 IMPLEMENT_STANDARD_RTTIEXT(VrmlData_IndexedFaceSet,VrmlData_Faceted)
 
 #ifdef _MSC_VER
@@ -36,8 +56,239 @@ IMPLEMENT_STANDARD_RTTIEXT(VrmlData_IndexedFaceSet,VrmlData_Faceted)
 #pragma warning (disable:4996)
 #endif
 
+// Auxiliary tools
+namespace
+{
+  // Tool to get triangles from triangulation taking into account face
+  // orientation and location
+  class TriangleAccessor
+  {
+  public:
+    TriangleAccessor (const TopoDS_Face& aFace)
+    {
+      TopLoc_Location aLoc;
+      myPoly = BRep_Tool::Triangulation (aFace, aLoc);
+      myTrsf = aLoc.Transformation();
+      myNbTriangles = (myPoly.IsNull() ? 0 : myPoly->Triangles().Length());
+      myInvert = (aFace.Orientation() == TopAbs_REVERSED);
+      if (myTrsf.IsNegative())
+        myInvert = ! myInvert;
+    }
 
+    int NbTriangles () const { return myNbTriangles; } 
 
+    // get i-th triangle and outward normal
+    void GetTriangle (int iTri, gp_Vec &theNormal, gp_Pnt &thePnt1, gp_Pnt &thePnt2, gp_Pnt &thePnt3)
+    {
+      // get positions of nodes
+      int iNode1, iNode2, iNode3;
+      myPoly->Triangles()(iTri).Get (iNode1, iNode2, iNode3);
+      thePnt1 = myPoly->Nodes()(iNode1);
+      thePnt2 = myPoly->Nodes()(myInvert ? iNode3 : iNode2);
+      thePnt3 = myPoly->Nodes()(myInvert ? iNode2 : iNode3);
+
+      // apply transormation if not identity
+      if (myTrsf.Form() != gp_Identity)
+      {
+        thePnt1.Transform (myTrsf);
+        thePnt2.Transform (myTrsf);
+        thePnt3.Transform (myTrsf);
+      }
+
+      // calculate normal
+      theNormal = (thePnt2.XYZ() - thePnt1.XYZ()) ^ (thePnt3.XYZ() - thePnt1.XYZ());
+      Standard_Real aNorm = theNormal.Magnitude();
+      if (aNorm > gp::Resolution())
+        theNormal /= aNorm;
+    }
+
+  private:
+    Handle(Poly_Triangulation) myPoly;
+    gp_Trsf myTrsf;
+    int myNbTriangles;
+    bool myInvert;
+  };
+
+  // convert to float and, on big-endian platform, to little-endian representation
+  inline float convertFloat (Standard_Real aValue)
+  {
+#ifdef OCCT_BINARY_FILE_DO_INVERSE
+    return OSD_BinaryFile::InverseShortReal ((float)aValue);
+#else
+    return (float)aValue;
+#endif
+  }
+
+  // A static method adding nodes to a mesh and keeping coincident (sharing) nodes.
+  static Standard_Integer AddVertex(Handle(StlMesh_Mesh)& mesh,
+                                    BRepBuilderAPI_CellFilter& filter, 
+                                    BRepBuilderAPI_VertexInspector& inspector,
+                                    const gp_XYZ& p)
+  {
+    Standard_Integer index;
+    inspector.SetCurrent(p);
+    gp_XYZ minp = inspector.Shift(p, -Precision::Confusion());
+    gp_XYZ maxp = inspector.Shift(p, +Precision::Confusion());
+    filter.Inspect(minp, maxp, inspector);
+    const TColStd_ListOfInteger& indices = inspector.ResInd();
+    if (indices.IsEmpty() == Standard_False)
+    {
+      index = indices.First(); // it should be only one
+      inspector.ClearResList();
+    }
+    else
+    {
+      index = mesh->AddVertex(p.X(), p.Y(), p.Z());
+      filter.Add(index, p);
+      inspector.Add(p);
+    }
+    return index;
+  }
+
+  void createFromMesh(Handle(TopoDS_TShape)& theShapeWithMesh)
+  {
+    TopoDS_Shape aShape;
+    //aShape.Orientation(TopAbs_FORWARD);
+
+    aShape.TShape(theShapeWithMesh);
+    if (aShape.IsNull())
+      return;
+
+    // Write to STL and then read again to get BRep model (vrml fills only triangulation)
+    //StlAPI::Write(aShape, "D:/Temp/tempfile");
+    //StlAPI::Read(aShape, "D:/Temp/tempfile");
+
+    gp_XYZ p1, p2, p3;
+    TopoDS_Vertex Vertex1, Vertex2, Vertex3;
+    TopoDS_Face AktFace;
+    TopoDS_Wire AktWire;
+    BRepBuilderAPI_Sewing aSewingTool;
+    Standard_Real x1, y1, z1;
+    Standard_Real x2, y2, z2;
+    Standard_Real x3, y3, z3;
+    Standard_Integer i1,i2,i3;
+  
+    aSewingTool.Init(1.0e-06,Standard_True);
+  
+    TopoDS_Compound aComp;
+    BRep_Builder BuildTool;
+    BuildTool.MakeCompound( aComp );
+
+    Handle(StlMesh_Mesh) aSTLMesh = new StlMesh_Mesh();
+    aSTLMesh->AddDomain();
+
+    // Filter unique vertices to share the nodes of the mesh.
+    BRepBuilderAPI_CellFilter uniqueVertices(Precision::Confusion());
+    BRepBuilderAPI_VertexInspector inspector(Precision::Confusion());
+
+    // Read mesh
+    for (TopExp_Explorer exp (aShape, TopAbs_FACE); exp.More(); exp.Next())
+    {
+      TriangleAccessor aTool (TopoDS::Face (exp.Current()));
+      for (int iTri = 1; iTri <= aTool.NbTriangles(); iTri++)
+      {
+        gp_Vec aNorm;
+        gp_Pnt aPnt1, aPnt2, aPnt3;
+        aTool.GetTriangle(iTri, aNorm, aPnt1, aPnt2, aPnt3);
+
+        i1 = AddVertex(aSTLMesh, uniqueVertices, inspector, aPnt1.XYZ());
+        i2 = AddVertex(aSTLMesh, uniqueVertices, inspector, aPnt2.XYZ());
+        i3 = AddVertex(aSTLMesh, uniqueVertices, inspector, aPnt3.XYZ());
+        aSTLMesh->AddTriangle(i1, i2, i3, aNorm.X(), aNorm.Y(), aNorm.Z());
+      }
+    }
+
+    StlMesh_MeshExplorer aMExp (aSTLMesh);
+    Standard_Integer NumberDomains = aSTLMesh->NbDomains();
+    Standard_Integer iND;
+    for (iND=1;iND<=NumberDomains;iND++) 
+    {
+      for (aMExp.InitTriangle (iND); aMExp.MoreTriangle (); aMExp.NextTriangle ()) 
+      {
+        aMExp.TriangleVertices (x1,y1,z1,x2,y2,z2,x3,y3,z3);
+        p1.SetCoord(x1,y1,z1);
+        p2.SetCoord(x2,y2,z2);
+        p3.SetCoord(x3,y3,z3);
+      
+        if ((!(p1.IsEqual(p2,0.0))) && (!(p1.IsEqual(p3,0.0))))
+        {
+          Vertex1 = BRepBuilderAPI_MakeVertex(p1);
+          Vertex2 = BRepBuilderAPI_MakeVertex(p2);
+          Vertex3 = BRepBuilderAPI_MakeVertex(p3);
+        
+          AktWire = BRepBuilderAPI_MakePolygon( Vertex1, Vertex2, Vertex3, Standard_True);
+        
+          if( !AktWire.IsNull())
+          {
+            AktFace = BRepBuilderAPI_MakeFace( AktWire);
+            if(!AktFace.IsNull())
+              BuildTool.Add( aComp, AktFace );
+          }
+        }
+      }
+    }
+    aSTLMesh->Clear();
+
+    aSewingTool.Init();
+    aSewingTool.Load( aComp );
+    aSewingTool.Perform();
+    aShape = aSewingTool.SewedShape();
+    if ( aShape.IsNull() )
+      aShape = aComp;
+
+    ShapeUpgrade_UnifySameDomain anUSD(aShape);
+    anUSD.SetLinearTolerance(1e-5);
+    anUSD.Build();
+    aShape = anUSD.Shape();
+
+    if (aShape.ShapeType() == TopAbs_SHELL && TopoDS::Shell(aShape).Closed())
+    {
+      TopoDS_Solid aSolid;
+      TopoDS_Shell aShell = TopoDS::Shell (aShape);
+      if (!aShell.Free ()) {
+        aShell.Free(Standard_True);
+      }
+      BRep_Builder aBuilder;
+      aBuilder.MakeSolid (aSolid);
+      aBuilder.Add (aSolid, aShell);
+
+      Standard_Boolean isOk = Standard_True;
+      try {
+        OCC_CATCH_SIGNALS
+        BRepClass3d_SolidClassifier bsc3d (aSolid);
+        Standard_Real t = Precision::Confusion();
+        bsc3d.PerformInfinitePoint(t);
+
+        if (bsc3d.State() == TopAbs_IN) {
+          TopoDS_Solid aSolid2;
+          aBuilder.MakeSolid (aSolid2);
+          aShell.Reverse();
+          aBuilder.Add (aSolid2, aShell);
+          aSolid = aSolid2;
+        }
+      }
+      catch (Standard_Failure) { isOk = Standard_False; }
+      if (isOk) aShape = aSolid;
+    }
+
+    // Trying to apply "Combine to Cylinder"
+
+    //ShapeUpgrade_CombineToCylinder cmb2Cyl;
+    //Standard_Boolean isOk = Standard_True;
+    //try {
+    //  OCC_CATCH_SIGNALS
+    //  cmb2Cyl.SetShape(aShape);
+    //  cmb2Cyl.SetAngularTolerance(20);
+    //  cmb2Cyl.SetLinearTolerance(3);
+    //  cmb2Cyl.Build();
+    //}
+    //catch (Standard_Failure) { isOk = Standard_False; }
+    //if (isOk && cmb2Cyl.IsDone())
+    //  aShape = cmb2Cyl.Shape();
+
+    theShapeWithMesh = aShape.TShape();
+  }
+}
 
 //=======================================================================
 //function : readData
@@ -210,6 +461,7 @@ const Handle(TopoDS_TShape)& VrmlData_IndexedFaceSet::TShape ()
 
     myIsModified = Standard_False;
   }
+  //createFromMesh(myTShape);
   return myTShape;
 }
 

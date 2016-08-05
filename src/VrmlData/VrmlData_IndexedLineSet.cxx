@@ -55,34 +55,34 @@ Quantity_Color VrmlData_IndexedLineSet::GetColor
 
 const Handle(TopoDS_TShape)& VrmlData_IndexedLineSet::TShape ()
 {
-  if (myNbPolygons == 0)
-    myTShape.Nullify();
-  else if (myIsModified) {
-    Standard_Integer i;
-    BRep_Builder aBuilder;
-    const gp_XYZ * arrNodes = myCoords->Values();
+  //if (myNbPolygons == 0)
+  //  myTShape.Nullify();
+  //else if (myIsModified) {
+  //  Standard_Integer i;
+  //  BRep_Builder aBuilder;
+  //  const gp_XYZ * arrNodes = myCoords->Values();
 
-    // Create the Wire
-    TopoDS_Wire aWire;
-    aBuilder.MakeWire(aWire);
-    for (i = 0; i < (int)myNbPolygons; i++) {
-      const Standard_Integer * arrIndice;
-      const Standard_Integer nNodes = Polygon(i, arrIndice);
-      TColgp_Array1OfPnt   arrPoint (1, nNodes);
-      TColStd_Array1OfReal arrParam (1, nNodes);
-      for (Standard_Integer j = 0; j < nNodes; j++) {
-        arrPoint(j+1).SetXYZ (arrNodes[arrIndice[j]]);
-        arrParam(j+1) = j;
-      }
-      const Handle(Poly_Polygon3D) aPolyPolygon =
-        new Poly_Polygon3D (arrPoint, arrParam);
-      TopoDS_Edge anEdge;
-      aBuilder.MakeEdge (anEdge, aPolyPolygon);
-      aBuilder.Add (aWire, anEdge);
-    }
-    myTShape = aWire.TShape();
-  }
-  return myTShape;
+  //  // Create the Wire
+  //  TopoDS_Wire aWire;
+  //  aBuilder.MakeWire(aWire);
+  //  for (i = 0; i < (int)myNbPolygons; i++) {
+  //    const Standard_Integer * arrIndice;
+  //    const Standard_Integer nNodes = Polygon(i, arrIndice);
+  //    TColgp_Array1OfPnt   arrPoint (1, nNodes);
+  //    TColStd_Array1OfReal arrParam (1, nNodes);
+  //    for (Standard_Integer j = 0; j < nNodes; j++) {
+  //      arrPoint(j+1).SetXYZ (arrNodes[arrIndice[j]]);
+  //      arrParam(j+1) = j;
+  //    }
+  //    const Handle(Poly_Polygon3D) aPolyPolygon =
+  //      new Poly_Polygon3D (arrPoint, arrParam);
+  //    TopoDS_Edge anEdge;
+  //    aBuilder.MakeEdge (anEdge, aPolyPolygon);
+  //    aBuilder.Add (aWire, anEdge);
+  //  }
+  //  myTShape = aWire.TShape();
+  //}
+  return Handle(TopoDS_TShape)();
 }
 
 //=======================================================================

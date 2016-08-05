@@ -273,14 +273,15 @@ static Standard_Integer nbComponents (Draw_Interpretor& di, Standard_Integer arg
 
 static Standard_Integer addComponent (Draw_Interpretor& di, Standard_Integer argc, const char** argv)
 {
-  if (argc!=4) {
-    di<<"Use: "<<argv[0]<<" DocName Label Shape \n";
+  if (argc<4) {
+    di<<"Use: "<<argv[0]<<" DocName Label Shape [int makeAssembly (1/0)]\n";
     return 1;
   }
   Handle(TDocStd_Document) Doc;   
   DDocStd::GetDocument(argv[1], Doc);
   if ( Doc.IsNull() ) { di << argv[1] << " is not a document\n"; return 1; }
-
+  Standard_Boolean makeAssembly = Standard_True;
+  if ( argc==5 && Draw::Atoi(argv[4]) == 0 ) makeAssembly = Standard_False;
   TDF_Label aLabel;
   TDF_Tool::Label(Doc->GetData(), argv[2], aLabel);
   TopoDS_Shape aShape;
@@ -288,7 +289,7 @@ static Standard_Integer addComponent (Draw_Interpretor& di, Standard_Integer arg
   Handle(XCAFDoc_ShapeTool) myAssembly = XCAFDoc_DocumentTool::ShapeTool(Doc->Main());
 //  XCAFDoc_ShapeTool myAssembly->
 //  myAssembly->Init(Doc);
-  myAssembly->AddComponent(aLabel, aShape);
+  myAssembly->AddComponent(aLabel, aShape, makeAssembly);
   TCollection_AsciiString Entry;
   TDF_Tool::Entry(aLabel, Entry);
   di << Entry.ToCString();

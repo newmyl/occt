@@ -95,6 +95,8 @@ Standard_Integer  BinTools_SurfaceSet::Add(const Handle(Geom_Surface)& S)
 Handle(Geom_Surface)  BinTools_SurfaceSet::Surface
        (const Standard_Integer I)const 
 {
+  if (I < 1 || I > myMap.Extent())
+    return Handle(Geom_Surface)();
   return  Handle(Geom_Surface)::DownCast(myMap(I));
 }
 

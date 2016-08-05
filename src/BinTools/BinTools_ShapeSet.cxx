@@ -74,8 +74,8 @@ static Standard_OStream& operator <<(Standard_OStream& OS, const gp_Pnt P)
 //purpose  : 
 //=======================================================================
 
-BinTools_ShapeSet::BinTools_ShapeSet(const Standard_Boolean isWithTriangles)
-     :myFormatNb(3), myWithTriangles(isWithTriangles)
+BinTools_ShapeSet::BinTools_ShapeSet(const Standard_Boolean /*isWithTriangles*/)
+     :myFormatNb(3), myWithTriangles(Standard_True/*isWithTriangles*/)
 {}
 
 //=======================================================================
@@ -517,6 +517,12 @@ void  BinTools_ShapeSet::Read(TopoDS_Shape& S, Standard_IStream& IS,
     anOrient = (TopAbs_Orientation)aChar;
     Standard_Integer anIndx;
     BinTools::GetInteger(IS, anIndx);
+    Standard_Integer anInd = nbshapes - anIndx + 1;
+    if (anInd < 1 || anInd > myShapes.Extent())
+    {
+      S = TopoDS_Shape();
+      return;
+    }
     S = myShapes(nbshapes - anIndx + 1);
     S.Orientation(anOrient);
 

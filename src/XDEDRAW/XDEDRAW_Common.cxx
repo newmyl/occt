@@ -49,6 +49,23 @@
 #include <TopoDS_Shape.hxx>
 #include <Interface_Static.hxx>
 
+#include <BRep_Builder.hxx>
+#include <OSD_Path.hxx>
+#include <OSD_DirectoryIterator.hxx>
+#include <OSD_FileIterator.hxx>
+#include <TopoDS_Compound.hxx>
+#include <VrmlData_Scene.hxx>
+#include <ShapeUpgrade_UnifySameDomain.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
+#include <XCAFDoc_ColorTool.hxx>
+#include <BRepClass3d_SolidClassifier.hxx>
+#include <Poly_Triangulation.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <Geom_CylindricalSurface.hxx>
+
+#include <StlAPI.hxx>
+
 #include <stdio.h>
 //============================================================
 // Support for several models in DRAW
@@ -517,6 +534,339 @@ static Standard_Integer Expand (Draw_Interpretor& di, Standard_Integer argc, con
   return 0;
 }
 
+//=======================================================================
+//function : ReadVrml
+//purpose  : Read VRML file to DECAF document 
+//=======================================================================
+
+TDF_Label ReadVrmlRec(const OSD_Path& thePath, const Handle(TDocStd_Document)& theDoc, const TDF_Label& theLabel)
+{
+  TDF_Label aNewLabel;
+  Handle(XCAFDoc_ShapeTool) aShapeTool = XCAFDoc_DocumentTool::ShapeTool( theDoc->Main() );
+  Handle(XCAFDoc_ColorTool) aColorTool = XCAFDoc_DocumentTool::ColorTool( theDoc->Main() );
+
+  // Get path of the VRML file.
+  TCollection_AsciiString aVrmlDir(".");
+  TCollection_AsciiString aDisk = thePath.Disk();
+  TCollection_AsciiString aTrek = thePath.Trek();
+  TCollection_AsciiString aName = thePath.Name();
+  TCollection_AsciiString anExt = thePath.Extension();
+
+  cout << "==============================================================" << endl;
+
+  if (!aTrek.IsEmpty())
+  {
+    if (!aDisk.IsEmpty())
+      aVrmlDir = aDisk;
+    else
+      aVrmlDir.Clear();
+    aTrek.ChangeAll('|', '/');
+    aTrek.ChangeAll('\\', '/');
+    aVrmlDir += aTrek;
+
+    if (!aName.IsEmpty())
+      aVrmlDir += aName;
+
+    if (!anExt.IsEmpty())
+      aVrmlDir += anExt;
+  }
+
+  // Analize the passed Path
+  if (thePath.Extension() == ".wrl")
+  {
+    // Read shape from vrml and add to parent as component
+    TopoDS_Shape aShape ;
+    VrmlData_DataMapOfShapeAppearance aShapeAppMap;
+    filebuf aFic;
+    istream aStream (&aFic);
+    if (aFic.open(aVrmlDir.ToCString(), ios::in))
+    {
+      cout << "Reading file " << aVrmlDir.ToCString() << "..." << endl;
+
+      VrmlData_Scene aScene;
+      aScene.SetVrmlDir(aVrmlDir);
+      aScene << aStream;
+      aFic.close();
+      if (aScene.Status() == VrmlData_StatusOK)
+      {
+        aShape = aScene.GetShape(aShapeAppMap);
+
+        if (aShape.IsNull())
+        {
+          cout << "Shape was not extracted from file " << aVrmlDir.ToCString() << "..." << endl;
+          return aNewLabel;
+        }
+
+        TopExp_Explorer anExp;
+        Quantity_Color aFaceColor;
+        Quantity_Color anEdgeColor(Quantity_NOC_BLACK);
+        for (anExp.Init(aShape, TopAbs_FACE); anExp.More(); anExp.Next())
+        {
+          if (aShapeAppMap.IsBound(anExp.Current().TShape()))
+          {
+            Handle(VrmlData_Appearance) anAppearance = aShapeAppMap.Find(anExp.Current().TShape());
+            if (!anAppearance.IsNull() && !anAppearance->Material().IsNull())
+            {
+              aFaceColor = anAppearance->Material()->DiffuseColor();
+              break;
+            }
+          }
+        }
+
+        //Standard_Boolean isSingleShell = Standard_False;
+        //TopoDS_Shell aShell;
+        //for (anExp.Init(aShape, TopAbs_SHELL); anExp.More(); anExp.Next())
+        //{
+        //  if (!anExp.Current().IsNull() && anExp.Current().ShapeType() == TopAbs_SHELL)
+        //  {
+        //    if (!isSingleShell)
+        //    {
+        //      aShell = TopoDS::Shell(anExp.Current());
+        //      isSingleShell = Standard_True;
+        //    }
+        //    else
+        //    {
+        //      isSingleShell = Standard_False;
+        //      break;
+        //    }
+        //  }
+        //}
+
+        //Standard_Boolean hasCylindrical = Standard_False;
+        //if (!aShell.IsNull() && isSingleShell)
+        //{
+        //  for (anExp.Init(aShell, TopAbs_FACE); anExp.More(); anExp.Next())
+        //  {
+        //    if (!anExp.Current().IsNull())
+        //    {
+        //      const TopoDS_Face& aFace = TopoDS::Face(anExp.Current());
+        //      Handle(Geom_CylindricalSurface) aSurf = Handle(Geom_CylindricalSurface)::DownCast(BRep_Tool::Surface(aFace));
+        //      if (!aSurf.IsNull())
+        //        hasCylindrical = Standard_True;
+        //    }
+        //  }
+        //}
+        //if (hasCylindrical)
+        //  aShape = aShell;
+        //else
+        //  isSingleShell = Standard_False;
+
+        //if (!isSingleShell)
+        //{
+        //  Standard_Boolean doTriangulation = Standard_False;
+        //  for (anExp.Init(aShape, TopAbs_FACE); anExp.More(); anExp.Next())
+        //  {
+        //    TopLoc_Location aDummy;
+        //    if (BRep_Tool::Triangulation(TopoDS::Face(anExp.Current()), aDummy).IsNull())
+        //    {
+        //      doTriangulation = Standard_True;
+        //      break;
+        //    }
+        //  }
+
+        //  if (doTriangulation)
+        //  {
+        //    BRepMesh_IncrementalMesh aMesh(aShape, 1);
+        //    aMesh.Perform();
+        //    if (aMesh.IsDone())
+        //      aShape = aMesh.Shape();
+        //  }
+
+        //  // Write to STL and then read again to get BRep model (vrml fills only triangulation)
+        //  StlAPI::Write(aShape, vrmlTempFile);
+        //  StlAPI::Read(aShape, vrmlTempFile);
+        //}
+
+        /*if (aShape.IsNull())
+          return aNewLabel;*/
+
+        /*ShapeUpgrade_UnifySameDomain anUSD(aShape);
+        anUSD.SetLinearTolerance(1e-5);
+        anUSD.Build();
+        aShape = anUSD.Shape();
+
+        if (aShape.ShapeType() == TopAbs_SHELL && TopoDS::Shell(aShape).Closed())
+        {
+          TopoDS_Solid aSolid;
+          TopoDS_Shell aShell = TopoDS::Shell (aShape);
+          if (!aShell.Free ()) {
+            aShell.Free(Standard_True);
+          }
+          BRep_Builder aBuilder;
+          aBuilder.MakeSolid (aSolid);
+          aBuilder.Add (aSolid, aShell);
+
+          Standard_Boolean isOk = Standard_True;
+          try {
+            OCC_CATCH_SIGNALS
+            BRepClass3d_SolidClassifier bsc3d (aSolid);
+            Standard_Real t = Precision::Confusion();
+            bsc3d.PerformInfinitePoint(t);
+
+            if (bsc3d.State() == TopAbs_IN) {
+              TopoDS_Solid aSolid2;
+              aBuilder.MakeSolid (aSolid2);
+              aShell.Reverse();
+              aBuilder.Add (aSolid2, aShell);
+              aSolid = aSolid2;
+            }
+          }
+          catch (Standard_Failure) { isOk = Standard_False; }
+          if (isOk) aShape = aSolid;
+        }*/
+
+        if (theLabel.IsNull() || !aShapeTool->IsAssembly(theLabel))
+        {
+          // Add new shape
+          aNewLabel = aShapeTool->AddShape(aShape, Standard_False);
+          cout << "Created new shape " << thePath.Name() << " (free)" << endl;
+        }
+        else if (!theLabel.IsNull() && aShapeTool->IsAssembly(theLabel))
+        {
+          // Add shape as component
+          aNewLabel = aShapeTool->AddComponent(theLabel, aShape);
+          Handle(TDataStd_Name) anAttrName;
+          theLabel.FindAttribute(TDataStd_Name::GetID(), anAttrName);
+          cout << "Created new shape " << thePath.Name() << " as part of " << (anAttrName.IsNull()? "(noname)" : TCollection_AsciiString(anAttrName->Get())) << endl;
+
+          if ( aShapeTool->IsReference(aNewLabel) )
+          {
+            TDF_Label RefLabel;
+            if ( aShapeTool->GetReferredShape(aNewLabel, RefLabel) )
+              aNewLabel = RefLabel;
+          }
+        }
+
+        if (!aNewLabel.IsNull())
+          TDataStd_Name::Set(aNewLabel, thePath.Name());
+
+        aColorTool->SetColor(aNewLabel, aFaceColor, XCAFDoc_ColorSurf);
+        aColorTool->SetColor(aNewLabel, anEdgeColor, XCAFDoc_ColorCurv);
+        return aNewLabel;
+      }
+      else
+      {
+        cout << "Error during reading of vrml file " << aVrmlDir.ToCString() << endl;
+      }
+    }
+    else
+    {
+      cout << "Cannot open file " << aVrmlDir.ToCString() << endl;
+    }
+  }
+  else if (thePath.Extension().IsEmpty())
+  {
+    cout << "Scaning root " << aVrmlDir.ToCString() << "..." << endl;
+
+    OSD_DirectoryIterator aDirIt(thePath, "*");
+    OSD_FileIterator aFileIt(thePath, "*.wrl");
+
+    // Check real dircetories
+    OSD_Path aSubDirPath;
+    TCollection_AsciiString aTempName;
+    Standard_Boolean isSubDirExist = Standard_False;
+    for (; aDirIt.More(); aDirIt.Next())
+    {
+      aDirIt.Values().Path(aSubDirPath);
+      aTempName = aSubDirPath.Name() + aSubDirPath.Extension();
+      if (aTempName != "." && aTempName != "..")
+      {
+        isSubDirExist = Standard_True;
+        break;
+      }
+    }
+    aDirIt.Initialize(thePath, "*"); // Re-initialize
+
+    if (!isSubDirExist && !aFileIt.More())
+    {
+      cout << "No files or directories detected in " << aVrmlDir.ToCString() << endl;
+    }
+    else
+    {
+      // Create assembly
+      TopoDS_Compound aComp;
+      BRep_Builder aBuilder;
+      aBuilder.MakeCompound(aComp);
+
+      if (theLabel.IsNull() || !aShapeTool->IsAssembly(theLabel))
+      {
+        // Add new shape
+        aNewLabel = aShapeTool->AddShape(aComp);
+        cout << "Created new assembly " << thePath.Name() << " (free)" << endl;
+      }
+      else if (!theLabel.IsNull() && aShapeTool->IsAssembly(theLabel))
+      {
+        // Add shape as component
+        aNewLabel = aShapeTool->AddComponent(theLabel, aComp, Standard_True);
+        Handle(TDataStd_Name) anAttrName;
+        theLabel.FindAttribute(TDataStd_Name::GetID(), anAttrName);
+        cout << "Created new assembly " << thePath.Name() << " as part of " << (anAttrName.IsNull()? "(noname)" : TCollection_AsciiString(anAttrName->Get())) << endl;
+
+        if ( aShapeTool->IsReference(aNewLabel) )
+        {
+          TDF_Label RefLabel;
+          if ( aShapeTool->GetReferredShape(aNewLabel, RefLabel) )
+            aNewLabel = RefLabel;
+        }
+      }
+
+      if (!aNewLabel.IsNull())
+        TDataStd_Name::Set(aNewLabel, thePath.Name());
+
+      // Add components
+      for (; aDirIt.More(); aDirIt.Next())
+      {
+        aDirIt.Values().Path(aSubDirPath);
+        aTempName = aSubDirPath.Name() + aSubDirPath.Extension();
+        if (aTempName == "." || aTempName == "..")
+          continue;
+        aSubDirPath.SetDisk(thePath.Disk());
+        aSubDirPath.SetTrek(thePath.Trek() + thePath.Name());
+        ReadVrmlRec(aSubDirPath, theDoc, aNewLabel);
+      }
+
+      for (; aFileIt.More(); aFileIt.Next())
+      {
+        aFileIt.Values().Path(aSubDirPath);
+        aSubDirPath.SetDisk(thePath.Disk());
+        aSubDirPath.SetTrek(thePath.Trek() + thePath.Name());
+        ReadVrmlRec(aSubDirPath, theDoc, aNewLabel);
+      }
+
+      aShapeTool->UpdateAssembly(aNewLabel);
+    }
+    // At the end of operation update assemblies
+  }
+  else
+  {
+    cout << "Unknown file format: " << thePath.Extension() << endl;
+  }
+
+  return aNewLabel;
+}
+
+static Standard_Integer ReadVrml (Draw_Interpretor& di, Standard_Integer argc, const char** argv)
+{
+  if ( argc != 3 ) {
+    di << "Use: " << argv[0] << " Doc Path: Read VRML assembly to DECAF document\n";
+    return 0;
+  }
+
+  Handle(TDocStd_Document) doc;
+  if (!DDocStd::GetDocument(argv[1],doc,Standard_False))
+  {
+    Handle(TDocStd_Application) A = DDocStd::GetApplication();
+    A->NewDocument("BinXCAF",doc);
+    TDataStd_Name::Set(doc->GetData()->Root(),argv[1]);
+    Handle(DDocStd_DrawDocument) DD = new DDocStd_DrawDocument(doc);
+    Draw::Set(argv[1], DD);
+  }
+
+  ReadVrmlRec(OSD_Path(argv[2]), doc, TDF_Label());
+
+  return 0;
+}
+
 void XDEDRAW_Common::InitCommands(Draw_Interpretor& di)
 {
   static Standard_Boolean initactor = Standard_False;
@@ -541,4 +891,5 @@ void XDEDRAW_Common::InitCommands(Draw_Interpretor& di)
   di.Add("XExpand", "XExpand Doc recursively(0/1) or XExpand Doc recursively(0/1) label1 label2 ..."  
           "or XExpand Doc recursively(0/1) shape1 shape2 ...",__FILE__, Expand, g);
 
+  di.Add("ReadVrml" , "Doc Path: Read VRML assembly to DECAF document" ,__FILE__, ReadVrml, g);
 }
