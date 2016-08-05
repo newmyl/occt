@@ -4,6 +4,8 @@ ShapeUpgrade_ClosedEdgeDivide.cxx
 ShapeUpgrade_ClosedEdgeDivide.hxx
 ShapeUpgrade_ClosedFaceDivide.cxx
 ShapeUpgrade_ClosedFaceDivide.hxx
+ShapeUpgrade_CombineToCylinder.cxx
+ShapeUpgrade_CombineToCylinder.hxx
 ShapeUpgrade_ConvertCurve2dToBezier.cxx
 ShapeUpgrade_ConvertCurve2dToBezier.hxx
 ShapeUpgrade_ConvertCurve3dToBezier.cxx

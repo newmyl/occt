@@ -43,6 +43,7 @@
 #include <ShapeFix.hxx>
 #include <ShapeFix_ComposeShell.hxx>
 #include <ShapeUpgrade.hxx>
+#include <ShapeUpgrade_CombineToCylinder.hxx>
 #include <ShapeUpgrade_RemoveInternalWires.hxx>
 #include <ShapeUpgrade_RemoveLocations.hxx>
 #include <ShapeUpgrade_ShapeConvertToBezier.hxx>
@@ -1478,6 +1479,69 @@ static Standard_Integer reshape(Draw_Interpretor& /*theDI*/,
 }
 
 //=======================================================================
+// CombineToCylinder
+//=======================================================================
+static Standard_Integer CombineToCylinder(Draw_Interpretor& di, Standard_Integer n, const char** a)
+{
+  if (n < 3)
+  {
+    di << "Use combinetocyl result shape [-t val] [-a val]\n";
+    di << "options:\n";
+    di << "-t val to set linear tolerance (default is 1e-7)\n";
+    di << "-a val to set angular tolerance (default is 1e-12)\n";
+    return 1;
+  }
+
+  TopoDS_Shape aShape = DBRep::Get(a[2]);
+  if (aShape.IsNull())
+    return 1;
+
+  // default values
+  Standard_Real aLinTol = Precision::Confusion();
+  Standard_Real aAngTol = Precision::Angular();
+
+  if (n > 3)
+  {
+    for (int i = 3; i < n; i++)
+    {
+      if (!strcmp(a[i], "-t") || !strcmp(a[i], "-a"))
+      {
+        if (++i < n)
+        {
+          if (a[i - 1][1] == 't')
+            aLinTol = Draw::Atof(a[i]);
+          else
+            aAngTol = Draw::Atof(a[i]) * M_PI / 180.;
+        }
+        else
+        {
+          di << "value expected after " << a[i - 1];
+          return 1;
+        }
+      }
+    }
+  }
+
+  ShapeUpgrade_CombineToCylinder aTool;
+  aTool.SetShape(aShape);
+  aTool.SetLinearTolerance(aLinTol);
+  aTool.SetAngularTolerance(aAngTol);
+  aTool.Build();
+  if (!aTool.IsDone())
+  {
+    di << "Not done";
+  }
+  else
+  {
+    di << "Number of new merged faces: " << aTool.NbNewFaces();
+    di << "\nNumber of replaced faces: " << aTool.NbReplacedFaces();
+    const TopoDS_Shape& Result = aTool.Shape();
+    DBRep::Set(a[1], Result);
+  }
+  return 0;
+}
+
+//=======================================================================
 //function : InitCommands
 //purpose  : 
 //=======================================================================
@@ -1591,4 +1655,7 @@ static Standard_Integer reshape(Draw_Interpretor& /*theDI*/,
     "\n      '-remove what'         Removes 'what' sub-shape"
     "\n    Requests '-replace' and '-remove' can be repeated many times.",
     __FILE__, reshape, g);
+
+  theCommands.Add("combinetocylinder",
+                  "run w/o arguments to get help", __FILE__, CombineToCylinder, g);
 }
