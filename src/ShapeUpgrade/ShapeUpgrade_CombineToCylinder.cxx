@@ -632,22 +632,25 @@ static TopoDS_Edge createCurveEdge(const TopTools_ListOfShape& theChain,
   // Check if all points are in plane perpendicular to the cylinder axis;
   // in such case the curve is a circle
   TColgp_Array1OfPnt aPnts(1, theChain.Extent()+1);
+  Standard_Real aTol = 0.;
   Standard_Integer i = 1;
   for (itL.Init(theChain); itL.More(); itL.Next(), i++)
   {
     const TopoDS_Edge& aE = TopoDS::Edge(itL.Value());
     TopoDS_Shape aV = TopExp::FirstVertex(aE, Standard_True);
     aPnts(i) = BRep_Tool::Pnt(TopoDS::Vertex(aV));
+    aTol = Max(aTol, BRep_Tool::Tolerance(aE));
   }
   aPnts(i) = BRep_Tool::Pnt(aVL);
   gp_XYZ aMidPnt(0, 0, 0);
   for (i = 1; i <= aPnts.Length(); i++)
     aMidPnt += aPnts(i).XYZ();
   aMidPnt /= aPnts.Length();
+  aTol = Min(aTol, theLinTol);
   for (i = 1; i <= aPnts.Length(); i++)
   {
     Standard_Real aDist = fabs((aPnts(i).XYZ() - aMidPnt) * aCylDir.XYZ());
-    if (aDist > theLinTol)
+    if (aDist > aTol)
       break;
   }
   Standard_Boolean isCircle = (i > aPnts.Length());
@@ -705,7 +708,7 @@ static TopoDS_Edge createCurveEdge(const TopTools_ListOfShape& theChain,
     Standard_Integer aDegMin = 3;
     Standard_Integer aDegMax = 3;
     GeomAbs_Shape aCont = GeomAbs_C2;
-    GeomAPI_PointsToBSpline aCreator(aPntA, aDegMin, aDegMax, aCont, theLinTol);
+    GeomAPI_PointsToBSpline aCreator(aPntA, aDegMin, aDegMax, aCont, aTol);
     if (aCreator.IsDone())
     {
       const Handle(Geom_BSplineCurve)& aCurve = aCreator.Curve();
