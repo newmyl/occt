@@ -552,17 +552,26 @@ static TopoDS_Face createCylFaceFromArea(const TopoDS_Compound& theFaces,
 //function : updateVertexOnCirc
 //purpose  : 
 //=======================================================================
-static void updateVertexOnCirc(const TopoDS_Vertex& theV,
-                               const gp_Circ& theCirc,
-                               Standard_Real& thePar)
+static Standard_Boolean updateVertexOnCirc(const TopoDS_Vertex& theV,
+                                           const gp_Circ& theCirc,
+                                           Standard_Real theMaxDist,
+                                           Standard_Real& thePar)
 {
   Standard_Real aTol = BRep_Tool::Tolerance(theV);
   gp_Pnt aP = BRep_Tool::Pnt(theV);
   thePar = ElCLib::Parameter(theCirc, aP);
   gp_Pnt aProj = ElCLib::Value(thePar, theCirc);
   Standard_Real aDist = aProj.SquareDistance(aP);
+  Standard_Boolean isOK = Standard_False;
   if (aDist > aTol*aTol)
-    BRep_Builder().UpdateVertex(theV, sqrt(aDist)*1.001);
+  {
+    if (aDist < theMaxDist*theMaxDist)
+    {
+      BRep_Builder().UpdateVertex(theV, sqrt(aDist)*1.001);
+      isOK = Standard_True;
+    }
+  }
+  return isOK;
 }
 
 //=======================================================================
@@ -670,23 +679,27 @@ static TopoDS_Edge createCurveEdge(const TopTools_ListOfShape& theChain,
       aCircDir.Reverse();
     gp_Circ aCirc(gp_Ax2(aCenter, aCircDir, aXDir), aRadius);
     Handle(Geom_Circle) aCurve = new Geom_Circle(aCirc);
-    // update vertices tolerance
+    // update vertices tolerance, but not more than on a value aTol,
+    // otherwise skip building a circle, and build bspline.
     Standard_Real aPar;
-    updateVertexOnCirc(aVF, aCirc, aPar);
-    if (isClosed)
+    if (updateVertexOnCirc(aVF, aCirc, aTol, aPar))
     {
-      // full circle
-      aNewEdge = BRepBuilderAPI_MakeEdge(aCurve, aVF, aVL, 0, M_PI*2.);
-    }
-    else
-    {
-      // an arc
-      updateVertexOnCirc(aVL, aCirc, aPar);
-      aNewEdge = BRepBuilderAPI_MakeEdge(aCurve, aVF, aVL, 0., aPar);
+      if (isClosed)
+      {
+        // full circle
+        aNewEdge = BRepBuilderAPI_MakeEdge(aCurve, aVF, aVL, 0, M_PI*2.);
+      }
+      else
+      {
+        // an arc
+        if (updateVertexOnCirc(aVL, aCirc, aTol, aPar))
+          aNewEdge = BRepBuilderAPI_MakeEdge(aCurve, aVF, aVL, 0., aPar);
+      }
     }
   }
-  else
+  if (aNewEdge.IsNull())
   {
+    // not a circle, try building bspline
     gp_Pnt aPnts1[3];
     const gp_Pnt* pPnts = &aPnts(1);
     Standard_Integer np = aPnts.Length();
