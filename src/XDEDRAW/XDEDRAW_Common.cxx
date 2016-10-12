@@ -64,6 +64,9 @@
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <Geom_CylindricalSurface.hxx>
 
+#include <VrmlData_ShapeNode.hxx>
+#include <VrmlData_Group.hxx>
+
 #include <StlAPI.hxx>
 
 #include <stdio.h>
@@ -833,7 +836,7 @@ TDF_Label ReadVrmlRec(const OSD_Path& thePath, const Handle(TDocStd_Document)& t
         ReadVrmlRec(aSubDirPath, theDoc, aNewLabel);
       }
 
-      aShapeTool->UpdateAssembly(aNewLabel);
+      aShapeTool->UpdateAssemblies();
     }
     // At the end of operation update assemblies
   }
@@ -843,6 +846,249 @@ TDF_Label ReadVrmlRec(const OSD_Path& thePath, const Handle(TDocStd_Document)& t
   }
 
   return aNewLabel;
+}
+
+//=======================================================================
+//function : HaveShapeNode
+//purpose  : Check that VRML node have Shape
+//=======================================================================
+Standard_Boolean HaveShapeNode (const Handle (VrmlData_Node)& theNode)
+{
+  // Try a Shape type of node.
+  const Handle (VrmlData_ShapeNode) aShapeNode = Handle (VrmlData_ShapeNode)::DownCast (theNode);
+  if (!aShapeNode.IsNull ())
+  {
+    const Handle (VrmlData_Geometry) aGeometry = aShapeNode->Geometry ();
+    if (!aGeometry.IsNull ())
+    {
+      const Handle (TopoDS_TShape) aTShape = aGeometry->TShape ();
+      if (!aTShape.IsNull ())
+      {
+        return Standard_True;
+      }
+    }
+  }
+
+  // Try a Group type of node.
+  const Handle (VrmlData_Group) aGroupNode = Handle (VrmlData_Group)::DownCast (theNode);
+  if (!aGroupNode.IsNull ())
+  {
+    for (VrmlData_Group::Iterator anIt = aGroupNode->NodeIterator (); anIt.More (); anIt.Next ())
+    {
+      if (HaveShapeNode (anIt.Value ()))
+      {
+        return Standard_True;
+      }
+    }
+  }
+
+  return Standard_False;
+}
+
+//=======================================================================
+//function : ReadVrmlNode
+//purpose  : Read VRML node to DECAF document
+//=======================================================================
+TDF_Label ReadVrmlNode (const Handle(VrmlData_Node)& theNode,
+                        const Handle(TDocStd_Document)& theDoc,
+                        const TDF_Label& theLabel = TDF_Label())
+{
+  TDF_Label aNewLabel;
+  Handle (XCAFDoc_ShapeTool) aShapeTool = XCAFDoc_DocumentTool::ShapeTool (theDoc->Main ());
+  Handle (XCAFDoc_ColorTool) aColorTool = XCAFDoc_DocumentTool::ColorTool (theDoc->Main ());
+
+  // Try a Shape type of node.
+  const Handle (VrmlData_ShapeNode) aShapeNode = Handle (VrmlData_ShapeNode)::DownCast (theNode);
+  if (!aShapeNode.IsNull ())
+  {
+    const Handle (VrmlData_Geometry) aGeometry = aShapeNode->Geometry ();
+    if (!aGeometry.IsNull ())
+    {
+      const Handle (TopoDS_TShape) aTShape = aGeometry->TShape ();
+      if (!aTShape.IsNull ())
+      {
+        TopoDS_Shape aShape;
+        aShape.Orientation (TopAbs_FORWARD);
+        aShape.TShape (aTShape);
+
+        if (theLabel.IsNull () || !aShapeTool->IsAssembly (theLabel))
+        {
+          // Add new shape.
+          aNewLabel = aShapeTool->AddShape (aShape, Standard_False);
+        }
+        else if (!theLabel.IsNull() && aShapeTool->IsAssembly (theLabel))
+        {
+          // Add shape as component.
+          aNewLabel = aShapeTool->AddComponent (theLabel, aShape);
+
+          if (aShapeTool->IsReference (aNewLabel))
+          {
+            TDF_Label aRefLabel;
+            if (aShapeTool->GetReferredShape (aNewLabel, aRefLabel))
+            {
+              aNewLabel = aRefLabel;
+            }
+          }
+        }
+
+        if (!aNewLabel.IsNull ())
+        {
+          TDataStd_Name::Set (aNewLabel, aShapeNode->Name ());
+          Quantity_Color aFaceColor;
+          Quantity_Color anEdgeColor (Quantity_NOC_BLACK);
+          const Handle (VrmlData_Appearance) anAppearance = aShapeNode->Appearance ();
+          if (!anAppearance.IsNull ())
+          {
+            aFaceColor = anAppearance->Material ()->DiffuseColor ();
+          }
+          aColorTool->SetColor (aNewLabel, aFaceColor, XCAFDoc_ColorSurf);
+          aColorTool->SetColor (aNewLabel, anEdgeColor, XCAFDoc_ColorCurv);
+        }
+      }
+    }
+  }
+
+  // Try a Group type of node.
+  const Handle (VrmlData_Group) aGroupNode = Handle (VrmlData_Group)::DownCast (theNode);
+  if (!aGroupNode.IsNull ()/* && HaveShapeNode (aGroupNode)*/)
+  {
+    // Create assembly
+    TopoDS_Compound aCompound;
+    BRep_Builder aBuilder;
+    aBuilder.MakeCompound (aCompound);
+    aCompound.Location (aGroupNode->GetTransform ());
+
+    if (theLabel.IsNull () || !aShapeTool->IsAssembly (theLabel))
+    {
+      // Add new shape.
+      aNewLabel = aShapeTool->AddShape (aCompound);
+    }
+    else if (!theLabel.IsNull () && aShapeTool->IsAssembly (theLabel))
+    {
+      // Add shape as component.
+      aNewLabel = aShapeTool->AddComponent (theLabel, aCompound, Standard_True);
+
+      if (aShapeTool->IsReference (aNewLabel))
+      {
+        TDF_Label aRefLabel;
+        if (aShapeTool->GetReferredShape (aNewLabel, aRefLabel))
+        {
+          aNewLabel = aRefLabel;
+        }
+      }
+    }
+
+    if (!aNewLabel.IsNull ())
+    {
+      TDataStd_Name::Set (aNewLabel, aGroupNode->Name ());
+    }
+
+    // Add components.
+    for (VrmlData_Group::Iterator anIt = aGroupNode->NodeIterator (); anIt.More (); anIt.Next ())
+    {
+      ReadVrmlNode (anIt.Value (), theDoc, aNewLabel);
+    }
+
+    aShapeTool->UpdateAssemblies();
+  }
+
+  return aNewLabel;
+}
+
+//=======================================================================
+//function : ReadSingleVrml
+//purpose  : Read VRML file to DECAF document
+//=======================================================================
+bool ReadSingleVrml (const OSD_Path& thePath, const Handle (TDocStd_Document)& theDoc)
+{
+  // Get path of the VRML file.
+  TCollection_AsciiString aPath (".");
+  TCollection_AsciiString aDisk = thePath.Disk ();
+  TCollection_AsciiString aTrek = thePath.Trek ();
+  TCollection_AsciiString aName = thePath.Name ();
+  TCollection_AsciiString anExt = thePath.Extension ();
+
+  if (!aTrek.IsEmpty())
+  {
+    if (!aDisk.IsEmpty())
+    {
+      aPath = aDisk;
+    }
+    else
+    {
+      aPath.Clear ();
+    }
+    aTrek.ChangeAll ('|', '/');
+    aTrek.ChangeAll ('\\', '/');
+    aPath += aTrek;
+
+    if (!aName.IsEmpty())
+    {
+      aPath += aName;
+    }
+
+    if (!anExt.IsEmpty())
+    {
+      aPath += anExt;
+    }
+  }
+
+  // Analize the passed path.
+  if (anExt != ".wrl")
+  {
+    std::cerr << "Reading failed. Unknown file format: " << anExt << std::endl;
+    return false;
+  }
+
+  // Open file.
+  filebuf aFileBuf;
+  aFileBuf.open (aPath.ToCString (), ios::in);
+  if (aFileBuf.is_open () == Standard_False)
+  {
+    std::cerr << "Reading failed. Can not open file: " << aPath.ToCString () << std::endl;
+    return false;
+  }
+
+  // Read vrml file.
+  Standard_IStream aStream (&aFileBuf);
+  VrmlData_Scene aScene;
+  aScene.SetVrmlDir (aPath);
+  aScene << aStream;
+  aFileBuf.close();
+  if (aScene.Status () != VrmlData_StatusOK)
+  {
+    std::cerr << "Reading failed. Error: " << aScene.Status () << std::endl;
+    return false;
+  }
+
+  // Read shape.
+  //VrmlData_DataMapOfShapeAppearance aShapeAppearMap;
+  //TopoDS_Shape aShape = aScene.GetShape (aShapeAppearMap);
+  //if (aShape.IsNull ())
+  //{
+  //  std::cerr << "Reading failed. Getting TopoDS_Shape failed." << std::endl;
+  //  return false;
+  //}
+
+  // Create assembly.
+  TopoDS_Compound aCompound;
+  BRep_Builder aBuilder;
+  aBuilder.MakeCompound (aCompound);
+  Handle (XCAFDoc_ShapeTool) aShapeTool = XCAFDoc_DocumentTool::ShapeTool (theDoc->Main ());
+  TDF_Label aNewLabel = aShapeTool->AddShape (aCompound);
+  if (!aNewLabel.IsNull ())
+  {
+    TDataStd_Name::Set (aNewLabel, aName);
+  }
+
+  // Read nodes one by one and add to document.
+  for (VrmlData_Scene::Iterator anIt = aScene.GetIterator (); anIt.More (); anIt.Next ())
+  {
+    ReadVrmlNode (anIt.Value (), theDoc, aNewLabel);
+  }
+  aShapeTool->UpdateAssemblies();
+
+  return true;
 }
 
 static Standard_Integer ReadVrml (Draw_Interpretor& di, Standard_Integer argc, const char** argv)
@@ -862,7 +1108,16 @@ static Standard_Integer ReadVrml (Draw_Interpretor& di, Standard_Integer argc, c
     Draw::Set(argv[1], DD);
   }
 
-  ReadVrmlRec(OSD_Path(argv[2]), doc, TDF_Label());
+  OSD_Path aPath (argv[2]);
+
+  if (aPath.Extension () == ".wrl")
+  {
+    ReadSingleVrml (aPath, doc);
+  }
+  else if (aPath.Extension ().IsEmpty ())
+  {
+    ReadVrmlRec (aPath, doc, TDF_Label ());
+  }
 
   return 0;
 }
