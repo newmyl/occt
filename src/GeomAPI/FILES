@@ -1,5 +1,7 @@
 GeomAPI.cxx
 GeomAPI.hxx
+GeomAPI_CurveChartParameter.cxx
+GeomAPI_CurveChartParameter.hxx
 GeomAPI_ExtremaCurveCurve.cxx
 GeomAPI_ExtremaCurveCurve.hxx
 GeomAPI_ExtremaCurveCurve.lxx
