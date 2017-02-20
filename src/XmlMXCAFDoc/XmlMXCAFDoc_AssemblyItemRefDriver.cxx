@@ -22,8 +22,6 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(XmlMXCAFDoc_AssemblyItemRefDriver, XmlMDF_ADriver)
 IMPLEMENT_DOMSTRING(Path, "path")
-IMPLEMENT_DOMSTRING(AttrGUID, "guid")
-IMPLEMENT_DOMSTRING(SubshapeIndex, "subshape_index")
 
 //=======================================================================
 //function :
@@ -61,26 +59,7 @@ Standard_Boolean XmlMXCAFDoc_AssemblyItemRefDriver::Paste(const XmlObjMgt_Persis
   if (aThis.IsNull())
     return Standard_False;
 
-  aThis->SetItem(aPath.GetString());
-
-  XmlObjMgt_DOMString anAttrGUID = anElement.getAttribute(::AttrGUID());
-  if (anAttrGUID != NULL)
-  {
-    Standard_GUID aGUID(anAttrGUID.GetString());
-    aThis->SetGUID(aGUID);
-    return Standard_True;
-  }
-
-  XmlObjMgt_DOMString aSubshapeIndex = anElement.getAttribute(::SubshapeIndex());
-  if (aSubshapeIndex != NULL)
-  {
-    Standard_Integer anIndex;
-    if (!aSubshapeIndex.GetInteger(anIndex))
-      return Standard_False;
-
-    aThis->SetSubshapeIndex(anIndex);
-    return Standard_True;
-  }
+  aThis->Set(aPath.GetString());
 
   return Standard_True;
 }
@@ -95,23 +74,7 @@ void XmlMXCAFDoc_AssemblyItemRefDriver::Paste(const Handle(TDF_Attribute)& theSo
 {
   Handle(XCAFDoc_AssemblyItemRef) aThis = Handle(XCAFDoc_AssemblyItemRef)::DownCast(theSource);
 
-  XmlObjMgt_DOMString aPath(aThis->GetItem().ToString().ToCString());
+  XmlObjMgt_DOMString aPath(aThis->Get().ToString().ToCString());
+
   theTarget.Element().setAttribute(::Path(), aPath);
-
-  if (aThis->IsGUID())
-  {
-    Standard_GUID aGUID = aThis->GetGUID();
-    Standard_Character aGUIDStr[Standard_GUID_SIZE + 1];
-    aGUID.ToCString(aGUIDStr);
-    aGUIDStr[Standard_GUID_SIZE] = '\0';
-    XmlObjMgt_DOMString anAttrGUID(aGUIDStr);
-    theTarget.Element().setAttribute(::AttrGUID(), anAttrGUID);
-  }
-  else if (aThis->IsSubshapeIndex())
-  {
-    TCollection_AsciiString aSubshapeIndexStr(aThis->GetSubshapeIndex());
-    XmlObjMgt_DOMString aSubshapeIndex(aSubshapeIndexStr.ToCString());
-    theTarget.Element().setAttribute(::SubshapeIndex(), aSubshapeIndex);
-  }
-
 }
