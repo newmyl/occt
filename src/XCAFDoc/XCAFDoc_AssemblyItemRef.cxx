@@ -246,6 +246,48 @@ XCAFDoc_AssemblyItemRef::ClearExtraRef()
   myExtraId.Clear();
 }
 
+void
+XCAFDoc_AssemblyItemRef::SetItem(const TColStd_ListOfAsciiString& thePath)
+{
+  Backup();
+  myItemId.Init(thePath);
+}
+
+void
+XCAFDoc_AssemblyItemRef::SetItem(const TCollection_AsciiString& theString)
+{
+  Backup();
+  myItemId.Init(theString);
+}
+
+void XCAFDoc_AssemblyItemRef::SetGUID(const Standard_GUID& theAttrGUID)
+{
+  Backup();
+  myExtraRef = ExtraRef_AttrGUID;
+  Standard_Character aGUIDStr[Standard_GUID_SIZE + 1];
+  theAttrGUID.ToCString(aGUIDStr); 
+  aGUIDStr[Standard_GUID_SIZE] = '\0';
+  myExtraId.Clear();
+  myExtraId.AssignCat(aGUIDStr);
+}
+
+void 
+XCAFDoc_AssemblyItemRef::SetSubshapeIndex(Standard_Integer theSubshapeIndex)
+{
+  Backup();
+  myExtraRef = ExtraRef_SubshapeIndex;
+  myExtraId.Clear();
+  myExtraId.AssignCat(theSubshapeIndex);
+}
+
+void 
+XCAFDoc_AssemblyItemRef::ClearExtraRef()
+{
+  Backup();
+  myExtraRef = ExtraRef_None;
+  myExtraId.Clear();
+}
+
 const Standard_GUID& 
 XCAFDoc_AssemblyItemRef::ID() const
 {
