@@ -20,6 +20,7 @@
 #include <TDataStd_Integer.hxx>
 #include <TDataStd_Real.hxx>
 #include <TDataStd_RealArray.hxx>
+#include <TDataStd_ByteArray.hxx>
 #include <TDataXtd_Axis.hxx>
 #include <TDataXtd_Geometry.hxx>
 #include <TDataXtd_Plane.hxx>
@@ -45,7 +46,8 @@ enum ChildLab
   ChildLab_BackPlaneDistance,
   ChildLab_ViewVolumeSidesClipping,
   ChildLab_ClippingExpression,
-  ChildLab_GDTPoints
+  ChildLab_GDTPoints,
+  ChildLab_Image
 };
 
 //=======================================================================
@@ -147,6 +149,15 @@ void XCAFDoc_View::SetObject (const Handle(XCAFView_Object)& theObject)
     TDF_Label aPointsLabel = Label().FindChild(ChildLab_GDTPoints);
     for (Standard_Integer i = 1; i <= theObject->NbGDTPoints(); i++) {
       TDataXtd_Point::Set(aPointsLabel.FindChild(i), theObject->GDTPoint(i));
+    }
+  }
+  //Image
+  if (theObject->HasImage())
+  {
+    Handle(TColStd_HArray1OfByte) image = theObject->Image();
+    Handle(TDataStd_ByteArray) arr = TDataStd_ByteArray::Set(Label().FindChild(ChildLab_Image), image->Lower(), image->Upper());
+    for (Standard_Integer i = image->Lower(); i <= image->Upper(); i++) {
+      arr->SetValue(i, image->Value(i));
     }
   }
 }
@@ -259,7 +270,11 @@ Handle(XCAFView_Object) XCAFDoc_View::GetObject()  const
       anObj->SetGDTPoint(i, aPoint);
     }
   }
-
+  //Image
+  Handle(TDataStd_ByteArray) anArr;
+  if (Label().FindChild(ChildLab_Image).FindAttribute(TDataStd_ByteArray::GetID(), anArr)) {
+    anObj->SetImage(anArr->InternalArray());
+  }
   return anObj;
 }
 

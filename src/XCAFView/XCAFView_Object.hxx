@@ -26,6 +26,7 @@
 #include <TColgp_HArray1OfPnt.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <XCAFView_ProjectionType.hxx>
+#include <TColStd_HArray1OfByte.hxx>
 
 class XCAFView_Object;
 DEFINE_STANDARD_HANDLE(XCAFView_Object, Standard_Transient)
@@ -217,7 +218,21 @@ public:
     else
       return gp_Pnt();
   }
-  
+
+  Standard_EXPORT void SetImage(Handle(TColStd_HArray1OfByte) theImage)
+  {
+    myImage = theImage;
+  }
+
+  Standard_EXPORT  Handle(TColStd_HArray1OfByte) Image()
+  {
+    return myImage;
+  }
+
+  Standard_EXPORT Standard_Boolean HasImage()
+  {
+    return (!myImage.IsNull());
+  }
   DEFINE_STANDARD_RTTIEXT(XCAFView_Object,Standard_Transient)
 
 private:
@@ -237,6 +252,7 @@ private:
   Standard_Real myBackPlaneDistance;
   Standard_Boolean myViewVolumeSidesClipping;
   Handle(TColgp_HArray1OfPnt) myGDTPoints; // Point for each GDT to describe position of GDT frame in View.
+  Handle(TColStd_HArray1OfByte) myImage;
 };
 
 #endif // _XCAFView_Object_HeaderFile

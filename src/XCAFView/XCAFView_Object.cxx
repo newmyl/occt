@@ -28,6 +28,7 @@ XCAFView_Object::XCAFView_Object()
   myBackPlaneClipping = Standard_False;
   myViewVolumeSidesClipping = Standard_False;
   myGDTPoints = NULL;
+  myImage = NULL;
 }
 
 //=======================================================================
@@ -50,5 +51,6 @@ XCAFView_Object::XCAFView_Object(const Handle(XCAFView_Object)& theObj)
   myBackPlaneDistance = theObj->myBackPlaneDistance;
   myViewVolumeSidesClipping = theObj->myViewVolumeSidesClipping;
   myGDTPoints = NULL;
+  myImage = theObj->myImage;
 }
 
