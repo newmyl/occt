@@ -122,6 +122,9 @@ public:
   
   //! Return GUIDs for TreeNode representing specified types of View
   Standard_EXPORT static Standard_GUID ViewRefPlaneGUID();
+ 
+  //! Return GUIDs for TreeNode representing specified types of View
+  Standard_EXPORT static Standard_GUID ViewRefEnabledShapesGUID();
 
   //! Return GUIDs for GraphNode representing specified types of View
   Standard_EXPORT static Standard_GUID ViewRefNoteGUID();

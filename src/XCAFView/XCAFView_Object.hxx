@@ -27,6 +27,7 @@
 #include <TCollection_HAsciiString.hxx>
 #include <XCAFView_ProjectionType.hxx>
 #include <TColStd_HArray1OfByte.hxx>
+#include <TColStd_HArray1OfBoolean.hxx>
 
 class XCAFView_Object;
 DEFINE_STANDARD_HANDLE(XCAFView_Object, Standard_Transient)
@@ -233,6 +234,43 @@ public:
   {
     return (!myImage.IsNull());
   }
+
+  Standard_EXPORT void CreateEnabledShapes(const Standard_Integer theLenght)
+  {
+    if (theLenght > 0)
+      myEnabledShapes = new TColStd_HArray1OfBoolean(1, theLenght);
+  }
+
+  Standard_EXPORT Standard_Boolean HasEnabledShapes()
+  {
+    return (!myEnabledShapes.IsNull());
+  }
+
+  Standard_EXPORT Standard_Integer NbEnabledShapes()
+  {
+    if (myEnabledShapes.IsNull())
+      return 0;
+    return myEnabledShapes->Length();
+  }
+
+  Standard_EXPORT void SetEnabledShape(const Standard_Integer theIndex, const bool theVal)
+  {
+    if (myEnabledShapes.IsNull())
+      return;
+    if (theIndex > 0 && theIndex <= myEnabledShapes->Length())
+      myEnabledShapes->SetValue(theIndex, theVal);
+  }
+
+  Standard_EXPORT bool EnabledShape(const Standard_Integer theIndex)
+  {
+    if (myEnabledShapes.IsNull())
+      return Standard_False;
+    if (theIndex > 0 && theIndex <= myEnabledShapes->Length())
+      return myEnabledShapes->Value(theIndex);
+    else
+      return Standard_False;
+  }
+
   DEFINE_STANDARD_RTTIEXT(XCAFView_Object,Standard_Transient)
 
 private:
@@ -253,6 +291,7 @@ private:
   Standard_Boolean myViewVolumeSidesClipping;
   Handle(TColgp_HArray1OfPnt) myGDTPoints; // Point for each GDT to describe position of GDT frame in View.
   Handle(TColStd_HArray1OfByte) myImage;
+  Handle(TColStd_HArray1OfBoolean) myEnabledShapes;
 };
 
 #endif // _XCAFView_Object_HeaderFile

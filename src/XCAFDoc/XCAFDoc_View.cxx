@@ -47,7 +47,8 @@ enum ChildLab
   ChildLab_ViewVolumeSidesClipping,
   ChildLab_ClippingExpression,
   ChildLab_GDTPoints,
-  ChildLab_Image
+  ChildLab_Image,
+  ChildLab_EnabledShapes
 };
 
 //=======================================================================
@@ -158,6 +159,15 @@ void XCAFDoc_View::SetObject (const Handle(XCAFView_Object)& theObject)
     Handle(TDataStd_ByteArray) arr = TDataStd_ByteArray::Set(Label().FindChild(ChildLab_Image), image->Lower(), image->Upper());
     for (Standard_Integer i = image->Lower(); i <= image->Upper(); i++) {
       arr->SetValue(i, image->Value(i));
+    }
+  }
+  //shapes transparency
+  if (theObject->HasEnabledShapes())
+  {
+    TDF_Label aShapeTranspLabel = Label().FindChild(ChildLab_EnabledShapes);
+    for (Standard_Integer i = 1; i <= theObject->NbEnabledShapes(); i++) {
+      Standard_Integer aValue = theObject->EnabledShape(i) ? 1 : 0;
+      TDataStd_Integer::Set(aShapeTranspLabel.FindChild(i), aValue);
     }
   }
 }
@@ -274,6 +284,19 @@ Handle(XCAFView_Object) XCAFDoc_View::GetObject()  const
   Handle(TDataStd_ByteArray) anArr;
   if (Label().FindChild(ChildLab_Image).FindAttribute(TDataStd_ByteArray::GetID(), anArr)) {
     anObj->SetImage(anArr->InternalArray());
+  }
+
+  // Shapes transparency
+  if (!Label().FindChild(ChildLab_EnabledShapes, Standard_False).IsNull()) {
+    TDF_Label aShapesTranspLabel = Label().FindChild(ChildLab_EnabledShapes);
+    anObj->CreateEnabledShapes(aShapesTranspLabel.NbChildren());
+    for (Standard_Integer i = 1; i <= aShapesTranspLabel.NbChildren(); i++) {
+      gp_Pnt aPoint;
+      Handle(TDataStd_Integer) aTranspAttr;
+      aShapesTranspLabel.FindChild(i).FindAttribute(TDataStd_Integer::GetID(), aTranspAttr);
+      Standard_Boolean aValue = (aTranspAttr->Get() == 1);
+      anObj->SetEnabledShape(i, aValue);
+    }
   }
   return anObj;
 }

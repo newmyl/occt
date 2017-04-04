@@ -29,6 +29,7 @@ XCAFView_Object::XCAFView_Object()
   myViewVolumeSidesClipping = Standard_False;
   myGDTPoints = NULL;
   myImage = NULL;
+  myEnabledShapes = NULL;
 }
 
 //=======================================================================
@@ -52,5 +53,6 @@ XCAFView_Object::XCAFView_Object(const Handle(XCAFView_Object)& theObj)
   myViewVolumeSidesClipping = theObj->myViewVolumeSidesClipping;
   myGDTPoints = NULL;
   myImage = theObj->myImage;
+  myEnabledShapes = NULL;
 }
 

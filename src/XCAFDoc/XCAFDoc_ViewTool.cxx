@@ -465,6 +465,46 @@ void XCAFDoc_ViewTool::SetClippingPlanes(const TDF_LabelSequence& theClippingPla
     aChGNode->SetFather(aPlaneGNode);
   }
 }
+//=======================================================================
+//function : SetEnabledShapes
+//purpose  : 
+//=======================================================================
+void XCAFDoc_ViewTool::SetEnabledShapes(const TDF_LabelSequence& theShapesTransparencyLabels,
+  const TDF_Label& theViewL) const
+{
+  if (!IsView(theViewL))
+    return;
+
+  Handle(XCAFDoc_GraphNode) aChGNode;
+  Handle(XCAFDoc_GraphNode) aPlaneGNode;
+
+  if (theViewL.FindAttribute(XCAFDoc::ViewRefEnabledShapesGUID(), aChGNode)) {
+    while (aChGNode->NbFathers() > 0) {
+      aPlaneGNode = aChGNode->GetFather(1);
+      aPlaneGNode->UnSetChild(aChGNode);
+      if (aPlaneGNode->NbChildren() == 0)
+        aPlaneGNode->ForgetAttribute(XCAFDoc::ViewRefEnabledShapesGUID());
+    }
+    theViewL.ForgetAttribute(XCAFDoc::ViewRefEnabledShapesGUID());
+  }
+
+
+  if (!theViewL.FindAttribute(XCAFDoc::ViewRefEnabledShapesGUID(), aChGNode) && theShapesTransparencyLabels.Length() > 0) {
+    aChGNode = new XCAFDoc_GraphNode;
+    aChGNode = XCAFDoc_GraphNode::Set(theViewL);
+    aChGNode->SetGraphID(XCAFDoc::ViewRefEnabledShapesGUID());
+  }
+  for (Standard_Integer i = theShapesTransparencyLabels.Lower(); i <= theShapesTransparencyLabels.Upper(); i++)
+  {
+    if (!theShapesTransparencyLabels.Value(i).FindAttribute(XCAFDoc::ViewRefEnabledShapesGUID(), aPlaneGNode)) {
+      aPlaneGNode = new XCAFDoc_GraphNode;
+      aPlaneGNode = XCAFDoc_GraphNode::Set(theShapesTransparencyLabels.Value(i));
+    }
+    aPlaneGNode->SetGraphID(XCAFDoc::ViewRefEnabledShapesGUID());
+    aPlaneGNode->SetChild(aChGNode);
+    aChGNode->SetFather(aPlaneGNode);
+  }
+}
 
 //=======================================================================
 //function : RemoveView
@@ -580,6 +620,30 @@ Standard_Boolean XCAFDoc_ViewTool::GetRefClippingPlaneLabel(const TDF_Label& the
 }
 
 //=======================================================================
+//function : GetRefEnabledShapesLabel
+//purpose  : 
+//=======================================================================
+Standard_Boolean XCAFDoc_ViewTool::GetRefEnabledShapesLabel(const TDF_Label& theViewL,
+  TDF_LabelSequence& theShapesTranspanencyLabels) const
+{
+  theShapesTranspanencyLabels.Clear();
+  Handle(TDataStd_TreeNode) aNode;
+  if (!theViewL.FindAttribute(XCAFDoc::ViewRefGUID(), aNode) || !aNode->HasFather()) {
+    Handle(XCAFDoc_GraphNode) aGNode;
+    if (theViewL.FindAttribute(XCAFDoc::ViewRefEnabledShapesGUID(), aGNode) && aGNode->NbFathers() > 0) {
+      for (Standard_Integer i = 1; i <= aGNode->NbFathers(); i++)
+        theShapesTranspanencyLabels.Append(aGNode->GetFather(i)->Label());
+      return Standard_True;
+    }
+    else
+      return Standard_False;
+  }
+
+  theShapesTranspanencyLabels.Append(aNode->Father()->Label());
+  return Standard_True;
+}
+
+//=======================================================================
 //function : GetRefNoteLabel
 //purpose  : 
 //=======================================================================
@@ -675,6 +739,25 @@ Standard_Boolean XCAFDoc_ViewTool::GetViewLabelsForClippingPlane(const TDF_Label
   Handle(XCAFDoc_GraphNode) aGNode;
   Standard_Boolean aResult = Standard_False;
   if (theClippingPlaneL.FindAttribute(XCAFDoc::ViewRefPlaneGUID(), aGNode) && aGNode->NbChildren() > 0) {
+    for (Standard_Integer i = 1; i <= aGNode->NbChildren(); i++)
+    {
+      theViews.Append(aGNode->GetChild(i)->Label());
+    }
+    aResult = Standard_True;
+  }
+  return aResult;
+}
+
+//=======================================================================
+//function :GetViewLabelsForEnabledShapesLabel
+//purpose  : 
+//=======================================================================
+Standard_Boolean XCAFDoc_ViewTool::GetViewLabelsForEnabledShapesLabel(const TDF_Label& theShapesTransparencyL,
+  TDF_LabelSequence& theViews) const
+{
+  Handle(XCAFDoc_GraphNode) aGNode;
+  Standard_Boolean aResult = Standard_False;
+  if (theShapesTransparencyL.FindAttribute(XCAFDoc::ViewRefPlaneGUID(), aGNode) && aGNode->NbChildren() > 0) {
     for (Standard_Integer i = 1; i <= aGNode->NbChildren(); i++)
     {
       theViews.Append(aGNode->GetChild(i)->Label());

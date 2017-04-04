@@ -263,6 +263,17 @@ Standard_GUID XCAFDoc::ViewRefPlaneGUID()
 }
 
 //=======================================================================
+//function : ViewRefEnabledShapesGUID
+//purpose  : 
+//=======================================================================
+
+Standard_GUID XCAFDoc::ViewRefEnabledShapesGUID()
+{
+  static Standard_GUID ID("efd213e4-6dfd-11d4-b9c8-0060b0ee281b");
+  return ID;
+}
+
+//=======================================================================
 //function : ViewRefPlaneGUID
 //purpose  : 
 //=======================================================================
