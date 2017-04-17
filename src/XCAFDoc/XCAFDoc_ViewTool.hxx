@@ -86,9 +86,12 @@ public:
   //! Set Clipping planes to  given View
   Standard_EXPORT void SetClippingPlanes(const TDF_LabelSequence& theClippingPlaneLabels,
                                          const TDF_Label& theViewL) const;
-
   Standard_EXPORT void  SetEnabledShapes(const TDF_LabelSequence& theShapesTransparencyLabels,
                                          const TDF_Label& theViewL) const;
+
+  //! Set Notes to  given View
+  Standard_EXPORT void SetNotes(const TDF_LabelSequence& theNoteLabels,
+                                const TDF_Label& theViewL) const;
 
   //! Remove View
   Standard_EXPORT void RemoveView(const TDF_Label& theViewL);
@@ -110,6 +113,9 @@ public:
 
   //! Returns all View labels defined for label Shapes transparency
   Standard_EXPORT Standard_Boolean GetViewLabelsForEnabledShapesLabel(const TDF_Label& theShapesTransparencyL, TDF_LabelSequence& theViews) const;
+  
+  //! Returns all View labels defined for label NotesL
+  Standard_EXPORT Standard_Boolean GetViewLabelsForNote(const TDF_Label& theNoteL, TDF_LabelSequence& theViews) const;
 
   //! Adds a view definition to a View table and returns its label
   Standard_EXPORT TDF_Label AddView() ;
