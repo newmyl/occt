@@ -30,6 +30,7 @@ XCAFView_Object::XCAFView_Object()
   myGDTPoints = NULL;
   myImage = NULL;
   myEnabledShapes = NULL;
+  myNotePoints = NULL;
 }
 
 //=======================================================================
@@ -54,5 +55,6 @@ XCAFView_Object::XCAFView_Object(const Handle(XCAFView_Object)& theObj)
   myGDTPoints = NULL;
   myImage = theObj->myImage;
   myEnabledShapes = NULL;
+  myGDTPoints = NULL;
 }
 

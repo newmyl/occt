@@ -270,6 +270,41 @@ public:
     else
       return Standard_False;
   }
+  Standard_EXPORT void CreateNotePoints(const Standard_Integer theLenght)
+  {
+    if (theLenght > 0)
+      myNotePoints = new TColgp_HArray1OfPnt(1, theLenght);
+  }
+
+  Standard_EXPORT Standard_Boolean HasNotePoints()
+  {
+    return (!myNotePoints.IsNull());
+  }
+
+  Standard_EXPORT Standard_Integer NbNotePoints()
+  {
+    if (myNotePoints.IsNull())
+      return 0;
+    return myNotePoints->Length();
+  }
+
+  Standard_EXPORT void SetNotePoint(const Standard_Integer theIndex, const gp_Pnt thePoint)
+  {
+    if (myNotePoints.IsNull())
+      return;
+    if (theIndex > 0 && theIndex <= myNotePoints->Length())
+      myNotePoints->SetValue(theIndex, thePoint);
+  }
+
+  Standard_EXPORT gp_Pnt NotePoint(const Standard_Integer theIndex)
+  {
+    if (myNotePoints.IsNull())
+      return gp_Pnt();
+    if (theIndex > 0 && theIndex <= myNotePoints->Length())
+      return myNotePoints->Value(theIndex);
+    else
+      return gp_Pnt();
+  }
 
   DEFINE_STANDARD_RTTIEXT(XCAFView_Object,Standard_Transient)
 
@@ -292,6 +327,7 @@ private:
   Handle(TColgp_HArray1OfPnt) myGDTPoints; // Point for each GDT to describe position of GDT frame in View.
   Handle(TColStd_HArray1OfByte) myImage;
   Handle(TColStd_HArray1OfBoolean) myEnabledShapes;
+  Handle(TColgp_HArray1OfPnt) myNotePoints;
 };
 
 #endif // _XCAFView_Object_HeaderFile
