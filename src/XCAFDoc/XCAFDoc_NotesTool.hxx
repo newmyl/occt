@@ -127,6 +127,10 @@ public:
   //! \param [in] theItemId - assembly item ID.
   //! \return annotated item label if it is found, otherwise - null label.
   Standard_EXPORT TDF_Label FindAnnotatedItem(const XCAFDoc_AssemblyItemId& theItemId) const;
+  Standard_EXPORT TDF_Label FindAnnotatedItemGUID(const XCAFDoc_AssemblyItemId& theItemId,
+                                                  const Standard_GUID&          theGUID) const;
+  Standard_EXPORT TDF_Label FindAnnotatedItemSubshape(const XCAFDoc_AssemblyItemId& theItemId,
+                                                      Standard_Integer              theSubshapeIndex) const;
 
   //! Finds a label of the given labeled item in the annotated items hive.
   //! \param [in] theItemLabel - item label.
