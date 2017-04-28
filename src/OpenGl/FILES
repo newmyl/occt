@@ -7,6 +7,8 @@ OpenGl_ArbTBO.hxx
 OpenGl_ArbTexBindless.hxx
 OpenGl_AspectFace.cxx
 OpenGl_AspectFace.hxx
+OpenGl_AspectFillCapping.cxx
+OpenGl_AspectFillCapping.hxx
 OpenGl_AspectLine.cxx
 OpenGl_AspectLine.hxx
 OpenGl_AspectMarker.cxx
@@ -69,10 +71,8 @@ OpenGl_BVHClipPrimitiveTrsfPersSet.cxx
 OpenGl_BVHClipPrimitiveTrsfPersSet.hxx
 OpenGl_BVHTreeSelector.cxx
 OpenGl_BVHTreeSelector.hxx
-OpenGl_CappingAlgo.cxx
-OpenGl_CappingAlgo.hxx
-OpenGl_CappingPlaneResource.cxx
-OpenGl_CappingPlaneResource.hxx
+OpenGl_CappingRenderer.cxx
+OpenGl_CappingRenderer.hxx
 OpenGl_Caps.cxx
 OpenGl_Caps.hxx
 OpenGl_Clipping.cxx

@@ -16,18 +16,14 @@
 #include <OpenGl_Workspace.hxx>
 
 #include <OpenGl_ArbFBO.hxx>
-#include <OpenGl_AspectLine.hxx>
-#include <OpenGl_AspectFace.hxx>
-#include <OpenGl_AspectMarker.hxx>
-#include <OpenGl_AspectText.hxx>
 #include <OpenGl_Context.hxx>
 #include <OpenGl_Element.hxx>
 #include <OpenGl_FrameBuffer.hxx>
 #include <OpenGl_GlCore15.hxx>
-#include <OpenGl_SceneGeometry.hxx>
-#include <OpenGl_Structure.hxx>
 #include <OpenGl_Sampler.hxx>
+#include <OpenGl_SceneGeometry.hxx>
 #include <OpenGl_ShaderManager.hxx>
+#include <OpenGl_Structure.hxx>
 #include <OpenGl_Texture.hxx>
 #include <OpenGl_View.hxx>
 #include <OpenGl_Window.hxx>
@@ -167,7 +163,7 @@ OpenGl_Workspace::OpenGl_Workspace (OpenGl_View* theView, const Handle(OpenGl_Wi
   #endif
   }
 
-  myDefaultCappingAlgoFilter = new OpenGl_CappingAlgoFilter();
+  myCappingRenderFilter = new OpenGl_CappingRenderFilter();
 
   myFontFaceAspect.Aspect()->SetAlphaMode (Graphic3d_AlphaMode_Mask, 0.285f);
   myFontFaceAspect.Aspect()->SetShadingModel (Graphic3d_TOSM_UNLIT);

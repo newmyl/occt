@@ -17,30 +17,30 @@
 #ifndef _Graphic3d_Group_HeaderFile
 #define _Graphic3d_Group_HeaderFile
 
-#include <Standard.hxx>
-#include <Standard_Type.hxx>
-
-#include <Graphic3d_BndBox4f.hxx>
-#include <Standard_Boolean.hxx>
-#include <Graphic3d_AspectLine3d.hxx>
 #include <Graphic3d_AspectFillArea3d.hxx>
-#include <Graphic3d_AspectText3d.hxx>
+#include <Graphic3d_AspectFillCapping.hxx>
+#include <Graphic3d_AspectLine3d.hxx>
 #include <Graphic3d_AspectMarker3d.hxx>
-#include <Standard_Transient.hxx>
-#include <Standard_Real.hxx>
-#include <Standard_CString.hxx>
-#include <Graphic3d_Vertex.hxx>
-#include <Graphic3d_TextPath.hxx>
-#include <Graphic3d_HorizontalTextAlignment.hxx>
-#include <Graphic3d_VerticalTextAlignment.hxx>
-#include <Graphic3d_TypeOfPrimitiveArray.hxx>
-#include <Graphic3d_IndexBuffer.hxx>
-#include <Graphic3d_Buffer.hxx>
+#include <Graphic3d_AspectText3d.hxx>
+#include <Graphic3d_BndBox4f.hxx>
 #include <Graphic3d_BoundBuffer.hxx>
-#include <Standard_Address.hxx>
+#include <Graphic3d_Buffer.hxx>
 #include <Graphic3d_GroupAspect.hxx>
-#include <gp_Ax2.hxx>
+#include <Graphic3d_HorizontalTextAlignment.hxx>
+#include <Graphic3d_IndexBuffer.hxx>
+#include <Graphic3d_TextPath.hxx>
+#include <Graphic3d_TypeOfPrimitiveArray.hxx>
+#include <Graphic3d_Vertex.hxx>
+#include <Graphic3d_VerticalTextAlignment.hxx>
+#include <MMgt_TShared.hxx>
+#include <Standard.hxx>
+#include <Standard_Address.hxx>
+#include <Standard_Boolean.hxx>
+#include <Standard_CString.hxx>
+#include <Standard_Real.hxx>
+#include <Standard_Type.hxx>
 #include <TCollection_ExtendedString.hxx>
+#include <gp_Ax2.hxx>
 
 class Graphic3d_Structure;
 class Graphic3d_ArrayOfPrimitives;
@@ -56,7 +56,7 @@ class Graphic3d_ArrayOfPrimitives;
 //! 1) Non-modifiable, or unbounded, group ('black box').
 //! Developers can repeat a sequence of
 //! SetPrimitivesAspect() with AddPrimitiveArray() methods arbitrary number of times
-//! to define arbitrary number of primitive "blocks" each having individual apect values.
+//! to define arbitrary number of primitive "blocks" each having individual aspect values.
 //! Any modification of such a group is forbidden, as aspects and primitives are mixed
 //! in memory without any high-level logical structure, and any modification is very likely to result
 //! in corruption of the group internal data.
@@ -75,14 +75,14 @@ class Graphic3d_ArrayOfPrimitives;
 //! with aspects and primitives and choose the group usage model beforehand out of application needs.
 //! Note that some Graphic3d_Group class virtual methods contain only base implementation
 //! that is extended by the descendant class in OpenGl package.
-class Graphic3d_Group : public Standard_Transient
+class Graphic3d_Group : public MMgt_TShared
 {
   friend class Graphic3d_Structure;
-  DEFINE_STANDARD_RTTIEXT(Graphic3d_Group,Standard_Transient)
+  DEFINE_STANDARD_RTTIEXT(Graphic3d_Group,MMgt_TShared)
 
 public:
 
-  //! Supress all primitives and attributes of <me>.
+  //! Suppress all primitives and attributes of <me>.
   //! To clear group without update in Graphic3d_StructureManager
   //! pass Standard_False as <theUpdateStructureMgr>. This
   //! used on context and viewer destruction, when the pointer
@@ -91,13 +91,13 @@ public:
   //! cross-reference);
   Standard_EXPORT virtual void Clear (const Standard_Boolean theUpdateStructureMgr = Standard_True);
 
-  //! Supress the group <me> in the structure.
+  //! Suppress the group <me> in the structure.
   Standard_EXPORT virtual ~Graphic3d_Group();
 
-  //! Supress the group <me> in the structure.
+  //! Suppress the group <me> in the structure.
   //! Warning: No more graphic operations in <me> after this call.
-  //! Modifies the current modelling transform persistence (pan, zoom or rotate)
-  //! Get the current modelling transform persistence (pan, zoom or rotate)
+  //! Modifies the current modeling transform persistence (pan, zoom or rotate)
+  //! Get the current modeling transform persistence (pan, zoom or rotate)
   Standard_EXPORT void Remove();
 
 public:
@@ -126,6 +126,12 @@ public:
   //! Modifies the context for all the marker primitives of the group.
   virtual void SetGroupPrimitivesAspect (const Handle(Graphic3d_AspectMarker3d)& theAspect) = 0;
 
+  //! Returns style of filling clipping sections on closed shell primitives.
+  virtual Handle(Graphic3d_AspectFillCapping) FillCappingAspect() const = 0;
+
+  //! Modifies the context for filling clipping section for all closed shell primitives of the group.
+  virtual void SetGroupPrimitivesAspect (const Handle(Graphic3d_AspectFillCapping)& theAspect) = 0;
+
   //! Modifies the current context of the group to give
   //! another aspect for all the line primitives created
   //! after this call in the group.
@@ -153,15 +159,17 @@ public:
   Standard_EXPORT void GroupPrimitivesAspect (const Handle(Graphic3d_AspectLine3d)&     theAspLine,
                                               const Handle(Graphic3d_AspectText3d)&     theAspText,
                                               const Handle(Graphic3d_AspectMarker3d)&   theAspMarker,
-                                              const Handle(Graphic3d_AspectFillArea3d)& theAspFill) const;
+                                              const Handle(Graphic3d_AspectFillArea3d)& theAspFill,
+                                              const Handle(Graphic3d_AspectFillCapping)& theAspFillCapping) const;
 
   //! Returns the last inserted context in the group for each kind of primitives.
-  void PrimitivesAspect (const Handle(Graphic3d_AspectLine3d)&     theAspLine,
-                         const Handle(Graphic3d_AspectText3d)&     theAspText,
-                         const Handle(Graphic3d_AspectMarker3d)&   theAspMarker,
-                         const Handle(Graphic3d_AspectFillArea3d)& theAspFill) const
+  void PrimitivesAspect (const Handle(Graphic3d_AspectLine3d)&      theAspLine,
+                         const Handle(Graphic3d_AspectText3d)&      theAspText,
+                         const Handle(Graphic3d_AspectMarker3d)&    theAspMarker,
+                         const Handle(Graphic3d_AspectFillArea3d)&  theAspFill,
+                         const Handle(Graphic3d_AspectFillCapping)& theAspFillCapping) const
   {
-    GroupPrimitivesAspect (theAspLine, theAspText, theAspMarker, theAspFill);
+    GroupPrimitivesAspect (theAspLine, theAspText, theAspMarker, theAspFill, theAspFillCapping);
   }
 
 public:
@@ -312,6 +320,6 @@ protected:
 
 };
 
-DEFINE_STANDARD_HANDLE(Graphic3d_Group, Standard_Transient)
+DEFINE_STANDARD_HANDLE(Graphic3d_Group, MMgt_TShared)
 
 #endif // _Graphic3d_Group_HeaderFile

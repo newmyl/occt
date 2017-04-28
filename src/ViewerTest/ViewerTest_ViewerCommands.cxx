@@ -8491,6 +8491,7 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
       if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
       {
         aClipPlane->SetCapping (toEnable);
+
         anArgIter += 1;
       }
       else
@@ -8511,7 +8512,7 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
 
       if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
       {
-        aClipPlane->SetUseObjectMaterial (toEnable == Standard_True);
+        aClipPlane->CappingSectionStyle()->SetUseObjectMaterial (toEnable == Standard_True);
         anArgIter += 1;
       }
     }
@@ -8528,7 +8529,7 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
 
       if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
       {
-        aClipPlane->SetUseObjectTexture (toEnable == Standard_True);
+        aClipPlane->CappingSectionStyle()->SetUseObjectTexture (toEnable == Standard_True);
         anArgIter += 1;
       }
     }
@@ -8543,7 +8544,7 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
 
       if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
       {
-        aClipPlane->SetUseObjectShader (toEnable == Standard_True);
+        aClipPlane->CappingSectionStyle()->SetUseObjectShader (toEnable == Standard_True);
         anArgIter += 1;
       }
     }
@@ -8560,14 +8561,29 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
         return 1;
       }
 
-      Graphic3d_MaterialAspect aMat = aClipPlane->CappingMaterial();
+      Graphic3d_MaterialAspect aMat = aClipPlane->CappingSectionStyle()->Material();
       aMat.SetAmbientColor (aColor);
       aMat.SetDiffuseColor (aColor);
-      aClipPlane->SetCappingMaterial (aMat);
+      aClipPlane->CappingSectionStyle()->SetMaterial (aMat);
       anArgIter += aNbParsed;
     }
-    else if (aChangeArg == "-texname"
-          || aChangeArg == "texname")
+    else if (aChangeArg == "-overrideaspect"
+          || aChangeArg == "overrideaspect")
+    {
+      if (aNbChangeArgs < 2)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
+      {
+        aClipPlane->SetToOverrideCappingAspect (toEnable == Standard_True);
+        anArgIter += 1;
+      }
+    }
+    else if (aChangeArg == "-texture"
+          || aChangeArg == "texture")
     {
       if (aNbChangeArgs < 2)
       {
@@ -8579,20 +8595,22 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
       Handle(Graphic3d_Texture2Dmanual) aTexture = new Graphic3d_Texture2Dmanual(aTextureName);
       if (!aTexture->IsDone())
       {
-        aClipPlane->SetCappingTexture (NULL);
+        aClipPlane->CappingSectionStyle()->SetTexture (Handle(Graphic3d_TextureMap)());
       }
       else
       {
         aTexture->EnableModulate();
         aTexture->EnableRepeat();
-        aClipPlane->SetCappingTexture (aTexture);
+        aClipPlane->CappingSectionStyle()->SetTexture (aTexture.get());
       }
       anArgIter += 1;
     }
     else if (aChangeArg == "-texscale"
           || aChangeArg == "texscale")
     {
-      if (aClipPlane->CappingTexture().IsNull())
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->Texture();
+
+      if (aHatchTexture.IsNull())
       {
         std::cout << "Error: no texture is set.\n";
         return 1;
@@ -8606,13 +8624,15 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
 
       Standard_ShortReal aSx = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
       Standard_ShortReal aSy = (Standard_ShortReal)Draw::Atof (aChangeArgs[2]);
-      aClipPlane->CappingTexture()->GetParams()->SetScale (Graphic3d_Vec2 (aSx, aSy));
+      aHatchTexture->GetParams()->SetScale (Graphic3d_Vec2 (aSx, aSy));
       anArgIter += 2;
     }
     else if (aChangeArg == "-texorigin"
           || aChangeArg == "texorigin") // texture origin
     {
-      if (aClipPlane->CappingTexture().IsNull())
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->Texture();
+
+      if (aHatchTexture.IsNull())
       {
         std::cout << "Error: no texture is set.\n";
         return 1;
@@ -8627,13 +8647,15 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
       Standard_ShortReal aTx = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
       Standard_ShortReal aTy = (Standard_ShortReal)Draw::Atof (aChangeArgs[2]);
 
-      aClipPlane->CappingTexture()->GetParams()->SetTranslation (Graphic3d_Vec2 (aTx, aTy));
+      aHatchTexture->GetParams()->SetTranslation (Graphic3d_Vec2 (aTx, aTy));
       anArgIter += 2;
     }
     else if (aChangeArg == "-texrotate"
           || aChangeArg == "texrotate") // texture rotation
     {
-      if (aClipPlane->CappingTexture().IsNull())
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->Texture();
+
+      if (aHatchTexture.IsNull())
       {
         std::cout << "Error: no texture is set.\n";
         return 1;
@@ -8646,7 +8668,7 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
       }
 
       Standard_ShortReal aRot = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
-      aClipPlane->CappingTexture()->GetParams()->SetRotation (aRot);
+      aHatchTexture->GetParams()->SetRotation (aRot);
       anArgIter += 1;
     }
     else if (aChangeArg == "-hatch"
@@ -8658,21 +8680,164 @@ static int VClipPlane (Draw_Interpretor& theDi, Standard_Integer theArgsNb, cons
         return 1;
       }
 
-      TCollection_AsciiString aHatchStr (aChangeArgs[1]);
-      aHatchStr.LowerCase();
-      if (aHatchStr == "on")
+      if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
       {
-        aClipPlane->SetCappingHatchOn();
+        aClipPlane->CappingSectionStyle()->SetToDrawHatch (toEnable == Standard_True);
+        anArgIter += 1;
       }
-      else if (aHatchStr == "off")
+    }
+    else if (aChangeArg == "-hatchtexture"
+          || aChangeArg == "hatchtexture")
+    {
+      if (aNbChangeArgs < 2)
       {
-        aClipPlane->SetCappingHatchOff();
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      TCollection_AsciiString aTextureName (aChangeArgs[1]);
+      Handle(Graphic3d_Texture2Dmanual) aTexture = new Graphic3d_Texture2Dmanual(aTextureName);
+      if (!aTexture->IsDone())
+      {
+        aClipPlane->CappingSectionStyle()->SetHatchStyle (Handle(Graphic3d_TextureMap)());
       }
       else
       {
-        aClipPlane->SetCappingHatch ((Aspect_HatchStyle)Draw::Atoi (aChangeArgs[1]));
+        aTexture->EnableModulate();
+        aTexture->EnableRepeat();
+        aClipPlane->CappingSectionStyle()->SetHatchStyle (aTexture.get());
+        aClipPlane->CappingSectionStyle()->SetToDrawHatch (true);
       }
       anArgIter += 1;
+    }
+    else if (aChangeArg == "-hatchstipple"
+          || aChangeArg == "hatchstipple")
+    {
+      if (aNbChangeArgs < 2)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      aClipPlane->CappingSectionStyle()->SetHatchStyle ((Aspect_HatchStyle)Draw::Atoi (aChangeArgs[1]));
+      aClipPlane->CappingSectionStyle()->SetToDrawHatch (true);
+      anArgIter += 1;
+    }
+    else if (aChangeArg == "-hatchcolor"
+          || aChangeArg == "hatchcolor")
+    {
+      Quantity_Color aColor;
+      Standard_Integer aNbParsed = ViewerTest::ParseColor (aNbChangeArgs - 1,
+                                                           aChangeArgs + 1,
+                                                           aColor);
+      if (aNbParsed == 0)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      Graphic3d_MaterialAspect aMat = aClipPlane->CappingSectionStyle()->HatchMaterial();
+      aMat.SetAmbientColor (aColor);
+      aMat.SetDiffuseColor (aColor);
+      aClipPlane->CappingSectionStyle()->SetHatchMaterial (aMat);
+      anArgIter += aNbParsed;
+    }
+
+    else if (aChangeArg == "-hatchscale"
+          || aChangeArg == "hatchscale")
+    {
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->TextureHatch();
+
+      if (aHatchTexture.IsNull())
+      {
+        std::cout << "Error: no texture is set.\n";
+        return 1;
+      }
+
+      if (aNbChangeArgs < 3)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      Standard_ShortReal aSx = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
+      Standard_ShortReal aSy = (Standard_ShortReal)Draw::Atof (aChangeArgs[2]);
+      aHatchTexture->GetParams()->SetScale (Graphic3d_Vec2 (aSx, aSy));
+      anArgIter += 2;
+    }
+    else if (aChangeArg == "-hatchorigin"
+          || aChangeArg == "hatchorigin") // texture origin
+    {
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->TextureHatch();
+
+      if (aHatchTexture.IsNull())
+      {
+        std::cout << "Error: no texture is set.\n";
+        return 1;
+      }
+
+      if (aNbChangeArgs < 3)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      Standard_ShortReal aTx = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
+      Standard_ShortReal aTy = (Standard_ShortReal)Draw::Atof (aChangeArgs[2]);
+
+      aHatchTexture->GetParams()->SetTranslation (Graphic3d_Vec2 (aTx, aTy));
+      anArgIter += 2;
+    }
+    else if (aChangeArg == "-hatchrotate"
+          || aChangeArg == "hatchrotate") // texture rotation
+    {
+      const Handle(Graphic3d_TextureMap)& aHatchTexture = aClipPlane->CappingSectionStyle()->TextureHatch();
+
+      if (aHatchTexture.IsNull())
+      {
+        std::cout << "Error: no texture is set.\n";
+        return 1;
+      }
+
+      if (aNbChangeArgs < 2)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      Standard_ShortReal aRot = (Standard_ShortReal)Draw::Atof (aChangeArgs[1]);
+      aHatchTexture->GetParams()->SetRotation (aRot);
+      anArgIter += 1;
+    }
+    else if (aChangeArg == "-hatchzoompers"
+          || aChangeArg == "hatchzoompers")
+    {
+      if (aNbChangeArgs < 2)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
+      {
+        aClipPlane->CappingSectionStyle()->SetHatchZoomPeristent (toEnable == Standard_True);
+        anArgIter += 1;
+      }
+    }
+    else if (aChangeArg == "-hatchrotatepers"
+          || aChangeArg == "hatchrotatepers")
+    {
+      if (aNbChangeArgs < 2)
+      {
+        std::cout << "Syntax error: need more arguments.\n";
+        return 1;
+      }
+
+      if (ViewerTest::ParseOnOff (aChangeArgs[1], toEnable))
+      {
+        aClipPlane->CappingSectionStyle()->SetHatchRotationPeristent (toEnable == Standard_True);
+        anArgIter += 1;
+      }
     }
     else if (aChangeArg == "-delete"
           || aChangeArg == "delete")
@@ -12397,11 +12562,18 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
       "\n\t\t:   [-set|-unset|-setOverrideGlobal [objects|views]]"
       "\n\t\t:   [-maxPlanes]"
       "\n\t\t:   [-capping {0|1}]"
-      "\n\t\t:     [-color R G B] [-hatch {on|off|ID}]"
-      "\n\t\t:     [-texName Texture] [-texScale SX SY] [-texOrigin TX TY]"
-      "\n\t\t:       [-texRotate Angle]"
+      "\n\t\t:     [-overrideAspect {0|1}]"
+      "\n\t\t:     [-color R G B]"
+      "\n\t\t:     [-texture Texture]   [-texScale SX SY]"
+      "\n\t\t:     [-texOrigin TX TY]   [-texRotate Angle]"
+      "\n\t\t:     [-hatch {on|off}]    [-hatchStipple mask]"
+      "\n\t\t:     [-hatchColor R G B]  [-hatchTexture texture]"
+      "\n\t\t:     [-hatchScale  SX SY] [-hatchOrigin TX TY]"
+      "\n\t\t:     [-hatchRotate Angle]"
+      "\n\t\t:     [-hatchZoomPers {0|1}]"
+      "\n\t\t:     [-hatchRotatePers {0|1}]"
       "\n\t\t:     [-useObjMaterial {0|1}] [-useObjTexture {0|1}]"
-      "\n\t\t:       [-useObjShader {0|1}]"
+      "\n\t\t:     [-useObjShader {0|1}]"
       "\n\t\t: Clipping planes management:"
       "\n\t\t:   -maxPlanes   print plane limit for view"
       "\n\t\t:   -delete      delete plane with given name"
@@ -12412,12 +12584,21 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
       "\n\t\t:   -clone SourcePlane NewPlane clone the plane definition."
       "\n\t\t: Capping options:"
       "\n\t\t:   -capping {off|on|0|1} turn capping on/off"
+      "\n\t\t:   -overrideAspect       override presentation aspect (if defined)"
       "\n\t\t:   -color R G B          set capping color"
-      "\n\t\t:   -texName Texture      set capping texture"
+      "\n\t\t:   -texture Texture      set capping texture"
       "\n\t\t:   -texScale SX SY       set capping tex scale"
       "\n\t\t:   -texOrigin TX TY      set capping tex origin"
       "\n\t\t:   -texRotate Angle      set capping tex rotation"
-      "\n\t\t:   -hatch {on|off|ID}    set capping hatching mask"
+      "\n\t\t:   -hatch {on|off}       turn on/off hatch style on capping"
+      "\n\t\t:   -hatchStipple ID      set stipple mask for drawing hatch"
+      "\n\t\t:   -hatchColor R G B     set color for hatch material"
+      "\n\t\t:   -hatchTexture Texture set texture (semi-opaque) for drawing hatch"
+      "\n\t\t:   -hatchScale  SX SY    set hatch texture scale"
+      "\n\t\t:   -hatchOrigin TX TY    set hatch texture origin"
+      "\n\t\t:   -hatchRotate Angle    set hatch texture rotation"
+      "\n\t\t:   -hatchZoomPers        allow hatch tetxure mapping to be constant when zooming"
+      "\n\t\t:   -hatchRotatePers      allow hatch tetxure mapping to be constant when rotating"
       "\n\t\t:   -useObjMaterial {off|on|0|1} use material of clipped object"
       "\n\t\t:   -useObjTexture  {off|on|0|1} use texture of clipped object"
       "\n\t\t:   -useObjShader   {off|on|0|1} use shader program of object",

@@ -68,7 +68,7 @@ public:
   //! @param theWorkspace [in] the rendering workspace.
   //! @param theFilter [in] the rendering filter to check whether the element
   //! should be rendered or not.
-  //! @return True if element passes the check and renders,
+  //! @return True if element passes the filtering check and is rendered.
   inline Standard_Boolean
     RenderFiltered (const Handle(OpenGl_Workspace)& theWorkspace,
                     const Handle(OpenGl_RenderFilter)& theFilter) const

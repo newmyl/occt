@@ -13,7 +13,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <OpenGl_CappingAlgo.hxx>
+#include <OpenGl_CappingRenderer.hxx>
 #include <OpenGl_Context.hxx>
 #include <OpenGl_GlCore11.hxx>
 #include <OpenGl_GraphicDriver.hxx>
@@ -657,10 +657,9 @@ void OpenGl_Structure::Render (const Handle(OpenGl_Workspace) &theWorkspace) con
   }
 
   // Render capping for structure groups
-  if (hasClosedPrims
-   && aCtx->Clipping().IsCappingOn())
+  if (hasClosedPrims && aCtx->Clipping().IsCappingOn())
   {
-    OpenGl_CappingAlgo::RenderCapping (theWorkspace, *this);
+    OpenGl_CappingRenderer::Render (theWorkspace, *this);
   }
 
   // Revert structure clippings
