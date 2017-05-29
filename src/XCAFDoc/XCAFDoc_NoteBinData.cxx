@@ -114,7 +114,7 @@ XCAFDoc_NoteBinData::Set(const TCollection_ExtendedString& theTitle,
   if (theFile.Size() > (Standard_Size)IntegerLast())
     return Standard_False;
 
-  myData.reset(new TColStd_HArray1OfByte(1, (Standard_Integer)theFile.Size()));
+  myData.reset(new TColStd_HArray1OfByte(1, static_cast<Standard_Integer>(theFile.Size())));
   Standard_Integer nbReadBytes = 0;
   theFile.Read((Standard_Address)&myData->First(), myData->Length(), nbReadBytes);
   if (nbReadBytes < myData->Length())

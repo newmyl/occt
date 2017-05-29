@@ -33,6 +33,10 @@ IMPLEMENT_STANDARD_RTTIEXT(VrmlData_IndexedLineSet,VrmlData_Geometry)
 #pragma warning (disable:4996)
 #endif
 
+namespace
+{
+  static Handle(TopoDS_TShape) THE_NULL_SHAPE;
+}
 
 //=======================================================================
 //function : GetColor
@@ -82,7 +86,7 @@ const Handle(TopoDS_TShape)& VrmlData_IndexedLineSet::TShape ()
   //  }
   //  myTShape = aWire.TShape();
   //}
-  return Handle(TopoDS_TShape)();
+  return THE_NULL_SHAPE;
 }
 
 //=======================================================================
