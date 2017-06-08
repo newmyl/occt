@@ -30,11 +30,13 @@
 #include <ChFiDS_Regularities.hxx>
 #include <TopTools_ListOfShape.hxx>
 #include <TopTools_DataMapOfShapeListOfInteger.hxx>
+#include <TopTools_IndexedMapOfShape.hxx>
 #include <Standard_Boolean.hxx>
 #include <Standard_Integer.hxx>
 #include <ChFiDS_ErrorStatus.hxx>
 #include <math_Vector.hxx>
 #include <TopAbs_Orientation.hxx>
+//#include <BRepOffset_Type.hxx>
 #include <ChFiDS_SequenceOfSurfData.hxx>
 #include <TopAbs_State.hxx>
 class TopOpeBRepDS_HDataStructure;
@@ -70,6 +72,22 @@ class TopoDS_Face;
 class AppBlend_Approx;
 class Geom2d_Curve;
 
+struct QualifiedEdge
+{
+  Standard_Integer Index;
+  TopAbs_Orientation Orientation;
+  //BRepOffset_Type Convexity;
+  
+  QualifiedEdge(Standard_Integer theIndex,
+                TopAbs_Orientation theOrientation)
+    : Index(theIndex),
+      Orientation(theOrientation)
+  {
+  }
+};
+
+typedef NCollection_List<QualifiedEdge> ChFi3d_ListOfQualifiedEdge;
+typedef ChFi3d_ListOfQualifiedEdge::Iterator ChFi3d_ListIteratorOfListOfQualifiedEdge;
 
 //! Root  class  for calculation of  surfaces (fillets,
 //! chamfers)  destined  to smooth edges  of
@@ -304,6 +322,11 @@ protected:
   ChFiDS_Map myVFMap;
   ChFiDS_Map myVEMap;
   Handle(TopOpeBRepDS_HDataStructure) myDS;
+  //TopTools_IndexedDataMapOfShapeListOfShape myFaceNewEdges;
+  //NCollection_IndexedDataMap<Standard_Integer, TColStd_ListOfInteger> myFaceNewEdges;
+  NCollection_IndexedDataMap<Standard_Integer, ChFi3d_ListOfQualifiedEdge> myFaceNewEdges;
+  TopTools_IndexedMapOfShape myNewFaces;
+  TopTools_IndexedMapOfShape myNewEdges;
   Handle(TopOpeBRepBuild_HBuilder) myCoup;
   ChFiDS_ListOfStripe myListStripe;
   ChFiDS_StripeMap myVDataMap;
@@ -346,7 +369,11 @@ private:
   
   Standard_EXPORT void StartSol (const Handle(ChFiDS_Stripe)& S, const Handle(ChFiDS_HElSpine)& HGuide, Handle(BRepAdaptor_HSurface)& HS1, Handle(BRepAdaptor_HSurface)& HS2, Handle(BRepTopAdaptor_TopolTool)& I1, Handle(BRepTopAdaptor_TopolTool)& I2, gp_Pnt2d& P1, gp_Pnt2d& P2, Standard_Real& First) const;
   
-  Standard_EXPORT void ConexFaces (const Handle(ChFiDS_Spine)& Sp, const Standard_Integer IEdge, const Standard_Integer RefChoix, Handle(BRepAdaptor_HSurface)& HS1, Handle(BRepAdaptor_HSurface)& HS2) const;
+  Standard_EXPORT void ConexFaces (const Handle(ChFiDS_Spine)& Sp,
+                                   const Standard_Integer IEdge,
+                                   const Standard_Integer RefChoix,
+                                   Handle(BRepAdaptor_HSurface)& HS1,
+                                   Handle(BRepAdaptor_HSurface)& HS2) const;
 
 
   TopoDS_Shape myShape;

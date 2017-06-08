@@ -98,6 +98,7 @@
 #include <TopOpeBRepDS_Surface.hxx>
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopTools_ListOfShape.hxx>
+#include <BRepLib_MakeEdge.hxx>
 
 #include <stdio.h>
 
@@ -714,6 +715,14 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
   }
 
   Data->ChangeSurf(DStr.AddSurface(TopOpeBRepDS_Surface(Surf,tolget3d)));
+  //jgv
+  BRep_Builder BB;
+  TopoDS_Face aNewFace;
+  BB.MakeFace(aNewFace);
+  TopLoc_Location aLoc;
+  BB.UpdateFace(aNewFace, Surf, aLoc, Precision::Confusion());
+  Standard_Integer IndNewFace = myNewFaces.Add(aNewFace);
+  /////
 
 #ifdef DRAW
   ChFi3d_SettraceDRAWFIL(Standard_True);
@@ -795,6 +804,29 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
   if(Reversed) TraOn1 = ChFi3d_TrsfTrans(lin->TransitionOnS2());
   else TraOn1 = ChFi3d_TrsfTrans(lin->TransitionOnS1());
   Fint1.SetInterference(Index1OfCurve,TraOn1,PCurveOnFace,PCurveOnSurf);
+
+  //jgv
+  TopoDS_Edge Boundary1 = BRepLib_MakeEdge(Crv3d1, pppdeb, pppfin);
+  BB.UpdateEdge(Boundary1, tolcheck);
+  BB.UpdateEdge(Boundary1, PCurveOnSurf, Surf, aLoc, 0.);
+  BB.UpdateEdge(Boundary1, PCurveOnFace, BS1->ChangeSurface().Face(), 0.);
+  myNewEdges.Add(Boundary1);
+
+  Standard_Integer IndF1;
+  if (!myNewFaces.Contains(BS1->ChangeSurface().Face()))
+    myNewFaces.Add(BS1->ChangeSurface().Face());
+  IndF1 = myNewFaces.FindIndex(BS1->ChangeSurface().Face());
+  if (!myFaceNewEdges.Contains(IndF1))
+  {
+    ChFi3d_ListOfQualifiedEdge aList;
+    myFaceNewEdges.Add(IndF1, aList);
+  }
+  Standard_Integer IndE1 = myNewEdges.FindIndex(Boundary1);
+  Data->ChangeIndexOfE1(IndE1);
+  TopAbs_Orientation Et = (Reversed)? TopAbs_REVERSED : TopAbs_FORWARD;
+  QualifiedEdge aQE1(IndE1, Et);
+  myFaceNewEdges.ChangeFromKey(IndF1).Append(aQE1);
+  /////
   
   // SurfData is filled in what concerns S2,
   Handle(Geom_Curve) Crv3d2 = Surf->UIso(Uon2);
@@ -848,6 +880,28 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
     if(Reversed) TraOn2 = ChFi3d_TrsfTrans(lin->TransitionOnS1());
     else TraOn2 = ChFi3d_TrsfTrans(lin->TransitionOnS2());
     Fint2.SetInterference(Index2OfCurve,TraOn2,PCurveOnFace,PCurveOnSurf);
+
+    //jgv
+    TopoDS_Edge Boundary2 = BRepLib_MakeEdge(Crv3d2, pppdeb, pppfin);
+    BB.UpdateEdge(Boundary2, tolcheck);
+    BB.UpdateEdge(Boundary2, PCurveOnSurf, Surf, aLoc, 0.);
+    BB.UpdateEdge(Boundary2, PCurveOnFace, BS2->ChangeSurface().Face(), 0.);
+    myNewEdges.Add(Boundary2);
+
+    Standard_Integer IndF2;
+    if (!myNewFaces.Contains(BS2->ChangeSurface().Face()))
+      myNewFaces.Add(BS2->ChangeSurface().Face());
+    IndF2 = myNewFaces.FindIndex(BS2->ChangeSurface().Face());
+    if (!myFaceNewEdges.Contains(IndF2))
+    {
+     ChFi3d_ListOfQualifiedEdge aList;
+     myFaceNewEdges.Add(IndF2, aList);
+    }
+    Standard_Integer IndE2 = myNewEdges.FindIndex(Boundary2);
+    Data->ChangeIndexOfE2(IndE2);
+    QualifiedEdge aQE2(IndE2, TopAbs::Reverse(Et));
+    myFaceNewEdges.ChangeFromKey(IndF2).Append(aQE2);
+    /////
   }
   else {
     Handle(Geom2d_Curve) bidpc;

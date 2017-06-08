@@ -90,6 +90,7 @@
 #include <BRepTools.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <BRepLib.hxx>
+#include <BRepLib_MakeVertex.hxx>
 #include <BRepLib_MakeEdge.hxx>
 #include <BRepLib_MakeWire.hxx>
 #include <BRepLib_MakeFace.hxx>
@@ -192,6 +193,211 @@ Standard_Real ChFi3d_InPeriod(const Standard_Real U,
   if ( u < UFirst) u = UFirst;
   return u;
 }
+
+//=======================================================================
+//function : ChFi3d_AdjustSecondPointToFirstPoint
+//purpose  : 
+//=======================================================================
+void ChFi3d_AdjustSecondPointToFirstPoint(const gp_Pnt2d& theFirstPoint,
+                                          gp_Pnt2d& theSecondPoint,
+                                          const BRepAdaptor_Surface& theSurf)
+{
+  if (theSurf.IsUPeriodic())
+  {
+    Standard_Real UPeriod = theSurf.UPeriod();
+    Standard_Real NewU = ElCLib::InPeriod(theSecondPoint.X(),
+                                          theFirstPoint.X() - UPeriod/2,
+                                          theFirstPoint.X() + UPeriod/2);
+    theSecondPoint.SetX(NewU);
+  }
+  if (theSurf.IsVPeriodic())
+  {
+    Standard_Real VPeriod = theSurf.VPeriod();
+    Standard_Real NewV = ElCLib::InPeriod(theSecondPoint.Y(),
+                                          theFirstPoint.Y() - VPeriod/2,
+                                          theFirstPoint.Y() + VPeriod/2);
+    theSecondPoint.SetY(NewV);
+  }
+}
+
+//=======================================================================
+//function : ChFi3d_SplitAndAdjust
+//purpose  : 
+//=======================================================================
+void ChFi3d_SplitAndAdjust(const TopTools_ListOfShape& theElist,
+                           TopTools_ListOfShape& theNewElist,
+                           const BRepAdaptor_Surface& theBAsurf)
+{
+  TopoDS_Face aFace = theBAsurf.Face();
+  Handle(Geom_Surface) aSurf, aBasisSurf;
+  TopLoc_Location aLoc;
+  aSurf = BRep_Tool::Surface(aFace, aLoc);
+  aBasisSurf = aSurf;
+  if (aSurf->IsKind(STANDARD_TYPE(Geom_RectangularTrimmedSurface)))
+    aBasisSurf = (Handle(Geom_RectangularTrimmedSurface)::DownCast(aSurf))->BasisSurface();
+
+  if (!aBasisSurf->IsUClosed() && !aBasisSurf->IsVClosed())
+    return;
+
+  TColGeom2d_SequenceOfCurve Boundaries;
+  Standard_Real Ubounds [2], Vbounds [2];
+  aSurf->Bounds(Ubounds[0], Ubounds[1], Vbounds[0], Vbounds[1]);
+  for (Standard_Integer i = 0; i < 2; i++)
+    if (!Precision::IsInfinite(Ubounds[i]))
+    {
+      gp_Pnt2d Origin(Ubounds[i], 0.);
+      Handle(Geom2d_Curve) aLine = new Geom2d_Line(Origin, gp::DY2d());
+      if (!Precision::IsInfinite(Vbounds[0]) || !Precision::IsInfinite(Vbounds[1]))
+        aLine = new Geom2d_TrimmedCurve(aLine, Vbounds[0], Vbounds[1]);
+      Boundaries.Append(aLine);
+    }
+  for (Standard_Integer i = 0; i < 2; i++)
+    if (!Precision::IsInfinite(Vbounds[i]))
+    {
+      gp_Pnt2d Origin(0., Vbounds[i]);
+      Handle(Geom2d_Curve) aLine = new Geom2d_Line(Origin, gp::DX2d());
+      if (!Precision::IsInfinite(Ubounds[0]) || !Precision::IsInfinite(Ubounds[1]))
+        aLine = new Geom2d_TrimmedCurve(aLine, Ubounds[0], Ubounds[1]);
+      Boundaries.Append(aLine);
+    }
+  
+  Geom2dInt_GInter Intersector;
+  BRep_Builder BB;
+  TopTools_ListIteratorOfListOfShape itl(theElist);
+  for (; itl.More(); itl.Next())
+  {
+    TopoDS_Edge anEdge = TopoDS::Edge(itl.Value());
+    TopAbs_Orientation anOr = anEdge.Orientation();
+    Standard_Real aTol = BRep_Tool::Tolerance(anEdge);
+    TColStd_SequenceOfReal Params;
+    Standard_Real fpar, lpar;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, aFace, fpar, lpar);
+    Geom2dAdaptor_Curve aGAcurve(aPCurve, fpar, lpar);
+    Standard_Real LeftTol = Precision::PConfusion(), RightTol = Precision::PConfusion();
+    BRepAdaptor_Curve BAcurve(anEdge);
+    gp_Pnt FirstPnt = BAcurve.Value(fpar);
+    gp_Pnt LastPnt  = BAcurve.Value(lpar);
+    Standard_Real Offset = 0.01*(lpar - fpar);
+    gp_Pnt PntOffset = BAcurve.Value(fpar + Offset);
+    Standard_Real dist3d = FirstPnt.Distance(PntOffset);
+    if (dist3d > gp::Resolution())
+      LeftTol = Offset*aTol/dist3d;
+    PntOffset = BAcurve.Value(lpar - Offset);
+    dist3d = LastPnt.Distance(PntOffset);
+    if (dist3d > gp::Resolution())
+      RightTol = Offset*aTol/dist3d;
+    for (Standard_Integer i = 1; i <= Boundaries.Length(); i++)
+    {
+      Geom2dAdaptor_Curve aGAboundary(Boundaries(i));
+      Intersector.Perform(aGAcurve, aGAboundary,
+                          Precision::PIntersection(),
+                          Precision::PIntersection());
+      if (Intersector.IsDone() && !Intersector.IsEmpty())
+      {
+        for (Standard_Integer j = 1; j <= Intersector.NbPoints(); j++)
+        {
+          IntRes2d_IntersectionPoint int2d = Intersector.Point(j);
+          Standard_Real aParam = int2d.ParamOnFirst();
+          if (Abs(aParam - fpar) > LeftTol &&
+              Abs(aParam - lpar) > RightTol)
+            Params.Append(aParam);
+        }
+        for (Standard_Integer j = 1; j <= Intersector.NbSegments(); j++)
+        {
+          IntRes2d_IntersectionSegment seg2d = Intersector.Segment(j);
+          IntRes2d_IntersectionPoint int2d = seg2d.FirstPoint();
+          Standard_Real aParam = int2d.ParamOnFirst();
+          if (Abs(aParam - fpar) > LeftTol &&
+              Abs(aParam - lpar) > RightTol)
+            Params.Append(aParam);
+          int2d  = seg2d.LastPoint();
+          aParam = int2d.ParamOnFirst();
+          if (Abs(aParam - fpar) > LeftTol &&
+              Abs(aParam - lpar) > RightTol)
+            Params.Append(aParam);
+        }
+      }
+    } //for (Standard_Integer i = 1; i <= Boundaries.Length(); i++)
+
+    //Sort parameters
+    for (Standard_Integer i = 1; i < Params.Length(); i++)
+      for (Standard_Integer j = i+1; j <= Params.Length(); j++)
+        if (Params(i) > Params(j))
+        { Standard_Real tmp = Params(i); Params(i) = Params(j); Params(j) = tmp; }
+    //Delete duplicating parameters
+    Standard_Real ParamTol = Max(LeftTol, RightTol);
+    Standard_Integer i = 2;
+    while (i <= Params.Length())
+      if (Params(i) - Params(i-1) > ParamTol)
+        Params.Remove(i);
+      else
+        i++;
+
+    //Split
+    TopoDS_Vertex FirstVertex = TopExp::FirstVertex(anEdge), LastVertex;
+    Standard_Real FirstPar = fpar, LastPar;
+    for (i = 1; i <= Params.Length(); i++)
+    {
+      LastPar = Params(i);
+      TopoDS_Edge aNewEdge = TopoDS::Edge(anEdge.EmptyCopied());
+      aNewEdge.Orientation(TopAbs_FORWARD);
+      BB.Range(aNewEdge, FirstPar, LastPar);
+      gp_Pnt LastPnt = BAcurve.Value(LastPar);
+      LastVertex = BRepLib_MakeVertex(LastPnt);
+      BB.UpdateVertex(LastVertex, ParamTol);
+      BB.Add(aNewEdge, FirstVertex.Oriented(TopAbs_FORWARD));
+      BB.Add(aNewEdge, LastVertex.Oriented(TopAbs_REVERSED));
+      aNewEdge.Orientation(anOr);
+      BB.UpdateEdge(aNewEdge, aTol);
+      theNewElist.Append(aNewEdge);
+      FirstVertex = LastVertex;
+      FirstPar = LastPar;
+    }
+    LastPar = lpar;
+    LastVertex = TopExp::LastVertex(anEdge);
+    TopoDS_Edge aNewEdge = TopoDS::Edge(anEdge.EmptyCopied());
+    aNewEdge.Orientation(TopAbs_FORWARD);
+    BB.Range(aNewEdge, FirstPar, LastPar);
+    BB.Add(aNewEdge, FirstVertex.Oriented(TopAbs_FORWARD));
+    BB.Add(aNewEdge, LastVertex.Oriented(TopAbs_REVERSED));
+    aNewEdge.Orientation(anOr);
+    BB.UpdateEdge(aNewEdge, aTol);
+    theNewElist.Append(aNewEdge);
+  }
+
+  if (theNewElist.IsEmpty())
+    theNewElist.Assign(theElist);
+
+  //Adjust
+  for (itl.Initialize(theNewElist); itl.More(); itl.Next())
+  {
+    TopoDS_Edge anEdge = TopoDS::Edge(itl.Value());
+    Standard_Real fpar, lpar;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, aFace, fpar, lpar);
+    gp_Pnt2d MidP2d = aPCurve->Value(0.5*(fpar + lpar));
+    Standard_Real aU = MidP2d.X(), aV = MidP2d.Y();
+    if (aU < Ubounds[0] || aU > Ubounds[1])
+    {
+      Standard_Real Period = Ubounds[1] - Ubounds[0];
+      Standard_Real Sign = (aU < Ubounds[0])? 1 : -1;
+      while (aU < Ubounds[0] || aU > Ubounds[1])
+        aU += Sign*Period;
+    }
+    if (aV < Vbounds[0] || aV > Vbounds[1]) //??? sphere? cone?
+    {
+      Standard_Real Period = Vbounds[1] - Vbounds[0];
+      Standard_Real Sign = (aV < Vbounds[0])? 1 : -1;
+      while (aV < Vbounds[0] || aV > Vbounds[1])
+        aV += Sign*Period;
+    }
+    if (aU != MidP2d.X() || aV != MidP2d.Y())
+    {
+      gp_Vec2d OffsetVec(aU - MidP2d.X(), aV - MidP2d.Y());
+      aPCurve->Translate(OffsetVec);
+    }
+  }
+}
+
 //=======================================================================
 //function : Box 
 //purpose  : Calculation of min/max uv of the fillet to intersect.
@@ -4741,6 +4947,24 @@ Standard_Integer ChFi3d_NumberOfSharpEdges(const TopoDS_Vertex& Vtx,
   if (bordlibre) nba=(nba-2)/2 +2;
   else  nba=nba/2;
   return nba;
+}
+
+//=======================================================================
+//function : IsInSingularity
+//purpose  :
+//
+//=======================================================================
+Standard_Boolean ChFi3d_IsInSingularity(const TopoDS_Vertex& Vtx,
+                                        const ChFiDS_Map& VEMap)
+{
+  TopTools_ListIteratorOfListOfShape ItE;
+  for (ItE.Initialize(VEMap(Vtx)); ItE.More(); ItE.Next())
+  {
+    const TopoDS_Edge& cur = TopoDS::Edge(ItE.Value());
+    if (BRep_Tool::Degenerated(cur))
+      return Standard_True;
+  }
+  return Standard_False;
 }
 
 //=====================================================

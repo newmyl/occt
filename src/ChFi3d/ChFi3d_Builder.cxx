@@ -68,6 +68,8 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Vertex.hxx>
+//#include <BRepAlgoAPI_Fuse.hxx>
+#include <BOPAlgo_Builder.hxx>
 #include <TopOpeBRepBuild_HBuilder.hxx>
 #include <TopOpeBRepDS_BuildTool.hxx>
 #include <TopOpeBRepDS_Curve.hxx>
@@ -79,6 +81,7 @@
 #include <TopOpeBRepDS_PointIterator.hxx>
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopTools_ListOfShape.hxx>
+#include <BOPCol_MapOfOrientedShape.hxx>
 
 #ifdef OCCT_DEBUG
 #include <OSD_Chronometer.hxx>
@@ -106,6 +109,185 @@ extern void ChFi3d_ResultChron(OSD_Chronometer & ch, Standard_Real& time);
 extern Standard_Boolean ChFi3d_GettraceCHRON();
 #endif
 
+//=======================================================================
+//function : BuildNewWire
+//purpose  : 
+//=======================================================================
+
+TopoDS_Wire BuildNewWire(const TopoDS_Wire& theWire,
+                         const TopTools_IndexedDataMapOfShapeListOfShape& theVEmap,
+                         const TopoDS_Compound& theNewEdges,
+                         const TopoDS_Face& theFace)
+{
+  TopTools_IndexedMapOfShape OldVertices, NewEdges;
+  TopExp::MapShapes(theWire, TopAbs_VERTEX, OldVertices);
+  TopExp::MapShapes(theNewEdges, TopAbs_EDGE, NewEdges);
+  
+  //Find <StartEdge>, <StartVertex> and calculate minimum distance
+  //between extremities of edge in 2d
+  TopoDS_Vertex StartVertex;
+  TopoDS_Edge   StartEdge, SecondEdge;
+  Standard_Real MinDist = RealLast();
+  TopTools_ListIteratorOfListOfShape itl;
+  BOPCol_MapOfOrientedShape Emap;
+  for (Standard_Integer i = 1; i <= OldVertices.Extent(); i++)
+  {
+    TopoDS_Vertex aVertex = TopoDS::Vertex(OldVertices(i));
+    const TopTools_ListOfShape& Elist = theVEmap.FindFromKey(aVertex);
+    for (itl.Initialize(Elist); itl.More(); itl.Next())
+    {
+      const TopoDS_Edge& anEdge = TopoDS::Edge(itl.Value());
+      if (!Emap.Add(anEdge))
+        continue;
+      if (StartEdge.IsNull() &&
+          NewEdges.Contains(anEdge))
+      {
+        //StartEdge   = anEdge;
+        Standard_Integer anIndex = NewEdges.FindIndex(anEdge);
+        StartEdge   = TopoDS::Edge(NewEdges(anIndex));
+        StartVertex = aVertex;
+      }
+      BRepAdaptor_Curve2d BAcurve(anEdge, theFace);
+      gp_Pnt2d aFirstPoint = BAcurve.Value(BAcurve.FirstParameter());
+      gp_Pnt2d aLastPoint  = BAcurve.Value(BAcurve.LastParameter());
+      Standard_Real aDist = aFirstPoint.SquareDistance(aLastPoint);
+      if (aDist < MinDist)
+        MinDist = aDist;
+    }
+  }
+
+  if (StartEdge.IsNull())
+    return theWire;
+
+  TopoDS_Wire NewWire;
+  BRep_Builder BB;
+  BB.MakeWire(NewWire);
+
+  BB.Add(NewWire, StartEdge);
+
+  //Define the direction of loop: forward or reversed
+  TopAbs_Orientation Direction;
+  Standard_Integer IndOr;
+  //Here and further orientation of edge is taken into account
+  TopoDS_Vertex V1 = TopExp::FirstVertex(StartEdge, Standard_True);
+  if (V1.IsSame(StartVertex))
+  {
+    Direction = TopAbs_FORWARD;
+    IndOr = 0;
+  }
+  else
+  {
+    Direction = TopAbs_REVERSED;
+    IndOr = 1;
+  }
+
+  BRepAdaptor_Curve2d StartBAcurve(StartEdge, theFace);
+  Standard_Real StartParam  = BRep_Tool::Parameter(StartVertex,  StartEdge);
+  gp_Pnt2d StartPoint  = StartBAcurve.Value(StartParam);
+
+  //Find second edge;
+  TopTools_SequenceOfShape Candidates;
+  TopoDS_Vertex VV [2];
+
+  //Main loop
+  TopoDS_Edge CurEdge = StartEdge, NextEdge;
+  TopoDS_Vertex CurVertex = (Direction == TopAbs_FORWARD)?
+    TopExp::LastVertex(CurEdge, Standard_True) :
+    TopExp::FirstVertex(CurEdge, Standard_True);
+  BRepAdaptor_Curve2d CurCurve(CurEdge, theFace);
+  Standard_Real CurParam = BRep_Tool::Parameter(CurVertex, CurEdge);
+  gp_Pnt2d CurPoint = CurCurve.Value(CurParam);
+  for (;;)
+  {
+    const TopTools_ListOfShape& Elist = theVEmap.FindFromKey(CurVertex);
+    Candidates.Clear();
+    //Standard_Boolean IsPrevEdgeCorrect = Standard_True;
+    
+    //Candidates are the edges close to <CurPoint> in 2d
+    for (itl.Initialize(Elist); itl.More(); itl.Next())
+    {
+      const TopoDS_Edge& anEdge = TopoDS::Edge(itl.Value());
+      if (anEdge.IsSame(CurEdge))
+        continue;
+      BRepAdaptor_Curve2d BAcurve(anEdge, theFace);
+      gp_Pnt2d aPoint = BAcurve.Value(BAcurve.FirstParameter());
+      Standard_Real aDist = CurPoint.SquareDistance(aPoint);
+      if (aDist < MinDist)
+        Candidates.Append(anEdge);
+      else
+      {
+        aPoint = BAcurve.Value(BAcurve.LastParameter());
+        aDist = CurPoint.SquareDistance(aPoint);
+        if (aDist < MinDist)
+          Candidates.Append(anEdge);
+      }
+    }
+
+    if (Candidates.IsEmpty()) //hanging new edge
+    {
+      //need to build additional edges
+    }
+
+    TopoDS_Edge NextEdge, aCandidate;
+    for (Standard_Integer i = 1; i <= Candidates.Length(); i++)
+    {
+      const TopoDS_Edge& anEdge = TopoDS::Edge(Candidates(i));
+      if (NewEdges.Contains(anEdge))
+      {
+        TopExp::Vertices(anEdge, VV[0], VV[1], Standard_True);
+        if (VV[IndOr].IsSame(CurVertex))
+        {
+          BRepAdaptor_Curve2d BAcurve(anEdge, theFace);
+          Standard_Real aParam = BRep_Tool::Parameter(CurVertex, anEdge);
+          gp_Pnt2d aPoint = BAcurve.Value(aParam);
+          Standard_Real aDist = CurPoint.SquareDistance(aPoint);
+          if (aDist < MinDist)
+          {
+            NextEdge = anEdge;
+            break;
+          }
+        }
+        else //previous edge is incorrect
+        {
+          //remove previous edge from wire
+          //build additional edges
+          //NextEdge = anEdge;
+        }
+      }
+      else if (aCandidate.IsNull())
+      {
+        TopExp::Vertices(anEdge, VV[0], VV[1], Standard_True);
+        if (VV[IndOr].IsSame(CurVertex))
+        {
+          BRepAdaptor_Curve2d BAcurve(anEdge, theFace);
+          Standard_Real aParam = BRep_Tool::Parameter(VV[IndOr], anEdge);
+          gp_Pnt2d aPoint = BAcurve.Value(aParam);
+          Standard_Real aDist = CurPoint.SquareDistance(aPoint);
+          if (aDist < MinDist)
+            aCandidate = anEdge;
+        }
+      }
+    }
+    if (NextEdge.IsNull())
+      NextEdge = aCandidate;
+    
+    CurEdge = NextEdge;
+    CurVertex = (Direction == TopAbs_FORWARD)?
+      TopExp::LastVertex(CurEdge, Standard_True) :
+      TopExp::FirstVertex(CurEdge, Standard_True);
+    CurCurve.Initialize(CurEdge, theFace);
+    CurParam = BRep_Tool::Parameter(CurVertex, CurEdge);
+    CurPoint = CurCurve.Value(CurParam);
+    
+    BB.Add(NewWire, CurEdge);
+
+    if (CurVertex.IsSame(StartVertex) &&
+        CurPoint.SquareDistance(StartPoint) < MinDist)
+      break;
+  }
+
+  return NewWire;
+}
 
 //=======================================================================
 //function : CompleteDS
@@ -372,7 +554,7 @@ void  ChFi3d_Builder::Compute()
     
     
     if (done) {
-      BRep_Builder B1;
+      BRep_Builder BB;
       CompleteDS(DStr,myShape);
       //Update tolerances on vertex to max adjacent edges or
       //Update tolerances on degenerated edge to max of adjacent vertexes.
@@ -398,7 +580,7 @@ void  ChFi3d_Builder::Compute()
 	      if( tolc < tolv ) tolc = tolv + 0.00001;
 	    }
 	    if(degen && tolc < tolv) tolc = tolv;
-	    else if(tolc>tolv) B1.UpdateVertex(v,tolc);
+	    else if(tolc>tolv) BB.UpdateVertex(v,tolc);
 	  }
 	  else if(gk == TopOpeBRepDS_POINT){
 	    TopOpeBRepDS_Point& p = DStr.ChangePoint(gi);
@@ -409,7 +591,62 @@ void  ChFi3d_Builder::Compute()
 	}
 	if(degen) c.Tolerance(tolc);
       }
+      //jgv
+      
+      //for (on modified faces)
+      //compound of wires from each face
+      //compound of new edges for this face
+      //general fuse (compound of wires from a face, compound of new edges for this face)
+      //method building new face from old and new edges
+      //assembling of resulting shape from modified and unmodified faces.
+      for (Standard_Integer i = 1; i <= myNewFaces.Extent(); i++)
+      {
+        TopoDS_Face aFace = TopoDS::Face(myNewFaces(i));
+        aFace.Orientation(TopAbs_FORWARD);
+
+        TopoDS_Compound aNewEdges;
+        BB.MakeCompound(aNewEdges);
+        ChFi3d_ListIteratorOfListOfQualifiedEdge itl(myFaceNewEdges.FindFromKey(i));
+        for (; itl.More(); itl.Next())
+        {
+          Standard_Integer anIndex = itl.Value().Index;
+          TopoDS_Shape aNewEdge = myNewEdges(anIndex);
+          aNewEdge.Orientation(itl.Value().Orientation);
+          BB.Add(aNewEdges, aNewEdge);
+        }
+        //BRepAlgoAPI_Fuse aFuse(aWires, aNewEdges);
+        BOPAlgo_Builder GenFuse;
+        GenFuse.AddArgument(aFace);
+        GenFuse.AddArgument(aNewEdges);
+        GenFuse.Perform();
+        TopoDS_Shape aNewFace = aFace.EmptyCopied();
+        const TopoDS_Shape& aResFuse = GenFuse.Shape();
+        const BOPCol_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
+        TopTools_IndexedDataMapOfShapeListOfShape VEmapOfNewFace;
+        TopExp::MapShapesAndAncestors(aResFuse, TopAbs_VERTEX, TopAbs_EDGE, VEmapOfNewFace);
+        TopoDS_Iterator itw(aFace);
+        for (; itw.More(); itw.Next())
+        {
+          const TopoDS_Shape& aWire = itw.Value();
+          if (!ModifiedShapes.IsBound(aWire))
+            continue;
+          const TopTools_ListOfShape& aListOfModified = ModifiedShapes(aWire);
+          TopTools_ListIteratorOfListOfShape itwm(aListOfModified);
+          for (; itwm.More(); itwm.Next())
+          {
+            const TopoDS_Wire& aModifiedWire = TopoDS::Wire(itwm.Value());
+            cout<<"a Modified Wire ..."<<endl;
+            TopoDS_Wire aNewWire = BuildNewWire(aModifiedWire, VEmapOfNewFace, aNewEdges, aFace);
+            cout<<"a New Wire ..."<<endl;
+            BB.Add(aNewFace, aNewWire);
+            cout<<"a New Face ..."<<endl;
+          }
+        }
+      }
+
       myCoup->Perform(myDS);
+      //jgv//
+      
       TColStd_MapIteratorOfMapOfInteger It(MapIndSo);
       for(; It.More(); It.Next()){
 	Standard_Integer indsol = It.Key();
@@ -431,18 +668,18 @@ void  ChFi3d_Builder::Compute()
 	  for (; exv.More(); exv.Next() ) {
 	    const TopoDS_Vertex& v = TopoDS::Vertex(exv.Current());
 	    Standard_Real tolv = BRep_Tool::Tolerance(v);
-	    if (tole>tolv) B1.UpdateVertex(v,tole);
+	    if (tole>tolv) BB.UpdateVertex(v,tole);
 	  }
 	}
       }
       if (!hasresult) {
-      B1.MakeCompound(TopoDS::Compound(myShapeResult));
+      BB.MakeCompound(TopoDS::Compound(myShapeResult));
       for(It.Reset(); It.More(); It.Next()){
 	Standard_Integer indsol = It.Key();
 	const TopoDS_Shape& curshape = DStr.Shape(indsol);
 	TopTools_ListIteratorOfListOfShape 
 	  its = myCoup->Merged(curshape,TopAbs_IN);
-	if(!its.More()) B1.Add(myShapeResult,curshape);
+	if(!its.More()) BB.Add(myShapeResult,curshape);
 	else {
 	  //If the old type of Shape is Shell, Shell is placed instead of Solid, 
           //However there is a problem for compound of open Shell.
@@ -452,11 +689,11 @@ void  ChFi3d_Builder::Compute()
 	      TopExp_Explorer expsh2(its.Value(),TopAbs_SHELL);
 	      const TopoDS_Shape& cursh = expsh2.Current();
 	      TopoDS_Shape tt = cursh;
-	      B1.Add(myShapeResult,cursh);
+	      BB.Add(myShapeResult,cursh);
 	      its.Next();
 	    }
 	    else {
-	      B1.Add(myShapeResult,its.Value());
+	      BB.Add(myShapeResult,its.Value());
 	      its.Next();
 	    }
 	  }
@@ -465,16 +702,16 @@ void  ChFi3d_Builder::Compute()
       }
       else {
        done=Standard_False;
-       B1.MakeCompound(TopoDS::Compound(badShape));
+       BB.MakeCompound(TopoDS::Compound(badShape));
       for(It.Reset(); It.More(); It.Next()){
 	Standard_Integer indsol = It.Key();
 	const TopoDS_Shape& curshape = DStr.Shape(indsol);
 	TopTools_ListIteratorOfListOfShape 
 	  its = myCoup->Merged(curshape,TopAbs_IN);
-	if(!its.More()) B1.Add(badShape,curshape);
+	if(!its.More()) BB.Add(badShape,curshape);
 	else {
 	  while (its.More()) { 
-	    B1.Add(badShape,its.Value());
+	    BB.Add(badShape,its.Value());
 	    its.Next();
 	  }
 	}

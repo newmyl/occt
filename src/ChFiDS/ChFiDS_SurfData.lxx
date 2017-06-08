@@ -202,6 +202,26 @@ inline void ChFiDS_SurfData::ChangeIndexOfS2(const Standard_Integer Index)
 }
 
 //=======================================================================
+//function : ChangeIndexOfE1
+//purpose  : 
+//=======================================================================
+
+inline void ChFiDS_SurfData::ChangeIndexOfE1(const Standard_Integer Index) 
+{
+  indexOfE1 = Index;
+}
+
+//=======================================================================
+//function : ChangeIndexOfE2
+//purpose  : 
+//=======================================================================
+
+inline void ChFiDS_SurfData::ChangeIndexOfE2(const Standard_Integer Index) 
+{
+  indexOfE2 = Index;
+}
+
+//=======================================================================
 //function : ChangeSurf
 //purpose  : 
 //=======================================================================

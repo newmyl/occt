@@ -27,19 +27,19 @@
 #include <Standard_Integer.hxx>
 #include <Standard_Boolean.hxx>
 #include <TopAbs_Orientation.hxx>
-#include <Standard_Transient.hxx>
-
+#include <MMgt_TShared.hxx>
+class MMgt_TShared;
 class ChFiDS_FaceInterference;
 class ChFiDS_CommonPoint;
 class gp_Pnt2d;
 
 
 class ChFiDS_SurfData;
-DEFINE_STANDARD_HANDLE(ChFiDS_SurfData, Standard_Transient)
+DEFINE_STANDARD_HANDLE(ChFiDS_SurfData, MMgt_TShared)
 
 //! data structure for all information related to  the
 //! fillet and to 2 faces vis a vis
-class ChFiDS_SurfData : public Standard_Transient
+class ChFiDS_SurfData : public MMgt_TShared
 {
 
 public:
@@ -81,6 +81,10 @@ public:
   
     void ChangeIndexOfS2 (const Standard_Integer Index);
   
+    void ChangeIndexOfE1 (const Standard_Integer Index);
+  
+    void ChangeIndexOfE2 (const Standard_Integer Index);
+  
     void ChangeSurf (const Standard_Integer Index);
   
     void SetIndexOfC1 (const Standard_Integer Index);
@@ -106,6 +110,8 @@ public:
   Standard_EXPORT ChFiDS_FaceInterference& ChangeInterference (const Standard_Integer OnS);
   
   Standard_EXPORT Standard_Integer Index (const Standard_Integer OfS) const;
+  
+  Standard_EXPORT Standard_Integer IndexOfEdge(const Standard_Integer OfS) const;
   
   //! returns one of the four vertices  wether First is true
   //! or wrong and OnS equals 1 or 2.
@@ -135,9 +141,9 @@ public:
   
   Standard_EXPORT void LastExtensionValue (const Standard_Real Extend);
   
-  Standard_EXPORT Handle(Standard_Transient) Simul() const;
+  Standard_EXPORT Handle(MMgt_TShared) Simul() const;
   
-  Standard_EXPORT void SetSimul (const Handle(Standard_Transient)& S);
+  Standard_EXPORT void SetSimul (const Handle(MMgt_TShared)& S);
   
   Standard_EXPORT void ResetSimul();
   
@@ -158,7 +164,7 @@ public:
 
 
 
-  DEFINE_STANDARD_RTTIEXT(ChFiDS_SurfData,Standard_Transient)
+  DEFINE_STANDARD_RTTIEXT(ChFiDS_SurfData,MMgt_TShared)
 
 protected:
 
@@ -182,12 +188,16 @@ private:
   Standard_Real ulspine;
   Standard_Real myfirstextend;
   Standard_Real mylastextend;
-  Handle(Standard_Transient) simul;
+  Handle(MMgt_TShared) simul;
+  
   Standard_Integer indexOfS1;
   Standard_Integer indexOfC1;
   Standard_Integer indexOfS2;
   Standard_Integer indexOfC2;
+  Standard_Integer indexOfE1;
+  Standard_Integer indexOfE2;
   Standard_Integer indexOfConge;
+  
   Standard_Boolean isoncurv1;
   Standard_Boolean isoncurv2;
   Standard_Boolean twistons1;

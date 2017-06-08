@@ -24,9 +24,11 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(ChFiDS_SurfData,Standard_Transient)
 
-ChFiDS_SurfData::ChFiDS_SurfData () : 
-indexOfS1(0),indexOfS2(0),indexOfConge(0),
-isoncurv1(0),isoncurv2(0),twistons1(0),twistons2(0)
+ChFiDS_SurfData::ChFiDS_SurfData ()
+: indexOfS1(0),indexOfS2(0),
+  indexOfE1(0),indexOfE2(0),
+  indexOfConge(0),
+  isoncurv1(0),isoncurv2(0),twistons1(0),twistons2(0)
 {}
 
 //=======================================================================
@@ -38,6 +40,8 @@ void ChFiDS_SurfData::Copy(const Handle(ChFiDS_SurfData)& Other)
 {
 indexOfS1    = Other->indexOfS1;
 indexOfS2    = Other->indexOfS2;
+indexOfE1    = Other->indexOfE1;
+indexOfE2    = Other->indexOfE2;
 indexOfConge = Other->indexOfConge;
 orientation  = Other->orientation;
 intf1        = Other->intf1;
@@ -76,6 +80,19 @@ Standard_Integer ChFiDS_SurfData::Index(const Standard_Integer OfS) const
 }
 
 //=======================================================================
+//function : IndexOfEdge
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer  ChFiDS_SurfData::IndexOfEdge(const Standard_Integer OnS) const
+{
+  if (OnS == 1)
+    return indexOfE1;
+  else
+    return indexOfE2;
+}
+
+//=======================================================================
 //function : Interference
 //purpose  : 
 //=======================================================================
@@ -87,9 +104,8 @@ const ChFiDS_FaceInterference& ChFiDS_SurfData::Interference
   else return intf2;
 }
 
-
 //=======================================================================
-//function : Interference
+//function : ChangeInterference
 //purpose  : 
 //=======================================================================
 
