@@ -73,7 +73,7 @@ public:
   //! series of faces being located on either side of the contour.
   //! Warning
   //! Nothing is done if edge E or the face F does not belong to the initial shape.
-  Standard_EXPORT void Add (const Standard_Real Dis, const TopoDS_Edge& E, const TopoDS_Face& F);
+  Standard_EXPORT void Add (const Standard_Real Dis, const TopoDS_Edge& E);
   
   //! Sets the distances Dis1 and Dis2 which give the
   //! parameters of the chamfer along the contour of index
@@ -122,7 +122,10 @@ public:
   
   //! gives the distances <Dis> and <Angle> of the fillet
   //! contour of index <IC> in the DS
-  Standard_EXPORT void GetDistAngle (const Standard_Integer IC, Standard_Real& Dis, Standard_Real& Angle, Standard_Boolean& DisOnFace1) const;
+  Standard_EXPORT void GetDistAngle (const Standard_Integer IC, Standard_Real& Dis, Standard_Real& Angle) const;
+  
+  //! Sets the mode of chamfer
+  Standard_EXPORT void SetMode (const ChFiDS_ChamfMode theMode);
   
   //! return True if chamfer symetric false else.
   Standard_EXPORT Standard_Boolean IsSymetric (const Standard_Integer IC) const;

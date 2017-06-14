@@ -3910,10 +3910,11 @@ static Standard_Boolean GoodExt(const Handle(Geom_Curve)& C,
 //purpose  : 
 //=======================================================================
 Standard_EXPORT 
-  void ChFi3d_PerformElSpine(Handle(ChFiDS_HElSpine)& HES,
-  Handle(ChFiDS_Spine)&    Spine,
-  const GeomAbs_Shape      continuity,
-  const Standard_Real      tol) 
+void ChFi3d_PerformElSpine(Handle(ChFiDS_HElSpine)& HES,
+                           Handle(ChFiDS_Spine)&    Spine,
+                           const GeomAbs_Shape      continuity,
+                           const Standard_Real      tol,
+                           const Standard_Boolean   IsOffset)
 {
 
   Standard_Boolean periodic, Bof, checkdeb, cepadur,bIsSmooth;
@@ -3965,8 +3966,8 @@ Standard_EXPORT
   // derniere arete.
   // Traitment de la premiere arete
   cepadur = 0;
-  E=Spine->Edges(IF);
-  Bof=BRepLib::BuildCurve3d(E);
+  E = (IsOffset)? Spine->OffsetEdges(IF) : Spine->Edges(IF);
+  Bof = BRepLib::BuildCurve3d(E);
   const BRepAdaptor_Curve& edc = Spine->CurrentElementarySpine(IF);
   tolpared = edc.Resolution(tol);
   Cv = BRep_Tool::Curve(E, First, Last);
@@ -4089,7 +4090,7 @@ Standard_EXPORT
       iloc = (IEdge - 1)%nbed + 1;
     }
     //
-    E = Spine->Edges(iloc);
+    E = (IsOffset)? Spine->OffsetEdges(iloc) : Spine->Edges(iloc);
     if (BRep_Tool::Degenerated(E)) {
       continue;
     }
@@ -4362,6 +4363,11 @@ Standard_EXPORT
 
   // Le Resultat       
   ES.SetCurve(BSpline);
+
+  //Temporary
+  //gp_Pnt ptgui;
+  //gp_Vec d1gui;
+  //( HES->Curve() ).D1(HES->FirstParameter(),ptgui,d1gui);
 }
 
 //=======================================================================

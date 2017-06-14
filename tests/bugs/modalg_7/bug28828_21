@@ -1,0 +1,32 @@
+puts "========"
+puts "OCC28828"
+puts "========"
+puts ""
+############################################################
+# New functionalities of BRepFilletAPI_MakeChamfer algorithm
+############################################################
+
+#non-KPart (nurbsconvert): cone + plane, penetrating throat
+pcone a1 40 0 70
+box a2 -50 -50 -20  100 100 40
+bfuse b a1 a2
+nurbsconvert b b
+donly b
+
+explode b f
+explode b_7 e
+donly b b_7_2
+
+chamf_throat_with_penetration result b b_7_2 b_7 2. 3.
+
+checkshape result
+
+checknbshapes result -solid 1 -shell 1 -face 8 -wire 9 -edge 17 -vertex 11 -shape 48
+
+set tolres [checkmaxtol result]
+
+if { ${tolres} > 1.001e-7} {
+   puts "Error: bad tolerance of result"
+}
+
+checkprops result -v 446861

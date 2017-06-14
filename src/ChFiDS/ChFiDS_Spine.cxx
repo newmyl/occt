@@ -77,6 +77,16 @@ void ChFiDS_Spine::AppendElSpine(const Handle(ChFiDS_HElSpine)& Els)
 }
 
 //=======================================================================
+//function : AppendOffsetElSpine
+//purpose  : 
+//=======================================================================
+
+void ChFiDS_Spine::AppendOffsetElSpine(const Handle(ChFiDS_HElSpine)& Els)
+{
+  offset_elspines.Append(Els);
+}
+
+//=======================================================================
 //function : ElSpine
 //purpose  : 
 //=======================================================================
@@ -118,6 +128,16 @@ Handle(ChFiDS_HElSpine) ChFiDS_Spine::ElSpine(const Standard_Real W) const
 ChFiDS_ListOfHElSpine& ChFiDS_Spine::ChangeElSpines() 
 {
   return elspines;
+}
+
+//=======================================================================
+//function : ChangeOffsetElSpines
+//purpose  : 
+//=======================================================================
+
+ChFiDS_ListOfHElSpine& ChFiDS_Spine::ChangeOffsetElSpines() 
+{
+  return offset_elspines;
 }
 
 //=======================================================================
