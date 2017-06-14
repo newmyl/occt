@@ -318,6 +318,7 @@ static Standard_Boolean  SelectEdge(const TopoDS_Face&    F,
     }
   }
 #endif
+
   for ( itl.Initialize(LE); itl.More(); itl.Next()) {
     if (itl.Value().IsEqual(CE)) {
       LE.Remove(itl);
