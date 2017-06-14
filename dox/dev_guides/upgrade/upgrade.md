@@ -1576,3 +1576,9 @@ Class *Message_PrinterOStream* can be used instead of *CDM_COutMessageDriver* to
 If custom driver class is used in the application, that class shall be reimplemented inheriting from *Message_Printer* instead of *CDM_MessageDriver*.
 Method *Send()* should be redefined instead of method *Write()* of *CDM_MessageDriver*.
 To use the custom printer in OCAF, it can be either added to default messenger or set into the custom *Message_Messenger* object created in the method *MessageDriver()* of a class inheriting *CDF_Application*.
+
+@subsection upgrade_730_Modifications_In_Chamfer_Algorithm Syntax of the Draw command *chamf*
+
+* The Draw command *chamf* has now simple syntax in case of equal distances from edge chamfer:
+chamf newname shape edge dist
+
