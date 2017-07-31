@@ -25,7 +25,7 @@ checknbshapes result -solid 1 -shell 1 -face 8 -wire 9 -edge 17 -vertex 11 -shap
 
 set tolres [checkmaxtol result]
 
-if { ${tolres} > 1.001e-7} {
+if { ${tolres} > 0.0001} {
    puts "Error: bad tolerance of result"
 }
 

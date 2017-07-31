@@ -940,6 +940,7 @@ Standard_Boolean ChFi3d_Builder::PerformElement(const Handle(ChFiDS_Spine)& Spin
     else {// Upstream progression
       Fini = Standard_False;
       Ec = Spine->Edges(1);
+      FirstFace = TopoDS::Face(myEdgeFirstFace(Ec));
       curor = Ec.Orientation();
       FVEc = VStart;
       while (!Fini) {

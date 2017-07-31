@@ -162,10 +162,6 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
 {
   // check the argument number of the command
   if (narg == 1) {
-    //cout <<" help for chamf : "<< endl;
-    //cout <<"   Construction by equal distances from edge          :  chamf newname shape edge face S dist"<< endl;
-    //cout <<"   Construction by two distances from edge            :  chamf newname shape edge face dist1 dist2"<< endl;
-    //cout <<"   Construction by distance from edge and given angle :  chamf newname shape edge face A dist angle"<< endl;
     di <<" help for chamf : \n";
     di <<"   Construction by equal distances from edge          :  chamf newname shape edge dist\n";
     di <<"   Construction by two distances from edge            :  chamf newname shape edge face dist1 dist2\n";
@@ -183,7 +179,6 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
     TopoDS_Face F;
     Standard_Real d1,d2, angle;
     Standard_Integer i      = 3;
-    Standard_Integer Method = 0;
 
     BRepFilletAPI_MakeChamfer aMCh(S);
 
@@ -195,7 +190,7 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
       TopoDS_Shape aLocalFace(DBRep::Get(a[i + 1], TopAbs_FACE));
       if (aLocalFace.IsNull())
       {
-        Method = 0;
+        //symmetric chamfer (one distance)
         d1 = atof(a[i + 1]);
         if (aMCh.Contour(E) == 0 &&
             d1 > Precision::Confusion())
@@ -211,7 +206,7 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
           if (!strcasecmp(a[i + 2], "A") &&
               i + 4 < narg)
           {
-            Method = 2;
+            //chamfer with distance and angle
             d1    = Draw::Atof(a[i + 3]);
             angle = Draw::Atof(a[i + 4]);
             angle *= M_PI / 180.;
@@ -224,7 +219,7 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
           }
           else
           {
-            Method = 1;
+            //chamfer with two distances
             d1 = Draw::Atof(a[i + 2]);
             d2 = Draw::Atof(a[i + 3]);
             if (aMCh.Contour(E) == 0 &&
