@@ -1,0 +1,84 @@
+puts "=================================="
+puts "AIS_ViewCube - display custom styled View Cube"
+puts "=================================="
+
+set anImage1 $imagedir/${casename}_1.png
+set anImage2 $imagedir/${casename}_2.png
+set anImage3 $imagedir/${casename}_3.png
+set anImage4 $imagedir/${casename}_4.png
+set anImage5 $imagedir/${casename}_5.png
+set anImage6 $imagedir/${casename}_6.png
+set anImage7 $imagedir/${casename}_7.png
+vclear
+vclose ALL
+vinit
+
+# -------------------------------------
+# Color
+# -------------------------------------
+vviewcube -enable -boxcolor 0.69 0.88 1 -arrowcolor 0 0.4 0.54 -textcolor 0 0.4 0.54
+if {[vreadpixel 118 273 name] != "LIGHTSLATEGRAY 1" || [vreadpixel 270 260 name] != "GRAY15 0.24705882370471954"} {
+  puts "ERROR: Errors in changing View Cube colors."
+}
+vdump $anImage1
+
+# -------------------------------------
+# Transparency
+# -------------------------------------
+vviewcube -reset
+vviewcube -transparency 0.5
+if {[vreadpixel 118 273 name] != "GRAY17 0.37254902720451355" || [vreadpixel 270 260 name] != "GRAY48 0.24705882370471954"} {
+  puts "ERROR: Errors in changing View Cube common transparency."
+}
+vdump $anImage2
+
+vviewcube -reset
+vviewcube -boxtransparency 0.4 -arrowtransparency 0.2
+if {[vreadpixel 118 273 name] != "GRAY16 0.5058823823928833" || [vreadpixel 270 260 name] != "GRAY76 0.63921570777893066"} {
+  puts "ERROR: Errors in changing View Cube separate transparency."
+}
+vdump $anImage3
+
+# -------------------------------------
+# Arrows
+# -------------------------------------
+vviewcube -reset
+vviewcube -arrowangle 30 -arrowlength 30
+if {[vreadpixel 270 268 name] != "BLACK 0" || [vreadpixel 291 259 name] != "GRAY48 0.24705882370471954"} {
+  puts "ERROR: Errors in changing View Cube arrow style."
+}
+vdump $anImage4
+
+# -------------------------------------
+# Font
+# -------------------------------------
+vviewcube -reset
+vviewcube -font "Impact" -fontheight 16
+if {[vreadpixel 150 200 name] != "BLACK 0.729411780834198" || [vreadpixel 168 391 name] != "RED 1"} {
+  puts "ERROR: Errors in changing View Cube font."
+}
+vdump $anImage5
+# -------------------------------------
+# Padding
+# -------------------------------------
+vviewcube -reset
+vviewcube -boxpadding 10 -axispadding 20 -arrowpadding 10
+if {[vreadpixel 71 263 name] != "BLACK 0" || [vreadpixel 37 266 name] != "BLUE2 1"} {
+  puts "ERROR: Errors in changing View Cube padding."
+}
+vdump $anImage6
+# -------------------------------------
+# Corner radius
+# -------------------------------------
+vviewcube -reset
+vviewcube -cornerradius 0.2
+vdump $anImage7
+
+vviewcube -remove
+vclear
+
+
+
+
+
+

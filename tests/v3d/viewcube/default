@@ -1,0 +1,64 @@
+puts "=================================="
+puts "AIS_ViewCube - display and erase with default settings"
+puts "=================================="
+
+set anImage1 $imagedir/${casename}_1.png
+set anImage2 $imagedir/${casename}_2.png
+set anImage3 $imagedir/${casename}_3.png
+set anImage4 $imagedir/${casename}_4.png
+
+vclear
+vclose ALL
+vinit
+# -------------------------------------
+# create helper object
+# -------------------------------------
+box aBox1 15 20 70
+vdisplay aBox1 -dispMode 1
+vaxo
+vfit
+
+# -------------------------------------
+# display view cube object
+# -------------------------------------
+vviewcube -enable -size 70 -adaptsize -position 120 250
+
+vmoveto 118 230
+if {[vreadpixel 118 230 name] != "DARKTURQUOISE 1"} {
+  puts "ERROR: Highlighting of view cube side is wrong."
+}
+vmoveto 0 0
+vdump $anImage1
+
+# -------------------------------------
+# Check side
+# -------------------------------------
+vselect 125 200
+if {[vreadpixel 115 233 name] != "GRAY95 1"} {
+  puts "ERROR: Display of view cube is wrong."
+}
+if {[vreadpixel 190 136 name] != "IVORY 1"} {
+  puts "ERROR: Position of TOP camera is wrong."
+}
+vdump $anImage2
+
+# -------------------------------------
+# Check edge
+# -------------------------------------
+vselect 163 242
+if {[vreadpixel 141 234 name] != "GRAY76 1"} {
+  puts "ERROR: Position of TOP-RIGHT camera is wrong."
+}
+vdump $anImage3
+
+# -------------------------------------
+# Check vertex
+# -------------------------------------
+vselect 121 213
+if {[vreadpixel 120 250 name] != "GRAY95 1"} {
+  puts "ERROR: Position of TOP-RIGHT-BACK camera is wrong."
+}
+vdump $anImage4
+
+vviewcube -remove
+vclear
