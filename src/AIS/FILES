@@ -181,3 +181,5 @@ AIS_TypeOfAxis.hxx
 AIS_TypeOfDist.hxx
 AIS_TypeOfIso.hxx
 AIS_TypeOfPlane.hxx
+AIS_ViewCube.hxx
+AIS_ViewCube.cxx
