@@ -1,0 +1,28 @@
+puts "=================================="
+puts "AIS_ViewCube - check view affinity"
+puts "=================================="
+
+set anImage1 $imagedir/${casename}_1.png
+set anImage2 $imagedir/${casename}_2.png
+
+vclear
+vclose ALL
+vinit view1
+vinit view2
+
+vviewcube -enable
+
+if {[vreadpixel 150 220 name] != "GRAY68 1"} {
+  puts "ERROR: display of View Cube in view2 fails."
+}
+vdump $anImage1
+
+vactivate view1
+
+if {[vreadpixel 150 220 name] != "BLACK 0"} {
+  puts "ERROR: View Cube should not be displayed in view1."
+}
+vdump $anImage2
+
+vactivate view2
+vviewcube -remove

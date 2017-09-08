@@ -26,6 +26,7 @@
 #include <AIS_InteractiveObject.hxx>
 #include <AIS_ListOfInteractive.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
+#include <AIS_ViewCube.hxx>
 #include <Aspect_Grid.hxx>
 #include <DBRep.hxx>
 #include <Draw_ProgressIndicator.hxx>
@@ -283,6 +284,25 @@ Standard_EXPORT Handle(AIS_Manipulator) GetActiveAISManipulator()
       return anIt.Value();
     }
   }
+  return NULL;
+}
+
+typedef NCollection_DataMap<Handle(V3d_View), Handle(AIS_ViewCube)> ViewerTest_MapOfViewCube;
+
+Standard_EXPORT ViewerTest_MapOfViewCube& MapOfViewCube()
+{
+  static ViewerTest_MapOfViewCube aViewMap;
+  return aViewMap;
+}
+
+Standard_EXPORT Handle(AIS_ViewCube) ActiveViewCube()
+{
+  Handle(AIS_ViewCube) aCube;
+  if (MapOfViewCube().Find (ViewerTest::CurrentView(), aCube))
+  {
+    return aCube;
+  }
+
   return NULL;
 }
 
@@ -11859,6 +11879,215 @@ static int VDumpSelectionImage (Draw_Interpretor& /*theDi*/,
   return 0;
 }
 
+//===============================================================================================
+//function : VViewCube
+//purpose  :
+//===============================================================================================
+static int VViewCube (Draw_Interpretor& theDi,
+                      Standard_Integer  theArgsNb,
+                      const char**      theArgVec)
+{
+  if (theArgsNb < 2)
+  {
+    std::cout << "Syntax error: wrong number arguments for '" << theArgVec[0] << "'\n";
+    return 1;
+  }
+
+  const Handle(AIS_InteractiveContext)& aContext = ViewerTest::GetAISContext();
+  const Handle(V3d_View)& aView = ViewerTest::CurrentView();
+  if (aContext.IsNull() || aView.IsNull())
+  {
+    std::cout << "Error: no active view.\n";
+    return 1;
+  }
+
+  ViewerTest_AutoUpdater anUpdateTool (aContext, aView);
+  Standard_Integer anArgIter = 1;
+  for (; anArgIter < theArgsNb; ++anArgIter)
+  {
+    anUpdateTool.parseRedrawMode (theArgVec[anArgIter]);
+  }
+
+  Handle(AIS_ViewCube) aViewCube;
+  ViewerTest_CmdParser aCmd;
+  aCmd.AddDescription ("vviewcube Name [options]. Commmand manages View Cube object:");
+  aCmd.AddOption ("enable", "enables view cube");
+  aCmd.AddOption ("disable", "disables view cube");
+  aCmd.AddOption ("remove", "removes view cube presentation from context and view");
+  aCmd.AddOption ("remove", "removes view cube presentation from context and view");
+  aCmd.AddOption ("reset", "reset geomertical and visual attributes");
+  aCmd.AddOption ("size", "... size - set size of View Cube");
+  aCmd.AddOption ("adaptsize", " - adapt all another parameters to input size");
+  aCmd.AddOption ("color", "... r g b - set color of View Cube ");
+  aCmd.AddOption ("boxcolor", "... r g b - set box color of view cube");
+  aCmd.AddOption ("arrowcolor", "... r g b - set arrow color of view cube");
+  aCmd.AddOption ("textcolor", "... r g b - set side text color of view cube");
+  aCmd.AddOption ("innercolor", "... r g b - set inner box color of view cube");
+  aCmd.AddOption ("arrowangle", "... value - set pointer angle of arrows in radians");
+  aCmd.AddOption ("arrowlength", "... value - set length of arrows");
+  aCmd.AddOption ("arrowpadding", "... value - set padding between axis and arrows");
+  aCmd.AddOption ("transparency", "... [0;1] - set transparency of object");
+  aCmd.AddOption ("boxtransparency", "... [0;1] - set transparency of box in View Cube");
+  aCmd.AddOption ("arrowtransparency", "... [0;1] - set transparency of arrows in View Cube");
+  aCmd.AddOption ("font", "... string - set font name");
+  aCmd.AddOption ("fontheight", "... value - set font height");
+  aCmd.AddOption ("boxpadding", "... value - set padding between box sides");
+  aCmd.AddOption ("axispadding", "... value - set padding between box and arrows");
+  aCmd.AddOption ("cornerradius", "... value - set radius of side corners in [0;0.5] (0-50% of box side size)");
+  aCmd.AddOption ("hideedges", " - hide edges of View Cube");
+  aCmd.AddOption ("showedges", " - show edges of View Cube");
+  aCmd.AddOption ("hidevertices", " - hide vertices ov View Cube");
+  aCmd.AddOption ("showvertices", " - show vertices ov View Cube");
+  aCmd.AddOption ("position", "... PixX PixY - 2D position of View Cube from top left corner");
+
+  aCmd.Parse (theArgsNb, theArgVec);
+
+  if (aCmd.HasOption ("help"))
+  {
+    theDi.PrintHelp (theArgVec[0]);
+    return 0;
+  }
+
+  // Get current view cube entity
+  aViewCube = ActiveViewCube();
+  if (aViewCube.IsNull())
+  {
+    aViewCube = new AIS_ViewCube();
+    MapOfViewCube().Bind (aView, aViewCube);
+    aViewCube->SetAutoTransform (Standard_True);
+  }
+
+  if (aCmd.HasOption ("color"))
+  {
+    aViewCube->SetColor (Quantity_Color (aCmd.ArgVec3f ("color")));
+  }
+  if (aCmd.HasOption ("boxcolor"))
+  {
+    aViewCube->SetBoxColor (Quantity_Color (aCmd.ArgVec3f ("boxcolor")));
+  }
+  if (aCmd.HasOption ("arrowcolor"))
+  {
+    aViewCube->SetArrowColor (Quantity_Color (aCmd.ArgVec3f ("arrowcolor")));
+  }
+  if (aCmd.HasOption ("textcolor"))
+  {
+    aViewCube->SetTextColor (Quantity_Color (aCmd.ArgVec3f ("textcolor")));
+  }
+  if (aCmd.HasOption ("innercolor"))
+  {
+    aViewCube->SetInnerColor (Quantity_Color (aCmd.ArgVec3f ("innercolor")));
+  }
+  if (aCmd.HasOption ("arrowangle"))
+  {
+    aViewCube->SetArrowAngle (aCmd.ArgDouble ("arrowangle") * M_PI / 180.0);
+  }
+  if (aCmd.HasOption ("arrowlength"))
+  {
+    aViewCube->SetArrowLength (aCmd.ArgDouble ("arrowlength"));
+  }
+  if (aCmd.HasOption ("arrowpadding"))
+  {
+    aViewCube->SetArrowPadding (aCmd.ArgDouble ("arrowpadding"));
+  }
+  if (aCmd.HasOption ("transparency"))
+  {
+    aViewCube->SetTransparency (aCmd.ArgDouble ("transparency"));
+  }
+  if (aCmd.HasOption ("boxtransparency"))
+  {
+    aViewCube->SetBoxTransparency (aCmd.ArgDouble ("boxtransparency"));
+  }
+  if (aCmd.HasOption ("arrowtransparency"))
+  {
+    aViewCube->SetArrowTransparency (aCmd.ArgDouble ("arrowtransparency"));
+  }
+  if (aCmd.HasOption ("font"))
+  {
+    aViewCube->SetFont (aCmd.Arg ("font", 0).c_str());
+  }
+  if (aCmd.HasOption ("fontheight"))
+  {
+    aViewCube->SetFontHeight (aCmd.ArgDouble ("fontheight", 0));
+  }
+  if (aCmd.HasOption ("boxpadding"))
+  {
+    aViewCube->SetBoxPadding (aCmd.ArgDouble ("boxpadding"));
+  }
+  if (aCmd.HasOption ("axispadding"))
+  {
+    aViewCube->SetAxisPadding (aCmd.ArgDouble ("axispadding"));
+  }
+  if (aCmd.HasOption ("cornerradius"))
+  {
+    aViewCube->SetCornerRadius (aCmd.ArgDouble ("cornerradius"));
+  }
+  if (aCmd.HasOption ("hideedges"))
+  {
+    aViewCube->SetDrawEdges (Standard_False);
+  }
+  if (aCmd.HasOption ("showedges"))
+  {
+    aViewCube->SetDrawEdges (Standard_True);
+  }
+  if (aCmd.HasOption ("hidevertices"))
+  {
+    aViewCube->SetDrawVertices (Standard_False);
+  }
+  if (aCmd.HasOption ("showvertices"))
+  {
+    aViewCube->SetDrawVertices (Standard_True);
+  }
+  if (aCmd.HasOption ("position", 2))
+  {
+    aViewCube->SetPosition (Graphic3d_Vec2i (aCmd.ArgInt ("position", 0), aCmd.ArgInt ("position", 1)),
+                            aView);
+  }
+  if (aCmd.HasOption ("size"))
+  {
+    aViewCube->SetSize (aCmd.ArgDouble ("size", 0), aCmd.HasOption ("adaptsize"));
+  }
+  if (aCmd.HasOption ("reset"))
+  {
+    aViewCube->Reset();
+  }
+
+  // Enable View Cube for current view
+  if (aCmd.HasOption ("enable") && !aContext->IsDisplayed (aViewCube))
+  {
+    aContext->MainSelector()->SetPickClosest (Standard_False);
+    if (aViewCube->View().IsNull())
+    {
+      aViewCube->SetView (aView);
+      aViewCube->AddTo (aContext, aView);
+    }
+    else
+    {
+      aViewCube->Show();
+    }
+  }
+  else if (aCmd.HasOption ("disable") && aContext->IsDisplayed (aViewCube))
+  {
+    ViewerTest::GetAISContext()->MainSelector()->SetPickClosest (Standard_True);
+    aViewCube->Hide();
+  }
+  else if (aCmd.HasOption ("remove") && aContext->IsDisplayed (aViewCube))
+  {
+    ViewerTest::GetAISContext()->MainSelector()->SetPickClosest (Standard_True);
+    MapOfViewCube().UnBind (aViewCube->View());
+    aContext->Remove (aViewCube, Standard_False);
+  }
+  else
+  {
+    TColStd_ListOfInteger aModes;
+    aViewCube->ToBeUpdated (aModes);
+    if (!aModes.IsEmpty())
+    {
+      aContext->Redisplay (aViewCube, Standard_False);
+    }
+  }
+
+  return 0;
+}
 //=======================================================================
 //function : ViewerCommands
 //purpose  :
@@ -12557,4 +12786,39 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
     "vprogressive",
     __FILE__, VProgressiveMode, group);
 #endif
+
+  theCommands.Add ("vviewcube",
+    "\n vviewcube [-enable|-disable]"
+    "\n Warning: after end pf test please call vviewcube -remove, otherwise View Cube will hold down active view from closing"
+    "\n    tool to create and manage interactive view manipualtion object for active view."
+    "\n    Options: "
+    "\n      '-enable|disable'         display/erase view cube with defined visual options"
+    "\n      '-reset                   reset geomertical and visual attributes'"
+    "\n      '-size Value'             adjust position when attaching"
+    "\n      '-adaptSize'              call with -size to adapt all part to size of 3D box"
+    "\n      'remove'                  removes view cube presentation from context and view"
+    "\n      'size Size'               set size of View Cube"
+    "\n      'color R G B'             set color of View Cube in limits [0;1]"
+    "\n      'boxcolor R G B'          set box color of view cube in limits [0;1]"
+    "\n      'arrowcolor R G B'        set arrow color of view cube in limits [0;1]"
+    "\n      'textcolor R G B'         set color of side text of view cube in limits [0;1]"
+    "\n      'innercolor R G B'        set inner box color of view cube in limits [0;1]"
+    "\n      'arrowangle Value'        set pointer angle of arrows in radians"
+    "\n      'arrowlength Value'       set length of arrows"
+    "\n      'arrowpadding Value'      set padding between axis and arrows"
+    "\n      'transparency [0;1]'      set transparency of object"
+    "\n      'boxtransparency [0;1]'   set transparency of box in View Cube"
+    "\n      'arrowtransparency [0;1]' set transparency of arrows in View Cube"
+    "\n      'font Name'               set font name"
+    "\n      'fontheight value'        set font height"
+    "\n      'boxpadding Value'        set padding between box sides"
+    "\n      'axispadding Value'       set padding between box and arrows"
+    "\n      'cornerradius Value'      set radius of corners of sides"
+    "\n      'hideedges'               hide edges of View Cube"
+    "\n      'showedges'               show edges of View Cube"
+    "\n      'hidevertices'            hide vertices ov View Cube"
+    "\n      'showvertices'            show vertices ov View Cube"
+    "\n      'position XPix YPix'      2D position of View Cube from top left corner",
+    __FILE__, VViewCube, group);
+
 }
