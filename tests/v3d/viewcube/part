@@ -1,0 +1,33 @@
+puts "====================================="
+puts "AIS_ViewCube - test custom appearance"
+puts "====================================="
+
+set anImage1 $imagedir/${casename}_1.png
+set anImage2 $imagedir/${casename}_2.png
+set anImage3 $imagedir/${casename}_3.png
+
+vclear
+vclose ALL
+vinit
+
+vviewcube -enable -hideedges
+if {[vreadpixel 186 236 name] != "BLACK 0"} {
+  puts "ERROR: Invalid display of View Cube without edges."
+}
+vdump $anImage1
+
+vviewcube -showedges -hidevertices
+if {[vreadpixel 150 258 name] != "BLACK 0"} {
+  puts "ERROR: Invalid display of View Cube without vertices."
+}
+vdump $anImage2
+
+vviewcube -hideedges -hidevertices
+
+if {[vreadpixel 186 236 name] != "BLACK 0" || [vreadpixel 150 258 name] != "BLACK 0"} {
+  puts "ERROR: Invalid display of View Cube without edges & vertices."
+}
+vdump $anImage3
+
+vviewcube -remove
+vclear

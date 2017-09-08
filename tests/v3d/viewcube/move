@@ -1,0 +1,46 @@
+puts "=================================="
+puts "AIS_ViewCube - check positioning of View Cube"
+puts "=================================="
+
+set anImage1 $imagedir/${casename}_1.png
+set anImage2 $imagedir/${casename}_2.png
+set anImage3 $imagedir/${casename}_3.png
+set anImage4 $imagedir/${casename}_4.png
+
+vclear
+vclose ALL
+vinit
+
+# -------------------------------------
+# display view cube object
+# -------------------------------------
+vviewcube -enable -size 70 -adaptsize
+
+# -------------------------------------
+# check positioning of view cube object
+# -------------------------------------
+if {[vreadpixel 96 285 name] != "GRAY68 1"} {
+  puts "ERROR: Bottom left View Cube fails."
+}
+vdump $anImage1
+
+vviewcube -position 200 200
+if {[vreadpixel 200 176 name] != "GRAY68 1"} {
+  puts "ERROR: Center View Cube fails."
+}
+vdump $anImage2
+
+vviewcube -position 310 100
+if {[vreadpixel 310 73 name] != "GRAY68 1"} {
+  puts "ERROR: Top right View Cube fails."
+}
+vdump $anImage3
+
+vviewcube -position 140 240
+if {[vreadpixel 140 217 name] != "GRAY68 1"} {
+  puts "ERROR: Custom View Cube fails."
+}
+vdump $anImage4
+
+vviewcube -remove
+vclear
