@@ -289,17 +289,6 @@ Standard_GUID XCAFDoc::ViewRefEnabledShapesGUID()
 //purpose  : 
 //=======================================================================
 
-Standard_GUID XCAFDoc::ViewRefNoteGUID()
-{
-  static Standard_GUID ID("C814ACC6-43AC-4812-9B2A-4E9A2A549354");
-  return ID;
-}
-
-//=======================================================================
-//function : ViewRefPlaneGUID
-//purpose  : 
-//=======================================================================
-
 Standard_GUID XCAFDoc::ViewRefAnnotationGUID()
 {
   static Standard_GUID ID("A2B5BA42-DD00-43f5-8882-4B5F8E76B9D2");

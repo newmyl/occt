@@ -34,14 +34,14 @@ enum {
   ExtraRef_SubshapeIndex
 };
 
-const Standard_GUID& 
+const Standard_GUID&
 XCAFDoc_AssemblyItemRef::GetID()
 {
   static Standard_GUID s_ID("3F2E4CD6-169B-4747-A321-5670E4291F5D");
   return s_ID;
 }
 
-Handle(XCAFDoc_AssemblyItemRef) 
+Handle(XCAFDoc_AssemblyItemRef)
 XCAFDoc_AssemblyItemRef::Get(const TDF_Label& theLabel)
 {
   Handle(XCAFDoc_AssemblyItemRef) aThis;
@@ -49,9 +49,9 @@ XCAFDoc_AssemblyItemRef::Get(const TDF_Label& theLabel)
   return aThis;
 }
 
-Handle(XCAFDoc_AssemblyItemRef) 
+Handle(XCAFDoc_AssemblyItemRef)
 XCAFDoc_AssemblyItemRef::Set(const TDF_Label&              theLabel,
-                             const XCAFDoc_AssemblyItemId& theItemId)
+const XCAFDoc_AssemblyItemId& theItemId)
 {
   Handle(XCAFDoc_AssemblyItemRef) aThis;
   if (!theLabel.IsNull() && !theLabel.FindAttribute(XCAFDoc_AssemblyItemRef::GetID(), aThis))
@@ -63,10 +63,10 @@ XCAFDoc_AssemblyItemRef::Set(const TDF_Label&              theLabel,
   return aThis;
 }
 
-Handle(XCAFDoc_AssemblyItemRef) 
+Handle(XCAFDoc_AssemblyItemRef)
 XCAFDoc_AssemblyItemRef::Set(const TDF_Label&              theLabel,
-                             const XCAFDoc_AssemblyItemId& theItemId,
-                             const Standard_GUID&          theAttrGUID)
+const XCAFDoc_AssemblyItemId& theItemId,
+const Standard_GUID&          theAttrGUID)
 {
   Handle(XCAFDoc_AssemblyItemRef) aThis;
   if (!theLabel.IsNull() && !theLabel.FindAttribute(XCAFDoc_AssemblyItemRef::GetID(), aThis))
@@ -79,10 +79,10 @@ XCAFDoc_AssemblyItemRef::Set(const TDF_Label&              theLabel,
   return aThis;
 }
 
-Handle(XCAFDoc_AssemblyItemRef) 
+Handle(XCAFDoc_AssemblyItemRef)
 XCAFDoc_AssemblyItemRef::Set(const TDF_Label&              theLabel,
-                             const XCAFDoc_AssemblyItemId& theItemId,
-                             const Standard_Integer        theShapeIndex)
+const XCAFDoc_AssemblyItemId& theItemId,
+const Standard_Integer        theShapeIndex)
 {
   Handle(XCAFDoc_AssemblyItemRef) aThis;
   if (!theLabel.IsNull() && !theLabel.FindAttribute(XCAFDoc_AssemblyItemRef::GetID(), aThis))
@@ -101,7 +101,7 @@ XCAFDoc_AssemblyItemRef::XCAFDoc_AssemblyItemRef()
 
 }
 
-Standard_Boolean 
+Standard_Boolean
 XCAFDoc_AssemblyItemRef::IsOrphan() const
 {
   if (myItemId.IsNull())
@@ -152,31 +152,31 @@ XCAFDoc_AssemblyItemRef::IsOrphan() const
   return Standard_False;
 }
 
-Standard_Boolean 
+Standard_Boolean
 XCAFDoc_AssemblyItemRef::HasExtraRef() const
 {
   return (myExtraRef != ExtraRef_None);
 }
 
-Standard_Boolean 
+Standard_Boolean
 XCAFDoc_AssemblyItemRef::IsGUID() const
 {
   return (myExtraRef == ExtraRef_AttrGUID && Standard_GUID::CheckGUIDFormat(myExtraId.ToCString()));
 }
 
-Standard_Boolean 
+Standard_Boolean
 XCAFDoc_AssemblyItemRef::IsSubshapeIndex() const
 {
   return (myExtraRef == ExtraRef_SubshapeIndex && myExtraId.IsIntegerValue());
 }
 
-const XCAFDoc_AssemblyItemId& 
+const XCAFDoc_AssemblyItemId&
 XCAFDoc_AssemblyItemRef::GetItem() const
 {
   return myItemId;
 }
 
-Standard_GUID 
+Standard_GUID
 XCAFDoc_AssemblyItemRef::GetGUID() const
 {
   if (IsGUID())
@@ -185,7 +185,7 @@ XCAFDoc_AssemblyItemRef::GetGUID() const
     return Standard_GUID();
 }
 
-Standard_Integer 
+Standard_Integer
 XCAFDoc_AssemblyItemRef::GetSubshapeIndex() const
 {
   if (IsSubshapeIndex())
@@ -194,7 +194,7 @@ XCAFDoc_AssemblyItemRef::GetSubshapeIndex() const
     return 0;
 }
 
-void 
+void
 XCAFDoc_AssemblyItemRef::SetItem(const XCAFDoc_AssemblyItemId& theItemId)
 {
   Backup();
@@ -223,13 +223,13 @@ void XCAFDoc_AssemblyItemRef::SetGUID(const Standard_GUID& theAttrGUID)
   Backup();
   myExtraRef = ExtraRef_AttrGUID;
   Standard_Character aGUIDStr[Standard_GUID_SIZE + 1];
-  theAttrGUID.ToCString(aGUIDStr); 
+  theAttrGUID.ToCString(aGUIDStr);
   aGUIDStr[Standard_GUID_SIZE] = '\0';
   myExtraId.Clear();
   myExtraId.AssignCat(aGUIDStr);
 }
 
-void 
+void
 XCAFDoc_AssemblyItemRef::SetSubshapeIndex(Standard_Integer theSubshapeIndex)
 {
   Backup();
@@ -238,7 +238,7 @@ XCAFDoc_AssemblyItemRef::SetSubshapeIndex(Standard_Integer theSubshapeIndex)
   myExtraId.AssignCat(theSubshapeIndex);
 }
 
-void 
+void
 XCAFDoc_AssemblyItemRef::ClearExtraRef()
 {
   Backup();
@@ -246,61 +246,19 @@ XCAFDoc_AssemblyItemRef::ClearExtraRef()
   myExtraId.Clear();
 }
 
-void
-XCAFDoc_AssemblyItemRef::SetItem(const TColStd_ListOfAsciiString& thePath)
-{
-  Backup();
-  myItemId.Init(thePath);
-}
-
-void
-XCAFDoc_AssemblyItemRef::SetItem(const TCollection_AsciiString& theString)
-{
-  Backup();
-  myItemId.Init(theString);
-}
-
-void XCAFDoc_AssemblyItemRef::SetGUID(const Standard_GUID& theAttrGUID)
-{
-  Backup();
-  myExtraRef = ExtraRef_AttrGUID;
-  Standard_Character aGUIDStr[Standard_GUID_SIZE + 1];
-  theAttrGUID.ToCString(aGUIDStr); 
-  aGUIDStr[Standard_GUID_SIZE] = '\0';
-  myExtraId.Clear();
-  myExtraId.AssignCat(aGUIDStr);
-}
-
-void 
-XCAFDoc_AssemblyItemRef::SetSubshapeIndex(Standard_Integer theSubshapeIndex)
-{
-  Backup();
-  myExtraRef = ExtraRef_SubshapeIndex;
-  myExtraId.Clear();
-  myExtraId.AssignCat(theSubshapeIndex);
-}
-
-void 
-XCAFDoc_AssemblyItemRef::ClearExtraRef()
-{
-  Backup();
-  myExtraRef = ExtraRef_None;
-  myExtraId.Clear();
-}
-
-const Standard_GUID& 
+const Standard_GUID&
 XCAFDoc_AssemblyItemRef::ID() const
 {
   return GetID();
 }
 
-Handle(TDF_Attribute) 
+Handle(TDF_Attribute)
 XCAFDoc_AssemblyItemRef::NewEmpty() const
 {
   return new XCAFDoc_AssemblyItemRef();
 }
 
-void 
+void
 XCAFDoc_AssemblyItemRef::Restore(const Handle(TDF_Attribute)& theAttrFrom)
 {
   Handle(XCAFDoc_AssemblyItemRef) anOther = Handle(XCAFDoc_AssemblyItemRef)::DownCast(theAttrFrom);
@@ -312,9 +270,9 @@ XCAFDoc_AssemblyItemRef::Restore(const Handle(TDF_Attribute)& theAttrFrom)
   }
 }
 
-void 
+void
 XCAFDoc_AssemblyItemRef::Paste(const Handle(TDF_Attribute)&       theAttrInto,
-                               const Handle(TDF_RelocationTable)& /*theRT*/) const
+const Handle(TDF_RelocationTable)& /*theRT*/) const
 {
   Handle(XCAFDoc_AssemblyItemRef) anOther = Handle(XCAFDoc_AssemblyItemRef)::DownCast(theAttrInto);
   if (!anOther.IsNull())
@@ -325,7 +283,7 @@ XCAFDoc_AssemblyItemRef::Paste(const Handle(TDF_Attribute)&       theAttrInto,
   }
 }
 
-Standard_OStream& 
+Standard_OStream&
 XCAFDoc_AssemblyItemRef::Dump(Standard_OStream& theOS) const
 {
   theOS << "Path: " << myItemId.ToString();

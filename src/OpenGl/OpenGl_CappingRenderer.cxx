@@ -298,7 +298,7 @@ void OpenGl_CappingRenderer::renderOne (const Handle(OpenGl_Workspace)&    theWo
           aViewScale = static_cast<Standard_ShortReal> (aViewDim.Y() / aContext->Viewport()[3]);
         }
 
-        aHatchScale = 1.0f / (aViewScale * anAspectHatching->TextureRes (aContext)->SizeY());
+        aHatchScale = 1.0f / (aViewScale * anAspectHatching->TextureSet (aContext)->First()->SizeY());
       }
     }
 
@@ -355,7 +355,7 @@ void OpenGl_CappingRenderer::renderSection (const Handle(OpenGl_Workspace)& theW
 
       if (theHatchScale != 1.0 || theHatchRotate != 0.0)
       {
-        const Handle(Graphic3d_TextureParams)& aTexParams = theHatchAspect->TextureParams();
+        const Handle(Graphic3d_TextureParams)& aTexParams = theHatchAspect->TextureSet(aContext)->First()->Sampler()->Parameters();
 
         aPrevScale  = aTexParams->Scale();
         aPrevRotate = aTexParams->Rotation();
@@ -381,7 +381,7 @@ void OpenGl_CappingRenderer::renderSection (const Handle(OpenGl_Workspace)& theW
 
       if (theHatchScale != 1.0 || theHatchRotate != 0.0)
       {
-        const Handle(Graphic3d_TextureParams)& aTexParams = theHatchAspect->TextureParams();
+        const Handle(Graphic3d_TextureParams)& aTexParams = theHatchAspect->TextureSet(aContext)->First()->Sampler()->Parameters();
 
         aTexParams->SetScale (aPrevScale);
         aTexParams->SetRotation (aPrevRotate);

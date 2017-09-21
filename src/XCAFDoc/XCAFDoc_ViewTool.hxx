@@ -113,10 +113,7 @@ public:
 
   //! Returns all View labels defined for label Shapes transparency
   Standard_EXPORT Standard_Boolean GetViewLabelsForEnabledShapesLabel(const TDF_Label& theShapesTransparencyL, TDF_LabelSequence& theViews) const;
-  
-  //! Returns all View labels defined for label NotesL
-  Standard_EXPORT Standard_Boolean GetViewLabelsForNote(const TDF_Label& theNoteL, TDF_LabelSequence& theViews) const;
-
+ 
   //! Adds a view definition to a View table and returns its label
   Standard_EXPORT TDF_Label AddView() ;
   

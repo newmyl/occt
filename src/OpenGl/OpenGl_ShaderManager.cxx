@@ -1291,8 +1291,8 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramFboBlit()
   }
 
   myContext->BindProgram (myBlitProgram);
-  myBlitProgram->SetSampler (myContext, "uColorSampler", 0);
-  myBlitProgram->SetSampler (myContext, "uDepthSampler", 1);
+  myBlitProgram->SetSampler(myContext, "uColorSampler", Graphic3d_TextureUnit_0);
+  myBlitProgram->SetSampler(myContext, "uDepthSampler", Graphic3d_TextureUnit_1);
   myContext->BindProgram (NULL);
   return Standard_True;
 }
@@ -1385,8 +1385,8 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramOitCompositing (const St
   }
 
   myContext->BindProgram (aProgram);
-  aProgram->SetSampler (myContext, "uAccumTexture",  0);
-  aProgram->SetSampler (myContext, "uWeightTexture", 1);
+  aProgram->SetSampler(myContext, "uAccumTexture", Graphic3d_TextureUnit_0);
+  aProgram->SetSampler(myContext, "uWeightTexture", Graphic3d_TextureUnit_1);
   myContext->BindProgram (Handle(OpenGl_ShaderProgram)());
   return Standard_True;
 }
@@ -2386,8 +2386,8 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramStereo (Handle(OpenGl_Sh
   }
 
   myContext->BindProgram (theProgram);
-  theProgram->SetSampler (myContext, "uLeftSampler",  0);
-  theProgram->SetSampler (myContext, "uRightSampler", 1);
+  theProgram->SetSampler(myContext, "uLeftSampler", Graphic3d_TextureUnit_0);
+  theProgram->SetSampler(myContext, "uRightSampler", Graphic3d_TextureUnit_1);
   myContext->BindProgram (NULL);
   return Standard_True;
 }
