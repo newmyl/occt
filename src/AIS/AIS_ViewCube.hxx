@@ -58,12 +58,13 @@ class AIS_ViewCubeFlat;
 //! Handle(AIS_ViewCube) aViewCube = new AIS_ViewCube();
 //! aViewCube->AddTo (aContext, aView);
 //! @endcode
-//! or
+//! or it can be just be displayed without iew affinity option (in this case it will be displayed in all views):
 //! @code
-//! aView->SetView (aView);
-//! aContext->Display (aViewCube, 0, 0, Standard_False);
+//! Handle(AIS_ViewCube) aViewCube = new AIS_ViewCube();
+//! Handle(AIS_InteractiveContext) aContext;
+//! aContext->Display (aViewCube, Standard_False);
 //! @endcode
-//! But View Affinity should be taken into account here also.
+//!
 //! View Cube parts are sensitive to detection, or dynamic highlighting (but not selection), and every its owner corresponds to camera transformation.
 //! So, once one of the owners of View Cube is detected, application is to be call StartTransform (anOwner) and Transform (anOwner) for starting
 //! animation of transformation.
@@ -81,6 +82,9 @@ class AIS_ViewCubeFlat;
 //! that includes transformation loop.
 //! This loop allows external actions like application updating. For this purpose AIS_ViewCube has virtual interface onAfterTransform(),
 //! that is to be redefined on application level.
+//! Note that after modification end no highlighting is restored by default.
+//! This means that after transformation of box if mouse pointer still points to box, it will not be highlighted. 
+//! Highlighting restoring of box is to be made on application level with AIS_InteracitveContext::MoveTo() method.
 //!
 //! @b Positioning:
 //! View Cube is attached to one defined point in the view plane. This point of attachment is placed in the center of view
@@ -114,6 +118,12 @@ public:
   //! @param theView [in] 3D view.
   Standard_EXPORT void AddTo (const Handle(AIS_InteractiveContext)& theContext, const Handle(V3d_View)& theView);
 
+  //! Make view cube visible only in the input view
+  //! @param theView [in] V3d View object
+  //! @warning This method should be called after View Cube is displayed in context
+  //!          or it will have no effect
+  Standard_EXPORT void SetViewAffinity (const Handle(V3d_View)& theView);
+
   //! Hide View Cube in view
   Standard_EXPORT void Hide();
 
@@ -145,13 +155,18 @@ protected:
   //! Set default visual attributes
   Standard_EXPORT void setDefaultAttributes();
 
+  //! Set default dynamic highlight properties
   Standard_EXPORT void setDefaultHighlightAttributes();
 
 public: //! @name Geometry management API
 
+  //! @return position of center of View Cube in terms of 2d trandform  persistence.
+  //! @sa Aspect_TypeOfTriedronPosition, Graphic3d_Vec2i
   Standard_EXPORT void Position (Aspect_TypeOfTriedronPosition& thePosition,
                                  Graphic3d_Vec2i& theOffset);
 
+  //! @return position of center of View Cube in screen cooordinates
+  //! (origin of system if topleft corner). 
   Standard_EXPORT Graphic3d_Vec2i Position() const;
 
   //! Set position of center of View Cube in view plane depending on size of view.

@@ -17,7 +17,7 @@ vinit
 # Color
 # -------------------------------------
 vviewcube -enable -boxcolor 0.69 0.88 1 -arrowcolor 0 0.4 0.54 -textcolor 0 0.4 0.54
-if {[vreadpixel 118 273 name] != "LIGHTSLATEGRAY 1" || [vreadpixel 270 260 name] != "GRAY15 0.24705882352941178"} {
+if {[vreadpixel 118 273 name] != "LIGHTSLATEGRAY 1" || [vreadpixel 270 260 name] != "GRAY15 0.24705882370471954"} {
   puts "ERROR: Errors in changing View Cube colors."
 }
 vdump $anImage1
@@ -27,14 +27,14 @@ vdump $anImage1
 # -------------------------------------
 vviewcube -reset
 vviewcube -transparency 0.5
-if {[vreadpixel 118 273 name] != "GRAY17 0.37254901960784315" || [vreadpixel 270 260 name] != "GRAY48 0.24705882352941178"} {
+if {[vreadpixel 118 273 name] != "GRAY17 0.37254902720451355" || [vreadpixel 270 260 name] != "GRAY48 0.24705882370471954"} {
   puts "ERROR: Errors in changing View Cube common transparency."
 }
 vdump $anImage2
 
 vviewcube -reset
 vviewcube -boxtransparency 0.4 -arrowtransparency 0.2
-if {[vreadpixel 118 273 name] != "GRAY16 0.50588235294117645" || [vreadpixel 270 260 name] != "GRAY76 0.63921568627450975"} {
+if {[vreadpixel 118 273 name] != "GRAY16 0.5058823823928833" || [vreadpixel 270 260 name] != "GRAY76 0.63921570777893066"} {
   puts "ERROR: Errors in changing View Cube separate transparency."
 }
 vdump $anImage3
@@ -44,7 +44,7 @@ vdump $anImage3
 # -------------------------------------
 vviewcube -reset
 vviewcube -arrowangle 30 -arrowlength 30
-if {[vreadpixel 270 268 name] != "BLACK 0" || [vreadpixel 291 259 name] != "GRAY48 0.24705882352941178"} {
+if {[vreadpixel 270 268 name] != "BLACK 0" || [vreadpixel 291 259 name] != "GRAY48 0.24705882370471954"} {
   puts "ERROR: Errors in changing View Cube arrow style."
 }
 vdump $anImage4
@@ -54,7 +54,7 @@ vdump $anImage4
 # -------------------------------------
 vviewcube -reset
 vviewcube -font "Impact" -fontheight 16
-if {[vreadpixel 151 198 name] != "BLACK 1" || [vreadpixel 168 391 name] != "RED 1"} {
+if {[vreadpixel 150 200 name] != "BLACK 0.729411780834198" || [vreadpixel 168 391 name] != "RED 1"} {
   puts "ERROR: Errors in changing View Cube font."
 }
 vdump $anImage5

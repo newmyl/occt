@@ -11,7 +11,7 @@ vclose ALL
 vinit
 
 vviewcube -enable -hideedges
-if {[vreadpixel 186 236 name] != "BLACK 1"} {
+if {[vreadpixel 186 236 name] != "BLACK 0"} {
   puts "ERROR: Invalid display of View Cube without edges."
 }
 vdump $anImage1
@@ -24,7 +24,7 @@ vdump $anImage2
 
 vviewcube -hideedges -hidevertices
 
-if {[vreadpixel 186 236 name] != "BLACK 1" || [vreadpixel 150 258 name] != "BLACK 0"} {
+if {[vreadpixel 186 236 name] != "BLACK 0" || [vreadpixel 150 258 name] != "BLACK 0"} {
   puts "ERROR: Invalid display of View Cube without edges & vertices."
 }
 vdump $anImage3

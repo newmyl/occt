@@ -192,8 +192,10 @@ void AIS_ViewCube::setDefaultAttributes()
   myDrawer->ArrowAspect()->SetLength (10.0);
 
   Graphic3d_MaterialAspect aShadingMaterial;
-  aShadingMaterial.SetReflectionModeOff (Graphic3d_TOR_SPECULAR);
   aShadingMaterial.SetMaterialType (Graphic3d_MATERIAL_ASPECT);
+  aShadingMaterial.SetReflectionModeOff (Graphic3d_TOR_SPECULAR);
+  aShadingMaterial.SetReflectionModeOff (Graphic3d_TOR_EMISSION);
+  aShadingMaterial.SetReflectionModeOff (Graphic3d_TOR_DIFFUSE);
   aShadingMaterial.SetTransparency (0.0);
 
   Graphic3d_MaterialAspect aBackMaterial;
@@ -230,6 +232,7 @@ void AIS_ViewCube::setDefaultHighlightAttributes()
   aHighlightMaterial.SetReflectionModeOff (Graphic3d_TOR_SPECULAR);
   aHighlightMaterial.SetReflectionModeOff (Graphic3d_TOR_EMISSION);
   aHighlightMaterial.SetMaterialType (Graphic3d_MATERIAL_ASPECT);
+  myDynHilightDrawer->SetShadingAspect (new Prs3d_ShadingAspect);
   myDynHilightDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (Aspect_IS_SOLID);
   myDynHilightDrawer->ShadingAspect()->SetMaterial (aHighlightMaterial);
   myDynHilightDrawer->ShadingAspect()->SetColor (Quantity_NOC_CYAN1);
@@ -304,12 +307,7 @@ Graphic3d_Vec2i AIS_ViewCube::Position() const
   Standard_Integer aHeight = 0;
   myView->Window()->Size (aWidth, aHeight);
 
-  if (myPosition & Aspect_TOTP_CENTER)
-  {
-    return Graphic3d_Vec2i (aWidth / 2, aHeight / 2);
-  }
-
-  Graphic3d_Vec2i aPosition;
+  Graphic3d_Vec2i aPosition (aWidth / 2, aHeight / 2);
   if (myPosition & Aspect_TOTP_TOP)
   {
     aPosition.y() = myOffset.y();
@@ -1004,21 +1002,39 @@ void AIS_ViewCube::AddTo (const Handle(AIS_InteractiveContext)& theContext,
   SetView (theView);
 
   theContext->Display (this, 0, 0, Standard_False);
+  SetViewAffinity (theView);
+}
+
+//=======================================================================
+//function : SetViewAffinity
+//purpose  :
+//=======================================================================
+void AIS_ViewCube::SetViewAffinity (const Handle(V3d_View)& theView)
+{
+  const Handle(AIS_InteractiveContext)& aContext = GetContext();
+  if (aContext.IsNull())
+  {
+    return;
+  }
 
   // Set view affinity for child object
-  Handle(Graphic3d_ViewAffinity) anAffinity = GetContext()->CurrentViewer()->StructureManager()->RegisterObject (myFlatPart);
+  myFlatPart->Presentation()->CStructure()->ViewAffinity = new Graphic3d_ViewAffinity;
+  myFlatPart->Presentation()->CStructure()->ViewAffinity->SetVisible (Standard_False);
+
+  Handle(Graphic3d_ViewAffinity) anAffinity = aContext->CurrentViewer()->StructureManager()->ObjectAffinity (this);
   anAffinity->SetVisible (Standard_False);
 
   // View Affinity should be applied after Display
-  for (V3d_ListOfViewIterator aViewIter (theContext->CurrentViewer()->DefinedViewIterator()); aViewIter.More(); aViewIter.Next())
+  /*for (V3d_ListOfViewIterator aViewIter (aContext->CurrentViewer()->DefinedViewIterator()); aViewIter.More(); aViewIter.Next())
   {
-    theContext->SetViewAffinity (this, aViewIter.Value(), Standard_False);
-    aViewIter.Value()->View()->ChangeHiddenObjects()->Add (myFlatPart.get());
-
+    aContext->SetViewAffinity (this, aViewIter.Value(), Standard_False);
   }
-  theContext->SetViewAffinity (this, theView, Standard_True);
+  aContext->SetViewAffinity (this, theView, Standard_True);
+  */
+
   anAffinity->SetVisible (theView->View()->Identification(), Standard_True);
-  theView->View()->ChangeHiddenObjects()->Remove (myFlatPart.get());
+  myFlatPart->Presentation()->CStructure()->ViewAffinity->SetVisible (theView->View()->Identification(), Standard_True);
+
 }
 
 //=======================================================================
@@ -1170,8 +1186,8 @@ Standard_Boolean AIS_ViewCube::IsAutoTransform() const
 //purpose  :
 //=======================================================================
 Standard_Integer AIS_ViewCube::addPart (const Handle(Part)& thePart,
-                                         const gp_Dir& theDir, const gp_Dir& theUp,
-                                         const Standard_Integer thePriority)
+                                        const gp_Dir& theDir, const gp_Dir& theUp,
+                                        const Standard_Integer thePriority)
 {
   Handle(SelectMgr_EntityOwner) anOwner = new AIS_ViewCubeOwner (this, thePriority);
   myStates.Add (anOwner, new CameraStateReplace (theDir, theUp));
@@ -1183,8 +1199,8 @@ Standard_Integer AIS_ViewCube::addPart (const Handle(Part)& thePart,
 //purpose  :
 //=======================================================================
 Standard_Integer AIS_ViewCube::addPart (const Handle(Part)& thePart,
-                                         const Standard_Real theAngleX, const Standard_Real theAngleY, const Standard_Real theAngleZ,
-                                         const Standard_Integer thePriority)
+                                        const Standard_Real theAngleX, const Standard_Real theAngleY, const Standard_Real theAngleZ,
+                                        const Standard_Integer thePriority)
 {
   Handle(SelectMgr_EntityOwner) anOwner = new AIS_ViewCubeOwner (this, thePriority);
   myStates.Add (anOwner, new CameraStateRotate (theAngleX, theAngleY, theAngleZ));
@@ -1252,8 +1268,8 @@ void AIS_ViewCube::setLocalTransformation (const Handle(Geom_Transformation)& /*
 //purpose  :
 //=======================================================================
 void AIS_ViewCube::HilightOwnerWithColor (const Handle(PrsMgr_PresentationManager3d)& thePM,
-                                           const Handle(Prs3d_Drawer)& theStyle,
-                                           const Handle(SelectMgr_EntityOwner)& theOwner)
+                                          const Handle(Prs3d_Drawer)& theStyle,
+                                          const Handle(SelectMgr_EntityOwner)& theOwner)
 {
   if (theOwner.IsNull())
   {
@@ -1265,6 +1281,18 @@ void AIS_ViewCube::HilightOwnerWithColor (const Handle(PrsMgr_PresentationManage
   if (aPresentation.IsNull())
   {
     return;
+  }
+
+  // Manage view affinity if it is enabled for object
+  Handle(Graphic3d_ViewAffinity) anAffinity = GetContext()->CurrentViewer()->StructureManager()->ObjectAffinity (this);
+  if (anAffinity->IsVisible (View()->View()->Identification()))
+  {
+    if (aPresentation->CStructure()->ViewAffinity.IsNull())
+    {
+      aPresentation->CStructure()->ViewAffinity = new Graphic3d_ViewAffinity;
+    }
+    aPresentation->CStructure()->ViewAffinity->SetVisible (Standard_False);
+    aPresentation->CStructure()->ViewAffinity->SetVisible (View()->View()->Identification(), Standard_True);
   }
 
   aPresentation->Highlight (theStyle);
@@ -1618,7 +1646,7 @@ void AIS_ViewCube::Side::Display (const Handle(PrsMgr_PresentationManager)& theP
   aTopRight = aTopLeft.XYZ() + aPosition.XDirection().XYZ() * aSize;
   aBottomRight = aBottomLeft.XYZ() + aPosition.XDirection().XYZ() * aSize;
   const Standard_Real aCoef = aSize * 0.5;
-  gp_Ax2 aTextPosition (aPosition.Translated (gp_Vec (aPosition.XDirection().XYZ() * aCoef + aPosition.YDirection().XYZ() * aCoef + aPosition.Direction().XYZ() * aSize * 0.01)));
+  gp_Ax2 aTextPosition (aPosition.Translated (gp_Vec (aPosition.XDirection().XYZ() * aCoef + aPosition.YDirection().XYZ() * aCoef + aPosition.Direction().XYZ() * aSize * 0.02)));
 
   Handle(Graphic3d_ArrayOfTriangles) anArray;
   Handle(Poly_Triangulation) aTri;
