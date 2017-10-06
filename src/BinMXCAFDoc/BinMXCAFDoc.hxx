@@ -45,6 +45,9 @@ class BinMXCAFDoc_DimTolToolDriver;
 class BinMXCAFDoc_MaterialToolDriver;
 class BinMXCAFDoc_ViewDriver;
 class BinMXCAFDoc_ViewToolDriver;
+class BinMXCAFDoc_AnimationDriver;
+class BinMXCAFDoc_AnimationToolDriver;
+
 
 
 
@@ -92,6 +95,9 @@ friend class BinMXCAFDoc_DimTolToolDriver;
 friend class BinMXCAFDoc_MaterialToolDriver;
 friend class BinMXCAFDoc_ViewDriver;
 friend class BinMXCAFDoc_ViewToolDriver;
+friend class BinMXCAFDoc_AnimationDriver;
+friend class BinMXCAFDoc_AnimationToolDriver;
+
 
 };
 
