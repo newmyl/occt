@@ -6,6 +6,8 @@ puts ""
 # Bug in shading mode with attached shape
 #######################################################################
 
+puts "TODO OCC25551 ALL: Error: BRepMesh can produce internal nodes outside the face interior based on distorted BSpline surface, thus could fail this test with default meshing parameters"
+puts "Error: BRepMesh can produce internal nodes outside the face interior based on distorted BSpline surface, thus could fail this test with default meshing parameters"
 set BugNumber OCC22313
 
 # Data
@@ -32,6 +34,7 @@ set Artifact_B 0
 # Start
 
 restore [locate_data_file OCC22313-face_shading_problem.brep] result
+incmesh result 0.1
 vinit
 vdisplay result
 vfit
