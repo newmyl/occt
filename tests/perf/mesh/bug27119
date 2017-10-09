@@ -23,9 +23,9 @@ regexp { +([-0-9.+eE]+) +triangles} $tri_info full tri
 regexp { +([-0-9.+eE]+) +nodes} $tri_info full nod
 regexp { deflection +([-0-9.+eE]+)} $tri_info full def
 
-set ref_tri 7855
-set ref_nod 7857
-set ref_def 9.3791641120333225e-013
+set ref_tri 24841
+set ref_nod 24843
+set ref_def 9.9999999999999995e-007
 set tol_rel 0.01
 
 # Computes deviation of the value from specified one

@@ -1616,3 +1616,44 @@ Now methods *GeomConvert::ConcatG1*, *GeomConvert::ConcatC1*, *Geom2dConvert::Co
 
 *SelectBasics_PickResult* structure has been extended, so that it now defines 3D point on detected entity in addition to Depth value along picking ray.
 *SelectMgr_SelectingVolumeManager::Overlap()* methods have been corrected to fill in *SelectBasics_PickResult* structure (depth and 3D point) instead of only depth value, so that custom *Select3D_SensitiveEntity* implementation should be updated accordingly (including *Select3D_SensitiveSet* subclasses).
+
+@subsection upgrade_740_changed_api_of_brepmesh BRepMesh - revision of the data model
+
+The entire structure of *BRepMesh* component has been revised and separated into several logically connected classes.
+
+*BRepMesh_FastDiscret* and *BRepMesh_FastDiscretFace* classes have been removed.
+
+The following changes have been introduced in the API of *BRepMesh_IncrementalMesh*, component entry point:
+* Due to revised logic, *adaptiveMin* parameter of the constructor has been removed as meaningless;
+* *BRepMesh_FastDiscret::Parameters* has been moved to a separate structure called *IMeshTools_Parameters*; the signatures of related methods have been changed correspondingly.
+
+Example of usage:
+Case 1 (explicit parameters):
+~~~~
+#include <IMeshData_Status.hxx>
+#include <IMeshTools_Parameters.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+
+Standard_Boolean meshing_explicit_parameters()
+{
+  BRepMesh_IncrementalMesh aMesher (aShape, 0.1, Standard_False, 0.5, Standard_True);
+  const Standard_Integer aStatus = aMesher.GetStatusFlags();
+  return !aStatus;
+}
+
+Standard_Boolean meshing_new()
+{
+  IMeshTools_Parameters aMeshParams;
+  aMeshParams.Deflection               = 0.1;
+  aMeshParams.Angle                    = 0.5;
+  aMeshParams.Relative                 = Standard_False;
+  aMeshParams.InParallel               = Standard_True;
+  aMeshParams.MinSize                  = Precision::Confusion();
+  aMeshParams.InternalVerticesMode     = Standard_True;
+  aMeshParams.ControlSurfaceDeflection = Standard_True;
+
+  BRepMesh_IncrementalMesh aMesher (aShape, aMeshParams);
+  const Standard_Integer aStatus = aMesher.GetStatusFlags();
+  return !aStatus;
+}
+~~~~
