@@ -89,7 +89,7 @@ GeomToStep_MakeBoundedCurve::GeomToStep_MakeBoundedCurve ( const Handle(Geom2d_B
       Handle(Geom2d_BSplineCurve) Bspli = 
 	Handle(Geom2d_BSplineCurve)::DownCast(C);
       // UPDATE FMA 1-04-96
-      if (C->IsPeriodic()) {
+      if (C->IsPeriodic111()) {
 	Handle(Geom2d_BSplineCurve) newBspli = 
 	  Handle(Geom2d_BSplineCurve)::DownCast(Bspli->Copy());
 	newBspli->SetNotPeriodic();

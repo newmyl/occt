@@ -1396,9 +1396,9 @@ Standard_Boolean Bisector_BisecAna::IsClosed() const
 //function : IsPeriodic
 //purpose  :
 //=============================================================================
-Standard_Boolean Bisector_BisecAna::IsPeriodic() const 
+Standard_Boolean Bisector_BisecAna::IsPeriodic111() const 
 {
-  return thebisector->BasisCurve()->IsPeriodic(); 
+  return thebisector->IsPeriodic111();
 }
 
 //=============================================================================

@@ -104,7 +104,7 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
   

@@ -493,7 +493,7 @@ Standard_Boolean Geom2d_BezierCurve::IsCN (const Standard_Integer ) const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_BezierCurve::IsPeriodic () const 
+Standard_Boolean Geom2d_BezierCurve::IsPeriodic111 () const 
 {
   return Standard_False; 
 }

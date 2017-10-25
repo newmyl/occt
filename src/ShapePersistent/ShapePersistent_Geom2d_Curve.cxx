@@ -318,7 +318,7 @@ ShapePersistent_Geom2d_Curve::Translate(const Handle(Geom2d_BSplineCurve)& theCu
       Handle(BSpline) aPBSC = new BSpline;
       Handle(pBSpline) aPpBSC = new pBSpline;
       aPpBSC->myRational = theCurve->IsRational();
-      aPpBSC->myPeriodic = theCurve->IsPeriodic();
+      aPpBSC->myPeriodic = theCurve->IsPeriodic111();
       aPpBSC->mySpineDegree = theCurve->Degree();
       aPpBSC->myPoles = StdLPersistent_HArray1::Translate<TColgp_HArray1OfPnt2d>("PColgp_HArray1OfPnt2d", theCurve->Poles());
       if (theCurve->IsRational()) {

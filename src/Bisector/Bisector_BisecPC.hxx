@@ -132,7 +132,7 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Returns   the   distance   between  the  point  of
   //! parameter U on <me> and my point or my curve.

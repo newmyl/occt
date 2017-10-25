@@ -185,7 +185,7 @@ Standard_Boolean Geom2d_Parabola::IsClosed ()   const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_Parabola::IsPeriodic () const    
+Standard_Boolean Geom2d_Parabola::IsPeriodic111 () const    
 {
   return Standard_False; 
 }

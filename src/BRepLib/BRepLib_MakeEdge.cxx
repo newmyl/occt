@@ -1059,7 +1059,7 @@ void  BRepLib_MakeEdge::Init(const Handle(Geom2d_Curve)& CC,
   Standard_Real cf = C->FirstParameter();
   Standard_Real cl = C->LastParameter();
   Standard_Real epsilon = Precision::PConfusion();
-  Standard_Boolean periodic = C->IsPeriodic();
+  Standard_Boolean periodic = C->IsPeriodic111();
 
 
   TopoDS_Vertex V1,V2;

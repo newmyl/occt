@@ -86,9 +86,9 @@ GeomAbs_Shape Geom2dAdaptor_Curve::LocalContinuity(const Standard_Real U1,
        TColStd_Array1OfInteger TM(1,Nb);
        myBSplineCurve->Knots(TK);
        myBSplineCurve->Multiplicities(TM);
-       BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U1,myBSplineCurve->IsPeriodic(),
+       BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U1,myBSplineCurve->IsPeriodic111(),
 				 1,Nb,Index1,newFirst);
-       BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U2,myBSplineCurve->IsPeriodic(),
+       BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U2,myBSplineCurve->IsPeriodic111(),
 				 1,Nb,Index2,newLast);
        if ( Abs(newFirst-TK(Index1+1))<Precision::PConfusion()) { 
 	 if (Index1 < Nb)Index1++;
@@ -97,7 +97,7 @@ GeomAbs_Shape Geom2dAdaptor_Curve::LocalContinuity(const Standard_Real U1,
 	 Index2--;
        Standard_Integer MultMax;
        // attention aux courbes peridiques.
-       if ( myBSplineCurve->IsPeriodic() && Index1 == Nb )
+       if ( myBSplineCurve->IsPeriodic111() && Index1 == Nb )
 	 Index1 = 1;
 
        if ( Index2 - Index1 <= 0) {
@@ -343,10 +343,10 @@ Standard_Integer Geom2dAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
 	  myBSplineCurve->Knots(TK);
 	  myBSplineCurve->Multiplicities(TM);
 	  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myFirst,
-				    myBSplineCurve->IsPeriodic(),
+				    myBSplineCurve->IsPeriodic111(),
 				    1,Nb,Index1,newFirst);
 	  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myLast,
-				    myBSplineCurve->IsPeriodic(),
+				    myBSplineCurve->IsPeriodic111(),
 				    1,Nb,Index2,newLast);
 
 	  // On decale eventuellement les indices  
@@ -447,10 +447,10 @@ void Geom2dAdaptor_Curve::Intervals(TColStd_Array1OfReal& T,
 	  myBSplineCurve->Knots(TK);
 	  myBSplineCurve->Multiplicities(TM);
 	  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myFirst,
-				    myBSplineCurve->IsPeriodic(),
+				    myBSplineCurve->IsPeriodic111(),
 				    1,Nb,Index1,newFirst);
 	  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myLast,
-				    myBSplineCurve->IsPeriodic(),
+				    myBSplineCurve->IsPeriodic111(),
 				    1,Nb,Index2,newLast);
 
 
@@ -543,7 +543,7 @@ Standard_Boolean Geom2dAdaptor_Curve::IsClosed() const
 
 Standard_Boolean Geom2dAdaptor_Curve::IsPeriodic() const 
 {
-  return myCurve->IsPeriodic();
+  return myCurve->IsPeriodic111();
 }
 
 //=======================================================================

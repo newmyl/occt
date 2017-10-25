@@ -177,7 +177,7 @@ Standard_Boolean BRepTools_TrsfModification::NewCurve2d
 
   Standard_Real fc = NewC->FirstParameter(), lc = NewC->LastParameter();
 
-  if(!NewC->IsPeriodic()) {
+  if(!NewC->IsPeriodic111()) {
     if(fc - f > Precision::PConfusion()) f = fc;
     if(l - lc > Precision::PConfusion()) l = lc;
     if(Abs(l - f) < Precision::PConfusion())

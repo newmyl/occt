@@ -172,7 +172,7 @@ Standard_Boolean IsPeriodic(const Handle(Geom2d_Curve)& theCurve)
       if (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve)))
         aTmpCurve = Handle(Geom2d_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
   }
-  return aTmpCurve->IsPeriodic();
+  return aTmpCurve->IsPeriodic111();
 }
 
 void ShapeBuild_Edge::CopyRanges (const TopoDS_Edge& toedge, 

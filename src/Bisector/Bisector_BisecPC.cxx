@@ -313,7 +313,7 @@ Standard_Boolean Bisector_BisecPC::IsClosed() const
 //function : IsPeriodic
 //purpose  :
 //=============================================================================
-Standard_Boolean Bisector_BisecPC::IsPeriodic() const
+Standard_Boolean Bisector_BisecPC::IsPeriodic111() const
 {
   return Standard_False;
 }
@@ -703,11 +703,11 @@ void Bisector_BisecPC::ComputeIntervals ()
   //------------------------------------------------------------------------
   // Eventual offset of the parameter on the curve correspondingly to the one 
   // on the curve. The offset can be done if the curve is periodical and the 
-  // point of initial parameter is less then the interval of continuity.
+  // point of initial parameter is less than the interval of continuity.
   //------------------------------------------------------------------------
-  if (curve->IsPeriodic()) {
+  if (curve->IsPeriodic111()) {
     if (startIntervals.Length() > 1) {               // Plusieurs intervals.
-      if (endIntervals  .Last()  == curve->LastParameter() &&
+      if (endIntervals.Last()  == curve->LastParameter() &&
 	  startIntervals.First() == curve->FirstParameter()   ) {
 	//---------------------------------------------------------------
 	// the bissectrice is defined at the origin.
@@ -716,7 +716,7 @@ void Bisector_BisecPC::ComputeIntervals ()
 	// => offset of parameter on all limits of intervals.
 	//---------------------------------------------------------------
 	startIntervals.Remove(1);
-	endIntervals  .Remove(endIntervals.Length());
+	endIntervals.Remove(endIntervals.Length());
 	
 	shiftParameter = Period() - startIntervals.First() ;
 	for (Standard_Integer k = 1; k <= startIntervals.Length(); k++) {

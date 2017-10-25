@@ -1025,7 +1025,7 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge& theE,
     first = Max(first, C3d->FirstParameter());
     last = Min(last, C3d->LastParameter());
   }
-  if(!C2d->IsPeriodic())
+  if(!C2d->IsPeriodic111())
   {
     first = Max(first, C2d->FirstParameter());
     last = Min(last, C2d->LastParameter());
@@ -1040,7 +1040,7 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge& theE,
   else
   {
     if(CT.ErrorStatus() == 3 || (CT.ErrorStatus() == 2 &&
-      (C3d->IsPeriodic() || C2d->IsPeriodic())))
+      (C3d->IsPeriodic() || C2d->IsPeriodic111())))
     {
       //Try to estimate by sample points
       Standard_Integer nbint = 22;

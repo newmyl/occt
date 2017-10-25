@@ -187,7 +187,7 @@ Standard_Boolean Geom2d_Circle::IsClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_Circle::IsPeriodic () const      
+Standard_Boolean Geom2d_Circle::IsPeriodic111 () const      
 {
   return Standard_True; 
 }

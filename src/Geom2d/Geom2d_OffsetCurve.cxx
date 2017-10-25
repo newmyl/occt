@@ -330,9 +330,9 @@ Standard_Boolean Geom2d_OffsetCurve::IsCN (const Standard_Integer N) const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_OffsetCurve::IsPeriodic () const 
+Standard_Boolean Geom2d_OffsetCurve::IsPeriodic111 () const 
 { 
-  return basisCurve->IsPeriodic();
+  return basisCurve->IsPeriodic111();
 }
 
 //=======================================================================

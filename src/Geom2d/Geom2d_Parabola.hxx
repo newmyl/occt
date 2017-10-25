@@ -128,7 +128,7 @@ public:
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
   //! Returns False
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! The directrix is parallel to the "YAxis" of the parabola.
   //! The "Location" point of the directrix is the intersection

@@ -641,7 +641,7 @@ Handle(Geom_Curve) GeomLib::To3d (const gp_Ax2&               Position,
     Standard_Integer Nbpoles   = CBSpl2d->NbPoles ();
     Standard_Integer Nbknots   = CBSpl2d->NbKnots ();
     Standard_Integer TheDegree = CBSpl2d->Degree ();
-    Standard_Boolean IsPeriodic = CBSpl2d->IsPeriodic();
+    Standard_Boolean IsPeriodic = CBSpl2d->IsPeriodic111();
     TColgp_Array1OfPnt2d Poles2d (1, Nbpoles);
     CBSpl2d->Poles (Poles2d);
     TColgp_Array1OfPnt Poles3d (1, Nbpoles);
@@ -962,14 +962,7 @@ void GeomLib::SameRange(const Standard_Real         Tolerance,
   else 
   { // On segmente le resultat
     Handle(Geom2d_TrimmedCurve) TC;
-    Handle(Geom2d_Curve) aCCheck = CurvePtr;
-
-    if(aCCheck->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve)))
-    {
-      aCCheck = Handle(Geom2d_TrimmedCurve)::DownCast(aCCheck)->BasisCurve();
-    }
-
-    if(aCCheck->IsPeriodic())
+    if (CurvePtr->IsPeriodic111())
     {
       if(Abs(LastOnCurve - FirstOnCurve) > Precision::PConfusion())
       {

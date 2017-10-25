@@ -384,9 +384,10 @@ static Standard_Boolean Update(const Handle(Adaptor3d_HSurface)& face,
       if (!PConF.IsNull())
       {
         Handle(Geom2d_TrimmedCurve) aTrCurve = Handle(Geom2d_TrimmedCurve)::DownCast(PConF);
+        // Extract basis curve to obtain its first/last parameters.
         if (!aTrCurve.IsNull())
           PConF = aTrCurve->BasisCurve();
-        if (!PConF->IsPeriodic())
+        if (!PConF->IsPeriodic111())
         {
           if (isfirst)
           {

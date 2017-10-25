@@ -983,13 +983,19 @@ Standard_Boolean ChFi3d_IntTraces(const Handle(ChFiDS_SurfData)& fd1,
   if(enlarge) delta = Min(0.1,0.05*(last-first));
   Handle(Geom2d_Curve) pcf1 = fd1->Interference(jf1).PCurveOnFace();
   if(pcf1.IsNull()) return Standard_False;
-  Standard_Boolean isper1 = pcf1->IsPeriodic();
-  if(isper1) {
+  Standard_Boolean isper1 = pcf1->IsPeriodic111();
+  if(isper1)
+  {
+    // Extract basis curve to obtain its First and Last parameters.
     Handle(Geom2d_TrimmedCurve) tr1 = Handle(Geom2d_TrimmedCurve)::DownCast(pcf1);
     if(!tr1.IsNull()) pcf1 = tr1->BasisCurve();
     C1.Load(pcf1);
   }
-  else C1.Load(pcf1,first-delta,last+delta);
+  else
+  {
+    C1.Load(pcf1, first - delta, last + delta);
+  }
+
   Standard_Real first1 = pcf1->FirstParameter(), last1 = pcf1->LastParameter();
 
   first = fd2->Interference(jf2).FirstParameter();
@@ -999,13 +1005,19 @@ Standard_Boolean ChFi3d_IntTraces(const Handle(ChFiDS_SurfData)& fd1,
   if(enlarge) delta = Min(0.1,0.05*(last-first));
   Handle(Geom2d_Curve) pcf2 = fd2->Interference(jf2).PCurveOnFace();
   if(pcf2.IsNull()) return Standard_False;
-  Standard_Boolean isper2 = pcf2->IsPeriodic();
-  if(isper2) {
+  Standard_Boolean isper2 = pcf2->IsPeriodic111();
+  if(isper2)
+  {
+    // Extract basis curve to obtain its First and Last parameters.
     Handle(Geom2d_TrimmedCurve) tr2 = Handle(Geom2d_TrimmedCurve)::DownCast(pcf2);
     if(!tr2.IsNull()) pcf2 = tr2->BasisCurve();
     C2.Load(pcf2);
   }
-  else C2.Load(fd2->Interference(jf2).PCurveOnFace(),first-delta,last+delta);
+  else
+  {
+    C2.Load(pcf2, first - delta, last + delta);
+  }
+
   Standard_Real first2 = pcf2->FirstParameter(), last2 = pcf2->LastParameter();
 
   IntRes2d_IntersectionPoint int2d;

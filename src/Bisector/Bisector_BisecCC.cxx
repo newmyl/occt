@@ -540,7 +540,7 @@ Standard_Boolean Bisector_BisecCC::IsClosed() const
 //function : IsPeriodic
 //purpose  :
 //=============================================================================
-Standard_Boolean Bisector_BisecCC::IsPeriodic() const
+Standard_Boolean Bisector_BisecCC::IsPeriodic111() const
 {
   return Standard_False;
 }

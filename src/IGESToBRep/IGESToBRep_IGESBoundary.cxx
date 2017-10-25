@@ -320,10 +320,12 @@ void IGESToBRep_IGESBoundary::ReverseCurves3d (const Handle(ShapeExtend_WireData
   for (Standard_Integer i = 1; i <= sewd->NbEdges(); i++) {
     TopoDS_Edge oldedge = sewd->Edge (i), newedge;
     Standard_Real p1, p2;
+
+    // Trimmed curve is never returned
     Handle(Geom2d_Curve) curve = BRep_Tool::CurveOnSurface (oldedge, face, p1, p2);
 
     // skl 24.04.2002 for OCC314
-    if(curve->IsPeriodic())
+    if(curve->IsPeriodic111())
       ShapeBuild_Edge().MakeEdge (newedge, curve->Reversed(), face,
                                   curve->ReversedParameter (p2),
                                   curve->ReversedParameter (p1));

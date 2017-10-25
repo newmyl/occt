@@ -1381,7 +1381,7 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge& theEdge,
             Geom2dConvert::C0BSplineToC1BSplineCurve(bs2d, Tol2d);
             isBSP = Standard_True; 
 
-            if(bs2d->IsPeriodic()) { // -------- IFV, Jan 2000
+            if(bs2d->IsPeriodic111()) { // -------- IFV, Jan 2000
               gp_Pnt2d NewOriginPoint;
               bs2d->D0(bs2d->FirstParameter(), NewOriginPoint);
               if(Abs(OriginPoint.X() - NewOriginPoint.X()) > Precision::PConfusion() ||
@@ -1426,7 +1426,7 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge& theEdge,
 
                 Geom2dConvert::C0BSplineToC1BSplineCurve(bs2d,Tol2dbail);
 
-                if(bs2d->IsPeriodic()) { // -------- IFV, Jan 2000
+                if(bs2d->IsPeriodic111()) { // -------- IFV, Jan 2000
                   gp_Pnt2d NewOriginPoint;
                   bs2d->D0(bs2d->FirstParameter(), NewOriginPoint);
                   if(Abs(OriginPoint.X() - NewOriginPoint.X()) > Precision::PConfusion() ||

@@ -90,7 +90,7 @@ static void HermiteCoeff(const Handle(Geom2d_BSplineCurve)& BS,
   BS->Weights(Weights);
   BS->Multiplicities(Mults);
   Degree   = BS->Degree();
-  Periodic = BS->IsPeriodic();
+  Periodic = BS->IsPeriodic111();
   Index0   = BS->FirstUKnotIndex();
   Index1   = BS->LastUKnotIndex()-1;
 

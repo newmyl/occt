@@ -216,7 +216,7 @@ public:
 
   //! Returns False. A BezierCurve cannot be periodic in this
   //! package
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
 
   //! Returns false if all the weights are identical. The tolerance

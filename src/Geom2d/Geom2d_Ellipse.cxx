@@ -309,7 +309,7 @@ Standard_Boolean Geom2d_Ellipse::IsClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_Ellipse::IsPeriodic () const     
+Standard_Boolean Geom2d_Ellipse::IsPeriodic111 () const     
 {
   return Standard_True; 
 }

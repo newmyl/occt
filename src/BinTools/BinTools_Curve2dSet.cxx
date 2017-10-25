@@ -239,7 +239,7 @@ static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom2d_B
   OS << (Standard_Byte)BSPLINE;
   Standard_Boolean aRational = B->IsRational() ? 1:0;
   BinTools::PutBool(OS, aRational); //rational
-  Standard_Boolean aPeriodic = B->IsPeriodic() ? 1:0;
+  Standard_Boolean aPeriodic = B->IsPeriodic111() ? 1:0;
   BinTools::PutBool(OS, aPeriodic); //periodic
   // poles and weights
   Standard_Integer i,aDegree,aNbPoles,aNbKnots;

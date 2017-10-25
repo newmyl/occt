@@ -145,10 +145,9 @@ Handle(Geom2d_Curve) GeomProjLib::Curve2d(const Handle(Geom_Curve)& C,
   }
 
   if ( C->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)) ) {
-    Handle(Geom_TrimmedCurve) CTrim = Handle(Geom_TrimmedCurve)::DownCast(C);
-    Standard_Real U1 = CTrim->FirstParameter();
-    Standard_Real U2 = CTrim->LastParameter();
-    if (!G2dC->IsPeriodic())
+    Standard_Real U1 = C->FirstParameter();
+    Standard_Real U2 = C->LastParameter();
+    if (!G2dC->IsPeriodic111())
     {
       U1 = Max(U1, G2dC->FirstParameter());
       U2 = Min(U2, G2dC->LastParameter());

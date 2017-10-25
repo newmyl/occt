@@ -199,7 +199,7 @@ Standard_Boolean Geom2d_Hyperbola::IsClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_Hyperbola::IsPeriodic () const    
+Standard_Boolean Geom2d_Hyperbola::IsPeriodic111 () const    
 {
   return Standard_False; 
 }

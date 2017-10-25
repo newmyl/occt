@@ -398,10 +398,10 @@ static inline void SegmentCurve (HCurve& curve,
 {
   if(curve->FirstParameter() < first - Precision::PConfusion() || 
      curve->LastParameter() > last + Precision::PConfusion()) {
-    if(curve->IsPeriodic())
-      curve->Segment(first,last);
-    else curve->Segment(Max(curve->FirstParameter(),first),
-                        Min(curve->LastParameter(),last));
+    //if(curve->IsPeriodic())
+    //  curve->Segment(first,last);
+    //else curve->Segment(Max(curve->FirstParameter(),first),
+    //                    Min(curve->LastParameter(),last));
   } 
 }
 

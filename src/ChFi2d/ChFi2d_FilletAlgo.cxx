@@ -116,16 +116,22 @@ void ChFi2d_FilletAlgo::Init(const TopoDS_Edge& theEdge1,
     myEdge2 = theEdge2;
   }
 
+  // Trimmed curve cannot be returned
   Handle(Geom_Curve) aCurve1 = BRep_Tool::Curve(myEdge1, myStart1, myEnd1);
   Handle(Geom_Curve) aCurve2 = BRep_Tool::Curve(myEdge2, myStart2, myEnd2);
 
   myCurve1 = GeomProjLib::Curve2d(aCurve1, myStart1, myEnd1, myPlane);
   myCurve2 = GeomProjLib::Curve2d(aCurve2, myStart2, myEnd2, myPlane);
 
-  while (myCurve1->IsPeriodic() && myStart1 >= myEnd1)
-    myEnd1 += myCurve1->Period();
-  while (myCurve2->IsPeriodic() && myStart2 >= myEnd2)
-    myEnd2 += myCurve2->Period();
+  if(myCurve1->IsPeriodic111() && myStart1 >= myEnd1)
+  {
+    myEnd1 = ElCLib::InPeriod(myEnd1, myStart1, myStart1 + myCurve1->Period());
+  }
+
+  if(myCurve2->IsPeriodic111() && myStart2 >= myEnd2)
+  {
+    myEnd2 = ElCLib::InPeriod(myEnd2, myStart2, myStart2 + myCurve2->Period());
+  }
  
   if (aBAC1.GetType() == aBAC2.GetType()) 
   {
@@ -267,8 +273,10 @@ void ChFi2d_FilletAlgo::FillPoint(FilletPoint* thePoint, const Standard_Real the
 
     // checking the right parameter
     Standard_Real aParamProj = aProj.Parameter(a);
-    while(myCurve2->IsPeriodic() && aParamProj < myStart2)
-      aParamProj += myCurve2->Period();
+    if(myCurve2->IsPeriodic111() && aParamProj < myStart2)
+    {
+      aParamProj = ElCLib::InPeriod(aParamProj, myStart2, myStart2 + myCurve2->Period());
+    }
 
     const Standard_Real d = aProj.Distance(a);
     thePoint->appendValue(d * d - myRadius * myRadius, (aParamProj >= myStart2 && aParamProj <= myEnd2 && aValid2));

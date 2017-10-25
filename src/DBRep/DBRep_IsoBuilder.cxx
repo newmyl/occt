@@ -138,7 +138,7 @@ Geom2dHatch_Hatcher (Geom2dHatch_Intersector (IntersectorConfusion,
     }
     else
     {
-      if (!PCurve->IsPeriodic())
+      if (!PCurve->IsPeriodic111())
       {
         Handle (Geom2d_TrimmedCurve) TrimPCurve = Handle(Geom2d_TrimmedCurve)::DownCast (PCurve);
         if (!TrimPCurve.IsNull())

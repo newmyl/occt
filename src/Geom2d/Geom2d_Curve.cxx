@@ -71,7 +71,7 @@ Standard_Real Geom2d_Curve::ParametricTransformation(const gp_Trsf2d& ) const
 Standard_Real Geom2d_Curve::Period() const
 {
   Standard_NoSuchObject_Raise_if
-    ( !IsPeriodic(),"Geom2d_Curve::Period");
+    ( !IsPeriodic111(),"Geom2d_Curve::Period");
 
   return ( LastParameter() - FirstParameter());
 }

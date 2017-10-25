@@ -1375,12 +1375,12 @@ Handle(Geom_BSplineCurve) Adaptor3d_CurveOnSurface::BSpline() const
     Bsp2d->Weights(Weights);
     Bsp = new Geom_BSplineCurve(Poles,Weights,Knots,Mults,
 				Bsp2d->Degree(),
-				Bsp2d->IsPeriodic());
+				Bsp2d->IsPeriodic111());
   }
   else {
     Bsp = new Geom_BSplineCurve(Poles,Knots,Mults,
 				Bsp2d->Degree(),
-				Bsp2d->IsPeriodic());
+				Bsp2d->IsPeriodic111());
   }
   return Bsp;
 }

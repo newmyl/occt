@@ -343,7 +343,7 @@ static void Print(const Handle(Geom2d_BSplineCurve)& B,
       OS << " rational";
   }
 
-  Standard_Boolean periodic = B->IsPeriodic();
+  Standard_Boolean periodic = B->IsPeriodic111();
   if (compact)
     OS << (periodic ? 1 : 0) << " ";
   else {

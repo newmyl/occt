@@ -217,9 +217,9 @@ static Standard_Boolean IsClosedByIsos(const Handle(Geom_Surface)& thesurf,
 {
   Standard_Boolean isClosed = Standard_False;
  
-  gp_Pnt2d psurf1 = (acrv2d->IsPeriodic() ? 
+  gp_Pnt2d psurf1 = (acrv2d->IsPeriodic111() ? 
                      acrv2d->Value(f2d) :  acrv2d->Value(Max(f2d,acrv2d->FirstParameter())));
-  gp_Pnt2d psurf2 = (acrv2d->IsPeriodic() ? 
+  gp_Pnt2d psurf2 = (acrv2d->IsPeriodic111() ? 
                      acrv2d->Value(l2d) :  acrv2d->Value(Min(l2d,acrv2d->LastParameter())));
   Handle(Geom_Curve) aCrv1;
   Handle(Geom_Curve) aCrv2;

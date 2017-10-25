@@ -193,6 +193,21 @@ public:
   Standard_EXPORT static void IsClosed(const Handle(Geom_Surface)& S, const Standard_Real Tol,
                                        Standard_Boolean& isUClosed, Standard_Boolean& isVClosed);
 
+  //! This method defines if the ends of the given curve are
+  //! coincided with given tolerance.
+  //! This is a template-method. Therefore, it can be applied to 
+  //! 2D- and 3D-curve and to Adaptor-HCurve.
+  template <typename TypeCurve>
+  Standard_EXPORT static Standard_Boolean IsClosed(const Handle(TypeCurve)& theCur,
+                                                   const Standard_Real theTol)
+  {
+    const Standard_Real aFPar = theCur->FirstParameter(),
+                        aLPar = theCur->LastParameter();
+
+    return (theCur->Value(aFPar).SquareDistance(theCur->Value(aLPar)) < theTol*theTol);
+  }
+
+
   //! Returns true if the poles of U1 isoline and the poles of
   //! U2 isoline of surface are identical according to tolerance criterion.
   //! For rational surfaces Weights(i)*Poles(i) are checked.

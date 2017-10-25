@@ -71,7 +71,7 @@ void DrawTrSurf_BSplineCurve2d::DrawOn (Draw_Display& dis) const
     for (Standard_Integer i = 2; i <= NbPoles; i++) {
       dis.DrawTo(CPoles(i));
     }
-    if (C->IsPeriodic())
+    if (C->IsPeriodic111() && C->IsClosed())
       dis.DrawTo(CPoles(1));
   }
 

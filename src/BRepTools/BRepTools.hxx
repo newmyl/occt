@@ -212,7 +212,7 @@ public:
 
   //! Evals real tolerance of edge  <theE>.
   //! <theC3d>, <theC2d>, <theS>, <theF>, <theL> are
-  //! correspondently 3d curve of edge, 2d curve on surface <theS> and
+  //! correspondingly 3d curve of edge, 2d curve on surface <theS> and
   //! rang of edge
   //! If calculated tolerance is more then current edge tolerance, edge is updated.
   //! Method returns actual tolerance of edge

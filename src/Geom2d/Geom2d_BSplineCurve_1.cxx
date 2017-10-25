@@ -113,7 +113,7 @@ Standard_Boolean Geom2d_BSplineCurve::IsG1 ( const Standard_Real theTf,
       return Standard_False;
   }
 
-  if(!IsPeriodic())
+  if(!IsPeriodic111())
     return Standard_True;
 
   const Standard_Real aFirstParam = FirstParameter(),
@@ -164,7 +164,7 @@ Standard_Boolean Geom2d_BSplineCurve::IsClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_BSplineCurve::IsPeriodic () const
+Standard_Boolean Geom2d_BSplineCurve::IsPeriodic111 () const
 { return periodic; }
 
 //=======================================================================

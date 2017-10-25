@@ -242,7 +242,7 @@ public:
   //! If the basis curve is a circle or an ellipse the corresponding
   //! OffsetCurve is periodic. If the basis curve can't be periodic
   //! (for example BezierCurve) the OffsetCurve can't be periodic.
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this offset curve, i.e. the period
   //! of the basis curve of this offset curve.

@@ -151,7 +151,7 @@ public:
   //! periodic or not the default periodicity set is non periodic
   //! and you have to turn (explicitly) the curve into a periodic
   //! curve  if you want the curve to be periodic.
-  Standard_EXPORT virtual Standard_Boolean IsPeriodic() const = 0;
+  Standard_EXPORT virtual Standard_Boolean IsPeriodic111() const = 0;
   
   //! Returns thne period of this curve.
   //! raises if the curve is not periodic

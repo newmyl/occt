@@ -935,7 +935,7 @@ ShapeFix_WireSegment ShapeFix_ComposeShell::SplitWire (ShapeFix_WireSegment &wir
     gp_Pnt2d lastPnt2d = C2d->Value(lastPar);
     gp_Pnt prevPnt = myGrid->Value ( prevPnt2d );
     gp_Pnt lastPnt = myGrid->Value ( lastPnt2d );
-    Standard_Boolean isPeriodic = C2d->IsPeriodic();
+    Standard_Boolean isPeriodic = C2d->IsPeriodic111();
     Standard_Real aPeriod = (isPeriodic ? C2d->Period() :0.);
 
     // Splitting edge

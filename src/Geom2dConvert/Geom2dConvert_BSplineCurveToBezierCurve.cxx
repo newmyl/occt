@@ -34,7 +34,7 @@ Geom2dConvert_BSplineCurveToBezierCurve::Geom2dConvert_BSplineCurveToBezierCurve
   // periodic curve can't be converted correctly by two main reasons:
   // last pole (equal to first one) is missing;
   // poles recomputation using default boor scheme is fails.
-  if(myCurve->IsPeriodic()) myCurve->SetNotPeriodic();
+  if(myCurve->IsPeriodic111()) myCurve->SetNotPeriodic();
   Standard_Real Uf = myCurve->FirstParameter();
   Standard_Real Ul = myCurve->LastParameter();
   myCurve->Segment(Uf,Ul);
@@ -63,7 +63,7 @@ Geom2dConvert_BSplineCurveToBezierCurve::Geom2dConvert_BSplineCurveToBezierCurve
 
   Standard_Integer I1, I2;
   myCurve = Handle(Geom2d_BSplineCurve)::DownCast(BasisCurve->Copy());
-  if(myCurve->IsPeriodic()) myCurve->SetNotPeriodic();
+  if(myCurve->IsPeriodic111()) myCurve->SetNotPeriodic();
 
   myCurve->LocateU(U1, PTol, I1, I2);
   if (I1==I2) { // On est sur le noeud

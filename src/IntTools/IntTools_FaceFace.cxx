@@ -2096,7 +2096,7 @@ Standard_Boolean IsCurveValid (const Handle(Geom2d_Curve)& thePCurve)
   Standard_Real pf = 0., pl = 0.;
   gp_Pnt2d pntf, pntl;
 
-  if(!thePCurve->IsClosed() && !thePCurve->IsPeriodic()) {
+  if(!thePCurve->IsClosed() && !thePCurve->IsPeriodic111()) {
     pf = thePCurve->FirstParameter();
     pl = thePCurve->LastParameter();
     pntf = thePCurve->Value(pf);

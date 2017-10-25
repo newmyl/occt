@@ -388,7 +388,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
 
     Standard_Real fc = C2d->FirstParameter(), lc = C2d->LastParameter();
 
-    if(!C2d->IsPeriodic()) {
+    if(!C2d->IsPeriodic111()) {
       if(fc - f2d > Precision::PConfusion()) f2d = fc;
       if(l2d - lc > Precision::PConfusion()) l2d = lc;
     }

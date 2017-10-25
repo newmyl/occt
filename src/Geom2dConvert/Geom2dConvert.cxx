@@ -142,7 +142,7 @@ const Standard_Boolean               SameOrientation
 
   NewCurve->Segment(C->Knot(FirstK),C->Knot(LastK));
 
-  if (C->IsPeriodic()) {
+  if (C->IsPeriodic111()) {
     if (!SameOrientation) NewCurve->Reverse();
   }
   else {
@@ -174,7 +174,7 @@ const Standard_Boolean               SameOrientation
 
   C1->Segment(FirstU, LastU);
 
-  if (C->IsPeriodic()) {
+  if (C->IsPeriodic111()) {
      if (!SameOrientation) C1->Reverse();
    }
   else {
@@ -207,7 +207,7 @@ const Convert_ParameterisationType  Parameterisation)
 
     // Si la courbe n'est pas vraiment restreinte, on ne risque pas 
     // le Raise dans le BS->Segment.
-    if (!Curv->IsPeriodic()) {     
+    if (!Curv->IsPeriodic111()) {     
       if (U1 < Curv->FirstParameter())
 	U1 =  Curv->FirstParameter();
       if (U2 > Curv->LastParameter())
