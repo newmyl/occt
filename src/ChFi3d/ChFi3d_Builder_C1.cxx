@@ -328,7 +328,7 @@ static Standard_Boolean IntersUpdateOnSame(Handle(GeomAdaptor_HSurface)& HGs,
   Standard_Real uf = FIop.FirstParameter();
   Standard_Real ul = FIop.LastParameter();
   Handle(GeomAdaptor_HCurve) Hc3df;
-  if (c3dFI->IsPeriodic()) Hc3df = new GeomAdaptor_HCurve(c3dFI);
+  if (c3dFI->IsPeriodic111()) Hc3df = new GeomAdaptor_HCurve(c3dFI);
   else                     Hc3df = new GeomAdaptor_HCurve(c3dFI,uf,ul);
 
   if ( Update(HBs,Hc3df,FIop,CPop,FprolUV,isFirst,c3dU) )
@@ -2223,7 +2223,7 @@ void ChFi3d_Builder::PerformIntersectionAtEnd(const Standard_Integer Index)
       Standard_Real Utrim,Vtrim;
       Utrim=Ctrim->BasisCurve()->FirstParameter();
       Vtrim=Ctrim->BasisCurve()->LastParameter();
-      if (Ctrim->IsPeriodic()) {
+      if (Ctrim->IsPeriodic111()) {
         if (Ubid>Ctrim->Period()) {
           Ubid=(Utrim+Vtrim)/2;
           Vbid= Vtrim;
@@ -3962,7 +3962,7 @@ void ChFi3d_Builder::IntersectMoreCorner(const Standard_Integer Index)
     Standard_Real uf = FiopArc.FirstParameter();
     Standard_Real ul = FiopArc.LastParameter();
       Handle(GeomAdaptor_HCurve) Hc3df;
-    if(c3df->IsPeriodic()){
+    if(c3df->IsPeriodic111()){
       Hc3df = new GeomAdaptor_HCurve(c3df);
     }
     else{

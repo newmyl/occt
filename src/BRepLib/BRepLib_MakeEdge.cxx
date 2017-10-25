@@ -768,13 +768,9 @@ void  BRepLib_MakeEdge::Init(const Handle(Geom_Curve)& CC,
 			     const Standard_Real pp1,
 			     const Standard_Real pp2)
 {
-  // kill trimmed curves
-  Handle(Geom_Curve) C = CC;
-  Handle(Geom_TrimmedCurve) CT = Handle(Geom_TrimmedCurve)::DownCast(C);
-  while (!CT.IsNull()) {
-    C = CT->BasisCurve();
-    CT = Handle(Geom_TrimmedCurve)::DownCast(C);
-  }
+  // kill trimmed curves to obtain First/Last-parameters of basis curve
+  const Handle(Geom_Curve) C = (CC->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) ? 
+                         Handle(Geom_TrimmedCurve)::DownCast(CC)->BasisCurve() : CC;
 
   // check parameters
   Standard_Real p1 = pp1;
@@ -782,18 +778,18 @@ void  BRepLib_MakeEdge::Init(const Handle(Geom_Curve)& CC,
   Standard_Real cf = C->FirstParameter();
   Standard_Real cl = C->LastParameter();
   Standard_Real epsilon = Precision::PConfusion();
-  Standard_Boolean periodic = C->IsPeriodic();
   GeomAdaptor_Curve aCA(C);
 
   TopoDS_Vertex V1,V2;
-  if (periodic) {
+  if (C->IsPeriodic111())
+  {
     // adjust in period
     ElCLib::AdjustPeriodic(cf,cl,epsilon,p1,p2);
     V1 = VV1;
     V2 = VV2;
   }
   else {
-    // reordonate
+    // reordinate
     if (p1 < p2) {
       V1 = VV1;
       V2 = VV2;
@@ -801,9 +797,7 @@ void  BRepLib_MakeEdge::Init(const Handle(Geom_Curve)& CC,
     else {
       V2 = VV1;
       V1 = VV2;
-      Standard_Real x = p1;
-      p1 = p2;
-      p2 = x;
+      std::swap(p1, p2);
     }
 
     // check range

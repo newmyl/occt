@@ -2547,7 +2547,7 @@ void BRepOffset_MakeOffset::MakeMissingWalls ()
       Standard_Real aF, aL;
       const Handle(Geom_Curve) aC = BRep_Tool::Curve(anEdge, aF, aL);
       if (!aC.IsNull() &&
-         (!aC->IsClosed() && !aC->IsPeriodic()))
+         (!aC->IsClosed() && !aC->IsPeriodic111()))
       {
         gp_Pnt aPntF = BRep_Tool::Pnt(V1);
         gp_Pnt aPntL = BRep_Tool::Pnt(V2);

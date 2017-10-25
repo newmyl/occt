@@ -1069,7 +1069,7 @@ void Geom_BSplineCurve::MovePointAndTangent(const Standard_Real    U,
                                             Standard_Integer&      ErrorStatus) 
 {
   Standard_Integer ii ;
-  if (IsPeriodic()) {
+  if (IsPeriodic111()) {
     //
     // for the time being do not deal with periodic curves
     //

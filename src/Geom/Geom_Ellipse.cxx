@@ -94,7 +94,7 @@ Standard_Boolean Geom_Ellipse::IsClosed () const      { return Standard_True; }
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Ellipse::IsPeriodic () const    { return Standard_True; }
+Standard_Boolean Geom_Ellipse::IsPeriodic111 () const    { return Standard_True; }
 
 //=======================================================================
 //function : FirstParameter

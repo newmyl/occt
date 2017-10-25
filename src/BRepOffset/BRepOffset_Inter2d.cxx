@@ -1114,7 +1114,7 @@ void BRepOffset_Inter2d::ExtentEdge(const TopoDS_Edge& E,TopoDS_Edge& NE, const 
               f = FirstParOnPC;
               l = LastParOnPC;
             }
-          else if (C3d->IsPeriodic())
+          else if (C3d->IsPeriodic111())
             {
               Standard_Real delta = (C3d->Period() - (l - f))*0.5;
               delta *= 0.95;
@@ -1320,7 +1320,7 @@ void BRepOffset_Inter2d::ExtentEdge(const TopoDS_Edge& E,TopoDS_Edge& NE, const 
           LastPar  = C3d->LastParameter();
           BB.UpdateEdge(NE, C3d, Precision::Confusion());
         }
-      else if (C3d->IsPeriodic())
+      else if (C3d->IsPeriodic111())
         {
           Standard_Real delta = (C3d->Period() - (anEl - anEf))*0.5;
           delta *= 0.95;

@@ -89,7 +89,7 @@ Standard_Boolean Geom_Circle::IsClosed () const        { return Standard_True; }
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Circle::IsPeriodic () const      { return Standard_True; }
+Standard_Boolean Geom_Circle::IsPeriodic111 () const      { return Standard_True; }
 
 
 //=======================================================================

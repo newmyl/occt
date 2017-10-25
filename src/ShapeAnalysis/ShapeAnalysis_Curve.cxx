@@ -1223,7 +1223,7 @@ Standard_Boolean ShapeAnalysis_Curve::IsPeriodic(const Handle(Geom_Curve)& theCu
     if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
       aTmpCurve = Handle(Geom_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
   }
-  return aTmpCurve->IsPeriodic();
+  return aTmpCurve->IsPeriodic111();
 }
 
 Standard_Boolean ShapeAnalysis_Curve::IsPeriodic(const Handle(Geom2d_Curve)& theCurve)

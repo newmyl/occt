@@ -1662,7 +1662,7 @@ static TopoDS_Edge  NewEdge(const TopoDS_Edge& edg,
       Cimg2d = i2s.LineOnS1(i);
     }
 
-    if (Cimg->IsPeriodic()) {
+    if (Cimg->IsPeriodic111()) {
 
       Standard_Real period = Cimg->Period();
       Standard_Real imf = Cimg->FirstParameter();

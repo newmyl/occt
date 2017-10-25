@@ -280,7 +280,7 @@ Handle(IGESData_IGESEntity) GeomToIGES_GeomCurve::TransferCurve
 // Si la courbe est periodique, on passe par une fonction pour recuperer tous
 // les parametres necessaires a l`ecriture IGES.
 
-  Standard_Boolean IPerio  = start->IsPeriodic();
+  Standard_Boolean IPerio  = start->IsPeriodic111();
  
   if (IPerio) {
     mycurve = Handle(Geom_BSplineCurve)::DownCast(start->Copy());

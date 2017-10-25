@@ -1141,7 +1141,7 @@ Standard_EXPORT void FUN_ds_Parameter(const TopoDS_Shape& E,const TopoDS_Shape& 
   Standard_Real p = P;
   TopLoc_Location loc; Standard_Real f,l;
   Handle(Geom_Curve) C = BRep_Tool::Curve(e,loc,f,l);
-  if ( !C.IsNull() && C->IsPeriodic()) {
+  if ( !C.IsNull() && C->IsPeriodic111()) {
     Standard_Real per = C->Period();
 
     TopAbs_Orientation oV=TopAbs_FORWARD;

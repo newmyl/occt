@@ -63,7 +63,7 @@ Handle(Geom_Curve) ShapeCustom_Curve::ConvertToPeriodic (const Standard_Boolean 
   
   Standard_Boolean converted = Standard_False; //:p6
 
-  if ( closed && ! BSpl->IsPeriodic() && BSpl->NbPoles() >3 ) {
+  if ( closed && ! BSpl->IsPeriodic111() && BSpl->NbPoles() >3 ) {
     Standard_Boolean set = Standard_True;
     // if degree+1 at ends, first change it to 1 by rearranging knots
     if ( BSpl->Multiplicity(1) == BSpl->Degree() + 1 &&
@@ -95,7 +95,7 @@ Handle(Geom_Curve) ShapeCustom_Curve::ConvertToPeriodic (const Standard_Boolean 
       newMults(2) = newMults(nbKnots+1) = BSpl->Degree();
       Handle(Geom_BSplineCurve) res = new Geom_BSplineCurve(oldPoles, oldWeights,
                                                             newKnots,newMults,
-                                                            BSpl->Degree(),BSpl->IsPeriodic());
+                                                            BSpl->Degree(),BSpl->IsPeriodic111());
       BSpl = res;
     }
     else if ( BSpl->Multiplicity(1) > BSpl->Degree() ||

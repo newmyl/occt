@@ -59,7 +59,7 @@ inline  Standard_Boolean ShapeExtend_ComplexCurve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-inline  Standard_Boolean ShapeExtend_ComplexCurve::IsPeriodic() const
+inline  Standard_Boolean ShapeExtend_ComplexCurve::IsPeriodic111() const
 {
   return Standard_False;
 }

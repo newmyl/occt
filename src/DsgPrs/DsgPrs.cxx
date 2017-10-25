@@ -289,13 +289,13 @@ void DsgPrs::ComputeCurvilinearFacesLengthPresentation( const Standard_Real Firs
       deltaU = LastU - FirstU;
       deltaV = LastV - FirstV;
 
-      if (VCurve->IsPeriodic() && Abs( deltaU ) > VCurve->Period()/2)
+      if (VCurve->IsPeriodic111() && Abs( deltaU ) > VCurve->Period()/2)
 	{
 	  Standard_Real Sign = (deltaU > 0.0)? -1.0 : 1.0;
 	  deltaU = VCurve->Period() - Abs( deltaU );
 	  deltaU *= Sign;
 	}
-      if (UCurve->IsPeriodic() && Abs( deltaV ) > UCurve->Period()/2)
+      if (UCurve->IsPeriodic111() && Abs( deltaV ) > UCurve->Period()/2)
 	{
 	  Standard_Real Sign = (deltaV > 0.0)? -1.0 : 1.0;
 	  deltaV = UCurve->Period() - Abs( deltaV );

@@ -245,7 +245,7 @@ public:
   
   //! Returns true if this offset curve is periodic, i.e. if the
   //! basis curve of this offset curve is periodic.
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this offset curve, i.e. the period
   //! of the basis curve of this offset curve.

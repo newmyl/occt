@@ -143,7 +143,7 @@ void TopOpeBRepTool_ShapeTool::UVBOUNDS
     Handle(Geom_SurfaceOfRevolution) 
       SR = Handle(Geom_SurfaceOfRevolution)::DownCast(BS);
     Handle(Geom_Curve) C = BASISCURVE(SR->BasisCurve());
-    if (C->IsPeriodic()) {
+    if (C->IsPeriodic111()) {
       UPeriodic = Standard_False; 
       VPeriodic = Standard_True; 
       Vmin = C->FirstParameter(); Vmax = C->LastParameter();
@@ -153,7 +153,7 @@ void TopOpeBRepTool_ShapeTool::UVBOUNDS
     Handle(Geom_SurfaceOfLinearExtrusion)
       SE = Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(BS);
     Handle(Geom_Curve) C = BASISCURVE(SE->BasisCurve());
-    if (C->IsPeriodic()) {
+    if (C->IsPeriodic111()) {
       UPeriodic = Standard_True; 
       Umin = C->FirstParameter(); Umax = C->LastParameter();
       VPeriodic = Standard_False;

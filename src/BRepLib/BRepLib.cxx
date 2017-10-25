@@ -1282,28 +1282,15 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge& theEdge,
   Geom2dAdaptor_Curve& GAC2d = HC2d->ChangeCurve2d();
   GeomAdaptor_Surface& GAS = HS->ChangeSurface(); 
 
-  // modified by NIZHNY-OCC486  Tue Aug 27 17:15:13 2002 :
-  Standard_Boolean m_TrimmedPeriodical = Standard_False;
-  Handle(Standard_Type) TheType = C3d->DynamicType();
-  if( TheType == STANDARD_TYPE(Geom_TrimmedCurve))
+  if (!C3d->IsPeriodic111())
   {
-    Handle(Geom_Curve) gtC (Handle(Geom_TrimmedCurve)::DownCast (C3d)->BasisCurve());
-    m_TrimmedPeriodical = gtC->IsPeriodic();
-  }
-  // modified by NIZHNY-OCC486  Tue Aug 27 17:15:17 2002 .
-
-
-  if(!C3d->IsPeriodic()) {
     Standard_Real Udeb = C3d->FirstParameter();
     Standard_Real Ufin = C3d->LastParameter();
     // modified by NIZHNY-OCC486  Tue Aug 27 17:17:14 2002 :
     //if (Udeb > f3d) f3d = Udeb;
     //if (l3d > Ufin) l3d = Ufin;
-    if(!m_TrimmedPeriodical)
-    {
-      if (Udeb > f3d) f3d = Udeb;
-      if (l3d > Ufin) l3d = Ufin;
-    }
+    if (Udeb > f3d) f3d = Udeb;
+    if (l3d > Ufin) l3d = Ufin;
     // modified by NIZHNY-OCC486  Tue Aug 27 17:17:55 2002 .
   }
   if(!L3d.IsIdentity()){

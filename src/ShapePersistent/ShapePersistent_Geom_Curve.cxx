@@ -320,7 +320,7 @@ ShapePersistent_Geom_Curve::Translate(const Handle(Geom_BSplineCurve)& theCurve,
       Handle(BSpline) aPBSC = new BSpline;
       Handle(pBSpline) aPpBSC = new pBSpline;
       aPpBSC->myRational = theCurve->IsRational();
-      aPpBSC->myPeriodic = theCurve->IsPeriodic();
+      aPpBSC->myPeriodic = theCurve->IsPeriodic111();
       aPpBSC->mySpineDegree = theCurve->Degree();
       aPpBSC->myPoles = StdLPersistent_HArray1::Translate<TColgp_HArray1OfPnt>("PColgp_HArray1OfPnt", theCurve->Poles());
       if (theCurve->IsRational()) {

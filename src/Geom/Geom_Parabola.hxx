@@ -134,7 +134,7 @@ public:
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
   //! Returns False
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Computes the directrix of this parabola.
   //! This is a line normal to the axis of symmetry, in the

@@ -1509,7 +1509,7 @@ Handle(Geom2d_Curve) ShapeConstruct_ProjectCurveOnSurface::ApproximatePCurve(con
     crv3d->Knots(knots);
     crv3d->Weights(weights);
     crv3d->Multiplicities(multiplicities);
-    C2d = new Geom2d_BSplineCurve  ( poles2d, weights, knots, multiplicities, crv3d->Degree(), crv3d->IsPeriodic());
+    C2d = new Geom2d_BSplineCurve  ( poles2d, weights, knots, multiplicities, crv3d->Degree(), crv3d->IsPeriodic111());
     return C2d;
   }
   catch(Standard_Failure const& anException) {

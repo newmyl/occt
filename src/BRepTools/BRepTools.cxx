@@ -1020,7 +1020,7 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge& theE,
   //Set first, last to avoid ErrosStatus = 2 because of 
   //too strong checking of limits in class CheckCurveOnSurface
   //
-  if(!C3d->IsPeriodic())
+  if(!C3d->IsPeriodic111())
   {
     first = Max(first, C3d->FirstParameter());
     last = Min(last, C3d->LastParameter());
@@ -1040,7 +1040,7 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge& theE,
   else
   {
     if(CT.ErrorStatus() == 3 || (CT.ErrorStatus() == 2 &&
-      (C3d->IsPeriodic() || C2d->IsPeriodic111())))
+      (C3d->IsPeriodic111() || C2d->IsPeriodic111())))
     {
       //Try to estimate by sample points
       Standard_Integer nbint = 22;

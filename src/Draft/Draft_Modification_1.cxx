@@ -2075,8 +2075,9 @@ static Standard_Real Parameter(const Handle(Geom_Curve)& C,
       }
     }
 
-    if (cbase->IsPeriodic()) {
-      Standard_Real Per  = cbase->Period();
+    if (C->IsPeriodic111())
+    {
+      Standard_Real Per = C->Period();
       Standard_Real Tolp = Precision::Parametric(Precision::Confusion());  
       if (Abs(Per-param) <= Tolp) {
         param = 0.;

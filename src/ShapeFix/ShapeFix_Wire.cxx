@@ -1366,19 +1366,22 @@ Standard_Boolean ShapeFix_Wire::FixShifted()
   // CTS18546-2.igs entity 2222: base curve is periodic and 2dcurve is shifted
   Standard_Boolean IsVCrvClosed = Standard_False;
   Standard_Real VRange = 1.;
-  if (surf->Surface()->IsKind (STANDARD_TYPE(Geom_SurfaceOfRevolution))) {
+  if (surf->Surface()->IsKind(STANDARD_TYPE(Geom_SurfaceOfRevolution)))
+  {
     Handle(Geom_SurfaceOfRevolution) aSurOfRev = Handle(Geom_SurfaceOfRevolution)::DownCast(surf->Surface());
     Handle(Geom_Curve) aBaseCrv = aSurOfRev->BasisCurve();
-    while ( (aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
-           (aBaseCrv->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) ) {
+    while ((aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
+           (aBaseCrv->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))))
+    {
       if (aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve)))
         aBaseCrv = Handle(Geom_OffsetCurve)::DownCast(aBaseCrv)->BasisCurve();
       if (aBaseCrv->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
         aBaseCrv = Handle(Geom_TrimmedCurve)::DownCast(aBaseCrv)->BasisCurve();
     }
-    if (aBaseCrv->IsPeriodic()) {
+    if (aBaseCrv->IsPeriodic111())
+    {
       vclosed = Standard_True;
-      VRange = aBaseCrv->Period();
+      VRange = aSurOfRev->VPeriod();
       IsVCrvClosed = Standard_True;
 #ifdef OCCT_DEBUG
       cout << "Warning: ShapeFix_Wire::FixShifted set vclosed True for Surface of Revolution" << endl;

@@ -506,7 +506,7 @@ void  GeomFill_BSplineCurves::Init
 					  UKnots       , VKnots, 
 					  UMults       , VMults,
 					  CC1->Degree(), 1,
-					  CC1->IsPeriodic(), 
+					  CC1->IsPeriodic111(), 
 					  Standard_False);
     }
     else {

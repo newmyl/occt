@@ -156,7 +156,7 @@ static Standard_Boolean IsPeriodic(const Handle(Geom_Curve)& theCurve)
       if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
         aTmpCurve = Handle(Geom_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
   }
-  return aTmpCurve->IsPeriodic();
+  return aTmpCurve->IsPeriodic111();
 }
 
 Standard_Boolean IsPeriodic(const Handle(Geom2d_Curve)& theCurve)

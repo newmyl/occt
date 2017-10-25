@@ -706,9 +706,9 @@ void TopOpeBRepDS_BuildTool::ComputePCurves
   
   Handle(Geom_Curve) C3Dnew = C3D;
   
-  if ( C3D->IsPeriodic() ) {
+  if ( C3D->IsPeriodic111() ) {
     // ellipse on cone : periodize parmin,parmax
-    Standard_Real period = C3D->LastParameter() - C3D->FirstParameter();
+    Standard_Real period = C3D->Period();
     Standard_Real f,l;
     if (Vmin.Orientation() == TopAbs_FORWARD) { f = parmin; l = parmax; }
     else {                                      f = parmax; l = parmin; }
@@ -940,7 +940,7 @@ void  TopOpeBRepDS_BuildTool::Parameter(const TopoDS_Shape& E,
   // 13/07/95 : 
   TopLoc_Location loc; Standard_Real f,l;
   Handle(Geom_Curve) C = BRep_Tool::Curve(e,loc,f,l);
-  if ( !C.IsNull() && C->IsPeriodic()) {
+  if ( !C.IsNull() && C->IsPeriodic111()) {
     Standard_Real per = C->Period();
 
     TopAbs_Orientation oV=TopAbs_FORWARD;
@@ -995,10 +995,10 @@ void  TopOpeBRepDS_BuildTool::UpdateEdge(const TopoDS_Shape& Ein,
   Handle(Geom_Curve) Cou = BRep_Tool::Curve(TopoDS::Edge(Eou),loc,f2,l2);
   if (Cin.IsNull() || Cou.IsNull()) return;
   
-  if ( Cou->IsPeriodic() ) {
+  if ( Cou->IsPeriodic111() ) {
     Standard_Real f2n = f2, l2n = l2;
     if ( l2n <= f2n ) {
-      ElCLib::AdjustPeriodic(f1,l1,Precision::PConfusion(),f2n,l2n);
+      ElCLib::AdjustPeriodic(f1,f1+Cou->Period(),Precision::PConfusion(),f2n,l2n);
       Range(Eou,f2n,l2n);
     }
   }
@@ -1081,8 +1081,8 @@ void TopOpeBRepDS_BuildTool::TranslateOnPeriodic
   Handle(Geom_Curve) C3D = BRep_Tool::Curve(TopoDS::Edge(E),C3Df,C3Dl); // 13-07-97: xpu
  
   Standard_Real first = C3Df, last = C3Dl;
-  if (C3D->IsPeriodic()) {
-    if ( last < first ) last += Abs(first - last);
+  if (C3D->IsPeriodic111()) {
+    if ( last < first ) last += C3D->Period();
   }
 
   // jyl-xpu : 13-06-97 : 
@@ -1225,7 +1225,7 @@ void  TopOpeBRepDS_BuildTool::PCurve(TopoDS_Shape& F,
       Standard_Boolean deca = (Abs(Cf - CDSmin) > Precision::PConfusion());
       Handle(Geom2d_Line) line2d = Handle(Geom2d_Line)::DownCast(PCT);
       Standard_Boolean isline2d = !line2d.IsNull();
-      Standard_Boolean tran=(rangedef && deca && C->IsPeriodic() && isline2d);
+      Standard_Boolean tran=(rangedef && deca && C->IsPeriodic111() && isline2d);
       if (tran) {
 	TopLoc_Location Loc;
 	const Handle(Geom_Surface) Surf = BRep_Tool::Surface(FF,Loc);

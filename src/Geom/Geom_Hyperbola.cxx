@@ -96,7 +96,7 @@ Standard_Boolean Geom_Hyperbola::IsClosed () const      { return Standard_False;
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Hyperbola::IsPeriodic () const    { return Standard_False; } 
+Standard_Boolean Geom_Hyperbola::IsPeriodic111 () const    { return Standard_False; } 
 
 //=======================================================================
 //function : FirstParameter

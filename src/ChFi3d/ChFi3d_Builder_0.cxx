@@ -1638,22 +1638,24 @@ void  ChFi3d_ComputeArete(const ChFiDS_CommonPoint&   P1,
   tolreached = tol3d;
 
   if (Abs(UV1.X()-UV2.X()) <= tol2d) {
-    if (IFlag == 0) {
+    if (IFlag == 0)
+    {
       Pardeb = UV1.Y();
       Parfin = UV2.Y();
       C3d = Surf->UIso(UV1.X());
-      if(Pardeb > Parfin) {
+      if (Pardeb > Parfin)
+      {
         Pardeb = C3d->ReversedParameter(Pardeb);
         Parfin = C3d->ReversedParameter(Parfin);
         C3d->Reverse();
       }
-      Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
-      if(!tc.IsNull()) {
-        C3d = tc->BasisCurve();
-        if (C3d->IsPeriodic()) {
-          ElCLib::AdjustPeriodic(C3d->FirstParameter(),C3d->LastParameter(),
-            tol2d,Pardeb,Parfin);
-        }
+
+      if (C3d->IsPeriodic111())
+      {
+        Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
+        if (!tc.IsNull()) C3d = tc->BasisCurve();
+        ElCLib::AdjustPeriodic(C3d->FirstParameter(), C3d->LastParameter(),
+                               tol2d, Pardeb, Parfin);
       }
     }
     if(IFlag != 1) {
@@ -1668,22 +1670,24 @@ void  ChFi3d_ComputeArete(const ChFiDS_CommonPoint&   P1,
   }
   else if (Abs(UV1.Y()-UV2.Y())<=tol2d) {
     //iso v
-    if (IFlag == 0) {
+    if (IFlag == 0)
+    {
       Pardeb = UV1.X();
       Parfin = UV2.X();
       C3d = Surf->VIso(UV1.Y());
-      if(Pardeb > Parfin) {
+      if (Pardeb > Parfin)
+      {
         Pardeb = C3d->ReversedParameter(Pardeb);
         Parfin = C3d->ReversedParameter(Parfin);
         C3d->Reverse();
       }
-      Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
-      if(!tc.IsNull()) {
-        C3d = tc->BasisCurve();
-        if (C3d->IsPeriodic()) {
-          ElCLib::AdjustPeriodic(C3d->FirstParameter(),C3d->LastParameter(),
-            tol2d,Pardeb,Parfin);
-        }
+
+      if (C3d->IsPeriodic111())
+      {
+        Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
+        if (!tc.IsNull()) C3d = tc->BasisCurve();
+        ElCLib::AdjustPeriodic(C3d->FirstParameter(), C3d->LastParameter(),
+                               tol2d, Pardeb, Parfin);
       }
     }
     if(IFlag != 1) {
@@ -3278,7 +3282,7 @@ Standard_Boolean ChFi3d_ComputeCurves(const Handle(Adaptor3d_HSurface)&   S1,
               }
               ptestdeb = C3d->Value(Uf);
               ptestfin = C3d->Value(Ul);
-              if (C3d->IsPeriodic() && !(failedF && failedL)) {
+              if (C3d->IsPeriodic111() && !(failedF && failedL)) {
                 // assure the same order of ends, otherwise TrimmedCurve will take
                 // the other part of C3d
                 gp_Pnt Ptmp;
@@ -4290,7 +4294,7 @@ Standard_EXPORT
   //
   fk = 2;
   lk = BSpline->NbKnots()-1;
-  if(BSpline->IsPeriodic()) {
+  if(BSpline->IsPeriodic111()) {
     fk = 1;
   }
   if(caredeb) {
@@ -4327,7 +4331,7 @@ Standard_EXPORT
   }
   // elspine periodic => BSpline Periodic
   if(ES.IsPeriodic()) {
-    if(!BSpline->IsPeriodic()) {
+    if(!BSpline->IsPeriodic111()) {
       BSpline->SetPeriodic();
       //modified by NIZNHY-PKV Fri Dec 10 12:20:22 2010ft
       if (iToApproxByC2) {

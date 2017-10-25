@@ -41,7 +41,7 @@ GeomToStep_MakeBoundedCurve::GeomToStep_MakeBoundedCurve ( const Handle(Geom_Bou
   if (C->IsKind(STANDARD_TYPE(Geom_BSplineCurve))) {
     Handle(Geom_BSplineCurve) Bspli = Handle(Geom_BSplineCurve)::DownCast(C);
     // UPDATE FMA 1-04-96
-    if (C->IsPeriodic()) {
+    if (C->IsPeriodic111()) {
       Handle(Geom_BSplineCurve) newBspli = 
 	Handle(Geom_BSplineCurve)::DownCast(Bspli->Copy());
       newBspli->SetNotPeriodic();

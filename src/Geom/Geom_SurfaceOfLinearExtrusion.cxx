@@ -335,7 +335,7 @@ Standard_Boolean Geom_SurfaceOfLinearExtrusion::IsUClosed () const {
 
 Standard_Boolean Geom_SurfaceOfLinearExtrusion::IsUPeriodic () const { 
 
-  return basisCurve->IsPeriodic ();
+  return basisCurve->IsPeriodic111 ();
 }
 
 //=======================================================================

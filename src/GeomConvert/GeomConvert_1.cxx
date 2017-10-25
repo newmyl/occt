@@ -570,7 +570,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SurfaceToBSplineSurface
         UKnots, VKnots, 
         UMults, VMults,
         2 , C->Degree(),
-        periodic, C->IsPeriodic());
+        periodic, C->IsPeriodic111());
 
 
     }
@@ -613,7 +613,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SurfaceToBSplineSurface
       TheSurface = new Geom_BSplineSurface(Poles, Weights, UKnots, VKnots, 
         UMults, VMults,
         C->Degree(), 1,
-        C->IsPeriodic(), Standard_False);
+        C->IsPeriodic111(), Standard_False);
     }
 
 
@@ -790,7 +790,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SurfaceToBSplineSurface
         UKnots, VKnots, 
         UMults, VMults,
         2 , C->Degree(),
-        periodic, C->IsPeriodic());
+        periodic, C->IsPeriodic111());
     }
 
 

@@ -73,7 +73,7 @@ DrawTrSurf_BSplineCurve::DrawTrSurf_BSplineCurve (
       for (Standard_Integer i = 2; i <= NbPoles; i++) {
         dis.DrawTo(CPoles(i));
       }
-      if (C->IsPeriodic())
+      if (C->IsPeriodic111())
 	dis.DrawTo(CPoles(1));
     }
     

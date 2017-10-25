@@ -1573,10 +1573,10 @@ Handle(Geom2d_BSplineCurve)
 	TColStd_Array1OfReal Weights(1, BSC->NbPoles());
 	BSC->Weights(Weights); 
 	return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-				       BSC->Degree(), BSC->IsPeriodic()) ;
+				       BSC->Degree(), BSC->IsPeriodic111()) ;
       }
       return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-				     BSC->Degree(), BSC->IsPeriodic()) ;
+				     BSC->Degree(), BSC->IsPeriodic111()) ;
       
     }
     if(TheTypeC == GeomAbs_BezierCurve) {
@@ -1596,10 +1596,10 @@ Handle(Geom2d_BSplineCurve)
 	TColStd_Array1OfReal Weights(1, BC->NbPoles());
 	BC->Weights(Weights); 
 	return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-				       BC->Degree(), BC->IsPeriodic()) ;
+				       BC->Degree(), BC->IsPeriodic111()) ;
       }
       return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-				     BC->Degree(), BC->IsPeriodic()) ;
+				     BC->Degree(), BC->IsPeriodic111()) ;
     }
   }
   if(TheTypeS == GeomAbs_BSplineSurface) {
@@ -1649,10 +1649,10 @@ Handle(Geom2d_BSplineCurve)
 	      TColStd_Array1OfReal Weights(1, BSC->NbPoles());
 	      BSC->Weights(Weights); 
 	      return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-					     BSC->Degree(), BSC->IsPeriodic()) ;
+					     BSC->Degree(), BSC->IsPeriodic111()) ;
 	    }
 	    return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-					   BSC->Degree(), BSC->IsPeriodic()) ;
+					   BSC->Degree(), BSC->IsPeriodic111()) ;
 	    
 	    
 	  }
@@ -1691,10 +1691,10 @@ Handle(Geom2d_BSplineCurve)
 	      TColStd_Array1OfReal Weights(1, BC->NbPoles());
 	      BC->Weights(Weights); 
 	      return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-						    BC->Degree(), BC->IsPeriodic()) ;
+						    BC->Degree(), BC->IsPeriodic111()) ;
 	    }
 	    return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-						  BC->Degree(), BC->IsPeriodic()) ;
+						  BC->Degree(), BC->IsPeriodic111()) ;
 	  }
 	} 
       }
@@ -1749,10 +1749,10 @@ Handle(Geom2d_BSplineCurve)
 	      TColStd_Array1OfReal Weights(1, BSC->NbPoles());
 	      BSC->Weights(Weights); 
 	      return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-						    BSC->Degree(), BSC->IsPeriodic()) ;
+						    BSC->Degree(), BSC->IsPeriodic111()) ;
 	    }
 	    return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-						  BSC->Degree(), BSC->IsPeriodic()) ;
+						  BSC->Degree(), BSC->IsPeriodic111()) ;
 	    
 	    
 	  }
@@ -1791,10 +1791,10 @@ Handle(Geom2d_BSplineCurve)
 	      TColStd_Array1OfReal Weights(1, BC->NbPoles());
 	      BC->Weights(Weights); 
 	      return new Geom2d_BSplineCurve(Poles2d, Weights, Knots, Mults,
-						    BC->Degree(), BC->IsPeriodic()) ;
+						    BC->Degree(), BC->IsPeriodic111()) ;
 	    }
 	    return new Geom2d_BSplineCurve(Poles2d, Knots, Mults,
-						  BC->Degree(), BC->IsPeriodic()) ;
+						  BC->Degree(), BC->IsPeriodic111()) ;
 	  }
 	} 
       }

@@ -488,7 +488,7 @@ Standard_Boolean Geom_BezierCurve::IsCN (const Standard_Integer ) const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_BezierCurve::IsPeriodic () const 
+Standard_Boolean Geom_BezierCurve::IsPeriodic111 () const 
 {
   return Standard_False; 
 }

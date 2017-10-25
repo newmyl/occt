@@ -125,7 +125,7 @@ Standard_Boolean Geom_Line::IsClosed () const { return Standard_False; }
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Line::IsPeriodic () const { return Standard_False;  }
+Standard_Boolean Geom_Line::IsPeriodic111 () const { return Standard_False;  }
 
 //=======================================================================
 //function : Continuity

@@ -1609,7 +1609,7 @@ void BOPTools_AlgoTools::MakePCurve(const TopoDS_Edge& aE,
                                        aOutTol, theContext);
       }
     //
-    if (aC3DE->IsPeriodic()) {
+    if (aC3DE->IsPeriodic111()) {
       BOPTools_AlgoTools2D::AdjustPCurveOnFace(aFFWD, aT1, aT2,  aC2D, 
                                                aC2DA, theContext);
     }

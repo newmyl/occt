@@ -213,15 +213,16 @@ BRepFill_MultiLine::BRepFill_MultiLine(const TopoDS_Face&     Face1,
 
   // try duplication
   GeomAdaptor_Surface GAS1(S);
-  GeomAbs_SurfaceType Type1 = GAS1.GetType();
 
-  if ( UU1->IsPeriodic()) {
+  if (UU1->IsPeriodic111() && UU1->IsClosed())
+  {
     ElCLib::AdjustPeriodic(UU1->FirstParameter(),
       UU1->LastParameter(),
       Precision::PConfusion(),
       Umin, Umax);
   }
-  if ( VV1->IsPeriodic()) {
+  if (VV1->IsPeriodic111() && VV1->IsClosed())
+  {
     ElCLib::AdjustPeriodic(VV1->FirstParameter(),
       VV1->LastParameter(),
       Precision::PConfusion(),
@@ -319,15 +320,16 @@ BRepFill_MultiLine::BRepFill_MultiLine(const TopoDS_Face&     Face1,
 
   // try duplication
   GeomAdaptor_Surface GAS2(S);
-  GeomAbs_SurfaceType Type2 = GAS2.GetType();
 
-  if ( UU2->IsPeriodic()) {
+  if (UU2->IsPeriodic111() && UU2->IsClosed())
+  {
     ElCLib::AdjustPeriodic(UU2->FirstParameter(),
       UU2->LastParameter(),
       Precision::PConfusion(),
       Umin, Umax);
   }
-  if ( VV2->IsPeriodic()) {
+  if (VV2->IsPeriodic111() && VV2->IsClosed())
+  {
     ElCLib::AdjustPeriodic(VV2->FirstParameter(),
       VV2->LastParameter(),
       Precision::PConfusion(),
@@ -368,7 +370,8 @@ BRepFill_MultiLine::BRepFill_MultiLine(const TopoDS_Face&     Face1,
     if ( myKPart == 1)
       myCont = GeomAbs_G1;
 
-    if ( (Type1 == GeomAbs_Plane) && (Type2 == GeomAbs_Plane)) {
+    if ((GAS1.GetType() == GeomAbs_Plane) && (GAS2.GetType() == GeomAbs_Plane))
+    {
       myKPart = 2;
     }
   }

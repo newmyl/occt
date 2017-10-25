@@ -131,7 +131,7 @@ Handle(Geom_BSplineCurve) GeomConvert::SplitBSplineCurve
 
   C1->Segment( C->Knot(FirstK),C->Knot(LastK));
 
-  if (C->IsPeriodic()) {
+  if (C->IsPeriodic111()) {
     if (!SameOrientation) C1->Reverse();
   }
   else {
@@ -161,7 +161,7 @@ Handle(Geom_BSplineCurve) GeomConvert::SplitBSplineCurve
 
   C1->Segment(FirstU, LastU);
 
-  if (C->IsPeriodic()) {
+  if (C->IsPeriodic111()) {
      if (!SameOrientation) C1->Reverse();
    }
   else {
@@ -194,7 +194,7 @@ Handle(Geom_BSplineCurve)  GeomConvert::CurveToBSplineCurve
 
     // Si la courbe n'est pas vraiment restreinte, on ne risque pas 
     // le Raise dans le BS->Segment.
-    if (!Curv->IsPeriodic()) {
+    if (!Curv->IsPeriodic111()) {
       if (U1 < Curv->FirstParameter())
 	U1 =  Curv->FirstParameter();
       if (U2 > Curv->LastParameter())
@@ -358,7 +358,7 @@ Handle(Geom_BSplineCurve)  GeomConvert::CurveToBSplineCurve
     else if (Curv->IsKind (STANDARD_TYPE(Geom_BSplineCurve))) {
       TheCurve = Handle(Geom_BSplineCurve)::DownCast(Curv->Copy());
       //// modified by jgv, 14.01.05 for OCC7355 ////
-      if (TheCurve->IsPeriodic())
+      if (TheCurve->IsPeriodic111())
 	{
 	  Standard_Real Uf = TheCurve->FirstParameter();
 	  Standard_Real Ul = TheCurve->LastParameter();

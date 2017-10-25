@@ -45,7 +45,7 @@ GeomLib_CheckBSplineCurve::GeomLib_CheckBSplineCurve(const Handle(Geom_BSplineCu
     vector_magnitude ;
   num_poles = myCurve->NbPoles() ;
   
-  if (( ! myCurve->IsPeriodic() )&& num_poles >= 4) {
+  if (( ! myCurve->IsPeriodic111() )&& num_poles >= 4) {
     
     gp_Vec tangent, tangent_normalized,
       a_vector, avector_normalized;

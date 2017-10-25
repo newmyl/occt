@@ -231,7 +231,7 @@ public:
 
   //! Returns True if the parametrization of a curve is periodic.
   //! (P(u) = P(u + T) T = constante)
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
 
   //! Returns false if all the weights are identical. The tolerance

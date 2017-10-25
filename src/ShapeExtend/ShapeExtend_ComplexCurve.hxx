@@ -72,7 +72,7 @@ public:
     virtual Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
   //! Returns False
-    virtual Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+    virtual Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Returns GeomAbs_C0
     virtual GeomAbs_Shape Continuity() const Standard_OVERRIDE;

@@ -153,6 +153,7 @@ static void Descendants(const TopoDS_Shape&,
   TopTools_ListIteratorOfListOfShape it,it2;
   Standard_Integer sens = 0;
 
+  // Almost all curves in scur are trimmed curve (e.g. see LocOpe_DPrism::Curves(...))
   TColGeom_SequenceOfCurve scur;
   Curves(scur);
 
@@ -196,7 +197,7 @@ static void Descendants(const TopoDS_Shape&,
         }
         mu = ASI2.Point(jj,1).Parameter();
         Mu = ASI2.Point(jj,ASI2.NbPoints(jj)).Parameter();
-        if (!scur(jj)->IsPeriodic()) {
+        if (!scur(jj)->IsPeriodic111()) {
           Standard_Integer ku, kf;
           if (! (mu > Mf || mf > Mu)) { //overlapping intervals
             sens = 1;
@@ -691,7 +692,7 @@ static void Descendants(const TopoDS_Shape&,
                                    prmin2, prmax2, prbmin2, prbmax2, flag1);
 
 // case of revolutions
-        if (C->IsPeriodic()) {
+        if (C->IsPeriodic111()) {
           Standard_Real period = C->Period();
           prmax = prmax2;
           if (flag1) {
@@ -906,7 +907,7 @@ static void Descendants(const TopoDS_Shape&,
         Standard_Real min, max, pmin, pmax;
         Standard_Boolean flag2;
         for (it.Initialize(lshape); it.More(); it.Next()) {
-          if (C->IsPeriodic()) {
+          if (C->IsPeriodic111()) {
             Standard_Real period = C->Period();
             Standard_Real pr, prb;
             BRepFeat::ParametricMinMax(it.Value(),C, pr, prmax1,

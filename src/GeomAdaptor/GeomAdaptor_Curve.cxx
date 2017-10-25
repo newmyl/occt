@@ -83,9 +83,9 @@ GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
   Standard_Real newFirst, newLast;
   const TColStd_Array1OfReal& TK = myBSplineCurve->Knots();
   const TColStd_Array1OfInteger& TM = myBSplineCurve->Multiplicities();
-  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U1,myBSplineCurve->IsPeriodic(),
+  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U1,myBSplineCurve->IsPeriodic111(),
 			    1,Nb,Index1,newFirst);
-  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U2,myBSplineCurve->IsPeriodic(),
+  BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,U2,myBSplineCurve->IsPeriodic111(),
 			    1,Nb,Index2,newLast);
   if ( Abs(newFirst-TK(Index1+1))<Precision::PConfusion()) { 
     if (Index1 < Nb) Index1++;
@@ -94,7 +94,7 @@ GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
     Index2--;
   Standard_Integer MultMax;
   // attention aux courbes peridiques.
-  if ( (myBSplineCurve->IsPeriodic()) && (Index1 == Nb) )
+  if ( (myBSplineCurve->IsPeriodic111()) && (Index1 == Nb) )
     Index1 = 1;
 
   if ( Index2 - Index1 <= 0) {
@@ -295,10 +295,10 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
           const TColStd_Array1OfReal& TK = myBSplineCurve->Knots();
           const TColStd_Array1OfInteger& TM = myBSplineCurve->Multiplicities();
           BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myFirst,
-                                    myBSplineCurve->IsPeriodic(),
+                                    myBSplineCurve->IsPeriodic111(),
                                     1,Nb,Index1,newFirst);
           BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myLast,
-                                    myBSplineCurve->IsPeriodic(),
+                                    myBSplineCurve->IsPeriodic111(),
                                     1,Nb,Index2,newLast);
 
           // On decale eventuellement les indices  
@@ -418,10 +418,10 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T,
             const TColStd_Array1OfReal& TK = myBSplineCurve->Knots();
             const TColStd_Array1OfInteger& TM = myBSplineCurve->Multiplicities();
 	    BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myFirst,
-				      myBSplineCurve->IsPeriodic(),
+				      myBSplineCurve->IsPeriodic111(),
 				      1,Nb,Index1,newFirst);
 	    BSplCLib::LocateParameter(myBSplineCurve->Degree(),TK,TM,myLast,
-				      myBSplineCurve->IsPeriodic(),
+				      myBSplineCurve->IsPeriodic111(),
 				      1,Nb,Index2,newLast);
             FirstParam = newFirst;
             LastParam = newLast;
@@ -524,7 +524,7 @@ Standard_Boolean GeomAdaptor_Curve::IsClosed() const
 
 Standard_Boolean GeomAdaptor_Curve::IsPeriodic() const 
 {
-  return myCurve->IsPeriodic();
+  return myCurve->IsPeriodic111();
 }
 
 //=======================================================================
@@ -550,7 +550,7 @@ void GeomAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
     Standard_Integer aDeg = aBezier->Degree();
     TColStd_Array1OfReal aFlatKnots(BSplCLib::FlatBezierKnots(aDeg), 1, 2 * (aDeg + 1));
     if (myCurveCache.IsNull())
-      myCurveCache = new BSplCLib_Cache(aDeg, aBezier->IsPeriodic(), aFlatKnots,
+      myCurveCache = new BSplCLib_Cache(aDeg, aBezier->IsPeriodic111(), aFlatKnots,
         aBezier->Poles(), aBezier->Weights());
     myCurveCache->BuildCache (theParameter, aFlatKnots, aBezier->Poles(), aBezier->Weights());
 }
@@ -558,7 +558,7 @@ void GeomAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
 {
     // Create cache for B-spline
     if (myCurveCache.IsNull())
-      myCurveCache = new BSplCLib_Cache(myBSplineCurve->Degree(), myBSplineCurve->IsPeriodic(),
+      myCurveCache = new BSplCLib_Cache(myBSplineCurve->Degree(), myBSplineCurve->IsPeriodic111(),
         myBSplineCurve->KnotSequence(), myBSplineCurve->Poles(), myBSplineCurve->Weights());
     myCurveCache->BuildCache (theParameter, myBSplineCurve->KnotSequence(),
                               myBSplineCurve->Poles(), myBSplineCurve->Weights());

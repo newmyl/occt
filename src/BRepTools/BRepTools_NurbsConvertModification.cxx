@@ -294,7 +294,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve
 
   Standard_Real TolPar = Tol *.1;
 
-  if(C->IsPeriodic()) {
+  if(C->IsPeriodic111()) {
     Standard_Real p = C->Period();
     Standard_Real d = Abs(l - f);
     if(Abs(d - p) <= TolPar && l <= p) {}
@@ -316,7 +316,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve
 
   Handle(Geom_BSplineCurve) BC = Handle(Geom_BSplineCurve)::DownCast(C) ;
 
-  if(!BC->IsPeriodic()) {
+  if(!BC->IsPeriodic111()) {
     BC->Resolution(Tol, UTol) ;
     if(Abs(f - fnew) > UTol || Abs(l - lnew) > UTol) {
       TColStd_Array1OfReal  knots(1,BC->NbKnots()) ;

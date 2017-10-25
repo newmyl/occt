@@ -176,7 +176,7 @@ static Handle(Geom2d_BSplineCurve) BSplineCurve3dTo2d (const Handle(Geom_BSpline
     Poles2d (i) = gp_Pnt2d (Poles3d (i).X(), Poles3d (i).Y());
   
   Handle(Geom2d_BSplineCurve) BS2d = new Geom2d_BSplineCurve (Poles2d, Weights,
-							      Knots, Mults, deg, BS->IsPeriodic());
+							      Knots, Mults, deg, BS->IsPeriodic111());
   return BS2d;
 }
 

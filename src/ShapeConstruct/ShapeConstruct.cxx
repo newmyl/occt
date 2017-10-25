@@ -208,7 +208,7 @@ Handle(Geom_BSplineSurface) ShapeConstruct::ConvertSurfaceToBSpline(const Handle
     vmults(1) = vmults(2) = 2;
     
     Handle(Geom_BSplineSurface) bspline = new Geom_BSplineSurface(resPoles, resWeigth, knots, vknots, mults, vmults,
-								  bspl->Degree(),1,bspl->IsPeriodic(),Standard_False);
+								  bspl->Degree(),1,bspl->IsPeriodic111(),Standard_False);
     return bspline;
   }
   
@@ -398,10 +398,10 @@ static inline void SegmentCurve (HCurve& curve,
 {
   if(curve->FirstParameter() < first - Precision::PConfusion() || 
      curve->LastParameter() > last + Precision::PConfusion()) {
-    //if(curve->IsPeriodic())
-    //  curve->Segment(first,last);
-    //else curve->Segment(Max(curve->FirstParameter(),first),
-    //                    Min(curve->LastParameter(),last));
+    if(curve->IsPeriodic111())
+      curve->Segment(first,last);
+    else curve->Segment(Max(curve->FirstParameter(),first),
+                        Min(curve->LastParameter(),last));
   } 
 }
 

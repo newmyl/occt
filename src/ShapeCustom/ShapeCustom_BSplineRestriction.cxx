@@ -436,7 +436,7 @@ static void ConvertExtrusion(const Handle(Geom_Curve)& C,/*const gp_Dir& directi
   vmults(1) = vmults(2) = 2;
 
   bspline = new Geom_BSplineSurface(resPoles, resWeigth, knots, vknots, mults, vmults,
-    bspl->Degree(),1,bspl->IsPeriodic(),Standard_False);
+    bspl->Degree(),1,bspl->IsPeriodic111(),Standard_False);
 }
 
 

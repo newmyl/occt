@@ -137,9 +137,9 @@ void Geom_OffsetCurve::SetOffsetValue (const Standard_Real D)
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_OffsetCurve::IsPeriodic () const
+Standard_Boolean Geom_OffsetCurve::IsPeriodic111 () const
 {
-  return basisCurve->IsPeriodic();
+  return basisCurve->IsPeriodic111();
 }
 
 //=======================================================================

@@ -216,7 +216,7 @@ Standard_Boolean Geom_SurfaceOfRevolution::IsVClosed () const
 
 Standard_Boolean Geom_SurfaceOfRevolution::IsVPeriodic () const { 
 
-  return basisCurve->IsPeriodic(); 
+  return basisCurve->IsPeriodic111(); 
 }
 
 

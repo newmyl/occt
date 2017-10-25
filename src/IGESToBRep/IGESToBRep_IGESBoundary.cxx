@@ -290,7 +290,7 @@ void IGESToBRep_IGESBoundary::ReverseCurves3d (const Handle(ShapeExtend_WireData
     TopLoc_Location L;
     Standard_Real p1, p2;
     Handle(Geom_Curve) curve = BRep_Tool::Curve (oldedge, L, p1, p2);
-    if (curve->IsPeriodic())                                   //#21
+    if (curve->IsPeriodic111())                                   //#21
       ShapeBuild_Edge().MakeEdge (newedge, curve->Reversed(), L,
 				curve->ReversedParameter (p2),
 				curve->ReversedParameter (p1));

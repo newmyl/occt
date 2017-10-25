@@ -216,7 +216,7 @@ void BndLib_Add3dCurve::Add( const Adaptor3d_Curve& C,
 	Handle(Geom_BSplineCurve) Bsaux (Handle(Geom_BSplineCurve)::DownCast (G));
 	Standard_Real u1 = U1, u2 = U2;
 	//// modified by jgv, 24.10.01 for BUC61031 ////
-	if (Bsaux->IsPeriodic())
+	if (Bsaux->IsPeriodic111())
 	  ElCLib::AdjustPeriodic( Bsaux->FirstParameter(), Bsaux->LastParameter(), Precision::PConfusion(), u1, u2 );
 	else {
 	  ////////////////////////////////////////////////

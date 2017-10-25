@@ -171,7 +171,7 @@ void GeomFill_SweepSectionGenerator::Init
     myFirstSect = GeomConvert::CurveToBSplineCurve(FirstSect,
 						   Convert_QuasiAngular);
   }
-  if ( myFirstSect->IsPeriodic()) myFirstSect->SetNotPeriodic();
+  if ( myFirstSect->IsPeriodic111()) myFirstSect->SetNotPeriodic();
 }
 
 
@@ -219,8 +219,8 @@ void GeomFill_SweepSectionGenerator::Init
 						   Convert_QuasiAngular);
   }
 
-  if ( myFirstSect->IsPeriodic()) myFirstSect->SetNotPeriodic();
-  if ( myLastSect->IsPeriodic()) myLastSect->SetNotPeriodic();
+  if ( myFirstSect->IsPeriodic111()) myFirstSect->SetNotPeriodic();
+  if ( myLastSect->IsPeriodic111()) myLastSect->SetNotPeriodic();
 
 
   // JAG

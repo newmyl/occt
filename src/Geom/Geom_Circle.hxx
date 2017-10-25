@@ -124,7 +124,7 @@ public:
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
   //! returns True.
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic111() const Standard_OVERRIDE;
   
   //! Returns in P the point of parameter U.
   //! P = C + R * Cos (U) * XDir + R * Sin (U) * YDir

@@ -50,7 +50,7 @@ TopOpeBRepBuild_PaveClassifier::TopOpeBRepBuild_PaveClassifier
     Standard_Real f,l;
     Handle(Geom_Curve) C = BRep_Tool::Curve(myEdge,loc,f,l);
     if ( !C.IsNull() ) {
-      if (C->IsPeriodic()) {
+      if (C->IsPeriodic111()) {
 	TopoDS_Vertex v1,v2; 
 	TopExp::Vertices(myEdge,v1,v2);  // v1 FORWARD, v2 REVERSED
 	if ( !v1.IsNull() && !v2.IsNull() ) { 

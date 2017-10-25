@@ -908,7 +908,7 @@ static Standard_Boolean AreConnex(const TopoDS_Wire& W1,
 
   if (V11.IsSame(V21) || V11.IsSame(V22) ||
       V12.IsSame(V21) || V12.IsSame(V22))
-    return Standard_True;
+      return Standard_True;
 
   return Standard_False;
 }
@@ -1248,8 +1248,8 @@ static TopoDS_Edge Glue(const TopoDS_Edge& E1,
 //=======================================================================
 
 static void CheckIntersFF(const BOPDS_PDS& pDS,
-                          const TopoDS_Edge& RefEdge,
-                          TopTools_IndexedMapOfShape& TrueEdges)
+				      const TopoDS_Edge& RefEdge,
+				      TopTools_IndexedMapOfShape& TrueEdges)
 {
   BOPDS_VectorOfInterfFF& aFFs = pDS->InterfFF();
   Standard_Integer aNb = aFFs.Length();
@@ -1260,33 +1260,33 @@ static void CheckIntersFF(const BOPDS_PDS& pDS,
   BB.MakeCompound(Edges);
   
   for (i = 0; i < aNb; ++i) 
-  {
-    BOPDS_InterfFF& aFFi=aFFs(i);
-    const BOPDS_VectorOfCurve& aBCurves=aFFi.Curves();
-      Standard_Integer aNbCurves = aBCurves.Length();
-    
-    for (j = 0; j < aNbCurves; ++j) 
     {
-      const BOPDS_Curve& aBC=aBCurves(j);
-      const BOPDS_ListOfPaveBlock& aSectEdges = aBC.PaveBlocks();
+      BOPDS_InterfFF& aFFi=aFFs(i);
+      const BOPDS_VectorOfCurve& aBCurves=aFFi.Curves();
+      Standard_Integer aNbCurves = aBCurves.Length();
       
-      BOPDS_ListIteratorOfListOfPaveBlock aPBIt;
-      aPBIt.Initialize(aSectEdges);
-      
-      for (; aPBIt.More(); aPBIt.Next())
-      {
-        const Handle(BOPDS_PaveBlock)& aPB = aPBIt.Value();
-        Standard_Integer nSect = aPB->Edge();
-        const TopoDS_Edge& anEdge = *(TopoDS_Edge*)&pDS->Shape(nSect);
+      for (j = 0; j < aNbCurves; ++j) 
+	{
+          const BOPDS_Curve& aBC=aBCurves(j);
+          const BOPDS_ListOfPaveBlock& aSectEdges = aBC.PaveBlocks();
+	  
+          BOPDS_ListIteratorOfListOfPaveBlock aPBIt;
+          aPBIt.Initialize(aSectEdges);
+	  
+	  for (; aPBIt.More(); aPBIt.Next())
+	    {
+              const Handle(BOPDS_PaveBlock)& aPB = aPBIt.Value();
+              Standard_Integer nSect = aPB->Edge();
+              const TopoDS_Edge& anEdge = *(TopoDS_Edge*)&pDS->Shape(nSect);
         BB.Add(Edges, anEdge);
-        nbe++;
-      }
+	      nbe++;
+	    }
+	}
     }
-  }
 
   if (nbe == 0)
     return;
-  
+
   TopTools_ListOfShape CompList;
   BOPTools_AlgoTools::MakeConnexityBlocks(Edges, TopAbs_VERTEX, TopAbs_EDGE, CompList);
 
@@ -1294,115 +1294,115 @@ static void CheckIntersFF(const BOPDS_PDS& pDS,
   if (CompList.Extent() == 1)
     NearestCompound = CompList.First();
   else
-  {
+    {
     BRepAdaptor_Curve BAcurve(RefEdge);
     gp_Pnt Pref = BAcurve.Value((BAcurve.FirstParameter()+BAcurve.LastParameter())/2);
     TopoDS_Vertex Vref = BRepLib_MakeVertex(Pref);
     Standard_Real MinDist = RealLast();
     TopTools_ListIteratorOfListOfShape itl(CompList);
     for (; itl.More(); itl.Next())
-    {
+	{
       const TopoDS_Shape& aCompound = itl.Value();
-      
+
       BRepExtrema_DistShapeShape Projector(Vref, aCompound);
       if (!Projector.IsDone() || Projector.NbSolution() == 0)
         continue;
-      
+
       Standard_Real aDist = Projector.Value();
       if (aDist < MinDist)
-      {
+    {
         MinDist = aDist;
         NearestCompound = aCompound;
       }
     }
-  }
+	}
 
   TopExp::MapShapes(NearestCompound, TopAbs_EDGE, TrueEdges);
-}
-
+		}
+  
 //=======================================================================
 //function : AssembleEdge
 //purpose  : 
 //=======================================================================
 
 static TopoDS_Edge AssembleEdge(const BOPDS_PDS& pDS,
-                                const TopoDS_Face& F1,
-                                const TopoDS_Face& F2,
-                                const Standard_Boolean addPCurve1,
-                                const Standard_Boolean addPCurve2,
-                                const TopTools_SequenceOfShape& EdgesForConcat)
+				const TopoDS_Face& F1,
+				const TopoDS_Face& F2,
+				const Standard_Boolean addPCurve1,
+				const Standard_Boolean addPCurve2,
+				const TopTools_SequenceOfShape& EdgesForConcat)
 {
   TopoDS_Edge NullEdge;
   TopoDS_Edge CurEdge = TopoDS::Edge( EdgesForConcat(1) );
   Standard_Real aGlueTol = Precision::Confusion();
   
   for (Standard_Integer j = 2; j <= EdgesForConcat.Length(); j++)
-  {
-    TopoDS_Edge anEdge = TopoDS::Edge( EdgesForConcat(j) );
-    Standard_Boolean After = Standard_False;
-    TopoDS_Vertex Vfirst, Vlast;
+    {
+      TopoDS_Edge anEdge = TopoDS::Edge( EdgesForConcat(j) );
+      Standard_Boolean After = Standard_False;
+      TopoDS_Vertex Vfirst, Vlast;
     Standard_Boolean AreClosedWire = AreClosed( CurEdge, anEdge );
     if (AreClosedWire)
-    {
-      TopoDS_Vertex V1, V2;
-      TopExp::Vertices( CurEdge, V1, V2 );
+	{
+	  TopoDS_Vertex V1, V2;
+	  TopExp::Vertices( CurEdge, V1, V2 );
       Standard_Boolean IsAutonomV1 = IsAutonomVertex( V1, pDS, F1, F2 );
       Standard_Boolean IsAutonomV2 = IsAutonomVertex( V2, pDS, F1, F2 );
       if (IsAutonomV1)
-      {
-        After = Standard_False;
-        Vfirst = Vlast = V2;
-      }
+	    {
+	      After = Standard_False;
+	      Vfirst = Vlast = V2;
+	    }
       else if (IsAutonomV2)
-      {
-        After = Standard_True;
-        Vfirst = Vlast = V1;
-      }
+	    {
+	      After = Standard_True;
+	      Vfirst = Vlast = V1;
+	    }
       else
         return NullEdge;
-    }
-    else
-    {
-      TopoDS_Vertex CV, V11, V12, V21, V22;
-      TopExp::CommonVertex( CurEdge, anEdge, CV );
+	}
+      else
+	{
+	  TopoDS_Vertex CV, V11, V12, V21, V22;
+	  TopExp::CommonVertex( CurEdge, anEdge, CV );
       Standard_Boolean IsAutonomCV = IsAutonomVertex( CV, pDS, F1, F2 );
       if (IsAutonomCV)
       {
-        aGlueTol = BRep_Tool::Tolerance(CV);
-        TopExp::Vertices( CurEdge, V11, V12 );
-        TopExp::Vertices( anEdge,  V21, V22 );
-        if (V11.IsSame(CV) && V21.IsSame(CV))
-        {
-          Vfirst = V22;
-          Vlast  = V12;
-        }
-        else if (V11.IsSame(CV) && V22.IsSame(CV))
-        {
-          Vfirst = V21;
-          Vlast  = V12;
-        }
-        else if (V12.IsSame(CV) && V21.IsSame(CV))
-        {
-          Vfirst = V11;
-          Vlast  = V22;
-        }
-        else
-        {
-          Vfirst = V11;
-          Vlast  = V21;
-        }
+          aGlueTol = BRep_Tool::Tolerance(CV);
+	  TopExp::Vertices( CurEdge, V11, V12 );
+	  TopExp::Vertices( anEdge,  V21, V22 );
+	  if (V11.IsSame(CV) && V21.IsSame(CV))
+	    {
+	      Vfirst = V22;
+	      Vlast  = V12;
+	    }
+	  else if (V11.IsSame(CV) && V22.IsSame(CV))
+	    {
+	      Vfirst = V21;
+	      Vlast  = V12;
+	    }
+	  else if (V12.IsSame(CV) && V21.IsSame(CV))
+	    {
+	      Vfirst = V11;
+	      Vlast  = V22;
+	    }
+	  else
+	    {
+	      Vfirst = V11;
+	      Vlast  = V21;
+	    }
       }
       else
         return NullEdge;
-    } //end of else (open wire)
-    
-    TopoDS_Edge NewEdge = Glue(CurEdge, anEdge, Vfirst, Vlast, After,
-                               F1, addPCurve1, F2, addPCurve2, aGlueTol);
+	} //end of else (open wire)
+      
+      TopoDS_Edge NewEdge = Glue(CurEdge, anEdge, Vfirst, Vlast, After,
+                                 F1, addPCurve1, F2, addPCurve2, aGlueTol);
     if (NewEdge.IsNull())
       return NullEdge;
     else
       CurEdge = NewEdge;
-  } //end of for (Standard_Integer j = 2; j <= EdgesForConcat.Length(); j++)
+    } //end of for (Standard_Integer j = 2; j <= EdgesForConcat.Length(); j++)
   
   return CurEdge;
 }
@@ -1512,7 +1512,7 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
           if(!aC3DETrim.IsNull()) {
 		Handle(Geom2d_Curve) aC2dNew;
 		
-		if(aC3DE->IsPeriodic()) {
+		if(aC3DE->IsPeriodic111()) {
                   BOPTools_AlgoTools2D::AdjustPCurveOnFace(F1, f, l,  aC2d, aC2dNew, aContext);
 		  }
 		else {
@@ -1528,7 +1528,7 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
           if(!aC3DETrim.IsNull()) {
 		Handle(Geom2d_Curve) aC2dNew;
 		
-		if(aC3DE->IsPeriodic()) {
+		if(aC3DE->IsPeriodic111()) {
                   BOPTools_AlgoTools2D::AdjustPCurveOnFace(F2, f, l,  aC2d, aC2dNew, aContext);
 		  }
 		else {
@@ -1582,11 +1582,11 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
   if (L1.Extent() > 1 && (!isEl1 || !isEl2)) {
     TopTools_SequenceOfShape eseq;
     TopTools_SequenceOfShape EdgesForConcat;
-    
+
     if (!TrueEdges.IsEmpty())
-    {
-      for (i = TrueEdges.Extent(); i >= 1; i--)
-        EdgesForConcat.Append( TrueEdges(i) );
+      {
+	for (i = TrueEdges.Extent(); i >= 1; i--)
+	  EdgesForConcat.Append( TrueEdges(i) );
       TopoDS_Edge AssembledEdge =
         AssembleEdge( pDS, F1, F2, addPCurve1, addPCurve2, EdgesForConcat );
       if (AssembledEdge.IsNull())
@@ -1594,145 +1594,145 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
           eseq.Append( TrueEdges(i) );
       else
         eseq.Append(AssembledEdge);
-    }
+      }
     else
-    {
-      TopTools_SequenceOfShape wseq;
-      TopTools_SequenceOfShape edges;
-      TopTools_ListIteratorOfListOfShape itl(L1);
-      for (; itl.More(); itl.Next())
-        edges.Append( itl.Value() );
-      while (!edges.IsEmpty())
       {
-        TopoDS_Edge anEdge = TopoDS::Edge( edges.First() );
+	TopTools_SequenceOfShape wseq;
+	TopTools_SequenceOfShape edges;
+	TopTools_ListIteratorOfListOfShape itl(L1);
+	for (; itl.More(); itl.Next())
+	  edges.Append( itl.Value() );
+	while (!edges.IsEmpty())
+	  {
+	    TopoDS_Edge anEdge = TopoDS::Edge( edges.First() );
         TopoDS_Wire aWire, resWire;
         BB.MakeWire(aWire);
         BB.Add( aWire, anEdge );
-        TColStd_SequenceOfInteger Candidates;
-        for (k = 1; k <= wseq.Length(); k++)
-        {
-          resWire = TopoDS::Wire(wseq(k));
+	    TColStd_SequenceOfInteger Candidates;
+	    for (k = 1; k <= wseq.Length(); k++)
+	      {
+		resWire = TopoDS::Wire(wseq(k));
           if (AreConnex( resWire, aWire ))
-          {
-            Candidates.Append( 1 );
-            break;
-          }
-        }
-        if (Candidates.IsEmpty())
-        {
-          wseq.Append( aWire );
-          edges.Remove(1);
-        }
-        else
-        {
-          for (j = 2; j <= edges.Length(); j++)
-          {
-            anEdge = TopoDS::Edge( edges(j) );
+		  {
+		    Candidates.Append( 1 );
+		    break;
+		  }
+	      }
+	    if (Candidates.IsEmpty())
+	      {
+		wseq.Append( aWire );
+		edges.Remove(1);
+	      }
+	    else
+	      {
+		for (j = 2; j <= edges.Length(); j++)
+		  {
+		    anEdge = TopoDS::Edge( edges(j) );
             aWire.Nullify();
             BB.MakeWire(aWire);
             BB.Add( aWire, anEdge );
             if (AreConnex( resWire, aWire ))
-              Candidates.Append( j );
-          }
-          Standard_Integer minind = 1;
-          if (Candidates.Length() > 1)
-          {
-            Standard_Real MinAngle = RealLast();
-            for (j = 1; j <= Candidates.Length(); j++)
-            {
-              anEdge = TopoDS::Edge( edges(Candidates(j)) );
-              Standard_Real anAngle = AngleWireEdge( resWire, anEdge );
-              if (anAngle < MinAngle)
-              {
-                MinAngle = anAngle;
-                minind = j;
-              }
-            }
-          }
+		      Candidates.Append( j );
+		  }
+		Standard_Integer minind = 1;
+		if (Candidates.Length() > 1)
+		  {
+		    Standard_Real MinAngle = RealLast();
+		    for (j = 1; j <= Candidates.Length(); j++)
+		      {
+			anEdge = TopoDS::Edge( edges(Candidates(j)) );
+			Standard_Real anAngle = AngleWireEdge( resWire, anEdge );
+			if (anAngle < MinAngle)
+			  {
+			    MinAngle = anAngle;
+			    minind = j;
+			  }
+		      }
+		  }
           BB.Add( resWire, TopoDS::Edge(edges(Candidates(minind))) );
           wseq(k) = resWire;
-          edges.Remove(Candidates(minind));
-        }
-      } //end of while (!edges.IsEmpty())
-      
-      for (i = 1; i <= wseq.Length(); i++)
-      {
-        TopoDS_Wire aWire = TopoDS::Wire(wseq(i));
-        TopTools_SequenceOfShape aLocalEdgesForConcat;
-        if (aWire.Closed())
-        {
-          TopoDS_Vertex StartVertex;
-          TopoDS_Edge StartEdge;
-          Standard_Boolean StartFound = Standard_False;
-          TopTools_ListOfShape Elist;
-          
-          TopoDS_Iterator itw(aWire);
-          for (; itw.More(); itw.Next())
-          {
-            TopoDS_Edge anEdge = TopoDS::Edge(itw.Value());
-            if (StartFound)
-              Elist.Append(anEdge);
-            else
-            {
-              TopoDS_Vertex V1, V2;
-              TopExp::Vertices( anEdge, V1, V2 );
-              if (!IsAutonomVertex( V1, pDS ))
-              {
-                StartVertex = V2;
-                StartEdge = anEdge;
-                StartFound = Standard_True;
-              }
-              else if (!IsAutonomVertex( V2, pDS ))
-              {
-                StartVertex = V1;
-                StartEdge = anEdge;
-                StartFound = Standard_True;
-              }
-              else
-                Elist.Append(anEdge);
-            }
-          } //end of for (; itw.More(); itw.Next())
-          if (!StartFound)
-          {
-            itl.Initialize(Elist);
-            StartEdge = TopoDS::Edge(itl.Value());
-            Elist.Remove(itl);
-            TopoDS_Vertex V1, V2;
-            TopExp::Vertices( StartEdge, V1, V2 );
-            StartVertex = V1;
-          }
-          aLocalEdgesForConcat.Append( StartEdge );
-          while (!Elist.IsEmpty())
-          {
-            for (itl.Initialize(Elist); itl.More(); itl.Next())
-            {
-              TopoDS_Edge anEdge = TopoDS::Edge(itl.Value());
-              TopoDS_Vertex V1, V2;
-              TopExp::Vertices( anEdge, V1, V2 );
-              if (V1.IsSame(StartVertex))
-              {
-                StartVertex = V2;
-                aLocalEdgesForConcat.Append( anEdge );
-                Elist.Remove(itl);
-                break;
-              }
-              else if (V2.IsSame(StartVertex))
-              {
-                StartVertex = V1;
-                aLocalEdgesForConcat.Append( anEdge );
-                Elist.Remove(itl);
-                break;
-              }
-            }
-          } //end of while (!Elist.IsEmpty())
-        } //end of if (aWire.Closed())
-        else
-        {
-          BRepTools_WireExplorer Wexp( aWire );
-          for (; Wexp.More(); Wexp.Next())
-            aLocalEdgesForConcat.Append( Wexp.Current() );
-        }
+		edges.Remove(Candidates(minind));
+	      }
+	  } //end of while (!edges.IsEmpty())
 	
+	for (i = 1; i <= wseq.Length(); i++)
+	  {
+	    TopoDS_Wire aWire = TopoDS::Wire(wseq(i));
+	    TopTools_SequenceOfShape aLocalEdgesForConcat;
+	    if (aWire.Closed())
+	      {
+		TopoDS_Vertex StartVertex;
+		TopoDS_Edge StartEdge;
+		Standard_Boolean StartFound = Standard_False;
+		TopTools_ListOfShape Elist;
+		
+		TopoDS_Iterator itw(aWire);
+		for (; itw.More(); itw.Next())
+		  {
+		    TopoDS_Edge anEdge = TopoDS::Edge(itw.Value());
+		    if (StartFound)
+		      Elist.Append(anEdge);
+		    else
+		      {
+			TopoDS_Vertex V1, V2;
+			TopExp::Vertices( anEdge, V1, V2 );
+                        if (!IsAutonomVertex( V1, pDS ))
+			  {
+			    StartVertex = V2;
+			    StartEdge = anEdge;
+			    StartFound = Standard_True;
+			  }
+                        else if (!IsAutonomVertex( V2, pDS ))
+			  {
+			    StartVertex = V1;
+			    StartEdge = anEdge;
+			    StartFound = Standard_True;
+			  }
+			else
+			  Elist.Append(anEdge);
+		      }
+		  } //end of for (; itw.More(); itw.Next())
+		if (!StartFound)
+		  {
+		    itl.Initialize(Elist);
+		    StartEdge = TopoDS::Edge(itl.Value());
+		    Elist.Remove(itl);
+		    TopoDS_Vertex V1, V2;
+		    TopExp::Vertices( StartEdge, V1, V2 );
+		    StartVertex = V1;
+		  }
+                aLocalEdgesForConcat.Append( StartEdge );
+		while (!Elist.IsEmpty())
+		  {
+		    for (itl.Initialize(Elist); itl.More(); itl.Next())
+		      {
+			TopoDS_Edge anEdge = TopoDS::Edge(itl.Value());
+			TopoDS_Vertex V1, V2;
+			TopExp::Vertices( anEdge, V1, V2 );
+			if (V1.IsSame(StartVertex))
+			  {
+			    StartVertex = V2;
+                            aLocalEdgesForConcat.Append( anEdge );
+			    Elist.Remove(itl);
+			    break;
+			  }
+			else if (V2.IsSame(StartVertex))
+			  {
+			    StartVertex = V1;
+                            aLocalEdgesForConcat.Append( anEdge );
+			    Elist.Remove(itl);
+			    break;
+			  }
+		      }
+		  } //end of while (!Elist.IsEmpty())
+	      } //end of if (aWire.Closed())
+	      else
+	      {
+		BRepTools_WireExplorer Wexp( aWire );
+		for (; Wexp.More(); Wexp.Next())
+                  aLocalEdgesForConcat.Append( Wexp.Current() );
+	      }
+	    
         TopoDS_Edge AssembledEdge =
           AssembleEdge( pDS, F1, F2, addPCurve1, addPCurve2, aLocalEdgesForConcat );
         if (AssembledEdge.IsNull())
@@ -1740,56 +1740,56 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
             eseq.Append( aLocalEdgesForConcat(j) );
         else
           eseq.Append( AssembledEdge );
-      }
-    } //end of else (when TrueEdges is empty)
+	  }
+      } //end of else (when TrueEdges is empty)
     
     if (eseq.Length() < L1.Extent())
-    {
-      L1.Clear();
-      L2.Clear();
-      for (i = 1; i <= eseq.Length(); i++)
       {
+	L1.Clear();
+	L2.Clear();
+	for (i = 1; i <= eseq.Length(); i++)
+	  {
         TopoDS_Shape aShape = eseq(i);
-        TopoDS_Edge anEdge = TopoDS::Edge(eseq(i));
-        BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
-        Standard_Real EdgeTol = BRep_Tool::Tolerance(anEdge);
+	    TopoDS_Edge anEdge = TopoDS::Edge(eseq(i));
+	    BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
+	    Standard_Real EdgeTol = BRep_Tool::Tolerance(anEdge);
 #ifdef OCCT_DEBUG
-        cout<<"Tolerance of glued E =      "<<EdgeTol<<endl;
+	    cout<<"Tolerance of glued E =      "<<EdgeTol<<endl;
 #endif
-        if (EdgeTol > 1.e-2)
-          continue;
-        
-        if (EdgeTol >= 1.e-4)
-        {
-          ReconstructPCurves(anEdge);
-          BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
+	    if (EdgeTol > 1.e-2)
+	      continue;
+
+	    if (EdgeTol >= 1.e-4)
+	      {
+		ReconstructPCurves(anEdge);
+		BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
 #ifdef OCCT_DEBUG
-          cout<<"After projection tol of E = "<<BRep_Tool::Tolerance(anEdge)<<endl;
+	        cout<<"After projection tol of E = "<<BRep_Tool::Tolerance(anEdge)<<endl;
 #endif
-        }
-        
-        OrientSection( anEdge, F1, F2, O1, O2 );
-        if (Side == TopAbs_OUT)
-        {
-          O1 = TopAbs::Reverse(O1);
-          O2 = TopAbs::Reverse(O2);
-        }
-        
-        L1.Append( anEdge.Oriented(O1) );
-        L2.Append( anEdge.Oriented(O2) );
+	      }
+
+	    OrientSection( anEdge, F1, F2, O1, O2 );
+	    if (Side == TopAbs_OUT)
+	      {
+		O1 = TopAbs::Reverse(O1);
+		O2 = TopAbs::Reverse(O2);
+	      }
+	    
+	    L1.Append( anEdge.Oriented(O1) );
+	    L2.Append( anEdge.Oriented(O2) );
+	  }
       }
-    }
   } //end of if (L1.Extent() > 1)
-  
+
   else
-  {
-    TopTools_ListIteratorOfListOfShape itl(L1);
-    for (; itl.More(); itl.Next())
     {
-      const TopoDS_Edge& anEdge = TopoDS::Edge( itl.Value() );
-      BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
+      TopTools_ListIteratorOfListOfShape itl(L1);
+      for (; itl.More(); itl.Next())
+	{
+	  const TopoDS_Edge& anEdge = TopoDS::Edge( itl.Value() );
+	  BRepLib::SameParameter(anEdge, aSameParTol, Standard_True);
+	}
     }
-  }
 }
 
 //=======================================================================
@@ -3091,8 +3091,8 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
   Standard_Real coeff;
   if (ExtensionMode == 1)
   {
-    UU1 = VV1 = - TheInfini;
-    UU2 = VV2 =   TheInfini;
+  UU1 = VV1 = - TheInfini;
+  UU2 = VV2 =   TheInfini;
     coeff = 0.25;
   }
   else

@@ -180,7 +180,7 @@ Standard_Boolean TopOpeBRep_FacesFiller::KeepRLine
 
   Standard_Boolean out = Standard_False;
   if (samevp) {
-    Standard_Boolean isper = TopOpeBRepTool_ShapeTool::BASISCURVE(EL)->IsPeriodic();
+    Standard_Boolean isper = TopOpeBRepTool_ShapeTool::BASISCURVE(EL)->IsPeriodic111();
 
     Standard_Integer f,l,n; L.VPBounds(f,l,n);
     if (isper && n == 2) {

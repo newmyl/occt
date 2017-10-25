@@ -166,7 +166,7 @@ void GeomFill_Profiler::AddCurve(const Handle(Geom_Curve)& Curve)
 
   mySequence.Append( C);
 
-  if ( myIsPeriodic && !C->IsPeriodic())
+  if ( myIsPeriodic && !C->IsPeriodic111())
     myIsPeriodic = Standard_False;
 }
 
@@ -195,7 +195,7 @@ void GeomFill_Profiler::Perform(const Standard_Real PTol)
     U2 = C->Knot(C->LastUKnotIndex());
     U1 = C->Knot(C->FirstUKnotIndex());
 
-    if ( !myIsPeriodic && C->IsPeriodic()) {
+    if ( !myIsPeriodic && C->IsPeriodic111()) {
       C->SetNotPeriodic();
       C->Segment( U1, U2);
     }

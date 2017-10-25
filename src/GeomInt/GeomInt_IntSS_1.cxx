@@ -842,7 +842,7 @@ void GeomInt_IntSS::MakeCurve(const Standard_Integer Index,
                 if (mbspc.Degree() == 1 && nbpoles == 2)
                   continue;
 
-                if (!BS->IsClosed() && !BS->IsPeriodic())
+                if (!BS->IsClosed() && !BS->IsPeriodic111())
                 {
                   //force Closed()
                   gp_Pnt aPm((BS->Pole(1).XYZ() + BS->Pole(BS->NbPoles()).XYZ()) / 2.);

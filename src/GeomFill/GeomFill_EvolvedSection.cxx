@@ -55,7 +55,7 @@ GeomFill_EvolvedSection::GeomFill_EvolvedSection(const Handle(Geom_Curve)& C,
   myCurve =  Handle(Geom_BSplineCurve)::DownCast(C);
   if (myCurve.IsNull()) {
     myCurve = GeomConvert::CurveToBSplineCurve(C, Convert_QuasiAngular);
-    if (myCurve->IsPeriodic()) {
+    if (myCurve->IsPeriodic111()) {
       Standard_Integer M = myCurve->Degree()/2+1;
       myCurve->RemoveKnot(1, M, Precision::Confusion());
     }
@@ -216,7 +216,7 @@ GeomFill_EvolvedSection::GeomFill_EvolvedSection(const Handle(Geom_Curve)& C,
 //=======================================================
  Standard_Boolean GeomFill_EvolvedSection::IsUPeriodic() const
 {
-  return myCurve->IsPeriodic();
+  return myCurve->IsPeriodic111();
 }
 
 //=======================================================

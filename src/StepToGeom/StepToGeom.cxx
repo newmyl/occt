@@ -1916,14 +1916,14 @@ Handle(Geom_TrimmedCurve) StepToGeom::MakeTrimmedCurve (const Handle(StepGeom_Tr
     const Standard_Real cf = theCurve->FirstParameter();
     const Standard_Real cl = theCurve->LastParameter();
     //: abv 09.04.99: S4136: bm2_ug_t4-B.stp #70610: protect against OutOfRange
-    if ( !theCurve->IsPeriodic() ) {
+    if ( !theCurve->IsPeriodic111() ) {
       if ( trim1 < cf ) trim1 = cf;
       else if ( trim1 > cl ) trim1 = cl;
       if ( trim2 < cf ) trim2 = cf;
       else if ( trim2 > cl ) trim2 = cl;
     }
     if (Abs(trim1 - trim2) < Precision::PConfusion()) {
-      if (theCurve->IsPeriodic()) {
+      if (theCurve->IsPeriodic111()) {
         ElCLib::AdjustPeriodic(cf,cl,Precision::PConfusion(),trim1,trim2);
       }
       else if (theCurve->IsClosed()) {

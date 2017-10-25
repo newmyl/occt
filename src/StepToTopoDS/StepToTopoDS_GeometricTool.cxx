@@ -226,11 +226,11 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
   const Handle(Geom_Curve)& theCurve,
   Standard_Real& w1,
   Standard_Real& w2,
-  const Standard_Real preci)
+ const Standard_Real preci)
 {
   // w1 et/ou w2 peuvent etre en dehors des bornes naturelles de la courbe.
   // On donnera alors la valeur en bout a w1 et/ou w2
-
+  
   Standard_Real cf = theCurve->FirstParameter();
   Standard_Real cl = theCurve->LastParameter();
 
@@ -266,9 +266,9 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
 
   if (w1 < w2) return Standard_True;
 
-  if (theCurve->IsPeriodic())
+  if (theCurve->IsPeriodic111() && theCurve->IsClosed()) 
   {
-    ElCLib::AdjustPeriodic(cf, cl, Precision::PConfusion(), w1, w2); //:a7 abv 11 Feb 98: preci -> PConfusion()
+    ElCLib::AdjustPeriodic(cf,cl,Precision::PConfusion(),w1,w2); //:a7 abv 11 Feb 98: preci -> PConfusion()
   }
   else if (theCurve->IsClosed())
   {
@@ -319,16 +319,16 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
   // The curve is closed within the 3D tolerance
   else if (theCurve->IsKind(STANDARD_TYPE(Geom_BSplineCurve)))
   {
-    Handle(Geom_BSplineCurve) aBSpline =
+    Handle(Geom_BSplineCurve) aBSpline = 
       Handle(Geom_BSplineCurve)::DownCast(theCurve);
     if (aBSpline->StartPoint().Distance(aBSpline->EndPoint()) <= preci)
     {
-      //:S4136	<= BRepAPI::Precision()) {
-            // l'un des points projecte se trouve sur l'origine du parametrage
-            // de la courbe 3D. L algo a donne cl +- preci au lieu de cf ou vice-versa
-            // DANGER precision 3d applique a une espace 1d
-
-            // w2 = cf au lieu de w2 = cl
+//:S4136	<= BRepAPI::Precision()) {
+      // l'un des points projecte se trouve sur l'origine du parametrage
+      // de la courbe 3D. L algo a donne cl +- preci au lieu de cf ou vice-versa
+      // DANGER precision 3d applique a une espace 1d
+      
+      // w2 = cf au lieu de w2 = cl
       if (Abs(w2 - cf) < Precision::PConfusion())
       {
         w2 = cl;
@@ -344,11 +344,11 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
       else
       {
 #ifdef OCCT_DEBUG
-        cout << "Warning : parameter range of edge crossing non periodic curve origin" << endl;
+	cout << "Warning : parameter range of edge crossing non periodic curve origin" << endl;
 #endif
-        Standard_Real tmp = w1;
-        w1 = w2;
-        w2 = tmp;
+	Standard_Real tmp = w1;
+	w1 = w2;
+	w2 = tmp;
       }
     }
     //abv 15.03.00 #72 bm1_pe_t4 protection of exceptions in draw
@@ -357,11 +357,11 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
 #ifdef OCCT_DEBUG
       cout << "Warning: parameter range is bad; curve reversed" << endl;
 #endif
-      w1 = theCurve->ReversedParameter(w1);
-      w2 = theCurve->ReversedParameter(w2);
+      w1 = theCurve->ReversedParameter ( w1 );
+      w2 = theCurve->ReversedParameter ( w2 );
       theCurve->Reverse();
     }
-    //:j9 abv 11 Dec 98: PRO7747 #4875, after :j8:    else 
+//:j9 abv 11 Dec 98: PRO7747 #4875, after :j8:    else 
     if (w1 == w2)
     {  //gka 10.07.1998 file PRO7656 entity 33334
       w1 = cf;
@@ -383,8 +383,8 @@ Standard_Boolean  StepToTopoDS_GeometricTool::UpdateParam3d(
 #ifdef OCCT_DEBUG
       cout << "Warning: parameter range is bad; curve reversed" << endl;
 #endif
-      w1 = theCurve->ReversedParameter(w1);
-      w2 = theCurve->ReversedParameter(w2);
+      w1 = theCurve->ReversedParameter ( w1 );
+      w2 = theCurve->ReversedParameter ( w2 );
       theCurve->Reverse();
     }
     //pdn 11.01.99 #144 bm1_pe_t4 protection of exceptions in draw

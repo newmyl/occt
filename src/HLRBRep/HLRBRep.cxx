@@ -94,7 +94,7 @@ TopoDS_Edge HLRBRep::MakeEdge (const HLRBRep_Curve& ec,
       aCurve = (Handle(Geom_TrimmedCurve)::DownCast(aCurve))->BasisCurve();
     Handle(Geom_BSplineCurve) BSplCurve (Handle(Geom_BSplineCurve)::DownCast(aCurve));
     Handle(Geom_BSplineCurve) theCurve = Handle(Geom_BSplineCurve)::DownCast(BSplCurve->Copy());
-    if (theCurve->IsPeriodic() && !GAcurve.IsClosed())
+    if (theCurve->IsPeriodic111() && !GAcurve.IsClosed())
     {
       theCurve->Segment(sta, end);
       TColgp_Array1OfPnt2d    Poles(1, theCurve->NbPoles());
@@ -107,12 +107,12 @@ TopoDS_Edge HLRBRep::MakeEdge (const HLRBRep_Curve& ec,
         TColStd_Array1OfReal Weights(1, theCurve->NbPoles());
         ec.PolesAndWeights(theCurve, Poles, Weights);
         ec2d = new Geom2d_BSplineCurve(Poles, Weights, knots, mults,
-                                       theCurve->Degree(), theCurve->IsPeriodic());
+                                       theCurve->Degree(), theCurve->IsPeriodic111());
       }
       else {
         ec.Poles(theCurve, Poles);
         ec2d = new Geom2d_BSplineCurve(Poles, knots, mults,
-                                       theCurve->Degree(), theCurve->IsPeriodic());
+                                       theCurve->Degree(), theCurve->IsPeriodic111());
       }
     }
     else

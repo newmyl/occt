@@ -1041,14 +1041,14 @@ void ProjLib_ComputeApprox::Perform
 					  Knots,
 					  Mults,
 					  BS->Degree(),
-					  BS->IsPeriodic());
+					  BS->IsPeriodic111());
     }
     else {
       myBSpline = new Geom2d_BSplineCurve(Poles,
 					  Knots,
 					  Mults,
 					  BS->Degree(),
-					  BS->IsPeriodic());
+					  BS->IsPeriodic111());
     }
   }
   else if (CType == GeomAbs_BezierCurve &&

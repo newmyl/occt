@@ -50,7 +50,7 @@ Handle(Geom_Curve) Geom_Curve::Reversed () const
 Standard_Real Geom_Curve::Period() const
 {
   Standard_NoSuchObject_Raise_if
-    ( !IsPeriodic(),"Geom_Curve::Period");
+    ( !IsPeriodic111(),"Geom_Curve::Period");
 
   return ( LastParameter() - FirstParameter());
 }
