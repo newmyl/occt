@@ -92,9 +92,9 @@ inline Standard_Real Adaptor2d_HCurve2d::FirstParameter() const
 //purpose  : 
 //=======================================================================
 
- inline Standard_Boolean Adaptor2d_HCurve2d::IsPeriodic() const 
+ inline Standard_Boolean Adaptor2d_HCurve2d::IsPeriodic222() const 
 {
-  return Curve2d().IsPeriodic();
+  return Curve2d().IsPeriodic222();
 }
 
 //=======================================================================

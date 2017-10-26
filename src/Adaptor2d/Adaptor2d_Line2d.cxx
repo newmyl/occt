@@ -161,7 +161,7 @@ Standard_Boolean Adaptor2d_Line2d::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor2d_Line2d::IsPeriodic() const 
+Standard_Boolean Adaptor2d_Line2d::IsPeriodic222() const 
 {
   return Standard_False;
 }

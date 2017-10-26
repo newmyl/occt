@@ -970,7 +970,7 @@ Standard_Boolean ProjLib_ProjectedCurve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ProjLib_ProjectedCurve::IsPeriodic() const
+Standard_Boolean ProjLib_ProjectedCurve::IsPeriodic222() const
 {
   return myResult.IsPeriodic();
 }

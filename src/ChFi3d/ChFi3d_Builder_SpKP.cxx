@@ -851,14 +851,14 @@ Standard_Boolean ChFi3d_Builder::SplitKPart
     // Parsing of domains by increasing parameters,
     // if there is a 2d circle on a plane, one goes on 2D line of opposite face.
     Standard_Real period1 = 0., period2 = 0.;
-    if(ll1.IsPeriodic()) {
+    if(ll1.IsPeriodic222()) {
       if(!Tri(H2,iH2,Ind2,wref,0.,pitol,Nb2)) return 0;
       period1 = ll1.Period();
       if(!Tri(H1,iH1,Ind1,wref,period1,pitol,Nb1)) return 0;
     }
     else{
       if(!Tri(H1,iH1,Ind1,wref,0.,pitol,Nb1)) return 0;
-      if(ll2.IsPeriodic()) { period2 = ll2.Period(); }
+      if(ll2.IsPeriodic222()) { period2 = ll2.Period(); }
       if(!Tri(H2,iH2,Ind2,wref,period2,pitol,Nb2)) return 0;
     }
     

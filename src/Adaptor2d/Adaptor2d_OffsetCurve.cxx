@@ -276,9 +276,9 @@ Standard_Boolean Adaptor2d_OffsetCurve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor2d_OffsetCurve::IsPeriodic() const
+Standard_Boolean Adaptor2d_OffsetCurve::IsPeriodic222() const
 {
-  return myCurve->IsPeriodic();
+  return myCurve->IsPeriodic222();
 }
 
 //=======================================================================

@@ -87,7 +87,7 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsPeriodic222() const Standard_OVERRIDE;
   
   Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   

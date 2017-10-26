@@ -2102,7 +2102,7 @@ Standard_Boolean IsCurveValid (const Handle(Geom2d_Curve)& thePCurve)
     pntf = thePCurve->Value(pf);
     pntl = thePCurve->Value(pl);
     PCA.Load(thePCurve);
-    if(!PCA.IsPeriodic()) {
+    if(!PCA.IsPeriodic222()) {
       if(PCA.FirstParameter() > pf) pf = PCA.FirstParameter();
       if(PCA.LastParameter()  < pl) pl = PCA.LastParameter();
     }

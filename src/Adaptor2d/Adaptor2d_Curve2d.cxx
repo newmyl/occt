@@ -129,7 +129,7 @@ Standard_Boolean Adaptor2d_Curve2d::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor2d_Curve2d::IsPeriodic() const 
+Standard_Boolean Adaptor2d_Curve2d::IsPeriodic222() const 
 {
   throw Standard_NotImplemented("Adaptor2d_Curve2d::IsPeriodic");
 }

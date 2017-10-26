@@ -888,7 +888,7 @@ InitBiPointsWithConnexity (const Standard_Integer e,
 #endif
 	aNode12Indices->Flag |= NMsk_Edge;
 	TIMultiply(XTI2,YTI2,ZTI2);
-	if (Pol1(1) == Pol1(nbPol) && myPC.IsPeriodic())
+	if (Pol1(1) == Pol1(nbPol) && myPC.IsPeriodic222())
 	  U2 = U2 - myPC.Period();
 	
 	if (nbPol == 2 && BRep_Tool::Degenerated(E)) {
@@ -1055,7 +1055,7 @@ InitBiPointsWithConnexity (const Standard_Integer e,
 	aNode12Indices->Flag |= NMsk_Edge;
 	Nod22Indices->Flag |= NMsk_Edge;
 	TIMultiply(XTI2,YTI2,ZTI2);
-	if (Pol1(1) == Pol1(nbPol1) && myPC.IsPeriodic())
+	if (Pol1(1) == Pol1(nbPol1) && myPC.IsPeriodic222())
 	  U2 = U2 - myPC.Period();
 	
 	if (nbPol1 == 2 && BRep_Tool::Degenerated(E)) {

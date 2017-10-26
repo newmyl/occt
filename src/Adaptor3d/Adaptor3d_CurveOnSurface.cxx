@@ -954,7 +954,7 @@ Standard_Boolean Adaptor3d_CurveOnSurface::IsClosed() const
 
 Standard_Boolean Adaptor3d_CurveOnSurface::IsPeriodic() const
 {
-  return myCurve->IsPeriodic();
+  return myCurve->IsPeriodic222();
 }
 
 //=======================================================================
