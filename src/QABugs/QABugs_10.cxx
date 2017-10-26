@@ -188,8 +188,8 @@ static Standard_Integer isPeriodic(Draw_Interpretor& di, Standard_Integer argc, 
       Handle(Geom_SurfaceOfRevolution) aRevolSurf = Handle(Geom_SurfaceOfRevolution)::DownCast(aSurf);
       if(aRevolSurf.IsNull()) {di << "isperiodic FAULTY. argument of command is not a surface of revolution"; return 0;}
       // 3. Verify whether entry surface is u-periodic and v-periodic
-      if(aRevolSurf->IsUPeriodic()) {di << "Surface is u-periodic \n";} else {di << "Surface is not u-periodic \n";}
-      if(aRevolSurf->IsVPeriodic()) {di << "Surface is v-periodic \n";} else {di << "Surface is not v-periodic \n";}
+      if(aRevolSurf->IsUPeriodic111()) {di << "Surface is u-periodic \n";} else {di << "Surface is not u-periodic \n";}
+      if(aRevolSurf->IsVPeriodic111()) {di << "Surface is v-periodic \n";} else {di << "Surface is not v-periodic \n";}
     }
   catch (Standard_Failure) {di << "isperiodic Exception \n" ;return 0;}
 

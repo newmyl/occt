@@ -1261,7 +1261,7 @@ Standard_Boolean Geom_BSplineSurface::IsVClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_BSplineSurface::IsUPeriodic () const 
+Standard_Boolean Geom_BSplineSurface::IsUPeriodic111 () const 
 {
   return uperiodic; 
 }
@@ -1271,7 +1271,7 @@ Standard_Boolean Geom_BSplineSurface::IsUPeriodic () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_BSplineSurface::IsVPeriodic () const 
+Standard_Boolean Geom_BSplineSurface::IsVPeriodic111 () const 
 { 
   return vperiodic; 
 }

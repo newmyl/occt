@@ -87,7 +87,7 @@ static void AdjustSecondPointToFirstPoint(const gp_Pnt2d& theFirstPoint,
                                           gp_Pnt2d& theSecondPoint,
                                           const Handle(Geom_Surface)& theSurf)
 {
-  if (theSurf->IsUPeriodic())
+  if (theSurf->IsUPeriodic111())
   {
     Standard_Real UPeriod = theSurf->UPeriod();
     Standard_Real NewU = ElCLib::InPeriod(theSecondPoint.X(),
@@ -95,7 +95,7 @@ static void AdjustSecondPointToFirstPoint(const gp_Pnt2d& theFirstPoint,
                                           theFirstPoint.X() + UPeriod/2);
     theSecondPoint.SetX(NewU);
   }
-  if (theSurf->IsVPeriodic())
+  if (theSurf->IsVPeriodic111())
   {
     Standard_Real VPeriod = theSurf->VPeriod();
     Standard_Real NewV = ElCLib::InPeriod(theSecondPoint.Y(),
@@ -660,8 +660,8 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
    Standard_Integer i = 0;
 
    Standard_Real aTol2 = theTol * theTol;
-   Standard_Boolean isPeriodicU = mySurf->Surface()->IsUPeriodic();
-   Standard_Boolean isPeriodicV = mySurf->Surface()->IsVPeriodic();
+   Standard_Boolean isPeriodicU = mySurf->Surface()->IsUPeriodic111();
+   Standard_Boolean isPeriodicV = mySurf->Surface()->IsVPeriodic111();
 
    // Workaround:
    // Protection against bad "tolerance" shapes.
@@ -1140,7 +1140,7 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
       while (firstX > ul)  {  firstX -= Up;   pnt2d (1).SetX(firstX);  }
     }
     // shift first point, according to cashe
-    if (mySurf->Surface()->IsUPeriodic() && isFromCashe) {
+    if (mySurf->Surface()->IsUPeriodic111() && isFromCashe) {
       Standard_Real aMinParam = uf, aMaxParam = ul;
       while (aMinParam > aSavedPoint.X()) {
         aMinParam -= Up;
@@ -1207,7 +1207,7 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
       while (firstY > vl)  {  firstY -= Vp;  pnt2d (1).SetY(firstY);  }
     }
     // shift first point, according to cashe
-    if (mySurf->Surface()->IsVPeriodic() && isFromCashe) {
+    if (mySurf->Surface()->IsVPeriodic111() && isFromCashe) {
       Standard_Real aMinParam = vf, aMaxParam = vl;
       while (aMinParam > aSavedPoint.Y()) {
         aMinParam -= Vp;
@@ -1637,7 +1637,7 @@ void ShapeConstruct_ProjectCurveOnSurface::CorrectExtremity(const Handle(Geom_Cu
   IntRes2d_Domain Dom1, Dom2;
 
   Standard_Boolean IsPeriodic = (theIsUiso)?
-    mySurf->Surface()->IsVPeriodic() : mySurf->Surface()->IsUPeriodic();
+    mySurf->Surface()->IsVPeriodic111() : mySurf->Surface()->IsUPeriodic111();
 
   gp_Pnt2d FirstPointOfLine, SecondPointOfLine;
   Standard_Real FinishParam, FirstParam, SecondParam;

@@ -143,7 +143,7 @@ Standard_Boolean Geom_SphericalSurface::IsVClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_SphericalSurface::IsUPeriodic () const          
+Standard_Boolean Geom_SphericalSurface::IsUPeriodic111 () const          
 { return Standard_True; }
 
 //=======================================================================
@@ -151,7 +151,7 @@ Standard_Boolean Geom_SphericalSurface::IsUPeriodic () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_SphericalSurface::IsVPeriodic () const          
+Standard_Boolean Geom_SphericalSurface::IsVPeriodic111 () const          
 { return Standard_False; }
 
 //=======================================================================

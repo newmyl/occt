@@ -131,7 +131,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewSurface
   BRepTools::UVBounds(F,curvU1,curvU2,curvV1,curvV2);
   Tol = BRep_Tool::Tolerance(F);
   Standard_Real TolPar = 0.1*Tol;
-  Standard_Boolean IsUp = S->IsUPeriodic(), IsVp = S->IsVPeriodic();
+  Standard_Boolean IsUp = S->IsUPeriodic111(), IsVp = S->IsVPeriodic111();
   //OCC466(apo)->
   U1 = curvU1;  U2 = curvU2;  
   V1 = curvV1;  V2 = curvV2;
@@ -223,10 +223,10 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewSurface
   // on recadre les bornes de S  sinon les anciennes PCurves sont aux fraises
   //
 
-  if (Abs(curvU1-surfU1) > UTol && !BS->IsUPeriodic()) {
+  if (Abs(curvU1-surfU1) > UTol && !BS->IsUPeriodic111()) {
     GeomLib_ChangeUBounds(BS, U1,U2) ;
   }
-  if (Abs(curvV1-surfV1) > VTol && !BS->IsVPeriodic()) {
+  if (Abs(curvV1-surfV1) > VTol && !BS->IsVPeriodic111()) {
     GeomLib_ChangeVBounds(BS, V1, V2) ;
   }
 
@@ -435,7 +435,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
       //Uinf -= 1e-9; Usup += 1e-9; Vinf -= 1e-9; Vsup += 1e-9;
       u = (Usup - Uinf)*0.1;
       v = (Vsup - Vinf)*0.1;
-      if(S->IsUPeriodic()) {
+      if(S->IsUPeriodic111()) {
         Standard_Real uperiod = S->UPeriod();
         if(uperiod < (Usup+2*u-Uinf)) {
           if(uperiod <= (Usup-Uinf))  {
@@ -446,7 +446,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
           }
         }
       }
-      if(S->IsVPeriodic()) {
+      if(S->IsVPeriodic111()) {
         Standard_Real vperiod = S->VPeriod();
         if(vperiod < (Vsup+2*v-Vinf)) {
           if(vperiod <= (Vsup-Vinf)) {
@@ -589,7 +589,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
       //Uinf -= 1e-9; Usup += 1e-9; Vinf -= 1e-9; Vsup += 1e-9;
       u = (Usup - Uinf)*0.1;
       v = (Vsup - Vinf)*0.1;
-      if(S->IsUPeriodic()) {
+      if(S->IsUPeriodic111()) {
         Standard_Real uperiod = S->UPeriod();
         if(uperiod < (Usup+2*u-Uinf)) {
           if(uperiod <= (Usup-Uinf))
@@ -598,7 +598,7 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
             u = (uperiod-(Usup-Uinf))*0.5;
         }
       }
-      if(S->IsVPeriodic()) {
+      if(S->IsVPeriodic111()) {
         Standard_Real vperiod = S->VPeriod();
         if(vperiod < (Vsup+2*v-Vinf)) {
           if(vperiod <= (Vsup-Vinf))

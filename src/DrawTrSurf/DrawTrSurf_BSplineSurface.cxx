@@ -108,7 +108,7 @@ void DrawTrSurf_BSplineSurface::DrawOn (Draw_Display& dis) const {
       for (i = 2; i <= NbUPoles; i++) {
 	dis.DrawTo(SPoles(i, j));
       }
-      if (S->IsUPeriodic())
+      if (S->IsUPeriodic111() && S->IsUClosed())
 	dis.DrawTo(SPoles(1,j));
     }
     for (i = 1; i <= NbUPoles; i++) {
@@ -116,7 +116,7 @@ void DrawTrSurf_BSplineSurface::DrawOn (Draw_Display& dis) const {
       for (j = 2; j <= NbVPoles; j++) {
 	dis.DrawTo(SPoles(i, j));
       }
-      if (S->IsVPeriodic())
+      if (S->IsVPeriodic111() && S->IsVClosed())
 	dis.DrawTo(SPoles(i,1));
     }
   }

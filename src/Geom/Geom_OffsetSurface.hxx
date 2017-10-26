@@ -209,7 +209,7 @@ public:
   //! Returns true if this offset surface is periodic in the u
   //! parametric direction, i.e. if the basis
   //! surface of this offset surface is periodic in this direction.
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this offset surface in the u
   //! parametric direction respectively, i.e. the period of the
@@ -221,7 +221,7 @@ public:
   //! Returns true if this offset surface is periodic in the v
   //! parametric direction, i.e. if the basis
   //! surface of this offset surface is periodic in this direction.
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this offset surface in the v
   //! parametric direction respectively, i.e. the period of the

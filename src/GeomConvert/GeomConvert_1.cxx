@@ -145,13 +145,13 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
   S1->Segment(S1->UKnot(FirstUK),S1->UKnot(LastUK),
     S1->VKnot(FirstVK),S1->VKnot(LastVK));
 
-  if (S->IsUPeriodic()) {
+  if (S->IsUPeriodic111()) {
     if (!SameUOrientation) S1->UReverse();
   }
   else {
     if (FromUK1 > ToUK2)   S1->UReverse();
   }
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     if (!SameVOrientation) S1->VReverse();
   }
   else {
@@ -191,7 +191,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
       S1->VKnot(S1->FirstVKnotIndex()),
       S1->VKnot(S1->LastVKnotIndex()));
 
-    if (S->IsUPeriodic()) {
+    if (S->IsUPeriodic111()) {
       if (!SameOrientation) S1->UReverse();
     }
     else {
@@ -213,7 +213,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
       S1->VKnot(LastVK));
 
 
-    if (S->IsVPeriodic()) {
+    if (S->IsVPeriodic111()) {
       if (!SameOrientation) S1->VReverse();
     }
     else {
@@ -250,13 +250,13 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
 
   NewSurface->Segment(FirstU, LastU, FirstV, LastV);
 
-  if (S->IsUPeriodic()) { 
+  if (S->IsUPeriodic111()) { 
     if (!SameUOrientation)  NewSurface->UReverse(); 
   }
   else { 
     if (FromU1 > ToU2)    NewSurface->UReverse(); 
   }
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     if (!SameVOrientation)  NewSurface->VReverse();
   }
   else {
@@ -293,7 +293,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
 
     NewSurface->Segment(FirstU, LastU, FirstV, LastV);
 
-    if (S->IsUPeriodic()) { 
+    if (S->IsUPeriodic111()) { 
       if (!SameOrientation)  NewSurface->UReverse(); 
     }
     else { 
@@ -309,7 +309,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SplitBSplineSurface
 
     NewSurface->Segment(FirstU, LastU, FirstV, LastV);
 
-    if (S->IsUPeriodic()) { 
+    if (S->IsUPeriodic111()) { 
       if (!SameOrientation)  NewSurface->UReverse(); 
     }
     else { 
@@ -506,7 +506,7 @@ Handle(Geom_BSplineSurface) GeomConvert::SurfaceToBSplineSurface
 
       Standard_Integer nbUSpans;
       Standard_Real AlfaU;
-      if (Strim->IsUPeriodic()) {
+      if (Strim->IsUPeriodic111()) {
         NbUKnots = 4;
         nbUSpans = 3;
         AlfaU    = M_PI / 3.;
@@ -660,20 +660,20 @@ Handle(Geom_BSplineSurface) GeomConvert::SurfaceToBSplineSurface
         Handle(Geom_BSplineSurface)::DownCast(Surf->Copy());
       Standard_Real umin, umax, vmin, vmax;
       BS->Bounds(umin, umax, vmin, vmax);
-      if (!BS->IsUPeriodic()) {
+      if (!BS->IsUPeriodic111()) {
         if (U1 < umin)
           U1 = umin;
         if (U2 > umax) 
           U2 = umax;
       }
 
-      if (!BS->IsVPeriodic()) {
+      if (!BS->IsVPeriodic111()) {
         if (V1 < vmin)
           V1 = vmin;
         if (V2 > vmax)
           V2 = vmax;
       }
-      if (BS->IsUPeriodic() || BS->IsVPeriodic())
+      if (BS->IsUPeriodic111() || BS->IsVPeriodic111())
         BS->CheckAndSegment (U1, U2, V1, V2);
       else
         BS->Segment (U1, U2, V1, V2);

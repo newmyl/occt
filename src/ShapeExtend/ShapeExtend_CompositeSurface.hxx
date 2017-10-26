@@ -240,10 +240,10 @@ public:
   Standard_EXPORT virtual Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
   //! Returns False
-  Standard_EXPORT virtual Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! Returns False
-  Standard_EXPORT virtual Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
   //! NOT IMPLEMENTED (returns Null curve)
   Standard_EXPORT virtual Handle(Geom_Curve) UIso (const Standard_Real U) const Standard_OVERRIDE;

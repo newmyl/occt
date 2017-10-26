@@ -158,7 +158,7 @@ static void CheckPCurves (TopoDS_Wire& aWire, const TopoDS_Face& aFace,
       w2 = cf;
     }
 
-    if (w1 > w2 && mySurf->IsUPeriodic())
+    if (w1 > w2 && mySurf->IsUPeriodic111() && mySurf->IsUClosed())
     {
       Standard_Real u1,u2,v1,v2;
       mySurf->Bounds(u1,u2,v1,v2);

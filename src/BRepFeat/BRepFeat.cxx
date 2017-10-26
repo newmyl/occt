@@ -442,12 +442,12 @@ Standard_Boolean BRepFeat::IsInside(const TopoDS_Face& F1,
 //  Standard_Real periodu, periodv; 
   BRepTools::UVBounds(F2,umin,umax,vmin,vmax);
 
-  if (S->IsUPeriodic()) {
+  if (S->IsUPeriodic111()) {
     flagu = 1;
     uperiod = S->UPeriod();
   }
 
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     flagv = 1;
     vperiod = S->VPeriod();
   }

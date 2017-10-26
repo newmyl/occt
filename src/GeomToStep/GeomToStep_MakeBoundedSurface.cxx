@@ -41,7 +41,7 @@ GeomToStep_MakeBoundedSurface::GeomToStep_MakeBoundedSurface
   if (S->IsKind(STANDARD_TYPE(Geom_BSplineSurface))) {
     Handle(Geom_BSplineSurface) BS= Handle(Geom_BSplineSurface)::DownCast(S);
     // UPDATE FMA 1-04-96
-    if (S->IsUPeriodic() || S->IsVPeriodic()) {
+    if (S->IsUPeriodic111() || S->IsVPeriodic111()) {
       Handle(Geom_BSplineSurface) newBS = 
 	Handle(Geom_BSplineSurface)::DownCast(BS->Copy());
       newBS->SetUNotPeriodic();

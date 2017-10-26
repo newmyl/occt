@@ -403,7 +403,7 @@ Handle(Geom_Surface) ShapeCustom_Surface::ConvertToPeriodic (const Standard_Bool
   
   Standard_Boolean converted = Standard_False; //:p6
 
-  if ( uclosed && ! BSpl->IsUPeriodic() && BSpl->NbUPoles() >3 ) {
+  if ( uclosed && ! BSpl->IsUPeriodic111() && BSpl->NbUPoles() >3 ) {
     Standard_Boolean set = Standard_True;
     // if degree+1 at ends, first change it to 1 by rearranging knots
     if ( BSpl->UMultiplicity(1) == BSpl->UDegree() + 1 &&
@@ -444,7 +444,7 @@ Handle(Geom_Surface) ShapeCustom_Surface::ConvertToPeriodic (const Standard_Bool
 								newUKnots,oldVKnots,
 								newUMults,oldVMults,
 								BSpl->UDegree(),BSpl->VDegree(),
-								BSpl->IsUPeriodic(),BSpl->IsVPeriodic());
+								BSpl->IsUPeriodic111(),BSpl->IsVPeriodic111());
       BSpl = res;
     }
     else if ( BSpl->UMultiplicity(1) > BSpl->UDegree() ||
@@ -455,7 +455,7 @@ Handle(Geom_Surface) ShapeCustom_Surface::ConvertToPeriodic (const Standard_Bool
     }
   }
   
-  if ( vclosed && ! BSpl->IsVPeriodic() && BSpl->NbVPoles() >3 ) {	
+  if ( vclosed && ! BSpl->IsVPeriodic111() && BSpl->NbVPoles() >3 ) {	
     Standard_Boolean set = Standard_True;
     // if degree+1 at ends, first change it to 1 by rearranging knots
     if ( BSpl->VMultiplicity(1) == BSpl->VDegree() + 1 &&
@@ -496,7 +496,7 @@ Handle(Geom_Surface) ShapeCustom_Surface::ConvertToPeriodic (const Standard_Bool
 								oldUKnots,newVKnots,
 								oldUMults,newVMults,
 								BSpl->UDegree(),BSpl->VDegree(),
-								BSpl->IsUPeriodic(),BSpl->IsVPeriodic());
+								BSpl->IsUPeriodic111(),BSpl->IsVPeriodic111());
       BSpl = res;
     }
     else if ( BSpl->VMultiplicity(1) > BSpl->VDegree() ||

@@ -300,8 +300,8 @@ static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom_BSp
   OS << (Standard_Byte)BSPLINE;
   Standard_Boolean urational = S->IsURational() ? 1:0;
   Standard_Boolean vrational = S->IsVRational() ? 1:0;
-  Standard_Boolean uperiodic = S->IsUPeriodic() ? 1:0;
-  Standard_Boolean vperiodic = S->IsVPeriodic() ? 1:0;
+  Standard_Boolean uperiodic = S->IsUPeriodic111() ? 1:0;
+  Standard_Boolean vperiodic = S->IsVPeriodic111() ? 1:0;
   BinTools::PutBool(OS, urational); 
   BinTools::PutBool(OS, vrational); 
   BinTools::PutBool(OS, uperiodic); 

@@ -412,8 +412,8 @@ ShapePersistent_Geom_Surface::Translate(const Handle(Geom_BSplineSurface)& theSu
       Handle(pBSpline) aPpBS = new pBSpline;
       aPpBS->myURational = theSurf->IsURational();
       aPpBS->myVRational = theSurf->IsVRational();
-      aPpBS->myUPeriodic = theSurf->IsUPeriodic();
-      aPpBS->myVPeriodic = theSurf->IsVPeriodic();
+      aPpBS->myUPeriodic = theSurf->IsUPeriodic111();
+      aPpBS->myVPeriodic = theSurf->IsVPeriodic111();
       aPpBS->myUSpineDegree = theSurf->UDegree();
       aPpBS->myVSpineDegree = theSurf->VDegree();
       aPpBS->myPoles = StdLPersistent_HArray2::Translate<TColgp_HArray2OfPnt>("PColgp_HArray2OfPnt", theSurf->Poles());

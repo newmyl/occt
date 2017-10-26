@@ -1222,7 +1222,7 @@ void AIS::InitLengthBetweenCurvilinearFaces (const TopoDS_Face&    theFirstFace,
     BRepTopAdaptor_FClass2d aClassifier (theSecondFace, Precision::Confusion());
 
     TopAbs_State aState = 
-      aClassifier.Perform (gp_Pnt2d (aPU, aPV), theSecondSurf->IsUPeriodic() || theSecondSurf->IsVPeriodic());
+      aClassifier.Perform (gp_Pnt2d (aPU, aPV), theSecondSurf->IsUPeriodic111() || theSecondSurf->IsVPeriodic111());
 
     if (aState == TopAbs_OUT || aState == TopAbs_UNKNOWN)
     {

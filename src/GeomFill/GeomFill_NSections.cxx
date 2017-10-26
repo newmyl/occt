@@ -328,13 +328,13 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
 
   Standard_Integer dimResult = mySurface->NbUPoles() * gap;
   Handle(Geom_BSplineSurface) surf_deper;
-  if (mySurface->IsVPeriodic()) {
+  if (mySurface->IsVPeriodic111()) {
     surf_deper = Handle(Geom_BSplineSurface)::DownCast(mySurface->Copy());
     surf_deper->SetVNotPeriodic();
     dimResult = surf_deper->NbUPoles() * gap;
   }
   TColStd_Array1OfReal Result(1,dimResult);
-  if (mySurface->IsVPeriodic()) {
+  if (mySurface->IsVPeriodic111()) {
     ResultEval(surf_deper,V,derivative_request,Result);
   }
   else {
@@ -369,7 +369,7 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
 
   // verif par diff finies sous debug sauf pour les surfaces periodiques
 #ifdef OCCT_DEBUG
-  if (!mySurface->IsVPeriodic()) {
+  if (!mySurface->IsVPeriodic111()) {
     Standard_Real pas = 1.e-6, wTol = 1.e-4, pTol = 1.e-3;
     Standard_Real V1,V2;
     Standard_Boolean ok1,ok2;
@@ -421,13 +421,13 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
   
   Standard_Integer dimResult = mySurface->NbUPoles() * gap;
   Handle(Geom_BSplineSurface) surf_deper;
-  if (mySurface->IsVPeriodic()) {
+  if (mySurface->IsVPeriodic111()) {
     surf_deper = Handle(Geom_BSplineSurface)::DownCast(mySurface->Copy());
     surf_deper->SetVNotPeriodic();
     dimResult = surf_deper->NbUPoles() * gap;
   }
   TColStd_Array1OfReal Result(1,dimResult);
-  if (mySurface->IsVPeriodic()) {
+  if (mySurface->IsVPeriodic111()) {
     ResultEval(surf_deper,V,derivative_request,Result);
   }
   else {
@@ -463,7 +463,7 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
 
   // verif par diff finies sous debug sauf pour les surfaces periodiques
 #ifdef OCCT_DEBUG
-  if (!mySurface->IsVPeriodic()) {
+  if (!mySurface->IsVPeriodic111()) {
     Standard_Real V1,V2;
     Standard_Boolean ok1,ok2;
     Standard_Real pas = 1.e-6, wTol = 1.e-4, pTol = 1.e-3;
@@ -691,7 +691,7 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
  Standard_Boolean GeomFill_NSections::IsUPeriodic() const
 {
   if (!mySurface.IsNull())
-    return  mySurface->IsUPeriodic();
+    return  mySurface->IsUPeriodic111();
 
   return Standard_False;
 }
@@ -702,7 +702,7 @@ GeomFill_NSections::GeomFill_NSections(const TColGeom_SequenceOfCurve& NC,
  Standard_Boolean GeomFill_NSections::IsVPeriodic() const
 {
   if (!mySurface.IsNull())
-    return  mySurface->IsVPeriodic();
+    return  mySurface->IsVPeriodic111();
 
   return Standard_False;
 }

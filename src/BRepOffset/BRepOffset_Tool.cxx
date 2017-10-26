@@ -252,19 +252,16 @@ static void PutInBounds (const TopoDS_Face&          F,
   BRep_Tool::Range(E,f,l);  
 
   TopLoc_Location L; // Recup S avec la location pour eviter la copie.
-  Handle (Geom_Surface) S   = BRep_Tool::Surface(F,L);
+  const Handle (Geom_Surface) &S = BRep_Tool::Surface(F,L);
 
-  if (S->IsInstance(STANDARD_TYPE(Geom_RectangularTrimmedSurface))) {
-    S = Handle(Geom_RectangularTrimmedSurface)::DownCast (S)->BasisSurface();
-  }
   //---------------
   // Recadre en U.
   //---------------
-  if (!S->IsUPeriodic() && !S->IsVPeriodic()) return;
+  if (!S->IsUPeriodic111() && !S->IsVPeriodic111()) return;
 
   FindPeriod (F,umin,umax,vmin,vmax);
 
-  if (S->IsUPeriodic()) {
+  if (S->IsUPeriodic111()) {
     Standard_Real period  = S->UPeriod();
     Standard_Real eps     = period*1.e-6;
     gp_Pnt2d      Pf      = C2d->Value(f);
@@ -298,7 +295,7 @@ static void PutInBounds (const TopoDS_Face&          F,
   //------------------
   // Recadre en V.
   //------------------
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     Standard_Real period  = S->VPeriod();
     Standard_Real eps     = period*1.e-6;
     gp_Pnt2d      Pf      = C2d->Value(f);
@@ -433,7 +430,7 @@ static void BuildPCurves (const TopoDS_Edge&  E,
 	  C2d = BRep_Tool::CurveOnSurface( theEdge, theFace, f, l );
 	  C2d = new Geom2d_TrimmedCurve( C2d, U1, U2 );
 
-	  if (theSurf->IsUPeriodic() || theSurf->IsVPeriodic())
+	  if (theSurf->IsUPeriodic111() || theSurf->IsVPeriodic111())
 	    PutInBounds( F, E, C2d );
 
 	  BRep_Builder B;
@@ -3079,7 +3076,7 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
   Standard_Real         UF1,VF1,UF2,VF2;
   Standard_Boolean      SurfaceChange = Standard_False;
 
-  if (S->IsUPeriodic() || S->IsVPeriodic()) {
+  if (S->IsUPeriodic111() || S->IsVPeriodic111()) {
     // Calcul serre pour que les bornes ne couvre pas plus d une periode
     CompactUVBounds(F,UF1,UF2,VF1,VF2);					       
   }
@@ -3115,7 +3112,7 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
     VV1 = Max(VS1,VV1); VV2 = Min(VS2,VV2);
   }
 
-  if (S->IsUPeriodic()) {
+  if (S->IsUPeriodic111()) {
     Standard_Real    Period = S->UPeriod(); 
     Standard_Real    Delta  = Period - (UF2 - UF1);
     Standard_Real    alpha  = 0.1;
@@ -3124,7 +3121,7 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
       UU2 = UU1 + Period;
     }
   }
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     Standard_Real    Period = S->VPeriod(); 
     Standard_Real    Delta  = Period - (VF2 - VF1);
     Standard_Real    alpha  = 0.1;

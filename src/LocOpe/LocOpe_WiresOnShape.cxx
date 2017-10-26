@@ -854,7 +854,7 @@ void PutPCurve(const TopoDS_Edge& Edg,
     B.UpdateVertex(V2,Max(old2,tol2));
   }
 
-  if (S->IsUPeriodic()) {
+  if (S->IsUPeriodic111()) {
     Standard_Real up   = S->UPeriod();
     Standard_Real tolu = Precision::PConfusion();// Epsilon(up);
     Standard_Integer nbtra = 0;
@@ -879,7 +879,7 @@ void PutPCurve(const TopoDS_Edge& Edg,
     }
   }    
 
-  if (S->IsVPeriodic()) {
+  if (S->IsVPeriodic111()) {
     Standard_Real vp   = S->VPeriod();
     Standard_Real tolv = Precision::PConfusion();// Epsilon(vp);
     Standard_Integer nbtra = 0;
@@ -997,7 +997,7 @@ void PutPCurves(const TopoDS_Edge& Efrom,
       gp_Pnt2d pf(C2d->Value(f));
       gp_Pnt2d pl(C2d->Value(l));
       
-      if (S->IsUPeriodic()) {
+      if (S->IsUPeriodic111()) {
 	Standard_Real up   = S->UPeriod();
 	Standard_Real tolu = Precision::PConfusion();// Epsilon(up);
 	Standard_Integer nbtra = 0;
@@ -1035,7 +1035,7 @@ void PutPCurves(const TopoDS_Edge& Efrom,
 	}
       }    
       
-      if (S->IsVPeriodic()) {
+      if (S->IsVPeriodic111()) {
 	Standard_Real vp   = S->VPeriod();
 	Standard_Real tolv = Precision::PConfusion();// Epsilon(vp);
 	Standard_Integer nbtra = 0;

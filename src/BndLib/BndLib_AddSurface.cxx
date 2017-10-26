@@ -399,7 +399,7 @@ void BndLib_AddSurface::Add(const Adaptor3d_Surface& S,
               Standard_Integer anUFlatKnotsCount = S.BSpline()->NbUPoles() + S.BSpline()->UDegree() + 1;
               Standard_Integer aShift = 1;
 
-              if (S.BSpline()->IsUPeriodic())
+              if (S.BSpline()->IsUPeriodic111())
               {
                 TColStd_Array1OfInteger aMults(1, S.BSpline()->NbUKnots());
                 S.BSpline()->UMultiplicities(aMults);
@@ -425,7 +425,7 @@ void BndLib_AddSurface::Add(const Adaptor3d_Surface& S,
               Standard_Integer anVFlatKnotsCount = S.BSpline()->NbVPoles() + S.BSpline()->VDegree() + 1;
               Standard_Integer aShift = 1;
 
-              if (S.BSpline()->IsVPeriodic())
+              if (S.BSpline()->IsVPeriodic111())
               {
                 TColStd_Array1OfInteger aMults(1, S.BSpline()->NbVKnots());
                 S.BSpline()->VMultiplicities(aMults);

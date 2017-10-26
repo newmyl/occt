@@ -207,7 +207,7 @@ public:
   
   //! Returns true if this patch is periodic and not trimmed in the given
   //! parametric direction.
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this patch in the u
   //! parametric direction.
@@ -217,7 +217,7 @@ public:
 
   //! Returns true if this patch is periodic and not trimmed in the given
   //! parametric direction.
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
   //! Returns the period of this patch in the v
   //! parametric direction.

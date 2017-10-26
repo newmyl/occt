@@ -87,7 +87,7 @@ gp_GTrsf2d Geom_Surface::ParametricTransformation(const gp_Trsf&) const
 Standard_Real Geom_Surface::UPeriod() const
 {
   Standard_NoSuchObject_Raise_if
-    ( !IsUPeriodic(),"Geom_Surface::UPeriod");
+    ( !IsUPeriodic111(),"Geom_Surface::UPeriod");
 
   Standard_Real U1, U2, V1, V2;
   Bounds(U1,U2,V1,V2);
@@ -103,7 +103,7 @@ Standard_Real Geom_Surface::UPeriod() const
 Standard_Real Geom_Surface::VPeriod() const
 {
   Standard_NoSuchObject_Raise_if
-    ( !IsVPeriodic(),"Geom_Surface::VPeriod");
+    ( !IsVPeriodic111(),"Geom_Surface::VPeriod");
 
   Standard_Real U1, U2, V1, V2;
   Bounds(U1,U2,V1,V2);

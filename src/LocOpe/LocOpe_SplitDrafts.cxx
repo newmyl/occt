@@ -1735,7 +1735,7 @@ static TopoDS_Edge  NewEdge(const TopoDS_Edge& edg,
 
     }
 
-    if (S1->IsUPeriodic()) {
+    if (S1->IsUPeriodic111()) {
 
       Standard_Real speriod = S1->UPeriod();
 //      Standard_Real f,l;

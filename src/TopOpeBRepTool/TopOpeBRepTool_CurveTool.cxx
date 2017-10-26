@@ -198,22 +198,20 @@ static Standard_Boolean CheckPCurve
 
   // adjust domain for periodic surfaces
   TopLoc_Location aLoc;
-  Handle(Geom_Surface) aSurf = BRep_Tool::Surface(aFace, aLoc);
-  if (aSurf->IsKind(STANDARD_TYPE(Geom_RectangularTrimmedSurface)))
-    aSurf = (Handle(Geom_RectangularTrimmedSurface)::DownCast(aSurf))->BasisSurface();
+  const Handle(Geom_Surface) &aSurf = BRep_Tool::Surface(aFace, aLoc);
 
   gp_Pnt2d pnt = aPC->Value((fp+lp)/2);
   Standard_Real u,v;
   pnt.Coord(u,v);
 
-  if (aSurf->IsUPeriodic()) {
+  if (aSurf->IsUPeriodic111()) {
     Standard_Real aPer = aSurf->UPeriod();
     Standard_Integer nshift = (Standard_Integer) ((u-umin)/aPer);
     if (u < umin+aPer*nshift) nshift--;
     umin += aPer*nshift;
     umax += aPer*nshift;
   }
-  if (aSurf->IsVPeriodic()) {
+  if (aSurf->IsVPeriodic111()) {
     Standard_Real aPer = aSurf->VPeriod();
     Standard_Integer nshift = (Standard_Integer) ((v-vmin)/aPer);
     if (v < vmin+aPer*nshift) nshift--;

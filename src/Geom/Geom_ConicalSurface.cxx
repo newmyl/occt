@@ -164,7 +164,7 @@ Standard_Boolean Geom_ConicalSurface::IsVClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_ConicalSurface::IsUPeriodic () const          
+Standard_Boolean Geom_ConicalSurface::IsUPeriodic111 () const          
 { return Standard_True; }
 
 //=======================================================================
@@ -172,7 +172,7 @@ Standard_Boolean Geom_ConicalSurface::IsUPeriodic () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_ConicalSurface::IsVPeriodic () const          
+Standard_Boolean Geom_ConicalSurface::IsVPeriodic111 () const          
 { return Standard_False; }
 
 //=======================================================================

@@ -207,7 +207,7 @@ Standard_Boolean Geom_Plane::IsVClosed () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Plane::IsUPeriodic () const {
+Standard_Boolean Geom_Plane::IsUPeriodic111 () const {
 
   return Standard_False; 
 }
@@ -217,7 +217,7 @@ Standard_Boolean Geom_Plane::IsUPeriodic () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_Plane::IsVPeriodic () const {
+Standard_Boolean Geom_Plane::IsVPeriodic111 () const {
 
   return Standard_False; 
 }

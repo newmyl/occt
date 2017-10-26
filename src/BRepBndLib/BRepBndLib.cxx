@@ -588,7 +588,7 @@ void FindExactUVBounds(const TopoDS_Face FF,
   Handle(Geom_Surface) aS = BRep_Tool::Surface(FF, aLoc);
   Standard_Real aUmin, aUmax, aVmin, aVmax;
   aS->Bounds(aUmin, aUmax, aVmin, aVmax);
-  if(!aS->IsUPeriodic())
+  if(!aS->IsUPeriodic111())
   {
     umin = Max(aUmin, umin);
     umax = Min(aUmax, umax);
@@ -603,7 +603,7 @@ void FindExactUVBounds(const TopoDS_Face FF,
     }
   }
   //
-  if(!aS->IsVPeriodic())
+  if(!aS->IsVPeriodic111())
   {
     vmin = Max(aVmin, vmin);
     vmax = Min(aVmax, vmax);

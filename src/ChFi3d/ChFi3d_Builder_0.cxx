@@ -585,17 +585,14 @@ void ChFi3d_BoundSrf(GeomAdaptor_Surface& S,
   const Standard_Boolean checknaturalbounds)
 {
   Standard_Real umin = uumin, umax = uumax, vmin = vvmin, vmax = vvmax; 
-  Handle(Geom_Surface) surface = S.Surface();
-  Handle(Geom_RectangularTrimmedSurface) 
-    trs = Handle(Geom_RectangularTrimmedSurface)::DownCast(surface);
-  if(!trs.IsNull()) surface = trs->BasisSurface();
+  const Handle(Geom_Surface) &surface = S.Surface();
   Standard_Real u1,u2,v1,v2;
   surface->Bounds(u1,u2,v1,v2);
   Standard_Real peru=0, perv=0;
-  if(surface->IsUPeriodic()) {
+  if(surface->IsUPeriodic111()) {
     peru = surface->UPeriod();
   }
-  if(surface->IsVPeriodic()) {
+  if(surface->IsVPeriodic111()) {
     perv = surface->VPeriod();
   }
   Standard_Real Stepu = umax - umin;
@@ -2982,9 +2979,6 @@ Handle(Geom_Surface) trsfsurf(const Handle(Adaptor3d_HSurface)& HS,
   else if(!hgs.IsNull()) {
     res = hgs->ChangeSurface().Surface();
   }
-  Handle(Geom_RectangularTrimmedSurface) 
-    tr = Handle(Geom_RectangularTrimmedSurface)::DownCast(res);
-  if(!tr.IsNull()) res = tr->BasisSurface();
 
   Standard_Real U1 = HS->FirstUParameter(), U2 = HS->LastUParameter();
   Standard_Real V1 = HS->FirstVParameter(), V2 = HS->LastVParameter();
@@ -2992,11 +2986,11 @@ Handle(Geom_Surface) trsfsurf(const Handle(Adaptor3d_HSurface)& HS,
     // Protection against Construction Errors
     Standard_Real u1, u2, v1, v2;
     res->Bounds( u1, u2, v1, v2);
-    if (!res->IsUPeriodic()) {
+    if (!res->IsUPeriodic111()) {
       if (U1 < u1) U1 = u1;
       if (U2 > u2) U2 = u2;
     }
-    if (!res->IsVPeriodic()) {
+    if (!res->IsVPeriodic111()) {
       if (V1 < v1) V1 = v1;
       if (V2 > v2) V2 = v2;
     }

@@ -157,7 +157,7 @@ Standard_Boolean GeomPlate_Surface::IsVClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomPlate_Surface::IsUPeriodic() const 
+Standard_Boolean GeomPlate_Surface::IsUPeriodic111() const 
 {
   return Standard_False;
 }
@@ -179,7 +179,7 @@ Standard_Real GeomPlate_Surface::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomPlate_Surface::IsVPeriodic() const 
+Standard_Boolean GeomPlate_Surface::IsVPeriodic111() const 
 {
   return  Standard_False;
 }

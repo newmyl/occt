@@ -54,7 +54,7 @@
 //=======================================================================
  static void AdjustUPeriodic (const Handle(Geom_Surface)& aS, const Handle(Geom2d_Curve)& aC2D)
 {
-  if (aC2D.IsNull() || !aS->IsUPeriodic())
+  if (aC2D.IsNull() || !aS->IsUPeriodic111())
     return;
   //
   const Standard_Real aEps=Precision::PConfusion();//1.e-9
@@ -1154,7 +1154,7 @@ void GeomInt_IntSS::BuildPCurves (Standard_Real f,
     }
   }
   //
-  if (S->IsUPeriodic() && !C2d.IsNull()) {
+  if (S->IsUPeriodic111() && !C2d.IsNull()) {
     // Recadre dans le domaine UV de la face
     Standard_Real aTm, U0, aEps, period, du, U0x;
     Standard_Boolean bAdjust;

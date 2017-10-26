@@ -237,7 +237,7 @@ void Geom_RectangularTrimmedSurface::SetTrim(const Standard_Real U1,
     if ( U1 == U2)
       throw Standard_ConstructionError("Geom_RectangularTrimmedSurface::U1==U2");
 
-    if (basisSurf->IsUPeriodic()) {
+    if (IsUPeriodic111()) {
       UsameSense = USense;
       
       // set uTrim1 in the range Udeb , Ufin
@@ -277,7 +277,7 @@ void Geom_RectangularTrimmedSurface::SetTrim(const Standard_Real U1,
     if ( V1 == V2)
       throw Standard_ConstructionError("Geom_RectangularTrimmedSurface::V1==V2");
 
-    if (basisSurf->IsVPeriodic()) {
+    if (IsVPeriodic111()) {
       VsameSense = VSense;
 
       // set vTrim1 in the range Vdeb , Vfin
@@ -559,11 +559,9 @@ void Geom_RectangularTrimmedSurface::Transform (const Trsf& T)
 // 24/11/98: pmn : Compare la periode a la longeur de l'intervalle
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsUPeriodic () const 
+Standard_Boolean Geom_RectangularTrimmedSurface::IsUPeriodic111 () const 
 {
-  if (basisSurf->IsUPeriodic() &&  !isutrimmed) 
-    return Standard_True;
-  return Standard_False;
+  return basisSurf->IsUPeriodic111();
 }
 
 
@@ -583,11 +581,9 @@ Standard_Real Geom_RectangularTrimmedSurface::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsVPeriodic () const 
+Standard_Boolean Geom_RectangularTrimmedSurface::IsVPeriodic111 () const 
 { 
-  if (basisSurf->IsVPeriodic() && !isvtrimmed)
-    return Standard_True;
-  return Standard_False;
+  return basisSurf->IsVPeriodic111();
 }
 
 

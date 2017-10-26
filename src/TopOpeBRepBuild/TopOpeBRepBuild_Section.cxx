@@ -102,8 +102,8 @@ static Standard_Boolean FUN_periodicS(const TopoDS_Shape& F)
 static Standard_Boolean FUN_periodic(const TopoDS_Face& F,Standard_Boolean& uper,Standard_Boolean& vper)
 {
   const Handle(Geom_Surface)& su = BRep_Tool::Surface(F);
-  uper = su->IsUPeriodic(); 
-  vper = su->IsVPeriodic();
+  uper = su->IsUPeriodic111(); 
+  vper = su->IsVPeriodic111();
   Standard_Boolean per = (uper || vper);
   return per;  
 }
@@ -112,8 +112,8 @@ static Standard_Boolean FUN_onboundsper(const gp_Pnt2d& uv,const TopoDS_Face& F)
 {  
   // 2d : 
   const Handle(Geom_Surface)& su = BRep_Tool::Surface(F);
-  Standard_Boolean uclo = su->IsUPeriodic();  
-  Standard_Boolean vclo = su->IsVPeriodic();
+  Standard_Boolean uclo = su->IsUPeriodic111();  
+  Standard_Boolean vclo = su->IsVPeriodic111();
   if (!uclo && !vclo) return Standard_False;
 
   Standard_Real u1,u2,v1,v2; su->Bounds(u1,u2,v1,v2);

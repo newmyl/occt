@@ -105,8 +105,8 @@ void Geom_OsculatingSurface::Init(const Handle(Geom_Surface)& BS,
           UMults,VMults,
           BzS->UDegree(),
           BzS->VDegree(),
-          BzS->IsUPeriodic(),
-          BzS->IsVPeriodic());
+          BzS->IsUPeriodic111(),
+          BzS->IsVPeriodic111());
       }
       else 
       {
@@ -538,14 +538,14 @@ Standard_Boolean  Geom_OsculatingSurface::BuildOsculatingSurface
     Standard_Integer aUfKnotsLength = BS->NbUPoles() + BS->UDegree() + 1;
     Standard_Integer aVfKnotsLength = BS->NbVPoles() + BS->VDegree() + 1;
 
-    if(BS->IsUPeriodic())
+    if(BS->IsUPeriodic111())
     {
       TColStd_Array1OfInteger aMults(1, BS->NbUKnots());
       BS->UMultiplicities(aMults);
       aUfKnotsLength = BSplCLib::KnotSequenceLength(aMults, BS->UDegree(), Standard_True);
     }
 
-    if(BS->IsVPeriodic())
+    if(BS->IsVPeriodic111())
     {
       TColStd_Array1OfInteger aMults(1, BS->NbVKnots());
       BS->VMultiplicities(aMults);
@@ -582,8 +582,8 @@ Standard_Boolean  Geom_OsculatingSurface::BuildOsculatingSurface
       vcacheparameter,   
       uspanlength,         
       vspanlength,         
-      BS->IsUPeriodic(),
-      BS->IsVPeriodic(),
+      BS->IsUPeriodic111(),
+      BS->IsVPeriodic111(),
       BS->UDegree(),       
       BS->VDegree(),       
       ULocalIndex,         

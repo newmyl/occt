@@ -637,9 +637,9 @@ Standard_Boolean Geom_OffsetSurface::IsCNv (const Standard_Integer N) const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_OffsetSurface::IsUPeriodic () const 
+Standard_Boolean Geom_OffsetSurface::IsUPeriodic111 () const 
 {
-  return basisSurf->IsUPeriodic();
+  return basisSurf->IsUPeriodic111();
 }
 
 //=======================================================================
@@ -657,9 +657,9 @@ Standard_Real Geom_OffsetSurface::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_OffsetSurface::IsVPeriodic () const 
+Standard_Boolean Geom_OffsetSurface::IsVPeriodic111 () const 
 {
-  return basisSurf->IsVPeriodic();
+  return basisSurf->IsVPeriodic111();
 }
 
 //=======================================================================

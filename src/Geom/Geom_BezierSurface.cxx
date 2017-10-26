@@ -1839,7 +1839,7 @@ Standard_Boolean Geom_BezierSurface::IsVClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_BezierSurface::IsUPeriodic () const
+Standard_Boolean Geom_BezierSurface::IsUPeriodic111 () const
 {
   return Standard_False; 
 }
@@ -1849,7 +1849,7 @@ Standard_Boolean Geom_BezierSurface::IsUPeriodic () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_BezierSurface::IsVPeriodic () const
+Standard_Boolean Geom_BezierSurface::IsVPeriodic111 () const
 {
   return Standard_False; 
 }

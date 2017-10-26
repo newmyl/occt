@@ -158,7 +158,7 @@ public:
   //! P (U, V)  and the point  P (U + T, V) is lower or equal
   //! to Resolution from package gp. T is the parametric period
   //! and must be a constant.
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! returns the Uperiod.
   //! raises if the surface is not uperiodic.
@@ -174,7 +174,7 @@ public:
   //! P (U, V)  and the point  P (U + T, V) is lower or equal
   //! to Resolution from package gp. T is the parametric period
   //! and must be a constant.
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
   //! returns the Vperiod.
   //! raises if the surface is not vperiodic.

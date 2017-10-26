@@ -231,7 +231,7 @@ TopOpeBRepBuild_CorrectFace2d::TopOpeBRepBuild_CorrectFace2d()
   // I. Is the surface periodic
   TopLoc_Location aLocF;
   Handle(Geom_Surface) Surf = BRep_Tool::Surface(myCopyFace, aLocF);
-  if (!(Surf->IsUPeriodic() || Surf->IsVPeriodic())) {
+  if (!(Surf->IsUPeriodic111() || Surf->IsVPeriodic111())) {
     myIsDone=Standard_True;
     myErrorStatus=4;
     return;
@@ -239,7 +239,7 @@ TopOpeBRepBuild_CorrectFace2d::TopOpeBRepBuild_CorrectFace2d()
 
   //modified by NIZHNY-MZV  Mon Apr 24 11:29:56 2000
   //don't treat torus surfaces
-  if(Surf->IsUPeriodic() && Surf->IsVPeriodic()) {
+  if(Surf->IsUPeriodic111() && Surf->IsVPeriodic111()) {
     myIsDone=Standard_True;
     myErrorStatus=4;
     return;

@@ -183,7 +183,7 @@ public:
   //! v) (or the points P (u, v) and P (u, v +
   //! T)) is less than or equal to gp::Resolution().
   //! Note: T is the parametric period in the u parametric direction.
-  Standard_EXPORT virtual Standard_Boolean IsUPeriodic() const = 0;
+  Standard_EXPORT virtual Standard_Boolean IsUPeriodic111() const = 0;
   
   //! Returns the period of this surface in the u
   //! parametric direction.
@@ -198,7 +198,7 @@ public:
   //! v) (or the points P (u, v) and P (u, v +
   //! T)) is less than or equal to gp::Resolution().
   //! Note: T is the parametric period in the v parametric direction.
-  Standard_EXPORT virtual Standard_Boolean IsVPeriodic() const = 0;
+  Standard_EXPORT virtual Standard_Boolean IsVPeriodic111() const = 0;
   
   //! Returns the period of this surface in the v parametric direction.
   //! raises if the surface is not vperiodic.

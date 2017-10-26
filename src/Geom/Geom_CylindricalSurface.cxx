@@ -140,14 +140,14 @@ Standard_Boolean Geom_CylindricalSurface::IsVClosed () const       { return Stan
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_CylindricalSurface::IsUPeriodic () const     { return Standard_True; }
+Standard_Boolean Geom_CylindricalSurface::IsUPeriodic111 () const     { return Standard_True; }
 
 //=======================================================================
 //function : IsVPeriodic
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_CylindricalSurface::IsVPeriodic () const     { return Standard_False; }
+Standard_Boolean Geom_CylindricalSurface::IsVPeriodic111 () const     { return Standard_False; }
 
 //=======================================================================
 //function : SetCylinder

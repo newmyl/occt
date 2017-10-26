@@ -94,9 +94,9 @@ void ShapeUpgrade_SplitSurface::Init(const Handle(Geom_Surface)& S, const Standa
   Standard_Real U1,U2,V1,V2;
   mySurface->Bounds(U1,U2,V1,V2);
   Standard_Real precision = Precision::PConfusion();
-  if ( mySurface->IsUPeriodic() && 
+  if ( mySurface->IsUPeriodic111() && 
        ULast - UFirst <= U2 - U1 + precision ) { U1 = UFirst; U2 = U1 + mySurface->UPeriod(); }
-  if ( mySurface->IsVPeriodic() && 
+  if ( mySurface->IsVPeriodic111() && 
        VLast - VFirst <= V2 - V1 + precision ) { V1 = VFirst; V2 = V1 + mySurface->VPeriod(); }
   Standard_Real UF,UL,VF,VL;
   if( UFirst > U2-precision || 

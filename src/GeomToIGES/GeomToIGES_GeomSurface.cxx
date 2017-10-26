@@ -233,8 +233,8 @@ Handle(IGESData_IGESEntity) GeomToIGES_GeomSurface::TransferSurface(const Handle
   Handle(IGESGeom_BSplineSurface) BSpline = new IGESGeom_BSplineSurface;
   Handle(Geom_BSplineSurface) mysurface;
   
-  Standard_Boolean PeriodU = start->IsUPeriodic();
-  Standard_Boolean PeriodV = start->IsVPeriodic();
+  Standard_Boolean PeriodU = start->IsUPeriodic111();
+  Standard_Boolean PeriodV = start->IsVPeriodic111();
   mysurface = Handle(Geom_BSplineSurface)::DownCast(start->Copy());
 
   Standard_Real Umin = Udeb, Umax = Ufin, Vmin = Vdeb, Vmax = Vfin;
@@ -278,7 +278,7 @@ Handle(IGESData_IGESEntity) GeomToIGES_GeomSurface::TransferSurface(const Handle
       Vmax = Vmin + (V1 - V0);
   }
   //unperiodize surface to get neccessary for IGES standard number of knots and mults
-  if ( mysurface->IsUPeriodic() ) {
+  if ( mysurface->IsUPeriodic111() ) {
     // set new origin for periodic BSpline surfaces for synchronization of pcurves ranges
     // and surface bounds (issue 26138)
     if (mysurface->IsKind(STANDARD_TYPE(Geom_BSplineSurface))) {
@@ -294,7 +294,7 @@ Handle(IGESData_IGESEntity) GeomToIGES_GeomSurface::TransferSurface(const Handle
     }
     mysurface->SetUNotPeriodic();
   }
-  if ( mysurface->IsVPeriodic() ) {
+  if ( mysurface->IsVPeriodic111() ) {
     // set new origin for periodic BSpline surfaces for synchronization of pcurves ranges
     // and surface bounds (issue 26138)
     if (mysurface->IsKind(STANDARD_TYPE(Geom_BSplineSurface))) {

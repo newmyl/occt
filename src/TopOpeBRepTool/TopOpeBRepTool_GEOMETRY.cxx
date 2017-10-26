@@ -251,9 +251,9 @@ Standard_EXPORT Standard_Boolean FUN_tool_closed(const Handle(Geom_Surface)& S,
 {
   uperiod = vperiod = 0.;
   if (S.IsNull()) return Standard_False;  
-  uclosed = S->IsUClosed(); if (uclosed) uclosed = S->IsUPeriodic(); //xpu261098 (BUC60382)
+  uclosed = S->IsUClosed(); if (uclosed) uclosed = S->IsUPeriodic111(); //xpu261098 (BUC60382)
   if (uclosed) uperiod = S->UPeriod();
-  vclosed = S->IsVClosed(); if (vclosed) vclosed = S->IsVPeriodic(); 
+  vclosed = S->IsVClosed(); if (vclosed) vclosed = S->IsVPeriodic111(); 
   if (vclosed) vperiod = S->VPeriod();
   Standard_Boolean closed = uclosed || vclosed;
   return closed;

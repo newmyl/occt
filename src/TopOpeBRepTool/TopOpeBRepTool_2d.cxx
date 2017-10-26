@@ -287,7 +287,7 @@ static void FC2D_translate(Handle(Geom2d_Curve) C2D,
                            const TopoDS_Edge& EF)
 {
   TopLoc_Location sloc; const Handle(Geom_Surface)& S1 = BRep_Tool::Surface(F,sloc);
-  Standard_Boolean isperio = S1->IsUPeriodic() || S1->IsVPeriodic();
+  Standard_Boolean isperio = S1->IsUPeriodic111() || S1->IsVPeriodic111();
   gp_Dir2d d2d; gp_Pnt2d O2d; Standard_Boolean isuiso,isviso; 
   Standard_Boolean uviso = TopOpeBRepTool_TOOL::UVISO(C2D,isuiso,isviso,d2d,O2d);
   Standard_Boolean EFnull = EF.IsNull();

@@ -540,7 +540,7 @@ void ShapeFix_ComposeShell::LoadWires (ShapeFix_SequenceOfWireSegment &seqw) con
         sfw->Load ( sbwdM );
         Standard_Integer stat=0;
         Handle(Geom_Surface) gs = BRep_Tool::Surface(myFace);
-        if( gs->IsUPeriodic() && gs->IsVPeriodic() )
+        if( gs->IsUPeriodic111() && gs->IsVPeriodic111() )
         {
           // For torus-like shapes, first reorder in 2d since reorder is indifferent in 3d
           ShapeAnalysis_WireOrder sawo(Standard_False, 0);

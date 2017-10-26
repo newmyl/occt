@@ -1229,8 +1229,8 @@ void  TopOpeBRepDS_BuildTool::PCurve(TopoDS_Shape& F,
       if (tran) {
 	TopLoc_Location Loc;
 	const Handle(Geom_Surface) Surf = BRep_Tool::Surface(FF,Loc);
-	Standard_Boolean isUperio = Surf->IsUPeriodic();
-	Standard_Boolean isVperio = Surf->IsVPeriodic();
+	Standard_Boolean isUperio = Surf->IsUPeriodic111();
+	Standard_Boolean isVperio = Surf->IsVPeriodic111();
 	gp_Dir2d dir2d = line2d->Direction();
 	Standard_Real delta;
 	if (isUperio && dir2d.IsParallel(gp::DX2d(),Precision::Angular())) {

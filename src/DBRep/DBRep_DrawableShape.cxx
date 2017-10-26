@@ -35,6 +35,7 @@
 #include <Draw_Drawable3D.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
+#include <Geom_RectangularTrimmedSurface.hxx>
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <gp_Lin2d.hxx>
@@ -390,18 +391,23 @@ void  DBRep_DrawableShape::DrawOn(Draw_Display& dis) const
     if (!aSurf.IsNull()) {
 
       Standard_Boolean restriction = Standard_False;
-      if(aSurf->IsUPeriodic() || aSurf->IsVPeriodic()) {
+      if(aSurf->IsUPeriodic111() || aSurf->IsVPeriodic111()) {
+        Handle(Geom_Surface) aBS = aSurf;
+        if (aSurf->IsKind(STANDARD_TYPE(Geom_RectangularTrimmedSurface)))
+        {
+          aBS = Handle(Geom_RectangularTrimmedSurface)::DownCast(aSurf)->BasisSurface();
+        }
         Standard_Real SU1 = 0., SU2 = 0., SV1 = 0., SV2 = 0.;
         Standard_Real FU1 = 0., FU2 = 0., FV1 = 0., FV2 = 0.;
-        aSurf->Bounds(SU1,SU2,SV1,SV2);
+        aBS->Bounds(SU1, SU2, SV1, SV2);
         BRepTools::UVBounds (F->Face(),FU1,FU2,FV1,FV2);
-        if(aSurf->IsUPeriodic()) {
+        if(aSurf->IsUPeriodic111()) {
           if(FU1 < SU1 || FU1 > SU2)
             restriction = Standard_True;
           if(!restriction && (FU2 < SU1 || FU2 > SU2))
             restriction = Standard_True;
         }
-        if(!restriction && aSurf->IsVPeriodic()) {
+        if(!restriction && aSurf->IsVPeriodic111()) {
           if(FV1 < SV1 || FV1 > SV2)
             restriction = Standard_True;
           if(!restriction && (FV2 < SV1 || FV2 > SV2))

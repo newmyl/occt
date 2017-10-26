@@ -1486,7 +1486,7 @@ void GeomLib::ExtendSurfByLength(Handle(Geom_BoundedSurface)& Surface,
     BS->IncreaseDegree(BS->UDegree(),Continuity+1);      
 
   // si BS etait periodique dans le sens de l'extension, elle ne le sera plus
-  if ( (InU&&(BS->IsUPeriodic())) || (!InU&&(BS->IsVPeriodic())) ) {
+  if ( (InU&&(BS->IsUPeriodic111())) || (!InU&&(BS->IsVPeriodic111())) ) {
     Standard_Real U0,U1,V0,V1;
     BS->Bounds(U0,U1,V0,V1);
     BS->Segment(U0,U1,V0,V1);
@@ -1829,8 +1829,8 @@ void GeomLib::ExtendSurfByLength(Handle(Geom_BoundedSurface)& Surface,
 			       UKnots,VKnots,
 			       UMults,VMults,
 			       UDeg,VDeg,
-			       BS->IsUPeriodic(),
-			       BS->IsVPeriodic());
+			       BS->IsUPeriodic111(),
+			       BS->IsVPeriodic111());
   Surface = Res;
 }
 
@@ -1983,7 +1983,7 @@ static Standard_Boolean CanBeTreated(Handle(Geom_BSplineSurface)& BSurf)
  Standard_Real    lambda;                                    //proportionnality coefficient
  Standard_Boolean AlreadyTreated=Standard_True;
  
- if (!BSurf->IsURational()||(BSurf->IsUPeriodic()))
+ if (!BSurf->IsURational()||(BSurf->IsUPeriodic111()))
    return Standard_False;
  else {
    lambda=(BSurf->Weight(1,1)/BSurf->Weight(BSurf->NbUPoles(),1));

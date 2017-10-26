@@ -976,22 +976,22 @@ static Standard_Integer splitface
   BRepTools::UVBounds ( face, Uf, Ul, Vf, Vl );
   Standard_Real Umin, Umax, Vmin, Vmax;
   S->Bounds ( Umin, Umax, Vmin, Vmax );
-  if ( Uf < Umin && ! S->IsUPeriodic() ) Uf = Umin;
+  if ( Uf < Umin && ! S->IsUPeriodic111() ) Uf = Umin;
   else if ( Uf > Umin ) {
     if ( Precision::IsInfinite(Umin) ) Uf -= 100;
     else Uf = Umin;
   }
-  if ( Vf < Vmin && ! S->IsVPeriodic() ) Vf = Vmin;
+  if ( Vf < Vmin && ! S->IsVPeriodic111() ) Vf = Vmin;
   else if ( Vf > Vmin ) {
     if ( Precision::IsInfinite(Vmin) ) Vf -= 100;
     else Vf = Vmin;
   }
-  if ( Ul > Umax && ! S->IsUPeriodic() ) Ul = Umax;
+  if ( Ul > Umax && ! S->IsUPeriodic111() ) Ul = Umax;
   else if ( Ul < Umax ) {
     if ( Precision::IsInfinite(Umax) ) Ul += 100;
     else Ul = Umax;
   }
-  if ( Vl > Vmax && ! S->IsVPeriodic() ) Vl = Vmax;
+  if ( Vl > Vmax && ! S->IsVPeriodic111() ) Vl = Vmax;
   else if ( Vl < Vmax ) {
     if ( Precision::IsInfinite(Vmax) ) Vl += 100;
     else Vl = Vmax;

@@ -168,7 +168,7 @@ Standard_Boolean Geom_ToroidalSurface::IsVClosed () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_ToroidalSurface::IsUPeriodic () const {
+Standard_Boolean Geom_ToroidalSurface::IsUPeriodic111 () const {
 
   return Standard_True; 
 }
@@ -178,7 +178,7 @@ Standard_Boolean Geom_ToroidalSurface::IsUPeriodic () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_ToroidalSurface::IsVPeriodic () const {
+Standard_Boolean Geom_ToroidalSurface::IsVPeriodic111 () const {
 
  return Standard_True; 
 }

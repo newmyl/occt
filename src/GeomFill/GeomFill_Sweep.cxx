@@ -1035,11 +1035,11 @@ static Standard_Boolean IsSweepParallelSpine (const Handle(GeomFill_LocationLaw)
 	(S,UFirst, ULast, Standard_True);
 
 #ifdef OCCT_DEBUG
-  if (isUPeriodic && !mySurface->IsUPeriodic()) 
+  if (isUPeriodic && !mySurface->IsUPeriodic111()) 
     cout<<"Pb de periodicite en U" << endl;
   if (isUPeriodic && !mySurface->IsUClosed())
     cout<<"Pb de fermeture en U" << endl;
-  if (isVPeriodic && !mySurface->IsVPeriodic()) 
+  if (isVPeriodic && !mySurface->IsVPeriodic111()) 
     cout << "Pb de periodicite en V" << endl;
   if (isVPeriodic && !mySurface->IsVClosed())
     cout<<"Pb de fermeture en V" << endl;

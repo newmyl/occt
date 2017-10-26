@@ -1039,7 +1039,7 @@ void TopOpeBRepBuild_Builder::SplitEvisoONperiodicF()
     if (!isface) continue;
 
     TopLoc_Location loc; const Handle(Geom_Surface)& S = BRep_Tool::Surface(TopoDS::Face(FOR),loc);
-    Standard_Boolean periodic = S->IsUPeriodic() || S->IsVPeriodic();
+    Standard_Boolean periodic = S->IsUPeriodic111() || S->IsVPeriodic111();
     if (!periodic) continue;
 
     TopoDS_Shape FF = FOR; FF.Orientation(TopAbs_FORWARD);

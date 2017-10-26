@@ -634,7 +634,7 @@ Standard_Boolean ShapeCustom_BSplineRestriction::ConvertSurface(const Handle(Geo
       u2 = (aDelta > 2.*M_PI ? 2.*M_PI : u1 + aDelta); 
       }*/
       Standard_Boolean isTrim = Standard_False;
-      if(!aSurf->IsUPeriodic() ) { //else {
+      if(!aSurf->IsUPeriodic111() ) { //else {
         u1 = Max(u1,UF); u2 = Min(u2,UL);
         isTrim = Standard_True;
       }
@@ -644,7 +644,7 @@ Standard_Boolean ShapeCustom_BSplineRestriction::ConvertSurface(const Handle(Geo
       v1 = (aDelta > 2.*M_PI ? 0. : VF + ShapeAnalysis::AdjustByPeriod(VF,0.5*(UL+UF),2*M_PI)); ; 
       v2 = (aDelta > 2.*M_PI ? 2.* M_PI : v1 + aDelta); 
       }*/
-      if(!aSurf->IsVPeriodic()) {//else 
+      if(!aSurf->IsVPeriodic111()) {//else 
         v1 = Max(v1,VF); v2 = Min(v2,VL);
         isTrim = Standard_True;
       }
@@ -691,9 +691,9 @@ Standard_Boolean ShapeCustom_BSplineRestriction::ConvertSurface(const Handle(Geo
 #endif
             S = anApprox.Surface();
             Handle(Geom_BSplineSurface) Bsc = Handle(Geom_BSplineSurface)::DownCast(S);
-            if(aSurface->IsUPeriodic() )
+            if(aSurface->IsUPeriodic111() )
               Bsc->SetUPeriodic();
-            if(aSurface->IsVPeriodic() )
+            if(aSurface->IsVPeriodic111() )
               Bsc->SetVPeriodic();
             //Standard_Integer DegU = Bsc->UDegree(); // DegU not used (skl)
             //Standard_Integer DegV = Bsc->VDegree(); // DegV not used (skl)

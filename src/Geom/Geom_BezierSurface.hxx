@@ -537,10 +537,10 @@ public:
   Standard_EXPORT Standard_Boolean IsCNv (const Standard_Integer N) const Standard_OVERRIDE;
   
   //! Returns False.
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! Returns False.
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
 
   //! Returns False if the weights are identical in the U direction,

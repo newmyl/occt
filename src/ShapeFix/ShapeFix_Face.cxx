@@ -120,7 +120,7 @@ static Standard_Boolean IsSurfaceUVInfinite(const Handle(Geom_Surface)& theSurf)
 
 static Standard_Boolean IsSurfaceUVPeriodic(const Handle(Geom_Surface)& theSurf)
 {
-  return theSurf->IsUPeriodic() && theSurf->IsVPeriodic();
+  return theSurf->IsUPeriodic111() && theSurf->IsVPeriodic111();
 }
 
 //=======================================================================
@@ -1499,7 +1499,7 @@ Standard_Boolean ShapeFix_Face::FixMissingSeam()
   //%pdn: surface should be made periodic before (see ShapeCustom_Surface)!
   if (mySurf->Surface()->IsKind(STANDARD_TYPE (Geom_BSplineSurface))) { 
     Handle (Geom_BSplineSurface) BSpl = Handle (Geom_BSplineSurface)::DownCast (mySurf->Surface());
-    if (!BSpl->IsUPeriodic() && !BSpl->IsVPeriodic())
+    if (!BSpl->IsUPeriodic111() && !BSpl->IsVPeriodic111())
       return Standard_False;
   }
   

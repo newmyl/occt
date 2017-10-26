@@ -136,12 +136,12 @@ Standard_Boolean ShapeUpgrade_FaceDivide::SplitSurface ()
   // make little extension to ensure all pcurves fit inside new surface bounds
   Standard_Real aSUf, aSUl, aSVf, aSVl;
   surf->Bounds(aSUf, aSUl, aSVf, aSVl);
-  if (!surf->IsUPeriodic()) {
+  if (!surf->IsUPeriodic111()) {
     Standard_Real dU = (Ul - Uf) * 0.01;
     if (Uf > aSUf) Uf -= Min(dU, Uf - aSUf);
     if (Ul < aSUl) Ul += Min(dU, aSUl - Ul);
   }
-  if (!surf->IsVPeriodic()) {
+  if (!surf->IsVPeriodic111()) {
     Standard_Real dV = (Vl - Vf) * 0.01;
     if (Vf > aSVf) Vf -= Min(dV, Vf - aSVf);
     if (Vl < aSVl) Vl += Min(dV, aSVl - Vl);

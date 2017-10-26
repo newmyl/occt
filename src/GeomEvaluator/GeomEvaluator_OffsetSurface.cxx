@@ -52,8 +52,8 @@ static Standard_Boolean shiftPoint (const Standard_Real theUStart, const Standar
   if (! theSurf.IsNull())
   {
     theSurf->Bounds (aUMin, aUMax, aVMin, aVMax);
-    isUPeriodic = theSurf->IsUPeriodic();
-    isVPeriodic = theSurf->IsVPeriodic();
+    isUPeriodic = theSurf->IsUPeriodic111();
+    isVPeriodic = theSurf->IsVPeriodic111();
   }
   else
   {

@@ -183,10 +183,10 @@ public:
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
   //! Returns True.
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic111() const Standard_OVERRIDE;
   
   //! Returns True.
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic111() const Standard_OVERRIDE;
   
   //! Computes the U isoparametric curve.
   //!

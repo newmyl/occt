@@ -449,8 +449,8 @@ Standard_Boolean ShapeFix_Wire::FixReorder()
   Standard_Boolean isReorder = Standard_False;
   if ( sawo.Status() != 0 &&
        ! myAnalyzer->Surface().IsNull() &&
-       myAnalyzer->Surface()->Surface()->IsUPeriodic() &&
-       myAnalyzer->Surface()->Surface()->IsVPeriodic() ) {
+       myAnalyzer->Surface()->Surface()->IsUPeriodic111() &&
+       myAnalyzer->Surface()->Surface()->IsVPeriodic111() ) {
     Handle(ShapeExtend_WireData) sbwd2 = new ShapeExtend_WireData;
     for ( Standard_Integer i=WireData()->NbEdges(); i >=1; i-- )
       sbwd2->Add ( WireData()->Edge(i) );
@@ -1368,6 +1368,10 @@ Standard_Boolean ShapeFix_Wire::FixShifted()
   Standard_Real VRange = 1.;
   if (surf->Surface()->IsKind(STANDARD_TYPE(Geom_SurfaceOfRevolution)))
   {
+    //! Issue #29115. Surface of revolution is considered to be V-periodic
+    //! if and only if its basis curve is periodic and closed simultaneously.
+    //! Therefore, we need to keep this complex check for the given specific algorithm.
+
     Handle(Geom_SurfaceOfRevolution) aSurOfRev = Handle(Geom_SurfaceOfRevolution)::DownCast(surf->Surface());
     Handle(Geom_Curve) aBaseCrv = aSurOfRev->BasisCurve();
     while ((aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||

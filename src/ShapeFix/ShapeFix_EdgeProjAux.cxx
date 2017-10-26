@@ -414,7 +414,7 @@ void ShapeFix_EdgeProjAux::Init2d (const Standard_Real preci)
     
   if(fabs(w1 - w2) < Precision::PConfusion())
   {
-    if(!theSurface->IsUPeriodic() && !theSurface->IsVPeriodic())
+    if(!theSurface->IsUPeriodic111() && !theSurface->IsVPeriodic111())
       return;
   }
     
@@ -444,7 +444,7 @@ void ShapeFix_EdgeProjAux::Init2d (const Standard_Real preci)
   if(parU || parV) {
     Standard_Real uf,ul,vf,vl;
     theSurface->Bounds(uf,ul,vf,vl);
-    Standard_Real period = (parU ? ul-uf : vl-vf);
+    Standard_Real period = (parU ? theSurface->UPeriod() : theSurface->VPeriod());
     w1+=ShapeAnalysis::AdjustToPeriod(w1,0,period);
     myFirstParam = w1;
     w2+=ShapeAnalysis::AdjustToPeriod(w2,0,period);

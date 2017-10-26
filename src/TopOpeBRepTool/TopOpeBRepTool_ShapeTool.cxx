@@ -160,8 +160,8 @@ void TopOpeBRepTool_ShapeTool::UVBOUNDS
     }
   }
   else { 
-    UPeriodic = BS->IsUPeriodic();
-    VPeriodic = BS->IsVPeriodic();
+    UPeriodic = BS->IsUPeriodic111();
+    VPeriodic = BS->IsVPeriodic111();
     BS->Bounds(Umin,Umax,Vmin,Vmax);
   }
 }
@@ -191,8 +191,8 @@ void TopOpeBRepTool_ShapeTool::AdjustOnPeriodic(const TopoDS_Shape& F,
   
 //  Standard_Real Ufirst,Ulast,Vfirst,Vlast;
   Standard_Boolean isUperio,isVperio;
-  isUperio = Surf->IsUPeriodic();
-  isVperio = Surf->IsVPeriodic();
+  isUperio = Surf->IsUPeriodic111();
+  isVperio = Surf->IsVPeriodic111();
 
   // exit if surface supporting F is not periodic on U or V
   if (!isUperio && !isVperio) return;
@@ -307,8 +307,8 @@ Standard_Real TopOpeBRepTool_ShapeTool::PeriodizeParameter
 
   TopLoc_Location Loc;
   const Handle(Geom_Surface) Surf = BRep_Tool::Surface(F,Loc);
-  Standard_Boolean isUperio = Surf->IsUPeriodic();
-  Standard_Boolean isVperio = Surf->IsVPeriodic();
+  Standard_Boolean isUperio = Surf->IsUPeriodic111() && Surf->IsUClosed();
+  Standard_Boolean isVperio = Surf->IsVPeriodic111() && Surf->IsVClosed();
   if (!isUperio && !isVperio) return periopar;
 
   Standard_Real Ufirst,Ulast,Vfirst,Vlast;

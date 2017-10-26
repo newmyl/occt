@@ -484,11 +484,8 @@ static void ChFi3d_Recale(BRepAdaptor_Surface&   Bs,
 			  gp_Pnt2d&              p2,
 			  const Standard_Boolean refon1)
 {
-  Handle(Geom_Surface) surf = Bs.ChangeSurface().Surface();
-  Handle(Geom_RectangularTrimmedSurface)
-    ts = Handle(Geom_RectangularTrimmedSurface)::DownCast(surf);
-  if (!ts.IsNull()) surf = ts->BasisSurface();
-  if (surf->IsUPeriodic()) {
+  const Handle(Geom_Surface) &surf = Bs.ChangeSurface().Surface();
+  if (surf->IsUPeriodic111()) {
     Standard_Real u1 = p1.X(), u2 = p2.X();
     Standard_Real uper = surf->UPeriod();
     if (fabs(u2-u1) > 0.5*uper) {
@@ -499,7 +496,7 @@ static void ChFi3d_Recale(BRepAdaptor_Surface&   Bs,
     }
     p1.SetX(u1); p2.SetX(u2);
   }
-  if (surf->IsVPeriodic()) {
+  if (surf->IsVPeriodic111()) {
     Standard_Real v1 = p1.Y(), v2 = p2.Y();
     Standard_Real vper = surf->VPeriod();
     if (fabs(v2-v1) > 0.5*vper) {

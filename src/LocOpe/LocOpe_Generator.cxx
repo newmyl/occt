@@ -732,7 +732,7 @@ void LocOpe_Generator::Perform(const Handle(LocOpe_GeneratedShape)& G)
 		  // on met les courbes 2d si on n`est pas sur un plan
 		  // C est la courbe de edgbis, f et l s`y rapportent
 		  Handle(Geom2d_Curve) PTC = GeomProjLib::Curve2d(C,f,l,S,tol);
-		  if (S->IsUPeriodic()) {
+		  if (S->IsUPeriodic111()) {
 		    Standard_Real Uref;
 		    if (DontFuse.IsBound(edg)) {
 		      TopAbs_Orientation oredge = DontFuse(edg).Orientation();

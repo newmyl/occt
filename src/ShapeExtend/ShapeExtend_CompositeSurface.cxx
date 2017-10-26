@@ -526,7 +526,7 @@ void ShapeExtend_CompositeSurface::Bounds(Standard_Real& U1,
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ShapeExtend_CompositeSurface::IsUPeriodic () const
+Standard_Boolean ShapeExtend_CompositeSurface::IsUPeriodic111 () const
 {
   return Standard_False;
 }
@@ -536,7 +536,7 @@ Standard_Boolean ShapeExtend_CompositeSurface::IsUPeriodic () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ShapeExtend_CompositeSurface::IsVPeriodic () const 
+Standard_Boolean ShapeExtend_CompositeSurface::IsVPeriodic111 () const 
 {
   return Standard_False;
 }

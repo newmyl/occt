@@ -238,7 +238,7 @@ void BRepTools::AddUVBounds(const TopoDS_Face& aF,
   }
 
   //
-  if(!aS->IsUPeriodic())
+  if(!aS->IsUPeriodic111())
   {
     Standard_Boolean isUPeriodic = Standard_False;
 
@@ -319,7 +319,7 @@ void BRepTools::AddUVBounds(const TopoDS_Face& aF,
     }
   }
 
-  if(!aS->IsVPeriodic())
+  if(!aS->IsVPeriodic111())
   {
     Standard_Boolean isVPeriodic = Standard_False;
 

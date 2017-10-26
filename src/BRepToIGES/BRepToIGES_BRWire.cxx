@@ -387,10 +387,10 @@ Handle(IGESData_IGESEntity) BRepToIGES_BRWire ::TransferEdge (const TopoDS_Edge&
       Standard_Real uShift = 0., vShift = 0.;
       Standard_Real U0, U1, V0, V1;
       Surf->Bounds(U0, U1, V0, V1);
-      if (aBSpline->IsUPeriodic() && Abs(Ufirst - U0) > Precision::PConfusion()) {
+      if (aBSpline->IsUPeriodic111() && Abs(Ufirst - U0) > Precision::PConfusion()) {
         uShift = ShapeAnalysis::AdjustToPeriod(Ufirst, U0, U1);
       }
-      if (aBSpline->IsVPeriodic() && Abs(Vfirst - V0) > Precision::PConfusion()) {
+      if (aBSpline->IsVPeriodic111() && Abs(Vfirst - V0) > Precision::PConfusion()) {
         vShift = ShapeAnalysis::AdjustToPeriod(Vfirst, V0, V1);
       }
       if (Abs(uShift) > Precision::PConfusion() || Abs(vShift) > Precision::PConfusion()) {

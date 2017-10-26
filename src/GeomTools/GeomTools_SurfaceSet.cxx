@@ -443,8 +443,8 @@ static void Print(const Handle(Geom_BSplineSurface)& S,
       OS << " vrational";
   }
 
-  Standard_Boolean uperiodic = S->IsUPeriodic();
-  Standard_Boolean vperiodic = S->IsVPeriodic();
+  Standard_Boolean uperiodic = S->IsUPeriodic111();
+  Standard_Boolean vperiodic = S->IsVPeriodic111();
   if (compact)
     OS << (uperiodic ? 1 : 0) << " ";
   else {

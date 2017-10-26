@@ -223,8 +223,8 @@ Standard_Boolean TopOpeBRepTool_TOOL::ClosedS(const TopoDS_Face& F)
 {
   Handle(Geom_Surface) S =TopOpeBRepTool_ShapeTool::BASISSURFACE(TopoDS::Face(F));
   if (S.IsNull()) return Standard_False;
-  Standard_Boolean uclosed = S->IsUClosed(); if (uclosed) uclosed = S->IsUPeriodic();
-  Standard_Boolean vclosed = S->IsVClosed(); if (vclosed) vclosed = S->IsVPeriodic(); 
+  Standard_Boolean uclosed = S->IsUClosed(); if (uclosed) uclosed = S->IsUPeriodic111();
+  Standard_Boolean vclosed = S->IsVClosed(); if (vclosed) vclosed = S->IsVPeriodic111(); 
   return (uclosed || vclosed);
 }
 
@@ -1136,7 +1136,7 @@ Standard_Boolean TopOpeBRepTool_TOOL::Getduv(const TopoDS_Face& f,const gp_Pnt2d
 
   gp_Vec2d DUV( uv, uvtr );
   Handle(Geom_Surface) S = TopOpeBRepTool_ShapeTool::BASISSURFACE(f);
-  if ((S->IsUPeriodic()) && (Abs(DUV.X()) > S->UPeriod()/2.))
+  if ((S->IsUPeriodic111()) && (Abs(DUV.X()) > S->UPeriod()/2.))
     {
       Standard_Real U1 = uv.X(), U2 = uvtr.X(), period = S->UPeriod();
       ElCLib::AdjustPeriodic( 0., period, Precision::PConfusion(), U1, U2 );
@@ -1145,7 +1145,7 @@ Standard_Boolean TopOpeBRepTool_TOOL::Getduv(const TopoDS_Face& f,const gp_Pnt2d
 	dx -= period;
       DUV.SetX( dx );
     }
-  if ((S->IsVPeriodic()) && (Abs(DUV.Y()) > S->VPeriod()/2.))
+  if ((S->IsVPeriodic111()) && (Abs(DUV.Y()) > S->VPeriod()/2.))
     {
       Standard_Real V1 = uv.Y(), V2 = uvtr.Y(), period = S->VPeriod();
       ElCLib::AdjustPeriodic( 0., period, Precision::PConfusion(), V1, V2 );
