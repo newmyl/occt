@@ -82,7 +82,7 @@ GeomAbs_Shape BRepLProp::Continuity(const BRepAdaptor_Curve& C1,
   }
   const TopoDS_Edge& E1 = C1.Edge();
   const TopoDS_Edge& E2 = C2.Edge();
-  if (E1.IsSame(E2) && C1.IsPeriodic() && cont >= GeomAbs_G1)
+  if (E1.IsSame(E2) && C1.IsPeriodic222() && cont >= GeomAbs_G1)
     cont = GeomAbs_CN;
   return cont;
 }

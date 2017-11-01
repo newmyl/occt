@@ -39,7 +39,7 @@
 //function : ChFiDS_ElSpine
 //purpose  : 
 //=======================================================================
-ChFiDS_ElSpine::ChFiDS_ElSpine():periodic(0)
+ChFiDS_ElSpine::ChFiDS_ElSpine() :myIsPeriodic(Standard_False)
 {
   pfirstsav = Precision::Infinite();
   plastsav  = Precision::Infinite();
@@ -156,9 +156,9 @@ GeomAbs_CurveType ChFiDS_ElSpine::GetType() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ChFiDS_ElSpine::IsPeriodic() const
+Standard_Boolean ChFiDS_ElSpine::IsPeriodic222() const
 {
-  return periodic;
+  return myIsPeriodic;
 }
 
 
@@ -169,7 +169,7 @@ Standard_Boolean ChFiDS_ElSpine::IsPeriodic() const
 
 void ChFiDS_ElSpine::SetPeriodic(const Standard_Boolean I) 
 {
-  periodic = I;
+  myIsPeriodic = I;
   period = plast - pfirst;
 }
 
@@ -182,7 +182,7 @@ void ChFiDS_ElSpine::SetPeriodic(const Standard_Boolean I)
 
 Standard_Real ChFiDS_ElSpine::Period() const
 {
-  if(!periodic) throw Standard_Failure("ElSpine non periodique");
+  if(!myIsPeriodic) throw Standard_Failure("ElSpine non periodique");
   return period;
 }
 
@@ -293,7 +293,7 @@ void ChFiDS_ElSpine::SaveLastParameter()
 
 void ChFiDS_ElSpine::SetOrigin(const Standard_Real O)
 {
-  if(!periodic) throw Standard_Failure("Elspine non periodique");
+  if(!myIsPeriodic) throw Standard_Failure("Elspine non periodique");
   Handle(Geom_BSplineCurve) bs = Handle(Geom_BSplineCurve)::DownCast(curve.Curve());
   if(!bs.IsNull()) {
     bs->SetOrigin(O,Precision::PConfusion());

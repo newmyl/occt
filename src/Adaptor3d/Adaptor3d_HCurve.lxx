@@ -92,9 +92,9 @@ inline Standard_Real Adaptor3d_HCurve::FirstParameter() const
 //purpose  : 
 //=======================================================================
 
- inline Standard_Boolean Adaptor3d_HCurve::IsPeriodic() const 
+ inline Standard_Boolean Adaptor3d_HCurve::IsPeriodic222() const 
 {
-  return Curve().IsPeriodic();
+  return Curve().IsPeriodic222();
 }
 
 //=======================================================================

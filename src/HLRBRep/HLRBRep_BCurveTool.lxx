@@ -88,7 +88,7 @@ HLRBRep_BCurveTool::IsClosed(const BRepAdaptor_Curve& C)
 
 inline Standard_Boolean
 HLRBRep_BCurveTool::IsPeriodic(const BRepAdaptor_Curve& C)
-{ return(C.IsPeriodic()); }
+{ return(C.IsPeriodic222()); }
 
 //=======================================================================
 //function : Period

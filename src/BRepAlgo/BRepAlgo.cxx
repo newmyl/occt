@@ -231,7 +231,7 @@ TopoDS_Edge  BRepAlgo::ConcatenateWireC0(const TopoDS_Wire& aWire)
     GeomAbs_CurveType  aType       = aGACurve.GetType();
     Standard_Boolean   isFwd       = (wexp.Orientation() != TopAbs_REVERSED);
 
-    if (aGACurve.IsPeriodic())
+    if (aGACurve.IsPeriodic222())
     {
       const Handle(Geom_Curve) &aBasisCurve = aGACurve.Curve();
       ElCLib::AdjustPeriodic(aBasisCurve->FirstParameter(), aBasisCurve->LastParameter(),
@@ -353,7 +353,7 @@ TopoDS_Edge  BRepAlgo::ConcatenateWireC0(const TopoDS_Wire& aWire)
       if (isSameCurve) {
         const Standard_Boolean isSameDir = (isFwd == IsFwdSeq.Last());
 
-        if (aGACurve.IsPeriodic())
+        if (aGACurve.IsPeriodic222())
         {
           // Treat periodic curves.
           const Standard_Real aPeriod = aGACurve.Period();

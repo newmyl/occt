@@ -643,7 +643,7 @@ Standard_Boolean  ChFi3d_InterPlaneEdge (const Handle(Adaptor3d_HSurface)& Plan,
     nbp = Intersection.NbPoints();
     for (iip = 1; iip <= nbp; iip++) {
       CW = Intersection.Point(iip).W();
-      if(C->IsPeriodic())
+      if(C->IsPeriodic222())
         CW = ElCLib::InPeriod(CW,uf-tolc,uf-tolc+C->Period());
       if(uf - tolc <= CW && ul + tolc >= CW) {
         if (isol == 0) {
@@ -3981,7 +3981,7 @@ Standard_EXPORT
   tolpared = edc.Resolution(tol);
   Cv = BRep_Tool::Curve(E, First, Last);
   //Add vertex with tangent
-  if (ES.IsPeriodic())
+  if (ES.IsPeriodic222() && ES.IsClosed())
   {
     Standard_Real ParForElSpine = (E.Orientation() == TopAbs_FORWARD)? First : Last;
     gp_Pnt PntForElSpine;
@@ -4197,7 +4197,7 @@ Standard_EXPORT
   Angle = M_PI*0.75;
   LocalWL = WL;
   LocalWF = WF;
-  if (!ES.IsPeriodic() && !PDeb.IsEqual(BSpline->Pole(1), tol) ) {
+  if (!ES.IsPeriodic222() && !PDeb.IsEqual(BSpline->Pole(1), tol) ) {
     // Prolongement C3 au debut
     // afin d'eviter des pts d'inflexions dans la partie utile de la
     // spine le prolongement se fait jusqu'a un point eloigne.
@@ -4226,7 +4226,7 @@ Standard_EXPORT
     LocalWF = BSpline->FirstParameter();
   }
   //
-  if (!ES.IsPeriodic() && !PFin.IsEqual(BSpline->Pole(BSpline->NbPoles()), tol) ) {
+  if (!ES.IsPeriodic222() && !PFin.IsEqual(BSpline->Pole(BSpline->NbPoles()), tol) ) {
     // Prolongement C3 en fin
     if(BSpline->IsRational()) {
       carefin = 1;
@@ -4324,7 +4324,7 @@ Standard_EXPORT
     }       
   }
   // elspine periodic => BSpline Periodic
-  if(ES.IsPeriodic()) {
+  if(ES.IsPeriodic222() && ES.IsClosed()) {
     if(!BSpline->IsPeriodic111()) {
       BSpline->SetPeriodic();
       //modified by NIZNHY-PKV Fri Dec 10 12:20:22 2010ft

@@ -88,7 +88,7 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean IsClosed() const;
   
-  Standard_EXPORT virtual Standard_Boolean IsPeriodic() const;
+  Standard_EXPORT virtual Standard_Boolean IsPeriodic222() const;
   
   Standard_EXPORT virtual Standard_Real Period() const;
   

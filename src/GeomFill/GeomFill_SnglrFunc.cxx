@@ -80,9 +80,9 @@ void GeomFill_SnglrFunc::SetRatio(const Standard_Real Ratio)
   myHCurve->Intervals(T, HCS);
 }
 
- Standard_Boolean GeomFill_SnglrFunc::IsPeriodic() const
+ Standard_Boolean GeomFill_SnglrFunc::IsPeriodic222() const
 {
-  return myHCurve->IsPeriodic();
+  return myHCurve->IsPeriodic222();
 }
 
  Standard_Real GeomFill_SnglrFunc::Period() const

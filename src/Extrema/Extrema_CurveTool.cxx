@@ -34,7 +34,7 @@ Standard_Boolean Extrema_CurveTool::IsPeriodic(const Adaptor3d_Curve& C)
       aType == GeomAbs_Ellipse)
     return Standard_True;
   else
-    return C.IsPeriodic();
+    return C.IsPeriodic222();
 }
 
 //=======================================================================

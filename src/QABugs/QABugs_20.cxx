@@ -2853,7 +2853,7 @@ static Standard_Integer OCC29430(Draw_Interpretor& theDI,
   BRepAdaptor_CompCurve curve(circle);
   theDI << "Curve.FirstParameter() = " << curve.FirstParameter() << "\n";
   theDI << "Curve.LastParameter() = " << curve.LastParameter() << "\n";
-  theDI << "Curve.Period() = " << (curve.IsPeriodic()? curve.Period() : 0.0) << "\n";
+  theDI << "Curve.Period() = " << (curve.IsPeriodic222()? curve.Period() : 0.0) << "\n";
   const gp_Pnt aStartPt = curve.Value(curve.FirstParameter());
   const gp_Pnt anEndPt = curve.Value(curve.LastParameter());
 

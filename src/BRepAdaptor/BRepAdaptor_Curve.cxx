@@ -344,13 +344,13 @@ Standard_Boolean BRepAdaptor_Curve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean BRepAdaptor_Curve::IsPeriodic() const 
+Standard_Boolean BRepAdaptor_Curve::IsPeriodic222() const 
 {
   if (myConSurf.IsNull()) {
-    return myCurve.IsPeriodic();
+    return myCurve.IsPeriodic222();
   }
   else {
-    return myConSurf->IsPeriodic();
+    return myConSurf->IsPeriodic222();
   }
 }
 

@@ -1000,18 +1000,15 @@ void GeomFill_NSections::GetMinimalWeight(TColStd_Array1OfReal& Weights) const
   gp_Circ C2 = AC2.Circle();
 
   Standard_Real p1 = myParams(1), p2 = myParams(myParams.Length());
-  Standard_Real radius = ( C2.Radius() - C1.Radius() ) * (V - p1) / (p2 - p1) 
-                                  + C1.Radius();
+  Standard_Real radius = (C2.Radius() - C1.Radius()) * (V - p1) / (p2 - p1) + C1.Radius();
 
   C1.SetRadius(radius);
   Handle(Geom_Curve) C = new (Geom_Circle) (C1);
 
-  const Standard_Real aParF = AC1.FirstParameter();
-  const Standard_Real aParL = AC1.LastParameter();
-  const Standard_Real aPeriod = AC1.IsPeriodic() ? AC1.Period() : 0.0;
-
-  if ((aPeriod == 0.0) || (Abs(aParL - aParF - aPeriod) > Precision::PConfusion()))
+  if (!AC1.IsClosed())
   {
+    const Standard_Real aParF = AC1.FirstParameter();
+    const Standard_Real aParL = AC1.LastParameter();
     Handle(Geom_Curve) Cbis = new Geom_TrimmedCurve(C, aParF, aParL);
     C = Cbis;
   }

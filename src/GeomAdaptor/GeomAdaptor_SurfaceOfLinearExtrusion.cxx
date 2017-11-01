@@ -244,7 +244,7 @@ Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsVClosed() const
 
 Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsUPeriodic() const 
 {
-  return myBasisCurve->IsPeriodic();
+  return myBasisCurve->IsPeriodic222();
 }
 
 //=======================================================================

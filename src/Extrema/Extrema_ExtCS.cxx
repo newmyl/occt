@@ -523,7 +523,7 @@ Standard_Boolean Extrema_ExtCS::AddSolution(const Adaptor3d_Curve& theCurve,
 
   Standard_Real T = aT, U = aU, V = aV;
 
-  if (theCurve.IsPeriodic())
+  if (theCurve.IsPeriodic222())
     T = ElCLib::InPeriod(T, myucinf, myucinf + theCurve.Period());
   if (myS->IsUPeriodic())
     U = ElCLib::InPeriod(U, myuinf, myuinf + myS->UPeriod());

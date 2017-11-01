@@ -83,7 +83,7 @@ public:
   
   Standard_EXPORT virtual GeomAbs_CurveType GetType() const Standard_OVERRIDE;
   
-  Standard_EXPORT virtual Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsPeriodic222() const Standard_OVERRIDE;
   
   Standard_EXPORT void SetPeriodic (const Standard_Boolean I);
   
@@ -171,7 +171,7 @@ private:
   Standard_Real pfirst;
   Standard_Real plast;
   Standard_Real period;
-  Standard_Boolean periodic;
+  Standard_Boolean myIsPeriodic;
   Standard_Real pfirstsav;
   Standard_Real plastsav;
 

@@ -184,7 +184,7 @@ Standard_Boolean BiTgte_CurveOnEdge::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean BiTgte_CurveOnEdge::IsPeriodic() const
+Standard_Boolean BiTgte_CurveOnEdge::IsPeriodic222() const
 {
   throw Standard_NotImplemented("BiTgte_CurveOnEdge");
 }

@@ -752,7 +752,7 @@ Standard_Boolean Blend_Walking::CorrectExtremityOnOneRst(const Standard_Integer 
     }
   }
   NewParam = ParamOnGuide;
-  if (hguide->IsPeriodic())
+  if (hguide->IsPeriodic222())
   {
     Standard_Real Period = hguide->Period();
     Standard_Real sign = (NewParam < theParam)? 1 : -1;

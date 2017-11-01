@@ -284,7 +284,7 @@ const TopoDS_Wire& BRepAdaptor_CompCurve::Wire() const
   return myWire.Closed();
 }
 
- Standard_Boolean BRepAdaptor_CompCurve::IsPeriodic() const
+ Standard_Boolean BRepAdaptor_CompCurve::IsPeriodic222() const
 {
   return Standard_False;
 

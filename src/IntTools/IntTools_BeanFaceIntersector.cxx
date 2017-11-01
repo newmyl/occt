@@ -1878,7 +1878,7 @@ Standard_Boolean IntTools_BeanFaceIntersector::ComputeLocalized() {
             T = p1.Parameter();
             p2.Parameter(U, V);
             
-            if (myCurve.IsPeriodic())
+            if (myCurve.IsPeriodic222())
               T = ElCLib::InPeriod(T, anarg1, anarg1 + myCurve.Period());
             if (mySurface.IsUPeriodic())
               U = ElCLib::InPeriod(U, parUF, parUF + mySurface.UPeriod());

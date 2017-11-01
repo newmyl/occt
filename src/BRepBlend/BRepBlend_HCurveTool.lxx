@@ -58,7 +58,7 @@ inline Standard_Boolean BRepBlend_HCurveTool::IsClosed(const Handle(Adaptor3d_HC
 }
 //============================================================
 inline Standard_Boolean BRepBlend_HCurveTool::IsPeriodic(const Handle(Adaptor3d_HCurve)& C) {
-  return(C->IsPeriodic());
+  return(C->IsPeriodic222());
 }
 //============================================================
 inline Standard_Real BRepBlend_HCurveTool::Period(const Handle(Adaptor3d_HCurve)& C) {

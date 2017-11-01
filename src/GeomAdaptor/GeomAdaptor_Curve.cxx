@@ -522,7 +522,7 @@ Standard_Boolean GeomAdaptor_Curve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_Curve::IsPeriodic() const 
+Standard_Boolean GeomAdaptor_Curve::IsPeriodic222() const 
 {
   return myCurve->IsPeriodic111();
 }

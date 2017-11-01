@@ -1611,7 +1611,7 @@ Standard_Boolean ChFi3d_Builder::ComputeData
       return Standard_False;
     }
     Lin = TheWalk.Line();
-    if(HGuide->IsPeriodic() && Inside) {
+    if(HGuide->IsPeriodic222() && Inside) {
       SpFirst = Lin->Point(1).Parameter();
       SpLast  = SpFirst + HGuide->Period();
       HGuide->ChangeCurve().FirstParameter(SpFirst);
@@ -2153,7 +2153,7 @@ Standard_Boolean ChFi3d_Builder::SimulData
     }
     Lin = TheWalk.Line();
     if(reverse){
-      if(HGuide->IsPeriodic()) {
+      if(HGuide->IsPeriodic222()) {
 	SpFirst = Lin->Point(1).Parameter();
 	SpLast  = SpFirst + HGuide->Period();
 	HGuide->ChangeCurve().FirstParameter(SpFirst);

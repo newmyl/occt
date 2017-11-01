@@ -357,7 +357,7 @@ Standard_Real GeomAdaptor_SurfaceOfRevolution::UPeriod() const
 
 Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsVPeriodic() const
 {
-  return myBasisCurve->IsPeriodic();
+  return myBasisCurve->IsPeriodic222();
 }
 
 //=======================================================================

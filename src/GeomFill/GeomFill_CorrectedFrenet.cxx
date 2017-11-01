@@ -432,7 +432,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_CorrectedFrenet::Copy() const
     }
     Handle(Law_Composite)::DownCast(EvolAroundT)->ChangeLaws().Append(Func);
   }
-  if(myTrimmed->IsPeriodic()) 
+  if(myTrimmed->IsPeriodic222()) 
     Handle(Law_Composite)::DownCast(EvolAroundT)->SetPeriodic();
 
   TLaw = EvolAroundT;

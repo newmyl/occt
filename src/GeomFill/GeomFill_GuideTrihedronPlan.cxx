@@ -122,7 +122,7 @@ GeomFill_GuideTrihedronPlan::GeomFill_GuideTrihedronPlan (const Handle(Adaptor3d
   Inf(1) = myGuide->FirstParameter() - DeltaG;
   Sup(1) = myGuide->LastParameter() + DeltaG;
 
-  if (!myGuide->IsPeriodic()) {
+  if (!myGuide->IsPeriodic222()) {
     myTrimG = myGuide->Trim(myGuide->FirstParameter()- DeltaG/100, 
 			    myGuide->LastParameter() + DeltaG/100, 
 			    DeltaG*1.e-7);
@@ -172,7 +172,7 @@ GeomFill_GuideTrihedronPlan::GeomFill_GuideTrihedronPlan (const Handle(Adaptor3d
       if (ii>1) {
         Standard_Real Diff = w -  Pole->Value(1, ii-1).Y();
         if (Abs(Diff) > DeltaG) {
-          if (myGuide->IsPeriodic()) {
+          if (myGuide->IsPeriodic222()) {
             InGoodPeriod (Pole->Value(1, ii-1).Y(),
                           myGuide->Period(), w);
             
@@ -644,7 +644,7 @@ void GeomFill_GuideTrihedronPlan::InitX(const Standard_Real Param)
     X(1) = (Pole->Value(1, Ideb).Coord(2) + 
 	    Pole->Value(1, Ifin).Coord(2)) / 2;
   }
-  if (myGuide->IsPeriodic()) {
+  if (myGuide->IsPeriodic222()) {
     X(1) = ElCLib::InPeriod(X(1), myGuide->FirstParameter(), 
 			          myGuide->LastParameter());
   }

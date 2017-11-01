@@ -1613,7 +1613,7 @@ static TopoDS_Edge  NewEdge(const TopoDS_Edge& edg,
       gp_Pnt p1b,p2b;
       Standard_Real thepmin = TheCurve.FirstParameter();
       myExtPC.TrimmedSquareDistances(Dist2Min,Dist2,p1b,p2b);
-      if (Dist2 < Dist2Min && !TheCurve.IsPeriodic()) {
+      if (Dist2 < Dist2Min && !TheCurve.IsPeriodic222()) {
 	Dist2Min = Dist2;
 	thepmin = TheCurve.LastParameter();
       }

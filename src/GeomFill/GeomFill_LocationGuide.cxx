@@ -179,7 +179,7 @@ static void InGoodPeriod(const Standard_Real Prec,
 
   myNbPts = 21;  // nb points pour les calculs
   myGuide = myLaw->Guide();  // courbe guide
-  if (!myGuide->IsPeriodic()) {
+  if (!myGuide->IsPeriodic222()) {
     Standard_Real f, l, delta;
     f = myGuide->FirstParameter();
     l = myGuide->LastParameter();
@@ -418,7 +418,7 @@ static void InGoodPeriod(const Standard_Real Prec,
     if (ii>1) {
       Diff = w -  myPoles2d->Value(1, ii-1).Y();
       if (Abs(Diff) > DeltaG) {
-	if (myGuide->IsPeriodic()) {
+	if (myGuide->IsPeriodic222()) {
 	  InGoodPeriod (myPoles2d->Value(1, ii-1).Y(),
 			myGuide->Period(), w);
 	  Diff =  w - myPoles2d->Value(1, ii-1).Y();
@@ -1436,7 +1436,7 @@ void GeomFill_LocationGuide::InitX(const Standard_Real Param) const
     X(3) = (P1.Coord(2) + P2.Coord(2)) /2;
   }
 
-  if (myGuide->IsPeriodic()) {
+  if (myGuide->IsPeriodic222()) {
     X(1) = ElCLib::InPeriod(X(1), myGuide->FirstParameter(), 
 			          myGuide->LastParameter());
   }

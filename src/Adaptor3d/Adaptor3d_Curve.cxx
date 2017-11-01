@@ -123,7 +123,7 @@ Standard_Boolean Adaptor3d_Curve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor3d_Curve::IsPeriodic() const 
+Standard_Boolean Adaptor3d_Curve::IsPeriodic222() const 
 {
   throw Standard_NotImplemented("Adaptor3d_Curve::IsPeriodic");
 }

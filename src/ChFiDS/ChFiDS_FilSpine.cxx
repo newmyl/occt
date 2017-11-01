@@ -187,7 +187,7 @@ void  ChFiDS_FilSpine::SetRadius(const gp_XY&           UandR,
     ChFiDS_ListIteratorOfListOfHElSpine It(elspines);
     Law_ListIteratorOfLaws Itl(laws);
     Handle(ChFiDS_HElSpine) Els = It.Value();
-    if (Els->IsPeriodic()) Itl.Value() = ComputeLaw(Els);
+    if (Els->IsPeriodic222()) Itl.Value() = ComputeLaw(Els);
     else{
       for (; It.More(); It.Next(), Itl.Next()) {
 	Els = It.Value();
@@ -520,7 +520,7 @@ Handle(Law_Composite) ChFiDS_FilSpine::ComputeLaw
     ind(j++) = ((i - 1)%len) + 1; 
   }
 
-  if(Els->IsPeriodic()){
+  if(Els->IsPeriodic222()){
     // A pereodic composite is created at range, which is eventually  
     // offset relatively to the elspine, to avoid a single point at 
     // origin.

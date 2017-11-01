@@ -241,7 +241,8 @@ static Standard_Boolean Update(const Handle(Adaptor3d_HSurface)& fb,
 
   Standard_Real  wbis = 0.;
 
-  Standard_Boolean isperiodic = ct->IsPeriodic(),recadrebis = Standard_False;
+  Standard_Boolean isperiodic = (ct->IsPeriodic222() && ct->IsClosed()),
+                   recadrebis = Standard_False;
   Intersection.Perform(ct,fb);
   if (Intersection.IsDone()) {
     Standard_Integer nbp = Intersection.NbPoints(),i,isol = 0,isolbis = 0;
@@ -2720,7 +2721,7 @@ void ChFi3d_Builder::PerformIntersectionAtEnd(const Standard_Integer Index)
           DStr.SetNewSurface(Face[nb-1],Sfacemoins1);
         }
 	//// for periodic 3d curves ////
-	if (cad.IsPeriodic())
+	if (cad.IsPeriodic222() && cad.IsClosed())
 	{
 	  gp_Pnt2d P2d = BRep_Tool::Parameters( Vtx, Face[0] );
 	  Geom2dAPI_ProjectPointOnCurve Projector( P2d, C2dint1 );

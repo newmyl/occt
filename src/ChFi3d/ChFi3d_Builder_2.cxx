@@ -1870,7 +1870,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
   Standard_Real wl = Guide.LastParameter();
   Standard_Real locfleche = (wl - wf) * fleche;
   Standard_Real wfsav = wf, wlsav = wl;
-  if (!Guide.IsPeriodic())
+  if (!Guide.IsPeriodic222())
   {
     //Now the ElSpine is artificially extended to help rsnld.
     Standard_Real prab = 0.01;
@@ -1929,7 +1929,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
 #endif 
     
     Last = wf;
-    if(Guide.IsPeriodic()) {
+    if(Guide.IsPeriodic222()) {
       Last = First - Guide.Period();
       Guide.SaveFirstParameter();
       Guide.FirstParameter(Last);
@@ -1976,7 +1976,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
   }
   Standard_Boolean      fini     = Standard_False;
   Standard_Boolean      complete = Inside;
-  if(!Guide.IsPeriodic()){
+  if(!Guide.IsPeriodic222()){
     Standard_Integer indf = Spine->Index(wf);
     Standard_Integer indl = Spine->Index(wl,0);
     if(Spine->IsPeriodic() && (indl < indf)) indl += nbed;
@@ -2229,7 +2229,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
     if(Inside){// There are starting solutions for the next.
       Inside = Standard_False;
       Firstsov = First;
-      if(Guide.IsPeriodic()) {
+      if(Guide.IsPeriodic222()) {
 	complete = Standard_False;
 	wf  = Guide.FirstParameter();
 	wl  = Guide.LastParameter();
@@ -2239,7 +2239,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
       fini = ((wl - Last) <= 10.*tolesp || 
 	      (intl && !(obstacleon1 || obstacleon2))); //General case
 
-      if (!fini && Guide.IsPeriodic() && 
+      if (!fini && Guide.IsPeriodic222() && 
 	  ((wl - Last)< Guide.Period()*1.e-3)) {
 	// It is tested if reframing of extremes is done at the same edge
         // Loop Condition
@@ -2281,7 +2281,7 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine
     }
   }
   // The initial state is restored
-  if(!Guide.IsPeriodic()){
+  if(!Guide.IsPeriodic222()){
     Guide.FirstParameter(wfsav);
     Guide.LastParameter (wlsav);
   }

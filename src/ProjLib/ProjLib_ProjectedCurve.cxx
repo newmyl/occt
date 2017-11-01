@@ -729,7 +729,7 @@ void ProjLib_ProjectedCurve::Perform(const Handle(Adaptor3d_HCurve)& C)
     // set the periodicity flag
     if (SType == GeomAbs_Plane        &&
         CType == GeomAbs_BSplineCurve &&
-        myCurve->IsPeriodic()   )
+        myCurve->IsPeriodic222()   )
     {
       myResult.SetPeriodic();
     }

@@ -1006,12 +1006,12 @@ Standard_Boolean ProjLib_ProjectOnPlane::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ProjLib_ProjectOnPlane::IsPeriodic() const
+Standard_Boolean ProjLib_ProjectOnPlane::IsPeriodic222() const
 {
   if ( myIsApprox)
     return Standard_False;
   else 
-    return myCurve->IsPeriodic();
+    return myCurve->IsPeriodic222();
 }
 
 
@@ -1022,7 +1022,7 @@ Standard_Boolean ProjLib_ProjectOnPlane::IsPeriodic() const
 
 Standard_Real ProjLib_ProjectOnPlane::Period() const
 {
-  if ( !IsPeriodic()) {
+  if ( !IsPeriodic222()) {
     throw Standard_NoSuchObject("ProjLib_ProjectOnPlane::Period");
   }
 				

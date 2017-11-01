@@ -345,7 +345,7 @@ Standard_Boolean Adaptor3d_IsoCurve::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor3d_IsoCurve::IsPeriodic() const
+Standard_Boolean Adaptor3d_IsoCurve::IsPeriodic222() const
 {
   switch (myIso) {
   case GeomAbs_IsoU:

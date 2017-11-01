@@ -315,11 +315,13 @@ static void Function_SetUVBounds(Standard_Real& myU1,
           Step = Function_ComputeStep(myCurve, R);
         }
         //
-        Standard_Boolean isclandper = (!(myCurve->IsClosed()) && !(myCurve->IsPeriodic()));
+        Standard_Boolean isclandper = !(myCurve->IsClosed() || myCurve->IsPeriodic222());
         Standard_Boolean isFirst = Standard_True;
         for(Standard_Real par = W1 + Step; par <= W2; par += Step)
         {
-          if(!isclandper) par += Step;
+          if(myCurve->IsPeriodic222()) 
+            par += Step;
+
           P = myCurve->Value(par);
           ElSLib::Parameters( Cone, P, U, V);
           U += Delta;

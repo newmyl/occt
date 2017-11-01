@@ -157,7 +157,7 @@ Standard_Boolean BiTgte_CurveOnVertex::IsClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean BiTgte_CurveOnVertex::IsPeriodic() const
+Standard_Boolean BiTgte_CurveOnVertex::IsPeriodic222() const
 {
   throw Standard_NotImplemented("BiTgte_CurveOnVertex");
 }
