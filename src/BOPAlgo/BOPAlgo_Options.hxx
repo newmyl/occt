@@ -36,6 +36,8 @@ class Message_ProgressIndicator;
 //!                          for inverted status (holes in the space). The default value is TRUE,
 //!                          i.e. the check is performed. Setting this flag to FALSE for inverted solids,
 //!                          most likely will lead to incorrect results.
+//! - *Using the Oriented Bounding Boxes* - Allows using the Oriented Bounding Boxes of the shapes
+//!                          for filtering the intersections.
 //!
 class BOPAlgo_Options
 {
@@ -176,6 +178,22 @@ public:
     return myCheckInverted;
   }
 
+public:
+  //!@name Usage of Oriented Bounding boxes
+
+  //! Enables/Disables the usage of OBB
+  void SetUseOBB(const Standard_Boolean theUseOBB)
+  {
+    myUseOBB = theUseOBB;
+  }
+
+  //! Returns the flag defining usage of OBB
+  Standard_Boolean UseOBB() const
+  {
+    return myUseOBB;
+  }
+
+
 protected:
 
   //! Breaks the execution if the break signal
@@ -190,6 +208,7 @@ protected:
   Standard_Real myFuzzyValue;
   Handle(Message_ProgressIndicator) myProgressIndicator;
   Standard_Boolean myCheckInverted;
+  Standard_Boolean myUseOBB;
 
 };
 

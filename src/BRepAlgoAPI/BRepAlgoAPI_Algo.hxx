@@ -56,7 +56,7 @@ public:
   using BOPAlgo_Options::GetReport;
   using BOPAlgo_Options::SetProgressIndicator;
   using BOPAlgo_Options::SetCheckInverted;
-
+  using BOPAlgo_Options::SetUseOBB;
 protected:
 
   //! Empty constructor

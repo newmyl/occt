@@ -51,7 +51,8 @@ BOPAlgo_Options::BOPAlgo_Options()
   myReport(new Message_Report),
   myRunParallel(myGlobalRunParallel),
   myFuzzyValue(Precision::Confusion()),
-  myCheckInverted(Standard_True)
+  myCheckInverted(Standard_True),
+  myUseOBB(Standard_False)
 {
   BOPAlgo_LoadMessages();
 }
@@ -67,7 +68,8 @@ BOPAlgo_Options::BOPAlgo_Options
   myReport(new Message_Report),
   myRunParallel(myGlobalRunParallel),
   myFuzzyValue(Precision::Confusion()),
-  myCheckInverted(Standard_True)
+  myCheckInverted(Standard_True),
+  myUseOBB(Standard_False)
 {
   BOPAlgo_LoadMessages();
 }

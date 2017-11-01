@@ -134,6 +134,7 @@ Standard_Integer bapibop(Draw_Interpretor& di,
   pBuilder->SetNonDestructive(bNonDestructive);
   pBuilder->SetGlue(aGlue);
   pBuilder->SetCheckInverted(BOPTest_Objects::CheckInverted());
+  pBuilder->SetUseOBB(BOPTest_Objects::UseOBB());
   //
   pBuilder->Build(); 
   //
@@ -195,6 +196,7 @@ Standard_Integer bapibuild(Draw_Interpretor& di,
   aBuilder.SetNonDestructive(bNonDestructive);
   aBuilder.SetGlue(aGlue);
   aBuilder.SetCheckInverted(BOPTest_Objects::CheckInverted());
+  aBuilder.SetUseOBB(BOPTest_Objects::UseOBB());
   //
   aBuilder.Build(); 
   //
@@ -260,6 +262,7 @@ Standard_Integer bapisplit(Draw_Interpretor& di,
   aSplitter.SetNonDestructive(BOPTest_Objects::NonDestructive());
   aSplitter.SetGlue(BOPTest_Objects::Glue());
   aSplitter.SetCheckInverted(BOPTest_Objects::CheckInverted());
+  aSplitter.SetUseOBB(BOPTest_Objects::UseOBB());
   //
   // performing operation
   aSplitter.Build();
