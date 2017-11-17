@@ -1035,38 +1035,17 @@ void BOPAlgo_BOP::BuildSolid()
   }
   //
   BOPCol_IndexedDataMapOfShapeListOfShape aMEF;
-  // Split faces will be added in the end
-  // to avoid errors in BuilderSolid algorithm
-  BOPCol_ListOfShape aLF, aLFx;
+  // Fill the list of faces to build the result solids
+  BOPCol_ListOfShape aSFS;
   aNb = aMFS.Extent();
   for (i = 1; i <= aNb; ++i) {
     const BOPCol_ListOfShape& aLSx = aMFS(i);
     if (aLSx.Extent() == 1) {
       const TopoDS_Shape& aFx = aMFS.FindKey(i);
       BOPTools::MapShapesAndAncestors(aFx, TopAbs_EDGE, TopAbs_FACE, aMEF);
-      if (IsBoundSplits(aFx, aMEF)){
-        aLFx.Append(aFx);
-        continue;
-      }
-      aLF.Append(aFx);
+      aSFS.Append(aFx);
     }
   }
-  //
-  // Faces to build result solids
-  BOPCol_ListOfShape aSFS;
-  aItLS.Initialize(aLF);
-  for(; aItLS.More(); aItLS.Next()) {
-    const TopoDS_Shape& aFx = aItLS.Value();
-    aSFS.Append(aFx);
-  }
-  //
-  // Split faces
-  aItLS.Initialize(aLFx);
-  for (; aItLS.More(); aItLS.Next()) {
-    const TopoDS_Shape& aFx = aItLS.Value();
-    aSFS.Append(aFx);
-  }
-  //
   // Internal faces
   aNb = aMFI.Extent();
   for (i = 1; i <= aNb; ++i) {
@@ -1196,54 +1175,6 @@ void BOPAlgo_BOP::BuildSolid()
   }
   //
   myShape = aResult;
-}
-//=======================================================================
-//function : IsBoundSplits
-//purpose  : 
-//=======================================================================
-Standard_Boolean BOPAlgo_BOP::IsBoundSplits
-  (const TopoDS_Shape& aS,
-   BOPCol_IndexedDataMapOfShapeListOfShape& aMEF)
-{
-  Standard_Boolean bRet = Standard_False;
-  if (mySplits.IsBound(aS) || myOrigins.IsBound(aS)) {
-    return !bRet;
-  }
-
-  BOPCol_ListIteratorOfListOfShape aIt;
-  Standard_Integer aNbLS;
-  TopAbs_Orientation anOr;
-  //
-  //check face aF may be connected to face from mySplits
-  TopExp_Explorer aExp(aS, TopAbs_EDGE);
-  for (; aExp.More(); aExp.Next()) {
-    const TopoDS_Edge& aE = (*(TopoDS_Edge*)(&aExp.Current()));
-    //
-    anOr = aE.Orientation();
-    if (anOr==TopAbs_INTERNAL) {
-      continue;
-    }
-    //
-    if (BRep_Tool::Degenerated(aE)) {
-      continue;
-    }
-    //
-    const BOPCol_ListOfShape& aLS=aMEF.FindFromKey(aE);
-    aNbLS = aLS.Extent();
-    if (!aNbLS) {
-      continue;
-    }
-    //
-    aIt.Initialize(aLS);
-    for (; aIt.More(); aIt.Next()) {
-      const TopoDS_Shape& aSx = aIt.Value();
-      if (mySplits.IsBound(aSx) || myOrigins.IsBound(aS)) {
-        return !bRet;
-      }
-    }
-  }
-  //
-  return bRet;
 }
 //=======================================================================
 //function : TypeToExplore

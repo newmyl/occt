@@ -1453,3 +1453,8 @@ The following public method has been removed:
 
 The methods BuildPCurveForEdgeOnPlane and BuildPCurveForEdgesOnPlane have been moved from the class BOPTools_AlgoTools2D
 to the more lower level class BRepLib.
+
+@subsection upgrade_721_removed Removed features
+
+The following obsolete features have been removed:
+* The method *BOPAlgo_Builder::Splits()* has been removed as excessive. The method *BOPAlgo_Builder::Images()* can be used instead.

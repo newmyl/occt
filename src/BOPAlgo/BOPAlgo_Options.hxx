@@ -32,10 +32,6 @@ class Message_ProgressIndicator;
 //!                       touching or coinciding cases;
 //! - *Progress indicator* - provides interface to track the progress of
 //!                          operation and stop the operation by user's break.
-//! - *Disabling the check for inverted solids* - Disables/Enables the check of the input solids
-//!                          for inverted status (holes in the space). The default value is TRUE,
-//!                          i.e. the check is performed. Setting this flag to FALSE for inverted solids,
-//!                          most likely will lead to incorrect results.
 //! - *Using the Oriented Bounding Boxes* - Allows using the Oriented Bounding Boxes of the shapes
 //!                          for filtering the intersections.
 //!
@@ -163,22 +159,6 @@ public:
   Standard_EXPORT void SetProgressIndicator(const Handle(Message_ProgressIndicator)& theObj);
 
 public:
-  //!@name Check input solids for inverted status
-
-  //! Enables/Disables the check of the input solids for inverted status
-  void SetCheckInverted(const Standard_Boolean theCheck)
-  {
-    myCheckInverted = theCheck;
-  }
-
-  //! Returns the flag defining whether the check for input solids on inverted status
-  //! should be performed or not.
-  Standard_Boolean CheckInverted() const
-  {
-    return myCheckInverted;
-  }
-
-public:
   //!@name Usage of Oriented Bounding boxes
 
   //! Enables/Disables the usage of OBB
@@ -207,7 +187,6 @@ protected:
   Standard_Boolean myRunParallel;
   Standard_Real myFuzzyValue;
   Handle(Message_ProgressIndicator) myProgressIndicator;
-  Standard_Boolean myCheckInverted;
   Standard_Boolean myUseOBB;
 
 };
