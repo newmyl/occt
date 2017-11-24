@@ -830,8 +830,8 @@ Standard_Boolean Blend_Walking::CorrectExtremityOnOneRst(const Standard_Integer 
       Extrema_POnSurf NewPOnSurf2 = projonsurf.Point(imin);
       NewPoint = NewPOnSurf2.Value();
       NewPOnSurf2.Parameter(NewU, NewV);
-      Standard_Real uperiod = (AnotherSurf->IsUPeriodic())? AnotherSurf->UPeriod() : 0.;
-      Standard_Real vperiod = (AnotherSurf->IsVPeriodic())? AnotherSurf->VPeriod() : 0.;
+      Standard_Real uperiod = (AnotherSurf->IsUPeriodic222())? AnotherSurf->UPeriod() : 0.;
+      Standard_Real vperiod = (AnotherSurf->IsVPeriodic222())? AnotherSurf->VPeriod() : 0.;
       RecadreIfPeriodic(NewU, NewV, theU, theV,
                         uperiod, vperiod);
       return Standard_True;

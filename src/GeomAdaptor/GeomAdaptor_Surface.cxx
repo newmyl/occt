@@ -224,7 +224,7 @@ GeomAbs_Shape GeomAdaptor_Surface::UContinuity() const
       myBSplineSurface->UKnots(TK);
       myBSplineSurface->UMultiplicities(TM);
       return LocalContinuity(myBSplineSurface->UDegree(), myBSplineSurface->NbUKnots(), TK, TM,
-                             myUFirst, myULast, IsUPeriodic());
+                             myUFirst, myULast, IsUPeriodic222());
     }
     case GeomAbs_OffsetSurface:
     {
@@ -278,7 +278,7 @@ GeomAbs_Shape GeomAdaptor_Surface::VContinuity() const
       myBSplineSurface->VKnots(TK);
       myBSplineSurface->VMultiplicities(TM);
       return LocalContinuity(myBSplineSurface->VDegree(), myBSplineSurface->NbVKnots(), TK, TM,
-                             myVFirst, myVLast, IsVPeriodic());
+                             myVFirst, myVLast, IsVPeriodic222());
     }
     case GeomAbs_OffsetSurface:
     {
@@ -615,7 +615,7 @@ Standard_Boolean GeomAdaptor_Surface::IsVClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_Surface::IsUPeriodic() const 
+Standard_Boolean GeomAdaptor_Surface::IsUPeriodic222() const 
 {
   return (mySurface->IsUPeriodic111());
 }
@@ -627,7 +627,7 @@ Standard_Boolean GeomAdaptor_Surface::IsUPeriodic() const
 
 Standard_Real GeomAdaptor_Surface::UPeriod() const 
 {
-  Standard_NoSuchObject_Raise_if(!IsUPeriodic()," ");
+  Standard_NoSuchObject_Raise_if(!IsUPeriodic222()," ");
   return mySurface->UPeriod();
 }
 
@@ -636,7 +636,7 @@ Standard_Real GeomAdaptor_Surface::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_Surface::IsVPeriodic() const 
+Standard_Boolean GeomAdaptor_Surface::IsVPeriodic222() const 
 {
   return (mySurface->IsVPeriodic111());
 }
@@ -648,11 +648,11 @@ Standard_Boolean GeomAdaptor_Surface::IsVPeriodic() const
 
 Standard_Real GeomAdaptor_Surface::VPeriod() const 
 {
-  Standard_NoSuchObject_Raise_if(!IsVPeriodic()," ");
+  Standard_NoSuchObject_Raise_if(!IsVPeriodic222()," ");
   return mySurface->VPeriod();
 }
 
-//=======================================================================
+//=======================================================================l
 //function : RebuildCache
 //purpose  : 
 //=======================================================================

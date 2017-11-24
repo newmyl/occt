@@ -85,7 +85,7 @@ inline Standard_Boolean BRepApprox_SurfaceTool::IsVClosed(const BRepAdaptor_Surf
 
 inline Standard_Boolean BRepApprox_SurfaceTool::IsUPeriodic(const BRepAdaptor_Surface& S)
 {
-  return S.IsUPeriodic();
+  return S.IsUPeriodic222();
 }
 
 inline Standard_Real BRepApprox_SurfaceTool::UPeriod(const BRepAdaptor_Surface& S)
@@ -95,7 +95,7 @@ inline Standard_Real BRepApprox_SurfaceTool::UPeriod(const BRepAdaptor_Surface& 
 
 inline Standard_Boolean BRepApprox_SurfaceTool::IsVPeriodic(const BRepAdaptor_Surface& S)
 {
-  return S.IsVPeriodic();
+  return S.IsVPeriodic222();
 }
 
 inline Standard_Real BRepApprox_SurfaceTool::VPeriod(const BRepAdaptor_Surface& S)

@@ -490,7 +490,7 @@ gp_Pnt2d AdjustByNeighbour(const gp_Pnt2d&     theaNeighbourPoint,
   gp_Pnt2d ap1 = theaNeighbourPoint;
   gp_Pnt2d ap2 = theOriginalPoint;
 
-  if ( theGASurface->IsUPeriodic() ) {
+  if ( theGASurface->IsUPeriodic222() ) {
     Standard_Real aPeriod     = theGASurface->UPeriod();
     gp_Pnt2d aPTest = ap2;
     Standard_Real aSqDistMin = 1.e+100;
@@ -505,7 +505,7 @@ gp_Pnt2d AdjustByNeighbour(const gp_Pnt2d&     theaNeighbourPoint,
       }
     }
   }
-  if ( theGASurface->IsVPeriodic() ) {
+  if ( theGASurface->IsVPeriodic222() ) {
     Standard_Real aPeriod     = theGASurface->VPeriod();
     gp_Pnt2d aPTest = ap2;
     Standard_Real aSqDistMin = 1.e+100;
@@ -796,7 +796,7 @@ Standard_Boolean IntTools_WLineTool::
       }
       // U, V
       for(j = 0; j < 2; j++) {
-        isperiodic = (!j) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+        isperiodic = (!j) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
         if(!isperiodic){
           continue;
         }
@@ -937,7 +937,7 @@ Standard_Boolean IntTools_WLineTool::
         
 
         for(Standard_Integer parit = 0; parit < 2; parit++) {
-          Standard_Boolean isperiodic = (parit == 0) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+          Standard_Boolean isperiodic = (parit == 0) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
 
           Standard_Real aResolution = (parit == 0) ? aGASurface->UResolution(aTol) : aGASurface->VResolution(aTol);
           Standard_Real alowerboundary = (parit == 0) ? umin : vmin;
@@ -1015,7 +1015,7 @@ Standard_Boolean IntTools_WLineTool::
           //xt
         }
         else if(nbboundaries == 1) {
-          Standard_Boolean isperiodic = (bIsUBoundary) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+          Standard_Boolean isperiodic = (bIsUBoundary) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
 
           if(isperiodic) {
             Standard_Real alowerboundary = (bIsUBoundary) ? umin : vmin;
@@ -1158,7 +1158,7 @@ Standard_Boolean IntTools_WLineTool::
                 found = Standard_True;
               }
             }
-            else if ( aGASurface->IsUPeriodic() || aGASurface->IsVPeriodic() ) {
+            else if ( aGASurface->IsUPeriodic222() || aGASurface->IsVPeriodic222() ) {
               // re-compute point near boundary if shifted on a period
               ap2 = AdjustByNeighbour( ap1, anewpoint, aGASurface );
 

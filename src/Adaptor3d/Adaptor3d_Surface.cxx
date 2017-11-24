@@ -207,7 +207,7 @@ Standard_Boolean Adaptor3d_Surface::IsVClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor3d_Surface::IsUPeriodic() const 
+Standard_Boolean Adaptor3d_Surface::IsUPeriodic222() const 
 {
   throw Standard_NotImplemented("Adaptor3d_Surface::IsUPeriodic");
 }
@@ -229,7 +229,7 @@ Standard_Real Adaptor3d_Surface::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Adaptor3d_Surface::IsVPeriodic() const 
+Standard_Boolean Adaptor3d_Surface::IsVPeriodic222() const 
 {
   throw Standard_NotImplemented("Adaptor3d_Surface::IsVPeriodic");
 }

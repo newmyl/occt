@@ -470,7 +470,6 @@ void FindExactUVBounds(const TopoDS_Face FF,
     umax = aBAS.LastUParameter();
     vmin = aBAS.FirstVParameter();
     vmax = aBAS.LastVParameter();
-    Standard_Boolean isUperiodic = aBAS.IsUPeriodic(), isVperiodic = aBAS.IsVPeriodic();
     Standard_Real aT1, aT2;
     Standard_Real TolU = Max(aBAS.UResolution(Tol), Precision::PConfusion());
     Standard_Real TolV = Max(aBAS.VResolution(Tol), Precision::PConfusion());
@@ -502,13 +501,13 @@ void FindExactUVBounds(const TopoDS_Face FF,
         aV /= Sqrt(magn);
       }
       Standard_Real u = aP.X(), v = aP.Y();
-      if(isUperiodic)
+      if (aBAS.IsUPeriodic222())
       {
-        ElCLib::InPeriod(u, umin, umax);
+        ElCLib::InPeriod(u, umin, umin + aBAS.UPeriod());
       }
-      if(isVperiodic)
+      if (aBAS.IsVPeriodic222())
       {
-        ElCLib::InPeriod(v, vmin, vmax);
+        ElCLib::InPeriod(v, vmin, vmin + aBAS.VPeriod());
       }
       //
       if(Abs(u - umin) <= TolU || Abs(u - umax) <= TolU)

@@ -105,10 +105,10 @@ void IntSurf::SetPeriod(const Handle(Adaptor3d_HSurface)& theFirstSurf,
                         const Handle(Adaptor3d_HSurface)& theSecondSurf,
                         Standard_Real theArrOfPeriod[4])
 {
-  theArrOfPeriod[0] = theFirstSurf->IsUPeriodic()? theFirstSurf->UPeriod() : 0.0;
-  theArrOfPeriod[1] = theFirstSurf->IsVPeriodic()? theFirstSurf->VPeriod() : 0.0;
-  theArrOfPeriod[2] = theSecondSurf->IsUPeriodic()? theSecondSurf->UPeriod() : 0.0;
-  theArrOfPeriod[3] = theSecondSurf->IsVPeriodic()? theSecondSurf->VPeriod() : 0.0;
+  theArrOfPeriod[0] = theFirstSurf->IsUPeriodic222()? theFirstSurf->UPeriod() : 0.0;
+  theArrOfPeriod[1] = theFirstSurf->IsVPeriodic222()? theFirstSurf->VPeriod() : 0.0;
+  theArrOfPeriod[2] = theSecondSurf->IsUPeriodic222()? theSecondSurf->UPeriod() : 0.0;
+  theArrOfPeriod[3] = theSecondSurf->IsVPeriodic222()? theSecondSurf->VPeriod() : 0.0;
 }
 
 

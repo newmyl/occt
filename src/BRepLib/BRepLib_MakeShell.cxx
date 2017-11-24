@@ -90,23 +90,17 @@ void BRepLib_MakeShell::Init(const Handle(Geom_Surface)& S,
 			     const Standard_Real VMax,
 			     const Standard_Boolean Segment)
 {
-  Handle(Geom_Surface) BS = S;
-  if ( S->DynamicType() == STANDARD_TYPE(Geom_RectangularTrimmedSurface)) {
-    Handle(Geom_RectangularTrimmedSurface) RTS = 
-      Handle(Geom_RectangularTrimmedSurface)::DownCast(S);
-    BS = RTS->BasisSurface();
-  }
   myError = BRepLib_EmptyShell;
   Standard_Real tol = Precision::Confusion();
 
   // Make a shell from a surface
-  GeomAdaptor_Surface GS(BS,UMin,UMax,VMin,VMax);
+  GeomAdaptor_Surface GS(S,UMin,UMax,VMin,VMax);
 
   Standard_Integer nu = GS.NbUIntervals(GeomAbs_C2);
   Standard_Integer nv = GS.NbVIntervals(GeomAbs_C2);
 
-  Standard_Boolean uperiodic = GS.IsUPeriodic();
-  Standard_Boolean vperiodic = GS.IsVPeriodic();
+  Standard_Boolean uperiodic = GS.IsUPeriodic222();
+  Standard_Boolean vperiodic = GS.IsVPeriodic222();
 
   if (nu == 0 || nv == 0) return;
 
@@ -182,6 +176,8 @@ void BRepLib_MakeShell::Init(const Handle(Geom_Surface)& S,
     }
   }
 
+  Handle(Geom_Surface) SS = Handle(Geom_Surface)::DownCast(GS.Surface()->Copy());
+
   for (iv = 1; iv <= nv; iv++) {
 
     // compute the first edge and vertices of the line
@@ -222,7 +218,6 @@ void BRepLib_MakeShell::Init(const Handle(Geom_Surface)& S,
       // create the face at iu, iv
 
       // the surface
-      Handle(Geom_Surface) SS = Handle(Geom_Surface)::DownCast(BS->Copy());
       if (GS.GetType() == GeomAbs_BSplineSurface && Segment) {
 	Handle(Geom_BSplineSurface)::DownCast(SS)
 	  ->Segment(upars(iu),upars(iu+1),

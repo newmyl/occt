@@ -617,8 +617,8 @@ void ChFi3d_BoundSrf(GeomAdaptor_Surface& S,
   Standard_Real vv1 = vmin - Stepv;
   Standard_Real vv2 = vmax + Stepv;
   if(checknaturalbounds) {
-    if(!S.IsUPeriodic()) {uu1 = Max(uu1,u1);  uu2 = Min(uu2,u2);}
-    if(!S.IsVPeriodic()) {vv1 = Max(vv1,v1);  vv2 = Min(vv2,v2);}
+    if(!S.IsUPeriodic222()) {uu1 = Max(uu1,u1);  uu2 = Min(uu2,u2);}
+    if(!S.IsVPeriodic222()) {vv1 = Max(vv1,v1);  vv2 = Min(vv2,v2);}
   }
   S.Load(surface,uu1,uu2,vv1,vv2);
 }
@@ -3537,8 +3537,8 @@ Standard_Boolean ChFi3d_IntCS(const Handle(Adaptor3d_HSurface)& S,
       pint = Intersection.Point(i);
       Standard_Real up = pint.U();
       Standard_Real vp = pint.V();
-      if(S->IsUPeriodic()) up = ChFi3d_InPeriod(up,u1,u1+S->UPeriod(),1.e-8);
-      if(S->IsVPeriodic()) vp = ChFi3d_InPeriod(vp,v1,v1+S->VPeriod(),1.e-8);
+      if(S->IsUPeriodic222()) up = ChFi3d_InPeriod(up,u1,u1+S->UPeriod(),1.e-8);
+      if(S->IsVPeriodic222()) vp = ChFi3d_InPeriod(vp,v1,v1+S->VPeriod(),1.e-8);
       if(uf <= pint.W() && ul >= pint.W() &&
         u1 <= up && u2 >= up &&
         v1 <= vp && v2 >= vp) {
@@ -3560,8 +3560,8 @@ Standard_Boolean ChFi3d_IntCS(const Handle(Adaptor3d_HSurface)& S,
     pint = Intersection.Point(isol);
     Standard_Real up = pint.U();
     Standard_Real vp = pint.V();
-    if(S->IsUPeriodic()) up = ChFi3d_InPeriod(up,u1,u1+S->UPeriod(),1.e-8);
-    if(S->IsVPeriodic()) vp = ChFi3d_InPeriod(vp,v1,v1+S->VPeriod(),1.e-8);
+    if(S->IsUPeriodic222()) up = ChFi3d_InPeriod(up,u1,u1+S->UPeriod(),1.e-8);
+    if(S->IsVPeriodic222()) vp = ChFi3d_InPeriod(vp,v1,v1+S->VPeriod(),1.e-8);
     p2dS.SetCoord(up,vp);
     wc = pint.W();
     return Standard_True;

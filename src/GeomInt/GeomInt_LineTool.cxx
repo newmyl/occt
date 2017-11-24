@@ -475,7 +475,7 @@ Standard_Boolean GeomInt_LineTool::
       for(j=0; j<2; j++) {// exploration of coordinate U,V
 	Standard_Boolean isperiodic;
 	//
-	isperiodic = (!j) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+	isperiodic = (!j) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
 	if(!isperiodic) {
 	  continue;
 	}
@@ -602,7 +602,7 @@ Standard_Boolean GeomInt_LineTool::
 	Standard_Integer bIsFirstBoundary = Standard_False; // use if nbboundaries == 1
 	//
 	for(parit = 0; parit < 2; parit++) {
-	  Standard_Boolean isperiodic = (!parit) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+	  Standard_Boolean isperiodic = (!parit) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
 
 	  Standard_Real aResolution = (!parit) ? aGASurface->UResolution(aTol) : aGASurface->VResolution(aTol);
 	  Standard_Real alowerboundary = (!parit) ? umin : vmin;
@@ -637,7 +637,7 @@ Standard_Boolean GeomInt_LineTool::
 	  bComputeLineEnd = Standard_True;
 	}
 	else if(nbboundaries == 1) {
-	  Standard_Boolean isperiodic = (bIsUBoundary) ? aGASurface->IsUPeriodic() : aGASurface->IsVPeriodic();
+	  Standard_Boolean isperiodic = (bIsUBoundary) ? aGASurface->IsUPeriodic222() : aGASurface->IsVPeriodic222();
 
 	  if(isperiodic) {
 	    Standard_Real alowerboundary = (bIsUBoundary) ? umin : vmin;

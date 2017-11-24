@@ -1137,7 +1137,7 @@ static Standard_Integer OneShapeIsHalfSpace(const TopoDS_Shape& S1,const TopoDS_
 
 	  if( FSurf.GetType() == GeomAbs_SurfaceOfRevolution )
 	    {
-	      Standard_Boolean areBothPeriodic = ( FSurf.IsUPeriodic() && FSurf.IsVPeriodic() );
+	      Standard_Boolean areBothPeriodic = ( FSurf.IsUPeriodic222() && FSurf.IsVPeriodic222() );
 	      if( areBothPeriodic )
 		{
 		  Standard_Boolean yesU = ( Abs(FSurf.UPeriod() - M_PI) < 1.e-9 || Abs(FSurf.UPeriod() - 2*M_PI) < 1.e-9 );

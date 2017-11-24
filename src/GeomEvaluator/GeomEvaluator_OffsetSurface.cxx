@@ -61,8 +61,8 @@ static Standard_Boolean shiftPoint (const Standard_Real theUStart, const Standar
     aUMax = theAdaptor->LastUParameter();
     aVMin = theAdaptor->FirstVParameter();
     aVMax = theAdaptor->LastVParameter();
-    isUPeriodic = theAdaptor->IsUPeriodic();
-    isVPeriodic = theAdaptor->IsVPeriodic();
+    isUPeriodic = theAdaptor->IsUPeriodic222();
+    isVPeriodic = theAdaptor->IsVPeriodic222();
   }
 
   // check if either U or V is singular (normally one of them is)

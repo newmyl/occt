@@ -111,7 +111,7 @@ void Extrema_ExtPS::TreatSolution (const Extrema_POnSurf& PS,
 {
   Standard_Real U, V;
   PS.Parameter(U, V);
-  if (myS->IsUPeriodic()) {
+  if (myS->IsUPeriodic222()) {
     U = ElCLib::InPeriod(U, myuinf, myuinf + myS->UPeriod());
     
     // Handle trimmed surfaces.
@@ -120,7 +120,7 @@ void Extrema_ExtPS::TreatSolution (const Extrema_POnSurf& PS,
     if (U < myuinf - mytolu)
       U += myS->UPeriod();
   }
-  if (myS->IsVPeriodic()) {
+  if (myS->IsVPeriodic222()) {
     V = ElCLib::InPeriod(V, myvinf, myvinf + myS->VPeriod());
 
     // Handle trimmed surfaces.

@@ -117,11 +117,11 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean IsVClosed() const;
   
-  Standard_EXPORT virtual Standard_Boolean IsUPeriodic() const;
+  Standard_EXPORT virtual Standard_Boolean IsUPeriodic222() const;
   
   Standard_EXPORT virtual Standard_Real UPeriod() const;
   
-  Standard_EXPORT virtual Standard_Boolean IsVPeriodic() const;
+  Standard_EXPORT virtual Standard_Boolean IsVPeriodic222() const;
   
   Standard_EXPORT virtual Standard_Real VPeriod() const;
   

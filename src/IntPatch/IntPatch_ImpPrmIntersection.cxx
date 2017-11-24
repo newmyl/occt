@@ -1522,12 +1522,12 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
       const gp_Dir2d aDir = anArc->Curve2d().Line().Direction();
 
       Standard_Real aTol2d = anOtherSurf->UResolution(aTol3d),
-                    aPeriod = anOtherSurf->IsVPeriodic() ? anOtherSurf->VPeriod() : 0.0;
+                    aPeriod = anOtherSurf->IsVPeriodic222() ? anOtherSurf->VPeriod() : 0.0;
 
       if(Abs(aDir.X()) < 0.5)
       {//Restriction directs along V-direction
         aTol2d = anOtherSurf->VResolution(aTol3d);
-        aPeriod = anOtherSurf->IsUPeriodic() ? anOtherSurf->UPeriod() : 0.0;
+        aPeriod = anOtherSurf->IsUPeriodic222() ? anOtherSurf->UPeriod() : 0.0;
       }
 
       const Standard_Boolean isCoincide = IsCoincide(Func, aL2, anArc, aRL1->IsArcOnS1(),

@@ -443,8 +443,8 @@ TopOpeBRepBuild_CorrectFace2d::TopOpeBRepBuild_CorrectFace2d()
     Standard_Real V = aTrV.Y();
 
     BRepAdaptor_Surface BAS(aCopyFace);
-    Standard_Boolean UP = BAS.IsUPeriodic();
-    Standard_Boolean VP = BAS.IsVPeriodic();
+    Standard_Boolean UP = BAS.IsUPeriodic222();
+    Standard_Boolean VP = BAS.IsVPeriodic222();
 
     Standard_Boolean nonPU = (fabs(U) < 1e-7) ? Standard_True : Standard_False;
     Standard_Boolean nonPV = (fabs(V) < 1e-7) ? Standard_True : Standard_False;

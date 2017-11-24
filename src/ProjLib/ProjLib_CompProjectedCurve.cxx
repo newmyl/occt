@@ -745,32 +745,32 @@ void ProjLib_CompProjectedCurve::Init()
         // as initial point for aPrjPS, so we switch them
         gp_Vec2d D;
 
-        if ((mySurface->IsUPeriodic() &&
+        if ((mySurface->IsUPeriodic222() &&
             Abs(aUppBorder.X() - aLowBorder.X() - mySurface->UPeriod()) < Precision::Confusion()) ||
-            (mySurface->IsVPeriodic() && 
+            (mySurface->IsVPeriodic222() && 
             Abs(aUppBorder.Y() - aLowBorder.Y() - mySurface->VPeriod()) < Precision::Confusion()))
         {
           if((Abs(U - aLowBorder.X()) < mySurface->UResolution(Precision::PConfusion())) &&
-            mySurface->IsUPeriodic())
+            mySurface->IsUPeriodic222())
           { 
             d1(t, U, V, D, myCurve, mySurface);
             if (D.X() < 0 ) U = aUppBorder.X();
           }
           else if((Abs(U - aUppBorder.X()) < mySurface->UResolution(Precision::PConfusion())) &&
-            mySurface->IsUPeriodic())
+            mySurface->IsUPeriodic222())
           {
             d1(t, U, V, D, myCurve, mySurface);
             if (D.X() > 0) U = aLowBorder.X();
           }
 
           if((Abs(V - aLowBorder.Y()) < mySurface->VResolution(Precision::PConfusion())) && 
-            mySurface->IsVPeriodic()) 
+            mySurface->IsVPeriodic222()) 
           {
             d1(t, U, V, D, myCurve, mySurface);
             if (D.Y() < 0) V = aUppBorder.Y();
           }
           else if((Abs(V - aUppBorder.Y()) <= mySurface->VResolution(Precision::PConfusion())) &&
-            mySurface->IsVPeriodic())
+            mySurface->IsVPeriodic222())
           {
             d1(t, U, V, D, myCurve, mySurface);
             if (D.Y() > 0) V = aLowBorder.Y();
@@ -927,7 +927,7 @@ void ProjLib_CompProjectedCurve::Init()
         if (!isSplitsComputed)
         {
           Standard_Boolean isUPossible = Standard_False;
-          if (mySurface->IsUPeriodic() &&
+          if (mySurface->IsUPeriodic222() &&
              (Abs(Triple.Y() - mySurface->FirstUParameter() ) > Precision::PConfusion() &&
               Abs(Triple.Y() - mySurface->LastUParameter()  ) > Precision::PConfusion()))
           {
@@ -935,7 +935,7 @@ void ProjLib_CompProjectedCurve::Init()
           }
 
           Standard_Boolean isVPossible = Standard_False;
-          if (mySurface->IsVPeriodic() &&
+          if (mySurface->IsVPeriodic222() &&
              (Abs(Triple.Z() - mySurface->FirstVParameter() ) > Precision::PConfusion() &&
               Abs(Triple.Z() - mySurface->LastVParameter()  ) > Precision::PConfusion()))
           {
@@ -1796,12 +1796,12 @@ void ProjLib_CompProjectedCurve::UpdateTripleByTrapCriteria(gp_Pnt &thePoint) co
     return;
 
   // Restore original position in case of period jump.
-  if (mySurface->IsUPeriodic() &&
+  if (mySurface->IsUPeriodic222() &&
       Abs (Abs(U - thePoint.Y()) - mySurface->UPeriod()) < Precision::PConfusion())
   {
     U = thePoint.Y();
   }
-  if (mySurface->IsVPeriodic() &&
+  if (mySurface->IsVPeriodic222() &&
       Abs (Abs(V - thePoint.Z()) - mySurface->VPeriod()) < Precision::PConfusion())
   {
     V = thePoint.Z();
@@ -1829,12 +1829,12 @@ void BuildCurveSplits(const Handle(Adaptor3d_HCurve)   &theCurve,
                      theTolU, theTolV);
   aDS.myExtPS = &anExtPS;
 
-  if (theSurface->IsUPeriodic())
+  if (theSurface->IsUPeriodic222())
   {
     aDS.myPeriodicDir = 0;
     SplitOnDirection(aDS);
   }
-  if (theSurface->IsVPeriodic())
+  if (theSurface->IsVPeriodic222())
   {
     aDS.myPeriodicDir = 1;
     SplitOnDirection(aDS);

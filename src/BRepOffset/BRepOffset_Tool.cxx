@@ -479,7 +479,7 @@ static void BuildPCurves (const TopoDS_Edge&  E,
     break;
   }
 
-  if (AS.IsUPeriodic() || AS.IsVPeriodic()) {
+  if (AS.IsUPeriodic222() || AS.IsVPeriodic222()) {
     PutInBounds(F,E,C2d);
   }
   if (!C2d.IsNull()) {

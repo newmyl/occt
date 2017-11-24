@@ -1805,7 +1805,7 @@ Standard_Integer TopOpeBRepBuild_Builder1::IsSame2d (const TopTools_SequenceOfSh
   TopoDS_Edge aPObj  =TopoDS::Edge(aPieceObj) ;  TopoDS_Edge aPTool =TopoDS::Edge(aPieceTool);
 
   BRepAdaptor_Surface aBAS(aFObj);
-  if (!(aBAS.IsUPeriodic() || aBAS.IsVPeriodic())) return 1;
+  if (!(aBAS.IsUPeriodic222() || aBAS.IsVPeriodic222())) return 1;
 
   //we process here only fully closed edges (Vf == Vl)
   if(!BRep_Tool::IsClosed(anEdgeObj) || !BRep_Tool::IsClosed(anEdgeTool))

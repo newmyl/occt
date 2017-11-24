@@ -25,6 +25,7 @@
 #include <IntPatch_PrmPrmIntersection.hxx>
 #include <IntPatch_WLine.hxx>
 #include <IntPatch_WLineTool.hxx>
+#include <IntSurf.hxx>
 
 #include <ProjLib_ProjectOnPlane.hxx>
 #include <Geom_Plane.hxx>
@@ -476,7 +477,7 @@ static void FUN_PL_Intersection(const Handle(Adaptor3d_HSurface)& S1,
   MS2[0] = 0.5 * (S2->LastUParameter() + S2->FirstUParameter());
   MS2[1] = 0.5 * (S2->LastVParameter() + S2->FirstVParameter());
   if(T1 == GeomAbs_SurfaceOfExtrusion) isoS1isLine[0] = Standard_True;
-  else if(!S1->IsVPeriodic() && !S1->IsVClosed()) {
+  else if(!S1->IsVPeriodic222() && !S1->IsVClosed()) {
     if(T1 != GeomAbs_OffsetSurface) C1 = gs1->UIso(MS1[0]);
     else {
       const Handle(Geom_OffsetSurface) gos = Handle(Geom_OffsetSurface)::DownCast (gs1);
@@ -486,7 +487,7 @@ static void FUN_PL_Intersection(const Handle(Adaptor3d_HSurface)& S1,
     GeomAdaptor_Curve gac(C1);
     if(gac.GetType() == GeomAbs_Line) isoS1isLine[0] = Standard_True;
   }
-  if(!S1->IsUPeriodic() && !S1->IsUClosed()) {
+  if(!S1->IsUPeriodic222() && !S1->IsUClosed()) {
     if(T1 != GeomAbs_OffsetSurface) C1 = gs1->VIso(MS1[1]);
     else {
       const Handle(Geom_OffsetSurface) gos = Handle(Geom_OffsetSurface)::DownCast (gs1);
@@ -497,7 +498,7 @@ static void FUN_PL_Intersection(const Handle(Adaptor3d_HSurface)& S1,
     if(gac.GetType() == GeomAbs_Line) isoS1isLine[1] = Standard_True;
   }
   if(T2 == GeomAbs_SurfaceOfExtrusion) isoS2isLine[0] = Standard_True;
-  else if(!S2->IsVPeriodic() && !S2->IsVClosed()) {
+  else if(!S2->IsVPeriodic222() && !S2->IsVClosed()) {
     if(T2 != GeomAbs_OffsetSurface) C2 = gs2->UIso(MS2[0]);
     else {
       const Handle(Geom_OffsetSurface) gos = Handle(Geom_OffsetSurface)::DownCast (gs2);
@@ -507,7 +508,7 @@ static void FUN_PL_Intersection(const Handle(Adaptor3d_HSurface)& S1,
     GeomAdaptor_Curve gac(C2);
     if(gac.GetType() == GeomAbs_Line) isoS2isLine[0] = Standard_True;
   }
-  if(!S2->IsUPeriodic() && !S2->IsUClosed()) {
+  if(!S2->IsUPeriodic222() && !S2->IsUClosed()) {
     if(T2 != GeomAbs_OffsetSurface) C2 = gs2->VIso(MS2[1]);
     else {
       const Handle(Geom_OffsetSurface) gos = Handle(Geom_OffsetSurface)::DownCast (gs2);
@@ -533,33 +534,33 @@ static void FUN_PL_Intersection(const Handle(Adaptor3d_HSurface)& S1,
      derS1[1].IsParallel(derS2[1],Precision::Angular())) {
     iso = 1;
     FUN_GetViso(gs1,T1,S1->FirstUParameter(),S1->LastUParameter(),
-                S1->IsUClosed(),S1->IsUPeriodic(),MS1[1],C1);
+                S1->IsUClosed(),S1->IsUPeriodic222(),MS1[1],C1);
     FUN_GetViso(gs2,T2,S2->FirstUParameter(),S2->LastUParameter(),
-                S2->IsUClosed(),S2->IsUPeriodic(),MS2[1],C2);
+                S2->IsUClosed(),S2->IsUPeriodic222(),MS2[1],C2);
   }
   else if(isoS1isLine[0] && isoS2isLine[1] &&
           derS1[1].IsParallel(derS2[0],Precision::Angular())) {
     iso = 1;
     FUN_GetViso(gs1,T1,S1->FirstUParameter(),S1->LastUParameter(),
-                S1->IsUClosed(),S1->IsUPeriodic(),MS1[1],C1);
+                S1->IsUClosed(),S1->IsUPeriodic222(),MS1[1],C1);
     FUN_GetUiso(gs2,T2,S2->FirstVParameter(),S2->LastVParameter(),
-                S2->IsVClosed(),S2->IsVPeriodic(),MS2[0],C2);
+                S2->IsVClosed(),S2->IsVPeriodic222(),MS2[0],C2);
   }
   else if(isoS1isLine[1] && isoS2isLine[0] &&
           derS1[0].IsParallel(derS2[1],Precision::Angular())) {
     iso = 0;
     FUN_GetUiso(gs1,T1,S1->FirstVParameter(),S1->LastVParameter(),
-                S1->IsVClosed(),S1->IsVPeriodic(),MS1[0],C1);
+                S1->IsVClosed(),S1->IsVPeriodic222(),MS1[0],C1);
     FUN_GetViso(gs2,T2,S2->FirstUParameter(),S2->LastUParameter(),
-                S2->IsUClosed(),S2->IsUPeriodic(),MS2[1],C2);
+                S2->IsUClosed(),S2->IsUPeriodic222(),MS2[1],C2);
   }
   else if(isoS1isLine[1] && isoS2isLine[1] &&
           derS1[0].IsParallel(derS2[0],Precision::Angular())) {
     iso = 0;
     FUN_GetUiso(gs1,T1,S1->FirstVParameter(),S1->LastVParameter(),
-                S1->IsVClosed(),S1->IsVPeriodic(),MS1[0],C1);
+                S1->IsVClosed(),S1->IsVPeriodic222(),MS1[0],C1);
     FUN_GetUiso(gs2,T2,S2->FirstVParameter(),S2->LastVParameter(),
-                S2->IsVClosed(),S2->IsVPeriodic(),MS2[0],C2);
+                S2->IsVClosed(),S2->IsVPeriodic222(),MS2[0],C2);
   }
   else {
     IsOk = Standard_False;
@@ -1429,11 +1430,8 @@ void IntPatch_Intersection::GeomGeomPerfom(const Handle(Adaptor3d_HSurface)& the
     aBx1.Enlarge(Precision::PConfusion());
     aBx2.Enlarge(Precision::PConfusion());
 
-    const Standard_Real
-            anArrOfPeriod[4] = {theS1->IsUPeriodic()? theS1->UPeriod() : 0.0,
-                                theS1->IsVPeriodic()? theS1->VPeriod() : 0.0,
-                                theS2->IsUPeriodic()? theS2->UPeriod() : 0.0,
-                                theS2->IsVPeriodic()? theS2->VPeriod() : 0.0};
+    Standard_Real anArrOfPeriod[4];
+    IntSurf::SetPeriod(theS1, theS2, anArrOfPeriod);
 
     NCollection_List<gp_Pnt> aListOfCriticalPoints;
 

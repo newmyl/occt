@@ -211,11 +211,11 @@ Standard_Boolean Blend_Walking::Recadre(Blend_FuncInv& FuncInv,
     solrst(2) =  MonJalon.Parameter();
     if (OnFirst) {
       MonJalon.ParametersOnS2(solrst(3), solrst(4));
-      periodic = (surf2->IsUPeriodic() || surf2->IsVPeriodic());
+      periodic = (surf2->IsUPeriodic222() || surf2->IsVPeriodic222());
     }
     else  {
        MonJalon.ParametersOnS1(solrst(3), solrst(4));
-       periodic = (surf1->IsUPeriodic() || surf1->IsVPeriodic());
+       periodic = (surf1->IsUPeriodic222() || surf1->IsVPeriodic222());
      }
 
     // Recadrage eventuelle pour le cas periodique
@@ -226,12 +226,12 @@ Standard_Boolean Blend_Walking::Recadre(Blend_FuncInv& FuncInv,
 
       lastpt2d = thecur->Value(pmin);      
 
-      if (surf->IsUPeriodic()) {
+      if (surf->IsUPeriodic222()) {
 	uperiod =  surf->UPeriod();
 	if (solrst(3)-lastpt2d.X() >  uperiod*0.6) solrst(3) -= uperiod;
 	if (solrst(3)-lastpt2d.X() < -uperiod*0.6) solrst(3) += uperiod;
       }
-      if (surf->IsVPeriodic()) {
+      if (surf->IsVPeriodic222()) {
 	vperiod =  surf->VPeriod();
 	if (solrst(4)-lastpt2d.Y() >  vperiod*0.6) solrst(4) -= vperiod;
 	if (solrst(4)-lastpt2d.Y() < -vperiod*0.6) solrst(4) += vperiod;

@@ -168,9 +168,9 @@ inline Handle(Adaptor3d_HSurface) Adaptor3d_HSurface::VTrim
 //purpose  : 
 //=======================================================================
 
- inline Standard_Boolean Adaptor3d_HSurface::IsUPeriodic() const 
+ inline Standard_Boolean Adaptor3d_HSurface::IsUPeriodic222() const 
 {
-  return Surface().IsUPeriodic();
+  return Surface().IsUPeriodic222();
 }
 
 //=======================================================================
@@ -188,9 +188,9 @@ inline Handle(Adaptor3d_HSurface) Adaptor3d_HSurface::VTrim
 //purpose  : 
 //=======================================================================
 
- inline Standard_Boolean Adaptor3d_HSurface::IsVPeriodic() const 
+ inline Standard_Boolean Adaptor3d_HSurface::IsVPeriodic222() const 
 {
-  return Surface().IsVPeriodic();
+  return Surface().IsVPeriodic222();
 }
 
 //=======================================================================

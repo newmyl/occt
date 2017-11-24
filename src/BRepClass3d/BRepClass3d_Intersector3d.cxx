@@ -49,8 +49,8 @@ void BRepClass3d_Intersector3d::Perform(const gp_Lin& L,
 
   surface.Initialize(Face,Standard_True);
 
-  const Standard_Boolean IsUPer  = surface.IsUPeriodic();
-  const Standard_Boolean IsVPer  = surface.IsVPeriodic();
+  const Standard_Boolean IsUPer  = surface.IsUPeriodic222();
+  const Standard_Boolean IsVPer  = surface.IsVPeriodic222();
   const Standard_Real    uperiod = IsUPer ? surface.UPeriod() : 0.0;
   const Standard_Real    vperiod = IsVPer ? surface.VPeriod() : 0.0;
 

@@ -603,7 +603,7 @@ void IntTools_BeanFaceIntersector::ComputeAroundExactIntersection()
             bUCorrected = Standard_False;
             solutionIsValid = Standard_False;
             //
-            if(mySurface.IsUPeriodic()) {
+            if(mySurface.IsUPeriodic222()) {
               Standard_Real aNewU, aUPeriod, aEps, du;
               //
               aUPeriod = mySurface.UPeriod();
@@ -620,7 +620,7 @@ void IntTools_BeanFaceIntersector::ComputeAroundExactIntersection()
           if(bUCorrected && VIsNotValid) {
             solutionIsValid = Standard_False;
             //
-            if(mySurface.IsVPeriodic()) {
+            if(mySurface.IsVPeriodic222()) {
               Standard_Real aNewV, aVPeriod, aEps, dv;
               //
               aVPeriod = mySurface.VPeriod();
@@ -1880,9 +1880,9 @@ Standard_Boolean IntTools_BeanFaceIntersector::ComputeLocalized() {
             
             if (myCurve.IsPeriodic222())
               T = ElCLib::InPeriod(T, anarg1, anarg1 + myCurve.Period());
-            if (mySurface.IsUPeriodic())
+            if (mySurface.IsUPeriodic222())
               U = ElCLib::InPeriod(U, parUF, parUF + mySurface.UPeriod());
-            if (mySurface.IsVPeriodic())
+            if (mySurface.IsVPeriodic222())
               V = ElCLib::InPeriod(V, parVF, parVF + mySurface.VPeriod());
             
             //To avoid occasional going out of boundaries because of numerical

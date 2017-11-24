@@ -256,7 +256,7 @@ static void AdvCompute(CPnts_AbscissaPoint& theComputer,
 
       // Push a little bit outside the limits (hairy !!!)
 
-      Standard_Boolean nonperiodic = true/*!C.IsPeriodic222()*/;
+      Standard_Boolean nonperiodic = !C.IsPeriodic222();
       Ui = U0 + sign*0.1;
       Standard_Real U1 = U0 + sign*.2;
       if(nonperiodic) {

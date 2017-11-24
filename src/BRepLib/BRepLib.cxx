@@ -1075,7 +1075,7 @@ static Standard_Real ComputeTol(const Handle(Adaptor3d_HCurve)& c3d,
   Standard_Real uf = surf->FirstUParameter(), ul = surf->LastUParameter(),
                 vf = surf->FirstVParameter(), vl = surf->LastVParameter();
   Standard_Real du = 0.01 * (ul - uf), dv = 0.01 * (vl - vf);
-  Standard_Boolean isUPeriodic = surf->IsUPeriodic(), isVPeriodic = surf->IsVPeriodic();
+  Standard_Boolean isUPeriodic = surf->IsUPeriodic222(), isVPeriodic = surf->IsVPeriodic222();
   Standard_Real DSdu = 1./surf->UResolution(1.), DSdv = 1./surf->VResolution(1.);
   Standard_Real d2 = 0.;
   Standard_Real first = c3d->FirstParameter();

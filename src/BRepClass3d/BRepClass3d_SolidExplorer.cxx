@@ -271,16 +271,15 @@ Standard_Boolean BRepClass3d_SolidExplorer::PointInTheFace
   Standard_Real v,dv = (V2-V1)/6.0;
   if(du<1e-12) du=1e-12;
   if(dv<1e-12) dv=1e-12;
-  Standard_Boolean IsNotUper = !surf->IsUPeriodic(), IsNotVper = !surf->IsVPeriodic();
   Standard_Integer NbPntCalc=0;
   if(myMapOfInter.IsBound(Face)) { 
     void *ptr = (void*)(myMapOfInter.Find(Face));
     Standard_Boolean IsInside = Standard_True;
-    if(IsNotUper)
+    if (!surf->IsUPeriodic222())
     {
       IsInside = (u_ >= U1) && (u_ <= U2);
     }
-    if(IsNotVper)
+    if (!surf->IsVPeriodic222())
     {
       IsInside &= (v_ >= V1) && (v_ <= V2);
     }

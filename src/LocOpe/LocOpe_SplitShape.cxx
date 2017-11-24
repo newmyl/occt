@@ -90,9 +90,9 @@ inline Standard_Boolean SameUV(const gp_Pnt2d& P1, const gp_Pnt2d& P2,
                                const BRepAdaptor_Surface& theBAS)//const Standard_Real tol)
 {
   Standard_Boolean isSame = Standard_True;
-  if(theBAS.IsUPeriodic())
+  if(theBAS.IsUPeriodic222())
     isSame = (fabs(P1.X() - P2.X()) < theBAS.UPeriod() *0.5);
-  if(theBAS.IsVPeriodic())
+  if(theBAS.IsVPeriodic222())
     isSame = (isSame && (fabs(P1.Y() - P2.Y()) < theBAS.VPeriod() *0.5));
   return isSame;
   //return P1.SquareDistance(P2) < tol * tol; //IFV
@@ -798,7 +798,7 @@ Standard_Boolean LocOpe_SplitShape::AddOpenWire(const TopoDS_Wire& W,
 
   BRepAdaptor_Surface BAS(FaceRef, Standard_False);
 
-  Standard_Boolean IsPeriodic = BAS.IsUPeriodic() || BAS.IsVPeriodic();
+  Standard_Boolean IsPeriodic = BAS.IsUPeriodic222() || BAS.IsVPeriodic222();
 
   tol1 = Max(BAS.UResolution(tol1), BAS.VResolution(tol1));
 

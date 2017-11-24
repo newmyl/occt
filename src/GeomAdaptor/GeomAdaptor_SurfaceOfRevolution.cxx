@@ -335,7 +335,7 @@ Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsVClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsUPeriodic() const
+Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsUPeriodic222() const
 {
   return Standard_True;
 }
@@ -355,7 +355,7 @@ Standard_Real GeomAdaptor_SurfaceOfRevolution::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsVPeriodic() const
+Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsVPeriodic222() const
 {
   return myBasisCurve->IsPeriodic222();
 }

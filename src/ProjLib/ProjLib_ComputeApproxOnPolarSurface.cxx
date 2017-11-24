@@ -94,65 +94,6 @@ struct aFuncStruct
 };
 
 //=======================================================================
-//function : computePeriodicity
-//purpose  : Compute period information on adaptor.
-//=======================================================================
-static void computePeriodicity(const Handle(Adaptor3d_HSurface)& theSurf,
-                               Standard_Real &theUPeriod,
-                               Standard_Real &theVPeriod)
-{
-  theUPeriod = 0.0;
-  theVPeriod = 0.0;
-
-  // Compute once information about periodicity.
-  // Param space may be reduced in case of rectangular trimmed surface,
-  // in this case really trimmed bounds should be set as unperiodic.
-  Standard_Real aTrimF, aTrimL, aBaseF, aBaseL, aDummyF, aDummyL;
-  Handle(Geom_Surface) aS = GeomAdaptor::MakeSurface(theSurf->Surface(), Standard_False); // Not trim.
-  // U param space.
-  if (theSurf->IsUPeriodic())
-  {
-    theUPeriod = theSurf->UPeriod();
-  }
-  else if(theSurf->IsUClosed())
-  {
-    theUPeriod = theSurf->LastUParameter() - theSurf->FirstUParameter();
-  }
-  if (theUPeriod != 0.0)
-  {
-    aTrimF = theSurf->FirstUParameter(); // Trimmed first
-    aTrimL = theSurf->LastUParameter(); // Trimmed last
-    aS->Bounds(aBaseF, aBaseL, aDummyF, aDummyL); // Non-trimmed values.
-    if (Abs (aBaseF - aTrimF) + Abs (aBaseL - aTrimL) > Precision::PConfusion())
-    {
-      // Param space reduced.
-      theUPeriod = 0.0;
-    }
-  }
-
-  // V param space.
-  if (theSurf->IsVPeriodic())
-  {
-    theVPeriod = theSurf->VPeriod();
-  }
-  else if(theSurf->IsVClosed())
-  {
-    theVPeriod = theSurf->LastVParameter() - theSurf->FirstVParameter();
-  }
-  if (theVPeriod != 0.0)
-  {
-    aTrimF = theSurf->FirstVParameter(); // Trimmed first
-    aTrimL = theSurf->LastVParameter(); // Trimmed last
-    aS->Bounds(aDummyF, aDummyL, aBaseF, aBaseL); // Non-trimmed values.
-    if (Abs (aBaseF - aTrimF) + Abs (aBaseL - aTrimL) > Precision::PConfusion())
-    {
-      // Param space reduced.
-      theVPeriod = 0.0;
-    }
-  }
-}
-
-//=======================================================================
 //function : aFuncValue
 //purpose  : compute functional value in (theU,theV) point
 //=======================================================================
@@ -291,14 +232,13 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
 
   // Non-analytical case.
   Standard_Real Dist2Min = RealLast();
-  Standard_Real uperiod = theData.myPeriod[0],
-                vperiod = theData.myPeriod[1],
-                u, v;
+  const Standard_Real uperiod = theData.myPeriod[0],
+                      vperiod = theData.myPeriod[1];
 
   // U0 and V0 are the points within the initialized period.
   if(U0 < Uinf)
   {
-    if(!uperiod)
+    if(uperiod == 0.0)
       U0 = Uinf;
     else
     {
@@ -308,7 +248,7 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
   }
   if(U0 > Usup)
   {
-    if(!uperiod)
+    if (uperiod == 0.0)
       U0 = Usup;
     else
     {
@@ -318,7 +258,7 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
   }
   if(V0 < Vinf)
   {
-    if(!vperiod)
+    if(vperiod == 0.0)
       V0 = Vinf;
     else
     {
@@ -328,7 +268,7 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
   }
   if(V0 > Vsup)
   {
-    if(!vperiod)
+    if(vperiod == 0.0)
       V0 = Vsup;
     else
     {
@@ -371,6 +311,7 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
   locext.Perform(p, U0, V0);
   if (locext.IsDone()) 
   {
+    Standard_Real u, v;
     locext.Point().Parameter(u, v);
     Dist2Min = anOrthogSqValue(p, theData.mySurf, u, v);
     if (Dist2Min < theData.mySqProjOrtTol && // Point is projection.
@@ -395,6 +336,7 @@ static gp_Pnt2d Function_Value(const Standard_Real theU,
         GoodValue = i;
       }
     }
+    Standard_Real u, v;
     ext.Point(GoodValue).Parameter(u, v);
     Dist2Min = anOrthogSqValue(p, theData.mySurf, u, v);
     if (Dist2Min < theData.mySqProjOrtTol && // Point is projection.
@@ -429,7 +371,8 @@ class ProjLib_PolarFunction : public AppCont_Function
     myNbPnt = 0;
     myNbPnt2d = 1;
 
-    computePeriodicity(Surf, myStruct.myPeriod[0], myStruct.myPeriod[1]);
+    myStruct.myPeriod[0] = (Surf->IsUPeriodic222() && Surf->IsUClosed()) ? Surf->UPeriod() : 0.0;
+    myStruct.myPeriod[1] = (Surf->IsVPeriodic222() && Surf->IsVClosed()) ? Surf->VPeriod() : 0.0;
 
     myStruct.myCurve = C;
     myStruct.myInitCurve2d = InitialCurve2d;
@@ -848,8 +791,9 @@ Handle(Geom2d_BSplineCurve) ProjLib_ComputeApproxOnPolarSurface::Perform
 	}
       }
 
-      Standard_Real anUPeriod, anVPeriod;
-      computePeriodicity(S, anUPeriod, anVPeriod);
+      const Standard_Real anUPeriod = (S->IsUPeriodic222() && S->IsUClosed()) ? S->UPeriod() : 0.0;
+      const Standard_Real anVPeriod = (S->IsVPeriodic222() && S->IsVClosed()) ? S->VPeriod() : 0.0;
+
       Standard_Integer NbC = LOfBSpline2d.Extent();
       Handle(Geom2d_BSplineCurve) CurBS;
       CurBS = Handle(Geom2d_BSplineCurve)::DownCast(LOfBSpline2d.First());
@@ -917,8 +861,8 @@ Handle(Adaptor2d_HCurve2d)
     DistTol3d = myMaxDist;
   }
   Standard_Real DistTol3d2 = DistTol3d * DistTol3d;
-  Standard_Real uperiod = 0.0, vperiod = 0.0;
-  computePeriodicity(Surf, uperiod, vperiod);
+  const Standard_Real uperiod = (Surf->IsUPeriodic222() && Surf->IsUClosed()) ? Surf->UPeriod() : 0.0;
+  const Standard_Real vperiod = (Surf->IsVPeriodic222() && Surf->IsVClosed()) ? Surf->VPeriod() : 0.0;
 
   // NO myTol is Tol2d !!!!
   //Standard_Real TolU = myTolerance, TolV = myTolerance;

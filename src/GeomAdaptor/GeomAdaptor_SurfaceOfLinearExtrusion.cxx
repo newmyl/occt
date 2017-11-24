@@ -242,7 +242,7 @@ Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsVClosed() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsUPeriodic() const 
+Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsUPeriodic222() const 
 {
   return myBasisCurve->IsPeriodic222();
 }
@@ -262,7 +262,7 @@ Standard_Real GeomAdaptor_SurfaceOfLinearExtrusion::UPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsVPeriodic() const 
+Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsVPeriodic222() const 
 {
   return Standard_False;
 }

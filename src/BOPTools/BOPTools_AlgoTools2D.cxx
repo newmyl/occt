@@ -319,7 +319,7 @@ void BOPTools_AlgoTools2D::AdjustPCurveOnSurf
   //
   // du
   du = 0.;
-  if (aBAS.IsUPeriodic()) {
+  if (aBAS.IsUPeriodic222()) {
     aUPeriod = aBAS.UPeriod(); 
     
     //
@@ -356,7 +356,7 @@ void BOPTools_AlgoTools2D::AdjustPCurveOnSurf
   
   // dv
   dv = 0.;
-  if (aBAS.IsVPeriodic()) {
+  if (aBAS.IsVPeriodic222()) {
     Standard_Real aVPeriod, aVm, aVr, aVmid, dVm, dVr;
     //
     aVPeriod = aBAS.VPeriod();
@@ -384,7 +384,7 @@ void BOPTools_AlgoTools2D::AdjustPCurveOnSurf
     Standard_Real u,v;
     u = u2 + du;
     v = v2 + dv;
-    if (aBAS.IsUPeriodic()) {
+    if (aBAS.IsUPeriodic222()) {
       aUPeriod = aBAS.UPeriod(); 
       if ((UMax - UMin - 2*aDelta) > aUPeriod) {
         if ((u > (UMin + aDelta + aUPeriod)) ||
@@ -400,7 +400,7 @@ void BOPTools_AlgoTools2D::AdjustPCurveOnSurf
     }
     //
     u = u2 + du;
-    if (aBAS.IsVPeriodic()) {
+    if (aBAS.IsVPeriodic222()) {
       Standard_Real aVPeriod = aBAS.VPeriod(); 
       if ((VMax - VMin - 2*aDelta) > aVPeriod) {
         if ((v > (VMin + aDelta + aVPeriod)) ||

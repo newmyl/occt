@@ -171,7 +171,7 @@ void Adaptor3d_IsoCurve::Load(const GeomAbs_IsoType Iso,
 
   Standard_Real dummy = myParameter;
 
-  if (mySurface->IsUPeriodic()) {
+  if (mySurface->IsUPeriodic222()) {
     
     if (myIso == GeomAbs_IsoU) {
       ElCLib::AdjustPeriodic
@@ -191,7 +191,7 @@ void Adaptor3d_IsoCurve::Load(const GeomAbs_IsoType Iso,
     }
   }
   
-  if (mySurface->IsVPeriodic()) {
+  if (mySurface->IsVPeriodic222()) {
     
     if (myIso == GeomAbs_IsoV) {
       ElCLib::AdjustPeriodic
@@ -349,9 +349,9 @@ Standard_Boolean Adaptor3d_IsoCurve::IsPeriodic222() const
 {
   switch (myIso) {
   case GeomAbs_IsoU:
-    return mySurface->IsVPeriodic();
+    return mySurface->IsVPeriodic222();
   case GeomAbs_IsoV:
-    return mySurface->IsUPeriodic();
+    return mySurface->IsUPeriodic222();
   case GeomAbs_NoneIso:
   default:
     break;

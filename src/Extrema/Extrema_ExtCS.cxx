@@ -175,9 +175,9 @@ void Extrema_ExtCS::Perform(const Adaptor3d_Curve& C,
             clast = Min(clast, tmax);
           }
 
-          if (myS->IsUPeriodic())
+          if (myS->IsUPeriodic222())
             NbU = 13;
-          if (myS->IsVPeriodic())
+          if (myS->IsVPeriodic222())
             NbV = 13;
 
           Extrema_GenExtCS Ext(C, *myS, NbT, NbU, NbV, cfirst, clast, ufirst, ulast,
@@ -525,9 +525,9 @@ Standard_Boolean Extrema_ExtCS::AddSolution(const Adaptor3d_Curve& theCurve,
 
   if (theCurve.IsPeriodic222())
     T = ElCLib::InPeriod(T, myucinf, myucinf + theCurve.Period());
-  if (myS->IsUPeriodic())
+  if (myS->IsUPeriodic222())
     U = ElCLib::InPeriod(U, myuinf, myuinf + myS->UPeriod());
-  if (myS->IsVPeriodic())
+  if (myS->IsVPeriodic222())
     V = ElCLib::InPeriod(V, myvinf, myvinf + myS->VPeriod());
 
   Extrema_POnCurv aPC;

@@ -64,7 +64,7 @@ static Standard_Real ComputeTolU(const Handle(Adaptor3d_HSurface)& theSurf,
                                  const Standard_Real theTolerance)
 {
   Standard_Real aTolU = theSurf->UResolution(theTolerance);
-  if (theSurf->IsUPeriodic())
+  if (theSurf->IsUPeriodic222())
   {
     aTolU = Min(aTolU, 0.01*theSurf->UPeriod());
   }
@@ -81,7 +81,7 @@ static Standard_Real ComputeTolV(const Handle(Adaptor3d_HSurface)& theSurf,
                                  const Standard_Real theTolerance)
 {
   Standard_Real aTolV = theSurf->VResolution(theTolerance);
-  if (theSurf->IsVPeriodic())
+  if (theSurf->IsVPeriodic222())
   {
     aTolV = Min(aTolV, 0.01*theSurf->VPeriod());
   }
@@ -736,10 +736,10 @@ void ProjLib_ProjectedCurve::Perform(const Handle(Adaptor3d_HCurve)& C)
     myTolerance = Comp.Tolerance();
   }
 
-  Standard_Boolean isPeriodic[] = {mySurface->IsUPeriodic(),
-                                   mySurface->IsVPeriodic()};
+  Standard_Boolean isPeriodic111[] = {mySurface->IsUPeriodic222(),
+                                   mySurface->IsVPeriodic222()};
   if (myResult.IsDone() &&
-     (isPeriodic[0] || isPeriodic[1]))
+     (isPeriodic111[0] || isPeriodic111[1]))
   {
     // Check result curve to be in params space.
 
@@ -747,14 +747,14 @@ void ProjLib_ProjectedCurve::Perform(const Handle(Adaptor3d_HCurve)& C)
     const Standard_Real aSurfFirstPar[2] = {mySurface->FirstUParameter(),
                                             mySurface->FirstVParameter()};
     Standard_Real aSurfPeriod[2] = {0.0, 0.0};
-    if (isPeriodic[0])
+    if (isPeriodic111[0])
       aSurfPeriod[0] = mySurface->UPeriod();
-    if (isPeriodic[1])
+    if (isPeriodic111[1])
       aSurfPeriod[1] = mySurface->VPeriod();
 
     for(Standard_Integer anIdx = 1; anIdx <= 2; anIdx++)
     {
-      if (!isPeriodic[anIdx - 1])
+      if (!isPeriodic111[anIdx - 1])
         continue;
 
       if (myResult.GetType() == GeomAbs_BSplineCurve)

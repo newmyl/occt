@@ -939,7 +939,7 @@ Handle(Geom2d_Curve) TopOpeBRepTool_CurveTool::MakePCurveOnFace
   }
 
   Standard_Real du = 0.;
-  if (BAHS->IsUPeriodic()) {
+  if (BAHS->IsUPeriodic222()) {
     //modified by NIZHNY-MZV  Thu Mar 30 10:03:15 2000
     Standard_Boolean mincond = (UMin - u2 > 1e-7) ? Standard_True : Standard_False;
     Standard_Boolean maxcond = (u2 - UMax > 1e-7) ? Standard_True : Standard_False;
@@ -949,7 +949,7 @@ Handle(Geom2d_Curve) TopOpeBRepTool_CurveTool::MakePCurveOnFace
     //if (decalu) du = ( u2 < UMin ) ? BAHS->UPeriod() : -BAHS->UPeriod();
   }
   Standard_Real dv = 0.;
-  if (BAHS->IsVPeriodic()) {
+  if (BAHS->IsVPeriodic222()) {
     //modified by NIZHNY-MZV  Thu Mar 30 10:06:24 2000
     Standard_Boolean mincond = (VMin - v2 > 1e-7) ? Standard_True : Standard_False;
     Standard_Boolean maxcond = (v2 - VMax > 1e-7) ? Standard_True : Standard_False;

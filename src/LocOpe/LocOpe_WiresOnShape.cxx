@@ -615,14 +615,17 @@ Standard_Boolean Project(const TopoDS_Vertex& V,
       gp_Pnt2d aPcur = p2d;
       Standard_Real dumin = Abs(aPcur.X() - aPBound2d.X());
       Standard_Real dvmin = Abs(aPcur.Y() - aPBound2d.Y());
-      if (dumin > dumax && adSurf.IsUPeriodic())
+      if (dumin > dumax && adSurf.IsUPeriodic222())
       {
         Standard_Real aX1 = aPBound2d.X();
-        Standard_Real aShift = ShapeAnalysis::AdjustToPeriod(aX1, adSurf.FirstUParameter(), adSurf.LastUParameter());
+        Standard_Real aShift = 
+          ShapeAnalysis::AdjustToPeriod(aX1, adSurf.FirstUParameter(),
+                                        adSurf.FirstUParameter() + adSurf.UPeriod());
         aX1 += aShift;
         aPBound2d.SetX(aX1);
         Standard_Real aX2 = p2d.X();
-        aShift = ShapeAnalysis::AdjustToPeriod(aX2, adSurf.FirstUParameter(), adSurf.LastUParameter());
+        aShift = ShapeAnalysis::AdjustToPeriod(aX2, adSurf.FirstUParameter(),
+                                               adSurf.FirstUParameter() + adSurf.UPeriod());
         aX2 += aShift;
         dumin = Abs(aX2 - aX1);
         if (dumin > dumax &&  (Abs(dumin - adSurf.UPeriod()) < Precision::PConfusion()) )
@@ -634,14 +637,17 @@ Standard_Boolean Project(const TopoDS_Vertex& V,
 
       }
 
-      if (dvmin > dvmax && adSurf.IsVPeriodic())
+      if (dvmin > dvmax && adSurf.IsVPeriodic222())
       {
         Standard_Real aY1 = aPBound2d.Y();
-        Standard_Real aShift = ShapeAnalysis::AdjustToPeriod(aY1, adSurf.FirstVParameter(), adSurf.LastVParameter());
+        Standard_Real aShift = 
+          ShapeAnalysis::AdjustToPeriod(aY1, adSurf.FirstVParameter(),
+                                        adSurf.FirstUParameter() + adSurf.VPeriod());
         aY1 += aShift;
         aPBound2d.SetY(aY1);
         Standard_Real aY2 = p2d.Y();
-        aShift = ShapeAnalysis::AdjustToPeriod(aY2, adSurf.FirstVParameter(), adSurf.LastVParameter());
+        aShift = ShapeAnalysis::AdjustToPeriod(aY2, adSurf.FirstVParameter(),
+                                               adSurf.FirstUParameter() + adSurf.VPeriod());
         aY2 += aShift;
         dvmin = Abs(aY1 - aY2);
         if (dvmin > dvmax && ( Abs(dvmin - adSurf.VPeriod()) < Precision::Confusion()) )

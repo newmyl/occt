@@ -1002,90 +1002,9 @@ void IntPatch_RstInt::PutVertexOnLine (const Handle(IntPatch_Line)& L,
   //-- On reprend la ligne et on recale les parametres des vertex.
   //-- 
   if (typL == IntPatch_Walking) {
-    Standard_Real pu1,pv1,pu2,pv2;
-    pu1=pv1=pu2=pv2=0.0;
-    switch(TypeS1) { 
-    case GeomAbs_Cylinder:
-    case GeomAbs_Cone:
-    case GeomAbs_Sphere:
-      pu1=M_PI+M_PI;
-      break;
-    case GeomAbs_Torus:
-      pu1=pv1=M_PI+M_PI;
-      break;
-    default:
-      {
-	if(   Surf1->IsUPeriodic())  {
-	  pu1=Surf1->UPeriod();
-	}
-	else if(Surf1->IsUClosed()) { 
-	  pu1=Surf1->LastUParameter() - Surf1->FirstUParameter();
-	  //cout<<" UClosed1 "<<pu1<<endl;
-	}
-	if(   Surf1->IsVPeriodic()) {
-	  pv1=Surf1->VPeriod();
-	}
-	else if(Surf1->IsVClosed()) { 
-	  pv1=Surf1->LastVParameter() - Surf1->FirstVParameter();
-	  //cout<<" VClosed1 "<<pv1<<endl;
-	}
-
-	break;
-      }      
-    }
-    
-    switch(TypeS2) { 
-    case GeomAbs_Cylinder:
-    case GeomAbs_Cone:
-    case GeomAbs_Sphere:
-
-      pu2=M_PI+M_PI;
-      break;
-    case GeomAbs_Torus:
-      pu2=pv2=M_PI+M_PI;
-      break;
-    default:
-      { 
-	if(   Surf2->IsUPeriodic()) {  
-	  pu2=Surf2->UPeriod(); 
-	}
-	else if(Surf2->IsUClosed()) { 
-	  pu2=Surf2->LastUParameter() - Surf2->FirstUParameter();
-	  //cout<<" UClosed2 "<<pu2<<endl;
-	}
-
-	if(   Surf2->IsVPeriodic())  {
-	  pv2=Surf2->VPeriod();
-	}
-	else if(Surf2->IsVClosed()) { 
-	  pv2=Surf2->LastVParameter() - Surf2->FirstVParameter();
-	  //cout<<" VClosed2 "<<pv2<<endl;
-	}
-
-	break;
-      }
-    }
-
-/*
-    if(pu1==0) { 
-      pu1=Surf1->LastUParameter() - Surf1->FirstUParameter();
-      pu1+=pu1;
-    }
-    if(pu2==0) { 
-      pu2=Surf2->LastUParameter() - Surf2->FirstUParameter();
-      pu2+=pu2;
-    }
-    if(pv1==0) { 
-      pv1=Surf1->LastVParameter() - Surf1->FirstVParameter();
-      pv1+=pv1;
-    }
-    if(pv2==0) { 
-      pv2=Surf2->LastVParameter() - Surf2->FirstVParameter();
-      pv2+=pv2;
-    } 
-*/
-
-    wlin->SetPeriod(pu1,pv1,pu2,pv2);
+    Standard_Real aPeriods[4];
+    IntSurf::SetPeriod(Surf1, Surf2, aPeriods);
+    wlin->SetPeriod(aPeriods[0], aPeriods[1], aPeriods[2], aPeriods[3]);
     wlin->ComputeVertexParameters(Tol);
   }
   else {

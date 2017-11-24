@@ -121,9 +121,9 @@ inline Standard_Boolean  BRepAdaptor_Surface::IsVClosed()const
 //purpose  : 
 //=======================================================================
 
-inline Standard_Boolean  BRepAdaptor_Surface::IsUPeriodic()const 
+inline Standard_Boolean  BRepAdaptor_Surface::IsUPeriodic222()const 
 {
-  return mySurf.IsUPeriodic();
+  return mySurf.IsUPeriodic222();
 }
 
 //=======================================================================
@@ -141,9 +141,9 @@ inline Standard_Real  BRepAdaptor_Surface::UPeriod()const
 //purpose  : 
 //=======================================================================
 
-inline Standard_Boolean  BRepAdaptor_Surface::IsVPeriodic()const 
+inline Standard_Boolean  BRepAdaptor_Surface::IsVPeriodic222()const 
 {
-  return mySurf.IsVPeriodic();
+  return mySurf.IsVPeriodic222();
 }
 
 //=======================================================================

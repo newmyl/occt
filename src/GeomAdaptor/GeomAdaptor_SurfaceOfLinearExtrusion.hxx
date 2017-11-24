@@ -116,11 +116,11 @@ public:
   
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsUPeriodic222() const Standard_OVERRIDE;
   
   Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsVPeriodic222() const Standard_OVERRIDE;
   
   Standard_EXPORT Standard_Real VPeriod() const Standard_OVERRIDE;
 

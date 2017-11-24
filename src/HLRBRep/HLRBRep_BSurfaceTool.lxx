@@ -156,7 +156,7 @@ HLRBRep_BSurfaceTool::IsVClosed(const BRepAdaptor_Surface& S)
 
 inline Standard_Boolean
 HLRBRep_BSurfaceTool::IsUPeriodic(const BRepAdaptor_Surface& S)
-{ return S.IsUPeriodic(); }
+{ return S.IsUPeriodic222(); }
 
 //=======================================================================
 //function : UPeriod
@@ -174,7 +174,7 @@ HLRBRep_BSurfaceTool::UPeriod(const BRepAdaptor_Surface& S)
 
 inline Standard_Boolean
 HLRBRep_BSurfaceTool::IsVPeriodic(const BRepAdaptor_Surface& S)
-{ return S.IsVPeriodic(); }
+{ return S.IsVPeriodic222(); }
 
 //=======================================================================
 //function : VPeriod
