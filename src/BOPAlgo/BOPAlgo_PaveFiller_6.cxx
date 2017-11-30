@@ -526,7 +526,7 @@ void BOPAlgo_PaveFiller::MakeBlocks()
         aPB->Indices(nV1, nV2);
         aPB->Range  (aT1, aT2);
         //
-        if (fabs(aT1 - aT2) < Precision::PConfusion()) {
+        if (fabs(aT1 - aT2) < Precision::Confusion()) {
           continue;
         }
         //
