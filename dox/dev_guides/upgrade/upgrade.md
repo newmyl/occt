@@ -1458,3 +1458,9 @@ to the more lower level class BRepLib.
 
 The following obsolete features have been removed:
 * The method *BOPAlgo_Builder::Splits()* has been removed as excessive. The method *BOPAlgo_Builder::Images()* can be used instead.
+
+@section upgrade_occt730 Upgrade to OCCT 7.3.0
+
+@subsection upgrade_730_BOPAlgo_Section Changes in BOPAlgo_Section
+
+The public method *BuildSection()* in the class *BOPAlgo_Section* has became protected. The methods *Perform()* or *PerformWithFiller()* should be called for construction of the result of SECTION operation.
