@@ -72,7 +72,7 @@ ShapeUpgrade_SplitCurve2d::ShapeUpgrade_SplitCurve2d()
   if(aCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve))) 
     aCurve=Handle(Geom2d_TrimmedCurve)::DownCast(aCurve)->BasisCurve();
   // 15.11.2002 PTV OCC966
-  if(!ShapeAnalysis_Curve::IsPeriodic(C)) {
+  if(!C->IsPeriodic111()) {
     Standard_Real fP = aCurve->FirstParameter();
     Standard_Real lP  = aCurve->LastParameter();
     if(Abs(firstPar-fP) < precision)

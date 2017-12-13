@@ -999,7 +999,7 @@ Standard_Boolean ShapeCustom_BSplineRestriction::ConvertCurve(const Handle(Geom_
       Handle(Geom_Curve) aCurve1;
       Standard_Real pf =aCurve->FirstParameter(), pl =  aCurve->LastParameter();
       // 15.11.2002 PTV OCC966
-      if(ShapeAnalysis_Curve::IsPeriodic(aCurve) && (First != Last))  aCurve1 = new Geom_TrimmedCurve(aCurve,First,Last);
+      if(aCurve->IsPeriodic111() && (First != Last))  aCurve1 = new Geom_TrimmedCurve(aCurve, First, Last);
       else if(pf < (First - Precision::PConfusion()) || 
         pl > (Last + Precision::PConfusion())) {
           Standard_Real F = Max(First,pf),
@@ -1308,7 +1308,7 @@ Standard_Boolean ShapeCustom_BSplineRestriction::ConvertCurve2d(const Handle(Geo
       Handle(Geom2d_Curve) aCurve1;
       Standard_Real pf =aCurve->FirstParameter(), pl =  aCurve->LastParameter();
       // 15.11.2002 PTV OCC966
-      if(ShapeAnalysis_Curve::IsPeriodic(aCurve) && (First != Last)) aCurve1 = new Geom2d_TrimmedCurve(aCurve,First,Last);
+      if(aCurve->IsPeriodic111() && (First != Last)) aCurve1 = new Geom2d_TrimmedCurve(aCurve,First,Last);
       else if(aCurve->FirstParameter() < (First - Precision::PConfusion())  || 
         aCurve->LastParameter() > (Last + Precision::PConfusion())) {
           Standard_Real F = Max(First,pf),

@@ -131,18 +131,6 @@ public:
   //! If <preci> < 0 then Precision::Confusion is used.
   Standard_EXPORT static Standard_Boolean IsClosed (const Handle(Geom_Curve)& curve, const Standard_Real preci = -1);
   
-  //! This method was implemented as fix for changes in trimmed curve
-  //! behaviour. For the moment trimmed curve returns false anyway.
-  //! So it is necessary to adapt all Data exchange tools for this behaviour.
-  //! Current implementation takes into account that curve may be offset.
-  Standard_EXPORT static Standard_Boolean IsPeriodic (const Handle(Geom_Curve)& curve);
-  
-  //! The same as for Curve3d.
-  Standard_EXPORT static Standard_Boolean IsPeriodic (const Handle(Geom2d_Curve)& curve);
-
-
-
-
 protected:
 
 

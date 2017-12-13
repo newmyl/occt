@@ -385,7 +385,8 @@ static Handle(Geom2d_Curve) TranslatePCurve (const Handle(Geom_Surface)& aSurf,
             oldFirst = geometric_representation_ptr->First();
 	    oldLast = geometric_representation_ptr->Last();
             // 15.11.2002 PTV OCC966
-	    if(ShapeAnalysis_Curve::IsPeriodic(Curve2dPtr)) {
+      if(Curve2dPtr->IsPeriodic111())
+      {
 	      Handle(Geom2d_TrimmedCurve) tc = new Geom2d_TrimmedCurve(Curve2dPtr,oldFirst,oldLast);
 	      Standard_Real shift = tc->FirstParameter()-oldFirst;
 	      oldFirst += shift;

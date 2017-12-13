@@ -71,7 +71,7 @@ ShapeUpgrade_SplitCurve3d::ShapeUpgrade_SplitCurve3d()
   if(aCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) 
     aCurve=Handle(Geom_TrimmedCurve)::DownCast(aCurve)->BasisCurve();
   // 15.11.2002 PTV OCC966
-  if(!ShapeAnalysis_Curve::IsPeriodic(C)) {
+  if(!C->IsPeriodic111()) {
     Standard_Real fP = aCurve->FirstParameter();
     Standard_Real lP  = aCurve->LastParameter();
     if(Abs(firstPar-fP) < precision)
@@ -156,7 +156,7 @@ ShapeUpgrade_SplitCurve3d::ShapeUpgrade_SplitCurve3d()
   
   //pdn fix on BuildCurve 3d
   // 15.11.2002 PTV OCC966
-  if(!ShapeAnalysis_Curve::IsPeriodic(myCurve)) {
+  if(!myCurve->IsPeriodic111()) {
     //pdn exceptons only on non periodic curves
     Standard_Real precision = Precision::PConfusion();
     Standard_Real firstPar = myCurve->FirstParameter();
