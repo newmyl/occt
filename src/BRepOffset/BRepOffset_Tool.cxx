@@ -1496,43 +1496,29 @@ void BRepOffset_Tool::Inter3D(const TopoDS_Face& F1,
 	  continue;
         
         Standard_Real f, l;
-	const Handle(Geom_Curve)& aC3DE = BRep_Tool::Curve(anEdge, f, l);
-	Handle(Geom_TrimmedCurve) aC3DETrim;
-	    
-	if(!aC3DE.IsNull()) 
-            aC3DETrim = new Geom_TrimmedCurve(aC3DE, f, l);
-        
+        const Handle(Geom_Curve)& aC3DE = BRep_Tool::Curve(anEdge, f, l);
+
 	Standard_Real aTolEdge = BRep_Tool::Tolerance(anEdge);
 	        
         if (!BOPTools_AlgoTools2D::HasCurveOnSurface(anEdge, F1)) {
           Handle(Geom2d_Curve) aC2d = aBC.Curve().FirstCurve2d();
-          if(!aC3DETrim.IsNull()) {
-		Handle(Geom2d_Curve) aC2dNew;
-		
-		if(aC3DE->IsPeriodic111()) {
+          if (!aC3DE.IsNull())
+          {
+            Handle(Geom2d_Curve) aC2dNew;
                   BOPTools_AlgoTools2D::AdjustPCurveOnFace(F1, f, l,  aC2d, aC2dNew, aContext);
-		  }
-		else {
-                  BOPTools_AlgoTools2D::AdjustPCurveOnFace(F1, aC3DETrim, aC2d, aC2dNew, aContext); 
-		  }
-		aC2d = aC2dNew;
-	      }
+            aC2d = aC2dNew;
+          }
 	      BB.UpdateEdge(anEdge, aC2d, F1, aTolEdge);
         }
         
         if (!BOPTools_AlgoTools2D::HasCurveOnSurface(anEdge, F2)) {
           Handle(Geom2d_Curve) aC2d = aBC.Curve().SecondCurve2d();
-          if(!aC3DETrim.IsNull()) {
-		Handle(Geom2d_Curve) aC2dNew;
-		
-		if(aC3DE->IsPeriodic111()) {
+          if (!aC3DE.IsNull())
+          {
+            Handle(Geom2d_Curve) aC2dNew;
                   BOPTools_AlgoTools2D::AdjustPCurveOnFace(F2, f, l,  aC2d, aC2dNew, aContext);
-		  }
-		else {
-                  BOPTools_AlgoTools2D::AdjustPCurveOnFace(F2, aC3DETrim, aC2d, aC2dNew, aContext); 
-		  }
-		aC2d = aC2dNew;
-	      }
+            aC2d = aC2dNew;
+          }
 	      BB.UpdateEdge(anEdge, aC2d, F2, aTolEdge);
         }
          
