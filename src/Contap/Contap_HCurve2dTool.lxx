@@ -59,10 +59,6 @@ inline Standard_Boolean Contap_HCurve2dTool::IsClosed(const Handle(Adaptor2d_HCu
   return(C->IsClosed());
 }
 //============================================================
-inline Standard_Boolean Contap_HCurve2dTool::IsPeriodic(const Handle(Adaptor2d_HCurve2d)& C) {
-  return(C->IsPeriodic222());
-}
-//============================================================
 inline Standard_Real Contap_HCurve2dTool::Period(const Handle(Adaptor2d_HCurve2d)& C) {
   return(C->Period());
 }
