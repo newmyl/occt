@@ -57,10 +57,6 @@ inline Standard_Boolean BRepBlend_HCurve2dTool::IsClosed(const Handle(Adaptor2d_
   return(C->IsClosed());
 }
 //============================================================
-inline Standard_Boolean BRepBlend_HCurve2dTool::IsPeriodic(const Handle(Adaptor2d_HCurve2d)& C) {
-  return(C->IsPeriodic222());
-}
-//============================================================
 inline Standard_Real BRepBlend_HCurve2dTool::Period(const Handle(Adaptor2d_HCurve2d)& C) {
   return(C->Period());
 }
