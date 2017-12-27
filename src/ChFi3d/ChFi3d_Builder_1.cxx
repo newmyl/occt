@@ -223,13 +223,29 @@ static TopoDS_Edge MakeOffsetEdge(const TopoDS_Edge&         theEdge,
     if (ind_end == 1 && aBAcurve.IsClosed()/*HGuide->IsPeriodic()*//*HGuide->IsClosed()*/)
       break;
     Extrema_ExtPC Projector(Ends[ind_end], GAcurve);
-    if (!Projector.IsDone() || Projector.NbExt() == 0)
-      return OffsetEdge;
+    Standard_Real param[4], dist[4];
+    gp_Pnt Pnt[4];
+    param[1] = GAcurve.FirstParameter();
+    param[2] = GAcurve.LastParameter();
+    Projector.TrimmedSquareDistances(dist[1], dist[2], Pnt[1], Pnt[2]);
+    dist[3] = RealLast();
+    if (Projector.IsDone() && Projector.NbExt() > 0)
+    {
+      Standard_Integer imin = 1;
+      for (Standard_Integer i = 2; i <= Projector.NbExt(); i++)
+        if (Projector.SquareDistance(i) < Projector.SquareDistance(imin))
+          imin = i;
+      param[3] = Projector.Point(imin).Parameter();
+      dist[3]  = Projector.SquareDistance(imin);
+      Pnt[3]   = Projector.Point(imin).Value();
+    }
+
     Standard_Integer imin = 1;
-    for (Standard_Integer iext = 2; iext <= Projector.NbExt(); iext++)
-      if (Projector.SquareDistance(iext) < Projector.SquareDistance(imin))
-        imin = iext;
-    Params[ind_end] = Projector.Point(imin).Parameter();
+    for (Standard_Integer i = 2; i <= 3; i++)
+      if (dist[i] < dist[imin])
+        imin = i;
+    
+    Params[ind_end] = param[imin]; //Projector.Point(imin).Parameter();
   }
   if (aBAcurve.IsClosed()/*HGuide->IsPeriodic()*//*HGuide->IsClosed()*/)
     Params[1] = GAcurve.LastParameter(); //temporary
