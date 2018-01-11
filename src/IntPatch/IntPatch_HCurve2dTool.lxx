@@ -59,7 +59,7 @@ inline Standard_Boolean IntPatch_HCurve2dTool::IsClosed(const Handle(Adaptor2d_H
   return(C->IsClosed());
 }
 //============================================================
-inline Standard_Boolean IntPatch_HCurve2dTool::IsPeriodic(const Handle(Adaptor2d_HCurve2d)& C) {
+inline Standard_Boolean IntPatch_HCurve2dTool::IsPeriodic555(const Handle(Adaptor2d_HCurve2d)& C) {
   return(C->IsPeriodic222());
 }
 //============================================================

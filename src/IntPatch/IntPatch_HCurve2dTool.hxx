@@ -71,7 +71,7 @@ public:
   
     static Standard_Boolean IsClosed (const Handle(Adaptor2d_HCurve2d)& C);
   
-    static Standard_Boolean IsPeriodic (const Handle(Adaptor2d_HCurve2d)& C);
+    static Standard_Boolean IsPeriodic555 (const Handle(Adaptor2d_HCurve2d)& C);
   
     static Standard_Real Period (const Handle(Adaptor2d_HCurve2d)& C);
   
