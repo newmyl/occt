@@ -91,7 +91,7 @@ inline Standard_Real Extrema_Curve2dTool::FirstParameter(const Adaptor2d_Curve2d
 //purpose  : 
 //=======================================================================
 
- inline Standard_Boolean Extrema_Curve2dTool::IsPeriodic(const Adaptor2d_Curve2d& C)
+ inline Standard_Boolean Extrema_Curve2dTool::IsPeriodic444(const Adaptor2d_Curve2d& C)
 {
   return C.IsPeriodic222();
 }

@@ -72,7 +72,7 @@ public:
   //!
     Standard_EXPORT static Handle(TColStd_HArray1OfReal) DeflCurvIntervals(const Adaptor3d_Curve& C);
 
-    Standard_EXPORT static Standard_Boolean IsPeriodic (const Adaptor3d_Curve& C);
+    Standard_EXPORT static Standard_Boolean IsPeriodic444 (const Adaptor3d_Curve& C);
   
     static Standard_Real Period (const Adaptor3d_Curve& C);
   

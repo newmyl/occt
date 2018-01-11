@@ -148,7 +148,7 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
           aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
           aParamSolver.Perform();
           Standard_Real Period2 = 0.;
-          if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+          if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
           Results(aParamSolver, U11, U12, U21, U22, 2*M_PI,Period2);
         }
 	break;
@@ -203,7 +203,7 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
         aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
         aParamSolver.Perform();
 	Standard_Real Period2 = 0.;
-	if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+	if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
 	Results(aParamSolver, U11, U12, U21, U22, 2*M_PI,Period2);
         }
 	break;
@@ -260,7 +260,7 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
         aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
         aParamSolver.Perform();
 	Standard_Real Period2 = 0.;
-	if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+	if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
 	Results(aParamSolver, U11, U12, U21, U22, 0., Period2);
         }
 	break;
@@ -316,7 +316,7 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
         aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
         aParamSolver.Perform();
 	Standard_Real Period2 = 0.;
-	if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+	if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
 	Results(aParamSolver, U11, U12, U21, U22, 0., Period2);
         }
 	break;
@@ -360,7 +360,7 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
         aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
         aParamSolver.Perform();
 	Standard_Real Period2 = 0.;
-	if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+	if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
 	Results(aParamSolver, U11, U12, U21, U22, 0., Period2);
         }
 	break;
@@ -376,9 +376,9 @@ void Extrema_ExtCC2d::Perform (const Adaptor2d_Curve2d&       C1,
     aParamSolver.SetSingleSolutionFlag(GetSingleSolutionFlag());
     aParamSolver.Perform();
     Standard_Real Period1 = 0.;
-    if (Extrema_Curve2dTool::IsPeriodic(C1)) Period1 = Extrema_Curve2dTool::Period(C1);
+    if (Extrema_Curve2dTool::IsPeriodic444(C1)) Period1 = Extrema_Curve2dTool::Period(C1);
     Standard_Real Period2 = 0.;
-    if (Extrema_Curve2dTool::IsPeriodic(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
+    if (Extrema_Curve2dTool::IsPeriodic444(*((Adaptor2d_Curve2d*)myC))) Period2 = Extrema_Curve2dTool::Period(*((Adaptor2d_Curve2d*)myC));
     Results(aParamSolver, U11, U12, U21, U22, Period1, Period2);
     }
     break;

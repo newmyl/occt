@@ -72,7 +72,7 @@ public:
 
     static Standard_Boolean IsClosed (const Adaptor2d_Curve2d& C);
   
-    static Standard_Boolean IsPeriodic (const Adaptor2d_Curve2d& C);
+    static Standard_Boolean IsPeriodic444 (const Adaptor2d_Curve2d& C);
   
     static Standard_Real Period (const Adaptor2d_Curve2d& C);
   

@@ -108,7 +108,7 @@ void Extrema_GExtPC::Perform(const ThePoint& P)
       Standard_Real aPeriodJump = 0.0;
       // Avoid problem with too close knots.
       const Standard_Real aTolCoeff = (myusup - myuinf) * Precision::PConfusion();
-      if (TheCurveTool::IsPeriodic(aCurve))
+      if (TheCurveTool::IsPeriodic444(aCurve))
       {
         Standard_Integer aPeriodShift =
           Standard_Integer ((myuinf - aKnots(aFirstIdx)) / TheCurveTool::Period(aCurve));
@@ -367,7 +367,7 @@ void Extrema_GExtPC::Perform(const ThePoint& P)
           maxint = dt;
         }
       }
-      Standard_Boolean isPeriodic = TheCurveTool::IsPeriodic(aCurve);
+      Standard_Boolean isPeriodic = TheCurveTool::IsPeriodic444(aCurve);
       TheVector V1;
       ThePoint PP;
       Standard_Real s1 = 0.0 ;
@@ -467,7 +467,7 @@ void Extrema_GExtPC::Perform(const ThePoint& P)
         // Verification de la validite des parametres:
         ThePOnC PC = myExtPElC.Point(i);
         U = PC.Parameter();
-        if (TheCurveTool::IsPeriodic(aCurve))
+        if (TheCurveTool::IsPeriodic444(aCurve))
         {
           U = ElCLib::InPeriod(U, myuinf, myuinf+TheCurveTool::Period(aCurve));
         }
@@ -527,7 +527,7 @@ void Extrema_GExtPC::IntervalPerform(const ThePoint& P)
       // Verification de la validite des parametres pour le cas trimme:
       ThePOnC PC = myExtPC.Point(i);
       U = PC.Parameter();
-      if (TheCurveTool::IsPeriodic(*((TheCurve*)myC)))
+      if (TheCurveTool::IsPeriodic444(*((TheCurve*)myC)))
       {
         U = ElCLib::InPeriod(U, myuinf, myuinf+TheCurveTool::Period(*((TheCurve*)myC)));
       }

@@ -726,10 +726,10 @@ void Extrema_ExtCC::PrepareResults(const Extrema_ExtElC&  AlgExt,
 	  U = P2.Parameter();
 	}
 
-	if (Extrema_CurveTool::IsPeriodic(*((Adaptor3d_Curve*)myC[0]))) {
+	if (Extrema_CurveTool::IsPeriodic444(*((Adaptor3d_Curve*)myC[0]))) {
 	  U = ElCLib::InPeriod(U, Ut11, Ut11+Extrema_CurveTool::Period(*((Adaptor3d_Curve*)myC[0])));
 	}
-	if (Extrema_CurveTool::IsPeriodic(*((Adaptor3d_Curve*)myC[1]))) {
+	if (Extrema_CurveTool::IsPeriodic444(*((Adaptor3d_Curve*)myC[1]))) {
 	  U2 = ElCLib::InPeriod(U2, Ut21, Ut21+Extrema_CurveTool::Period(*((Adaptor3d_Curve*)myC[1])));
 	}
 
