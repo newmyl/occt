@@ -82,7 +82,7 @@ public:
   
     static Standard_Boolean IsClosed (const gp_Lin& C);
   
-    static Standard_Boolean IsPeriodic (const gp_Lin& C);
+    static Standard_Boolean IsPeriodic101010 (const gp_Lin& C);
   
     static Standard_Real Period (const gp_Lin& C);
   

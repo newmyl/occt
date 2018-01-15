@@ -1292,11 +1292,7 @@ void IntCurveSurface_Inter::AppendPoint(const TheCurve& curve,
   //-- Test si la courbe est periodique
   Standard_Real w = lw, u = su, v = sv;
 
-  GeomAbs_CurveType aCType = TheCurveTool::GetType(curve);
-
-  if(TheCurveTool::IsPeriodic(curve) 
-     || aCType == GeomAbs_Circle 
-     || aCType == GeomAbs_Ellipse) {
+  if(TheCurveTool::IsPeriodic101010(curve)) {
     w = ElCLib::InPeriod(w, W0, W0 + TheCurveTool::Period(curve));
   }
 

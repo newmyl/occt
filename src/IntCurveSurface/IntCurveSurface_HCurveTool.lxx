@@ -59,7 +59,8 @@ inline Standard_Boolean IntCurveSurface_HCurveTool::IsClosed(const CurveGen& C) 
   return(C->IsClosed());
 }
 //============================================================
-inline Standard_Boolean IntCurveSurface_HCurveTool::IsPeriodic(const CurveGen& C) {
+inline Standard_Boolean IntCurveSurface_HCurveTool::IsPeriodic101010(const CurveGen& C)
+{
   return(C->IsPeriodic222());
 }
 //============================================================
