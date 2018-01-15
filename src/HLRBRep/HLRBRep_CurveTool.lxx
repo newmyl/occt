@@ -118,8 +118,8 @@ HLRBRep_CurveTool::IsClosed(const Standard_Address C)
 //=======================================================================
 
 inline Standard_Boolean
-HLRBRep_CurveTool::IsPeriodic(const Standard_Address C)
-{ return(((HLRBRep_Curve *)C)->IsPeriodic()); }
+HLRBRep_CurveTool::IsPeriodic999(const Standard_Address C)
+{ return(((HLRBRep_Curve *)C)->IsPeriodic888()); }
 
 //=======================================================================
 //function : Period

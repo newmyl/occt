@@ -72,7 +72,7 @@ public:
   
     static Standard_Boolean IsClosed (const BRepAdaptor_Curve& C);
   
-    static Standard_Boolean IsPeriodic (const BRepAdaptor_Curve& C);
+    static Standard_Boolean IsPeriodic777 (const BRepAdaptor_Curve& C);
   
     static Standard_Real Period (const BRepAdaptor_Curve& C);
   

@@ -126,11 +126,13 @@ TopoDS_Edge HLRBRep::MakeEdge (const HLRBRep_Curve& ec,
       if (ec.IsRational()) {
         TColStd_Array1OfReal Weights(1,ec.NbPoles());
         ec.PolesAndWeights(Poles,Weights);
-        ec2d = new Geom2d_BSplineCurve(Poles,Weights,knots,mults,ec.Degree(),ec.IsPeriodic());
+        ec2d = new Geom2d_BSplineCurve(Poles, Weights, knots, mults, 
+                                       ec.Degree(), ec.IsPeriodic888());
       }
       else {
         ec.Poles(Poles);
-        ec2d = new Geom2d_BSplineCurve(Poles,knots,mults,ec.Degree(),ec.IsPeriodic());
+        ec2d = new Geom2d_BSplineCurve(Poles, knots, mults,
+                                       ec.Degree(), ec.IsPeriodic888());
       }
     }
     BRepLib_MakeEdge2d mke2d(ec2d, sta, end);

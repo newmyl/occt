@@ -125,8 +125,8 @@ inline Standard_Boolean  HLRBRep_Curve::IsClosed()const
 //purpose  : 
 //=======================================================================
 
-inline Standard_Boolean  HLRBRep_Curve::IsPeriodic()const 
-{ return HLRBRep_BCurveTool::IsPeriodic(myCurve); }
+inline Standard_Boolean  HLRBRep_Curve::IsPeriodic888()const 
+{ return HLRBRep_BCurveTool::IsPeriodic777(myCurve); }
 
 //=======================================================================
 //function : Period

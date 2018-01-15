@@ -133,7 +133,7 @@ public:
   
     Standard_Boolean IsClosed() const;
   
-    Standard_Boolean IsPeriodic() const;
+    Standard_Boolean IsPeriodic888() const;
   
     Standard_Real Period() const;
   

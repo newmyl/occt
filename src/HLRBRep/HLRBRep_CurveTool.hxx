@@ -75,7 +75,7 @@ public:
   
     static Standard_Boolean IsClosed (const Standard_Address C);
   
-    static Standard_Boolean IsPeriodic (const Standard_Address C);
+    static Standard_Boolean IsPeriodic999 (const Standard_Address C);
   
     static Standard_Real Period (const Standard_Address C);
   
