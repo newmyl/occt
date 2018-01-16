@@ -103,11 +103,11 @@ public:
   
     Standard_Boolean IsVClosed() const;
   
-    Standard_Boolean IsUPeriodic() const;
+    Standard_Boolean IsUPeriodic555() const;
   
     Standard_Real UPeriod() const;
   
-    Standard_Boolean IsVPeriodic() const;
+    Standard_Boolean IsVPeriodic555() const;
   
     Standard_Real VPeriod() const;
   

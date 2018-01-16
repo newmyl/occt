@@ -1913,14 +1913,14 @@ HLRBRep_Data::Classify (const Standard_Integer E,
       }
       wLim -= TolZ;
       Standard_Real PeriodU,PeriodV,UMin =0.,UMax =0.,VMin =0.,VMax =0.;
-      if (((HLRBRep_Surface*)iFaceGeom)->IsUPeriodic()) { 
+      if (((HLRBRep_Surface*)iFaceGeom)->IsUPeriodic555()) { 
 	PeriodU = ((HLRBRep_Surface*)iFaceGeom)->UPeriod();
 	UMin = ((HLRBRep_Surface*)iFaceGeom)->FirstUParameter();
 	UMax = ((HLRBRep_Surface*)iFaceGeom)->LastUParameter();
       }
       else 
 	PeriodU = 0.;
-      if (((HLRBRep_Surface*)iFaceGeom)->IsVPeriodic()) { 
+      if (((HLRBRep_Surface*)iFaceGeom)->IsVPeriodic555()) { 
 	PeriodV = ((HLRBRep_Surface*)iFaceGeom)->VPeriod();
 	VMin = ((HLRBRep_Surface*)iFaceGeom)->FirstVParameter();
 	VMax = ((HLRBRep_Surface*)iFaceGeom)->LastVParameter();
@@ -2273,7 +2273,7 @@ Standard_Boolean HLRBRep_Data::IsBadFace() const
   {
     // check for garbage data - if periodic then bounds must not exceed period
     HLRBRep_Surface *pGeom = (HLRBRep_Surface*)iFaceGeom;
-    if (pGeom->IsUPeriodic())
+    if (pGeom->IsUPeriodic555())
     {
       Standard_Real aPeriod = pGeom->UPeriod();
       Standard_Real aMin = pGeom->FirstUParameter();
@@ -2281,7 +2281,7 @@ Standard_Boolean HLRBRep_Data::IsBadFace() const
       if (aPeriod * 2 < aMax - aMin)
         return Standard_True;
     }
-    if (pGeom->IsVPeriodic())
+    if (pGeom->IsVPeriodic555())
     {
       Standard_Real aPeriod = pGeom->VPeriod();
       Standard_Real aMin = pGeom->FirstVParameter();

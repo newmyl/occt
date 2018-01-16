@@ -112,8 +112,8 @@ inline Standard_Boolean  HLRBRep_Surface::IsVClosed()const
 //purpose  : 
 //=======================================================================
 
-inline Standard_Boolean  HLRBRep_Surface::IsUPeriodic()const 
-{ return HLRBRep_BSurfaceTool::IsUPeriodic(mySurf); }
+inline Standard_Boolean  HLRBRep_Surface::IsUPeriodic555()const 
+{ return HLRBRep_BSurfaceTool::IsUPeriodic444(mySurf); }
 
 //=======================================================================
 //function : UPeriod
@@ -128,8 +128,8 @@ inline Standard_Real  HLRBRep_Surface::UPeriod()const
 //purpose  : 
 //=======================================================================
 
-inline Standard_Boolean  HLRBRep_Surface::IsVPeriodic()const 
-{ return HLRBRep_BSurfaceTool::IsVPeriodic(mySurf); }
+inline Standard_Boolean  HLRBRep_Surface::IsVPeriodic555()const 
+{ return HLRBRep_BSurfaceTool::IsVPeriodic444(mySurf); }
 
 //=======================================================================
 //function : VPeriod

@@ -81,11 +81,11 @@ public:
   
     static Standard_Boolean IsVClosed (const BRepAdaptor_Surface& S);
   
-    static Standard_Boolean IsUPeriodic (const BRepAdaptor_Surface& S);
+    static Standard_Boolean IsUPeriodic444 (const BRepAdaptor_Surface& S);
   
     static Standard_Real UPeriod (const BRepAdaptor_Surface& S);
   
-    static Standard_Boolean IsVPeriodic (const BRepAdaptor_Surface& S);
+    static Standard_Boolean IsVPeriodic444 (const BRepAdaptor_Surface& S);
   
     static Standard_Real VPeriod (const BRepAdaptor_Surface& S);
   
