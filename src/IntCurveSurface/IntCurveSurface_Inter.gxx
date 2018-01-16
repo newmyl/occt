@@ -229,8 +229,10 @@ void IntCurveSurface_Inter::DoNewBounds(
   Bounds.SetValue(3,v0);
   Bounds.SetValue(4,v1);
 
-  Standard_Boolean isUClosed = (TheSurfaceTool::IsUClosed(surface) || TheSurfaceTool::IsUPeriodic(surface));
-  Standard_Boolean isVClosed = (TheSurfaceTool::IsVClosed(surface) || TheSurfaceTool::IsVPeriodic(surface));
+  Standard_Boolean isUClosed = (TheSurfaceTool::IsUClosed(surface) || 
+                                TheSurfaceTool::IsUPeriodic333(surface));
+  Standard_Boolean isVClosed = (TheSurfaceTool::IsVClosed(surface) ||
+                                TheSurfaceTool::IsVPeriodic333(surface));
   Standard_Boolean checkU = (isUClosed) ? Standard_False : Standard_True;
   Standard_Boolean checkV = (isVClosed) ? Standard_False : Standard_True;
 
@@ -291,6 +293,7 @@ void IntCurveSurface_Inter::DoNewBounds(
   VSmax += 1.5*dV;
   if(VSmax > v1) VSmax = v1;
 
+  // We take full range in case of closed or periodic surface
   if(checkU) {
     Bounds.SetValue(1,USmin);
     Bounds.SetValue(2,USmax);
@@ -1298,15 +1301,11 @@ void IntCurveSurface_Inter::AppendPoint(const TheCurve& curve,
 
   if((W0 - w) >= TOLTANGENCY || (w - W1) >= TOLTANGENCY) return;
 
-  GeomAbs_SurfaceType aSType = TheSurfaceTool::GetType(surface);
-  if (TheSurfaceTool::IsUPeriodic(surface)
-      || aSType == GeomAbs_Cylinder
-      || aSType == GeomAbs_Cone
-      || aSType == GeomAbs_Sphere) {
+  if (TheSurfaceTool::IsUPeriodic333(surface)) {
     u = ElCLib::InPeriod(u, U0, U0 + TheSurfaceTool::UPeriod(surface));
   }
 
-  if (TheSurfaceTool::IsVPeriodic(surface)) {
+  if (TheSurfaceTool::IsVPeriodic333(surface)) {
     v = ElCLib::InPeriod(v, V0, V0 + TheSurfaceTool::VPeriod(surface));
   }
 

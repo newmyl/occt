@@ -81,11 +81,11 @@ public:
   
     static Standard_Boolean IsVClosed (const Standard_Address S);
   
-    static Standard_Boolean IsUPeriodic (const Standard_Address S);
+    static Standard_Boolean IsUPeriodic333 (const Standard_Address S);
   
     static Standard_Real UPeriod (const Standard_Address S);
   
-    static Standard_Boolean IsVPeriodic (const Standard_Address S);
+    static Standard_Boolean IsVPeriodic333 (const Standard_Address S);
   
     static Standard_Real VPeriod (const Standard_Address S);
   

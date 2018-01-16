@@ -80,11 +80,11 @@ public:
   
     static Standard_Boolean IsVClosed (const Handle(Adaptor3d_HSurface)& S);
   
-    static Standard_Boolean IsUPeriodic (const Handle(Adaptor3d_HSurface)& S);
+    static Standard_Boolean IsUPeriodic333 (const Handle(Adaptor3d_HSurface)& S);
   
     static Standard_Real UPeriod (const Handle(Adaptor3d_HSurface)& S);
   
-    static Standard_Boolean IsVPeriodic (const Handle(Adaptor3d_HSurface)& S);
+    static Standard_Boolean IsVPeriodic333 (const Handle(Adaptor3d_HSurface)& S);
   
     static Standard_Real VPeriod (const Handle(Adaptor3d_HSurface)& S);
   

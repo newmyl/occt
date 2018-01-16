@@ -98,7 +98,7 @@ inline Standard_Boolean Adaptor3d_HSurfaceTool::IsVClosed(const Handle(Adaptor3d
   return S->IsVClosed();
 }
 
-inline Standard_Boolean Adaptor3d_HSurfaceTool::IsUPeriodic(const Handle(Adaptor3d_HSurface)& S)
+inline Standard_Boolean Adaptor3d_HSurfaceTool::IsUPeriodic333(const Handle(Adaptor3d_HSurface)& S)
 {
   return S->IsUPeriodic222();
 }
@@ -108,7 +108,7 @@ inline Standard_Real Adaptor3d_HSurfaceTool::UPeriod(const Handle(Adaptor3d_HSur
   return S->UPeriod();
 }
 
-inline Standard_Boolean Adaptor3d_HSurfaceTool::IsVPeriodic(const Handle(Adaptor3d_HSurface)& S)
+inline Standard_Boolean Adaptor3d_HSurfaceTool::IsVPeriodic333(const Handle(Adaptor3d_HSurface)& S)
 {
   return S->IsVPeriodic222();
 }

@@ -83,7 +83,7 @@ inline Standard_Boolean HLRBRep_SurfaceTool::IsVClosed(const Standard_Address S)
   return ((BRepAdaptor_Surface *)S)->IsVClosed();
 }
 
-inline Standard_Boolean HLRBRep_SurfaceTool::IsUPeriodic(const Standard_Address S)
+inline Standard_Boolean HLRBRep_SurfaceTool::IsUPeriodic333(const Standard_Address S)
 {
   return ((BRepAdaptor_Surface *)S)->IsUPeriodic222();
 }
@@ -93,7 +93,7 @@ inline Standard_Real HLRBRep_SurfaceTool::UPeriod(const Standard_Address S)
   return ((BRepAdaptor_Surface *)S)->UPeriod();
 }
 
-inline Standard_Boolean HLRBRep_SurfaceTool::IsVPeriodic(const Standard_Address S)
+inline Standard_Boolean HLRBRep_SurfaceTool::IsVPeriodic333(const Standard_Address S)
 {
   return ((BRepAdaptor_Surface *)S)->IsVPeriodic222();
 }

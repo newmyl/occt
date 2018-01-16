@@ -829,7 +829,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 
   if(MyImplicitFirst) { 
     if(u2<binfu-0.0000000001) { 
-      if(ThePSurfaceTool::IsUPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsUPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::UPeriod(aPSurf);
 	do {  TranslationU+=d; } while(u2+TranslationU < binfu);
       }
@@ -837,7 +837,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     else if(u2>bsupu+0.0000000001) { 
-      if(ThePSurfaceTool::IsUPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsUPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::UPeriod(aPSurf);
 	do { TranslationU-=d; } while(u2+TranslationU > bsupu);
       }
@@ -845,7 +845,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     if(v2<binfv-0.0000000001) { 
-      if(ThePSurfaceTool::IsVPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsVPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::VPeriod(aPSurf);
 	do { TranslationV+=d; }	while(v2+TranslationV < binfv);
       }
@@ -853,7 +853,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     else if(v2>bsupv+0.0000000001) { 
-      if(ThePSurfaceTool::IsVPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsVPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::VPeriod(aPSurf);
 	do { TranslationV-=d; } while(v2+TranslationV > bsupv);
       }
@@ -865,7 +865,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
   }
   else { 
     if(u1<binfu-0.0000000001) { 
-      if(ThePSurfaceTool::IsUPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsUPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::UPeriod(aPSurf);
 	do {  TranslationU+=d; 	} while(u1+TranslationU < binfu);
       }
@@ -873,7 +873,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     else if(u1>bsupu+0.0000000001) { 
-      if(ThePSurfaceTool::IsUPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsUPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::UPeriod(aPSurf);
 	do { TranslationU-=d; } while(u1+TranslationU > bsupu);
       }
@@ -881,7 +881,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     if(v1<binfv-0.0000000001) { 
-      if(ThePSurfaceTool::IsVPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsVPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::VPeriod(aPSurf);
 	do { TranslationV+=d; }	while(v1+TranslationV < binfv);
       }
@@ -889,7 +889,7 @@ ApproxInt_ImpPrmSvSurfaces::FillInitialVectorOfSolution(const Standard_Real u1,
 	return(Standard_False);
     }
     else if(v1>bsupv+0.0000000001) { 
-      if(ThePSurfaceTool::IsVPeriodic(aPSurf)) { 
+      if(ThePSurfaceTool::IsVPeriodic333(aPSurf)) { 
 	Standard_Real d = ThePSurfaceTool::VPeriod(aPSurf);
 	do { TranslationV-=d; }	while(v1+TranslationV > bsupv);
       }
