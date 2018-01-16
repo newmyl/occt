@@ -168,7 +168,7 @@ static Standard_Integer chamfer(Draw_Interpretor& di,
     di <<"   Construction by distance from edge and given angle :  chamf newname shape edge face A dist angle\n";
   }
   else {
-    if (narg < 7)
+    if (narg < 5)
       return 1;
   
     TopoDS_Shape S = DBRep::Get(a[2]);
