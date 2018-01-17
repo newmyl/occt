@@ -143,13 +143,13 @@ void ToOtherInfo (const TopoDS_Shape& theShape, QVariant& theValue, QVariant& th
       aValues.append (ToString (aCurve->IsClosed()));
       anInfo.append ("IsClosed");
 
-      if (aCurve->IsPeriodic()) {
+      if (aCurve->IsPeriodic111()) {
         aValues.append (QString::number (aCurve->Period()));
         anInfo.append ("IsPeriodic");
       }
       else
       {
-        aValues.append (ToString (aCurve->IsPeriodic()));
+        aValues.append (ToString (aCurve->IsPeriodic111()));
         anInfo.append ("IsPeriodic");
       }
       theValue = aValues.join (" / ");

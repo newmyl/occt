@@ -285,7 +285,7 @@ class BOPAlgo_MPC : public BOPAlgo_Algo  {
       else
       {
         const BRepAdaptor_Surface& aBAS = myContext->SurfaceAdaptor(myF);
-        if (aBAS.IsUPeriodic() || aBAS.IsVPeriodic())
+        if (aBAS.IsUPeriodic222() || aBAS.IsVPeriodic222())
         {
           // The curve already exists. Adjust it for periodic cases.
           BOPTools_AlgoTools2D::AdjustPCurveOnSurf

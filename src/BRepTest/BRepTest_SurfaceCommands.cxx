@@ -262,11 +262,13 @@ static Standard_Integer pcurve(Draw_Interpretor& , Standard_Integer n, const cha
 
       Sprintf(name,"%s_%d",a[1],i);
       Standard_Real fr = c->FirstParameter(), lr = c->LastParameter();
-      Standard_Boolean IsPeriodic = c->IsPeriodic();
+      Standard_Boolean IsPeriodic = c->IsPeriodic111();
       if (c->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
       {
+        // E.g. see "boolean bopfuse_complex J6" test script
+
         const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (c)->BasisCurve(); 
-        IsPeriodic = aC->IsPeriodic();
+        IsPeriodic = aC->IsPeriodic111();
         fr = aC->FirstParameter();
         lr = aC->LastParameter();
       }
@@ -294,11 +296,11 @@ static Standard_Integer pcurve(Draw_Interpretor& , Standard_Integer n, const cha
     const Handle(Geom2d_Curve) c = BRep_Tool::CurveOnSurface
       (TopoDS::Edge(SE),TopoDS::Face(SF),f,l);
     Standard_Real fr = c->FirstParameter(), lr = c->LastParameter();
-    Standard_Boolean IsPeriodic = c->IsPeriodic();
+    Standard_Boolean IsPeriodic = c->IsPeriodic111();
     if (c->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
     {
       const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (c)->BasisCurve(); 
-      IsPeriodic = aC->IsPeriodic();
+      IsPeriodic = aC->IsPeriodic111();
       fr = aC->FirstParameter();
       lr = aC->LastParameter();
     }

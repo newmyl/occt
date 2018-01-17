@@ -669,8 +669,8 @@ void GeomAdaptor_Surface::RebuildCache(const Standard_Real theU,
     TColStd_Array1OfReal aFlatKnotsV(BSplCLib::FlatBezierKnots(aDegV), 1, 2 * (aDegV + 1));
     if (mySurfaceCache.IsNull())
       mySurfaceCache = new BSplSLib_Cache(
-        aDegU, aBezier->IsUPeriodic(), aFlatKnotsU,
-        aDegV, aBezier->IsVPeriodic(), aFlatKnotsV, aBezier->Weights());
+        aDegU, aBezier->IsUPeriodic111(), aFlatKnotsU,
+        aDegV, aBezier->IsVPeriodic111(), aFlatKnotsV, aBezier->Weights());
     mySurfaceCache->BuildCache (theU, theV, aFlatKnotsU, aFlatKnotsV,
                                 aBezier->Poles(), aBezier->Weights());
   }

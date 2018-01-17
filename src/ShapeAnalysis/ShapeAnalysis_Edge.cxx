@@ -1041,7 +1041,7 @@ Standard_Boolean ShapeAnalysis_Edge::CheckPCurveRange (const Standard_Real theFi
 {
   const Standard_Real eps = Precision::PConfusion();
   Standard_Boolean isValid = Standard_True; 
-  Standard_Boolean IsPeriodic = thePC->IsPeriodic();
+  Standard_Boolean IsPeriodic = thePC->IsPeriodic111();
   Standard_Real aPeriod = RealLast();
   if(IsPeriodic)
   {
@@ -1053,7 +1053,7 @@ Standard_Boolean ShapeAnalysis_Edge::CheckPCurveRange (const Standard_Real theFi
     const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (thePC)->BasisCurve(); 
     fp = aC->FirstParameter();
     lp = aC->LastParameter();
-    IsPeriodic = aC->IsPeriodic();
+    IsPeriodic = aC->IsPeriodic111();
     if(IsPeriodic)
     {
       aPeriod = aC->Period();

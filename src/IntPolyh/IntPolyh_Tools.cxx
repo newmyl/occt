@@ -35,7 +35,7 @@ void IntPolyh_Tools::IsEnlargePossible(const Handle(Adaptor3d_HSurface)& theSurf
       theSurf->GetType() == GeomAbs_BezierSurface)
   {
     // Check U periodicity and closeness
-    if (!theSurf->IsUClosed() && !theSurf->IsUPeriodic())
+    if (!theSurf->IsUClosed() && !theSurf->IsUPeriodic222())
     {
       // Check that surface is not infinite in U direction
       if (!Precision::IsInfinite(theSurf->FirstUParameter()) &&
@@ -46,7 +46,7 @@ void IntPolyh_Tools::IsEnlargePossible(const Handle(Adaptor3d_HSurface)& theSurf
     }
 
     // Check V periodicity and closeness
-    if (!theSurf->IsVClosed() && !theSurf->IsVPeriodic())
+    if (!theSurf->IsVClosed() && !theSurf->IsVPeriodic222())
     {
       // Check that surface is not infinite in V direction
       if (!Precision::IsInfinite(theSurf->FirstVParameter()) &&

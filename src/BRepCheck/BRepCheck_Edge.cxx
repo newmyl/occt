@@ -188,7 +188,7 @@ void BRepCheck_Edge::Minimum()
           Handle(Geom_Curve) C3d = Handle(Geom_Curve)::DownCast
             (myCref->Curve3D()->Transformed
             (/*myCref->Location()*/L.Transformation()));
-          Standard_Boolean IsPeriodic = C3d->IsPeriodic();
+          Standard_Boolean IsPeriodic = C3d->IsPeriodic111();
           Standard_Real aPeriod = RealLast();
           if(IsPeriodic)
           {
@@ -197,10 +197,12 @@ void BRepCheck_Edge::Minimum()
           Standard_Real f = C3d->FirstParameter(), l = C3d->LastParameter();
           if (C3d->DynamicType() == STANDARD_TYPE(Geom_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
+
             const Handle(Geom_Curve)& aC = Handle(Geom_TrimmedCurve)::DownCast (C3d)->BasisCurve(); 
             f = aC->FirstParameter();
             l = aC->LastParameter();
-            IsPeriodic = aC->IsPeriodic();
+            IsPeriodic = aC->IsPeriodic111();
             if(IsPeriodic)
             {
               aPeriod = aC->Period();
@@ -228,7 +230,7 @@ void BRepCheck_Edge::Minimum()
           Sref = Handle(Geom_Surface)::DownCast
             (Sref->Transformed(myCref->Location().Transformation()));
           const Handle(Geom2d_Curve)& PCref = myCref->PCurve();
-          Standard_Boolean IsPeriodic = PCref->IsPeriodic();
+          Standard_Boolean IsPeriodic = PCref->IsPeriodic111();
           Standard_Real aPeriod = RealLast();
           if(IsPeriodic)
           {
@@ -237,10 +239,11 @@ void BRepCheck_Edge::Minimum()
           Standard_Real f = PCref->FirstParameter(), l = PCref->LastParameter();
           if (PCref->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
             const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (PCref)->BasisCurve(); 
             f = aC->FirstParameter();
             l = aC->LastParameter();
-            IsPeriodic = aC->IsPeriodic();
+            IsPeriodic = aC->IsPeriodic111();
             if(IsPeriodic)
             {
               aPeriod = aC->Period();
@@ -364,7 +367,7 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
           //  Modified by skv - Tue Apr 27 11:50:37 2004 End
           //
           const Handle(Geom2d_Curve)& pc = cr->PCurve();
-          Standard_Boolean IsPeriodic = pc->IsPeriodic();
+          Standard_Boolean IsPeriodic = pc->IsPeriodic111();
           Standard_Real aPeriod = RealLast();
           if(IsPeriodic)
           {
@@ -373,10 +376,12 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
           Standard_Real fp = pc->FirstParameter(), lp = pc->LastParameter();
           if (pc->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
+
             const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (pc)->BasisCurve(); 
             fp = aC->FirstParameter();
             lp = aC->LastParameter();
-            IsPeriodic = aC->IsPeriodic();
+            IsPeriodic = aC->IsPeriodic111();
             if(IsPeriodic)
             {
               aPeriod = aC->Period();

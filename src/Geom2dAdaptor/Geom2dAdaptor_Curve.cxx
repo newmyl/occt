@@ -569,7 +569,7 @@ void Geom2dAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
     Standard_Integer aDeg = aBezier->Degree();
     TColStd_Array1OfReal aFlatKnots(BSplCLib::FlatBezierKnots(aDeg), 1, 2 * (aDeg + 1));
     if (myCurveCache.IsNull())
-      myCurveCache = new BSplCLib_Cache (aDeg, aBezier->IsPeriodic(), aFlatKnots,
+      myCurveCache = new BSplCLib_Cache (aDeg, aBezier->IsPeriodic111(), aFlatKnots,
                                          aBezier->Poles(), aBezier->Weights());
     myCurveCache->BuildCache (theParameter, aFlatKnots, aBezier->Poles(), aBezier->Weights());
   }
@@ -577,7 +577,7 @@ void Geom2dAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
   {
     // Create cache for B-spline
     if (myCurveCache.IsNull())
-      myCurveCache = new BSplCLib_Cache (myBSplineCurve->Degree(), myBSplineCurve->IsPeriodic(),
+      myCurveCache = new BSplCLib_Cache (myBSplineCurve->Degree(), myBSplineCurve->IsPeriodic111(),
         myBSplineCurve->KnotSequence(), myBSplineCurve->Poles(), myBSplineCurve->Weights());
     myCurveCache->BuildCache (theParameter, myBSplineCurve->KnotSequence(),
                               myBSplineCurve->Poles(), myBSplineCurve->Weights());

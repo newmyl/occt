@@ -2697,7 +2697,7 @@ void BRepLib::ExtendFace(const TopoDS_Face& theF,
     Standard_Real aSUMin, aSUMax, aSVMin, aSVMax;
     aSurf->Bounds(aSUMin, aSUMax, aSVMin, aSVMax);
 
-    Standard_Boolean isUPeriodic = aBAS.IsUPeriodic();
+    Standard_Boolean isUPeriodic = aBAS.IsUPeriodic222();
     Standard_Real anUPeriod = isUPeriodic ? aBAS.UPeriod() : 0.0;
     if (isUPeriodic)
     {
@@ -2707,7 +2707,7 @@ void BRepLib::ExtendFace(const TopoDS_Face& theF,
       aFUMax = aFUMin + aDelta;
     }
 
-    Standard_Boolean isVPeriodic = aBAS.IsVPeriodic();
+    Standard_Boolean isVPeriodic = aBAS.IsVPeriodic222();
     Standard_Real aVPeriod = isVPeriodic ? aBAS.VPeriod() : 0.0;
     if (isVPeriodic)
     {

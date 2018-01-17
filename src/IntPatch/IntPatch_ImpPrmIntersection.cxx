@@ -2477,8 +2477,8 @@ static void DetectOfBoundaryAchievement(const Handle(Adaptor3d_HSurface)& theQSu
                                         Handle(IntSurf_LineOn2S)& theNewLine,
                                         Standard_Boolean& theIsOnBoundary)
 {
-  const Standard_Real aUPeriod = theQSurf->IsUPeriodic() ? theQSurf->UPeriod() : 0.0,
-                      aVPeriod = theQSurf->IsVPeriodic() ? theQSurf->VPeriod() : 0.0;
+  const Standard_Real aUPeriod = theQSurf->IsUPeriodic222() ? theQSurf->UPeriod() : 0.0,
+                      aVPeriod = theQSurf->IsVPeriodic222() ? theQSurf->VPeriod() : 0.0;
   const Standard_Real aUf = theQSurf->FirstUParameter(),
                       aUl = theQSurf->LastUParameter(),
                       aVf = theQSurf->FirstVParameter(),

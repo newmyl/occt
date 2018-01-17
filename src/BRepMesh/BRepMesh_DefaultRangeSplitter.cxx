@@ -53,7 +53,8 @@ void BRepMesh_DefaultRangeSplitter::AdjustRange()
 {
   const Handle(BRepAdaptor_HSurface)& aSurface = GetSurface();
   updateRange(aSurface->FirstUParameter(), aSurface->LastUParameter(),
-              aSurface->IsUPeriodic(), myRangeU.first, myRangeU.second);
+              aSurface->IsUPeriodic222() && aSurface->IsUClosed(),
+              myRangeU.first, myRangeU.second);
 
   if (myRangeU.second < myRangeU.first)
   {
@@ -62,7 +63,8 @@ void BRepMesh_DefaultRangeSplitter::AdjustRange()
   }
 
   updateRange(aSurface->FirstVParameter(), aSurface->LastVParameter(),
-              aSurface->IsVPeriodic(), myRangeV.first, myRangeV.second);
+              aSurface->IsVPeriodic222() && aSurface->IsVClosed(),
+              myRangeV.first, myRangeV.second);
 
   if (myRangeV.second < myRangeV.first)
   {

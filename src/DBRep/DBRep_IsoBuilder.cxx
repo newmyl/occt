@@ -491,10 +491,10 @@ void DBRep_IsoBuilder::FillGaps(const TopoDS_Face& theFace,
       // Check for periodic surfaces
       if (bAddSegment)
       {
-        if (aBASurf.IsUPeriodic())
+        if (aBASurf.IsUPeriodic222())
           bAddSegment = aSegmLen < aBASurf.UPeriod() / 4.;
 
-        if (bAddSegment && aBASurf.IsVPeriodic())
+        if (bAddSegment && aBASurf.IsVPeriodic222())
           bAddSegment = aSegmLen < aBASurf.VPeriod() / 4.;
       }
 

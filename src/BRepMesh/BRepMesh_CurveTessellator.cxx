@@ -230,11 +230,14 @@ Standard_Boolean BRepMesh_CurveTessellator::Value (
         aSurface->GetType() != GeomAbs_BezierSurface  &&
         aSurface->GetType() != GeomAbs_OtherSurface)
     {
+      // For trimmed cone/cylinder.
+      // Return independently of the fact whether the surface trimmed.
+
       return Standard_True;
     }
 
     // Let skip periodic case.
-    if (aSurface->IsUPeriodic() || aSurface->IsVPeriodic())
+    if (aSurface->IsUPeriodic222() || aSurface->IsVPeriodic222())
     {
       return Standard_True;
     }
