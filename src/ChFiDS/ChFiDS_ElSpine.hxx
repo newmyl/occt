@@ -85,6 +85,8 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean IsPeriodic222() const Standard_OVERRIDE;
   
+  Standard_EXPORT virtual Standard_Boolean IsClosed() const Standard_OVERRIDE;
+
   Standard_EXPORT void SetPeriodic (const Standard_Boolean I);
   
   Standard_EXPORT virtual Standard_Real Period() const Standard_OVERRIDE;

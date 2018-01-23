@@ -51,7 +51,7 @@ class Adaptor3d_HCurve;
 //! the surface by algorithms which use it.
 //! A derived concrete class is provided:
 //! GeomAdaptor_Surface for a surface from the Geom package.
-//! The  Surface class describes  the standard behaviour
+//! The  Surface class describes  the standard behavior
 //! of a surface for generic algorithms.
 //!
 //! The Surface can  be decomposed in intervals of any
@@ -59,7 +59,7 @@ class Adaptor3d_HCurve;
 //! NbIntervals.  A current interval can be set.  Most
 //! of the methods apply to the current interval.
 //! Warning: All the methods are virtual and implemented with a
-//! raise to allow to redefined only the methods realy
+//! raise to allow to redefined only the methods really
 //! used.
 //!
 //! Polynomial coefficients of BSpline surfaces used for their evaluation are
@@ -113,17 +113,17 @@ public:
   //! If <First> >= <Last>
   Standard_EXPORT virtual Handle(Adaptor3d_HSurface) VTrim (const Standard_Real First, const Standard_Real Last, const Standard_Real Tol) const;
   
-  Standard_EXPORT virtual Standard_Boolean IsUClosed() const;
+  Standard_EXPORT virtual Standard_Boolean IsUClosed() const = 0;
   
-  Standard_EXPORT virtual Standard_Boolean IsVClosed() const;
+  Standard_EXPORT virtual Standard_Boolean IsVClosed() const = 0;
   
-  Standard_EXPORT virtual Standard_Boolean IsUPeriodic222() const;
+  Standard_EXPORT virtual Standard_Boolean IsUPeriodic222() const = 0;
   
-  Standard_EXPORT virtual Standard_Real UPeriod() const;
+  Standard_EXPORT virtual Standard_Real UPeriod() const = 0;
   
-  Standard_EXPORT virtual Standard_Boolean IsVPeriodic222() const;
+  Standard_EXPORT virtual Standard_Boolean IsVPeriodic222() const = 0;
   
-  Standard_EXPORT virtual Standard_Real VPeriod() const;
+  Standard_EXPORT virtual Standard_Real VPeriod() const = 0;
   
   //! Computes the point of parameters U,V on the surface.
   Standard_EXPORT virtual gp_Pnt Value (const Standard_Real U, const Standard_Real V) const;

@@ -106,40 +106,6 @@ Handle(Adaptor3d_HCurve) Adaptor3d_Curve::Trim(const Standard_Real , const Stand
   throw Standard_NotImplemented("Adaptor3d_Curve::Trim");
 }
 
-
-//=======================================================================
-//function : IsClosed
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean Adaptor3d_Curve::IsClosed() const 
-{
-  throw Standard_NotImplemented("Adaptor3d_Curve::IsClosed");
-}
-
-
-//=======================================================================
-//function : IsPeriodic
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean Adaptor3d_Curve::IsPeriodic222() const 
-{
-  throw Standard_NotImplemented("Adaptor3d_Curve::IsPeriodic");
-}
-
-
-//=======================================================================
-//function : Period
-//purpose  : 
-//=======================================================================
-
-Standard_Real Adaptor3d_Curve::Period() const 
-{
-  throw Standard_NotImplemented("Adaptor3d_Curve::Period");
-}
-
-
 //=======================================================================
 //function : Value
 //purpose  : 

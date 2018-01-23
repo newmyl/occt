@@ -90,6 +90,10 @@ void GeomFill_SnglrFunc::SetRatio(const Standard_Real Ratio)
   return myHCurve->Period();
 }
 
+Standard_Boolean GeomFill_SnglrFunc::IsClosed() const
+{
+  return myHCurve->IsClosed();
+}
 
  gp_Pnt GeomFill_SnglrFunc::Value(const Standard_Real U) const
 {

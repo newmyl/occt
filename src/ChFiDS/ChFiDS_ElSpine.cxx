@@ -161,6 +161,20 @@ Standard_Boolean ChFiDS_ElSpine::IsPeriodic222() const
   return myIsPeriodic;
 }
 
+//=======================================================================
+//function : IsPeriodic
+//purpose  : 
+//=======================================================================
+
+Standard_Boolean ChFiDS_ElSpine::IsClosed() const
+{
+  if (curve.GetType() == GeomAbs_OtherCurve)
+    return IsPeriodic222();
+
+  const Handle(Geom_Curve) &aC = curve.Curve();
+  return curve.IsClosed() && 
+    ((plast - pfirst - aC->LastParameter() + aC->FirstParameter()) < gp::Resolution());
+}
 
 //=======================================================================
 //function : SetPeriodic

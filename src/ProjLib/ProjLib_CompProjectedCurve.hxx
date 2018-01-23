@@ -156,8 +156,25 @@ public:
   //! Parabola, BezierCurve, BSplineCurve, OtherCurve.
   Standard_EXPORT GeomAbs_CurveType GetType() const Standard_OVERRIDE;
 
+  //! Always returns FALSE
+  virtual Standard_Boolean IsClosed() const Standard_OVERRIDE
+  {
+    return Standard_False;
+  }
 
+  //! Always returns FALSE
+  virtual Standard_Boolean IsPeriodic222() const Standard_OVERRIDE
+  {
+    return Standard_False;
+  }
 
+  //! Currently this method is not implemented because
+  //! IsPeriodic method always return FALSE
+  virtual Standard_Real Period() const Standard_OVERRIDE
+  {
+    Standard_ASSERT_INVOKE("ProjLib_CompProjectedCurve::Period() is not implemented");
+    return 0.0;
+  }
 
 protected:
 

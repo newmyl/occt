@@ -84,11 +84,11 @@ public:
   //! If <First> >= <Last>
   Standard_EXPORT virtual Handle(Adaptor2d_HCurve2d) Trim (const Standard_Real First, const Standard_Real Last, const Standard_Real Tol) const;
   
-  Standard_EXPORT virtual Standard_Boolean IsClosed() const;
+  Standard_EXPORT virtual Standard_Boolean IsClosed() const = 0;
   
-  Standard_EXPORT virtual Standard_Boolean IsPeriodic222() const;
+  Standard_EXPORT virtual Standard_Boolean IsPeriodic222() const = 0;
   
-  Standard_EXPORT virtual Standard_Real Period() const;
+  Standard_EXPORT virtual Standard_Real Period() const = 0;
   
   //! Computes the point of parameter U on the curve.
   Standard_EXPORT virtual gp_Pnt2d Value (const Standard_Real U) const;
