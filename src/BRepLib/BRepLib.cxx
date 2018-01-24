@@ -1282,17 +1282,21 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge& theEdge,
   Geom2dAdaptor_Curve& GAC2d = HC2d->ChangeCurve2d();
   GeomAdaptor_Surface& GAS = HS->ChangeSurface(); 
 
-  if (!C3d->IsPeriodic111())
+  if (C3d->IsPeriodic111())
   {
-    Standard_Real Udeb = C3d->FirstParameter();
-    Standard_Real Ufin = C3d->LastParameter();
-    // modified by NIZHNY-OCC486  Tue Aug 27 17:17:14 2002 :
-    //if (Udeb > f3d) f3d = Udeb;
-    //if (l3d > Ufin) l3d = Ufin;
-    if (Udeb > f3d) f3d = Udeb;
-    if (l3d > Ufin) l3d = Ufin;
-    // modified by NIZHNY-OCC486  Tue Aug 27 17:17:55 2002 .
+    // Range of the curve cannot be greater than period.
+    // If it is greater then it must be reduced.
+    const Standard_Real aDelta = Max(l3d - f3d - C3d->Period(), 0.0)/2.0;
+    f3d += aDelta;
+    l3d -= aDelta;
   }
+
+  if (!GeomLib::AllowExtend(*C3d, f3d, l3d))
+  {
+    if (C3d->FirstParameter() > f3d) f3d = C3d->FirstParameter();
+    if (l3d > C3d->LastParameter()) l3d = C3d->LastParameter();
+  }
+
   if(!L3d.IsIdentity()){
     C3d = Handle(Geom_Curve)::DownCast(C3d->Transformed(L3d.Transformation()));
   }

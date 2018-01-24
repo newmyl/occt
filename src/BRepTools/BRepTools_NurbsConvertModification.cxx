@@ -50,6 +50,7 @@
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomConvert.hxx>
+#include <GeomLib.hxx>
 #include <gp_GTrsf2d.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_TrsfForm.hxx>
@@ -386,11 +387,13 @@ Standard_Boolean BRepTools_NurbsConvertModification::NewCurve2d
       C2d = TC->BasisCurve();
     }
 
-    Standard_Real fc = C2d->FirstParameter(), lc = C2d->LastParameter();
+    const Standard_Real fc = C2d->FirstParameter(), 
+                        lc = C2d->LastParameter();
 
-    if(!C2d->IsPeriodic111()) {
-      if(fc - f2d > Precision::PConfusion()) f2d = fc;
-      if(l2d - lc > Precision::PConfusion()) l2d = lc;
+    if (!GeomLib::AllowExtend(*C2d, f2d, l2d))
+    {
+      if (fc - f2d > Precision::PConfusion()) f2d = fc;
+      if (l2d - lc > Precision::PConfusion()) l2d = lc;
     }
 
     C2d = new Geom2d_TrimmedCurve(C2d, f2d, l2d);

@@ -53,6 +53,7 @@
 #include <CSLib.hxx>
 #include <CSLib_NormalStatus.hxx>
 #include <ElCLib.hxx>
+#include <Extrema_ECC.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2d_Circle.hxx>
@@ -79,11 +80,13 @@
 #include <Geom_Hyperbola.hxx>
 #include <Geom_Line.hxx>
 #include <Geom_OffsetCurve.hxx>
+#include <Geom_OffsetSurface.hxx>
 #include <Geom_Parabola.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_RectangularTrimmedSurface.hxx>
 #include <Geom_Surface.hxx>
 #include <Geom_TrimmedCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomConvert.hxx>
@@ -2745,11 +2748,98 @@ Standard_Boolean GeomLib::IsBzVClosed (const Handle(Geom_BezierSurface)& S,
 }
 
 //=======================================================================
+//function : AllowExtendUParameter
+//purpose  : 
+//=======================================================================
+Standard_Boolean GeomLib::AllowExtendUParameter(const GeomAdaptor_Surface& theS,
+                                                const Standard_Real theNewUFirst,
+                                                const Standard_Real theNewULast)
+{
+  const Handle(Geom_Surface) &aSurf = theS.Surface();
+  const Handle(Geom_Curve) aC = aSurf->VIso(theS.FirstVParameter());
+
+  return (AllowExtend(*aC, theNewUFirst, theNewULast));
+}
+
+//=======================================================================
+//function : AllowExtendVParameter
+//purpose  : 
+//=======================================================================
+Standard_Boolean GeomLib::AllowExtendVParameter(const GeomAdaptor_Surface& theS,
+                                                const Standard_Real theNewVFirst,
+                                                const Standard_Real theNewVLast)
+{
+  const GeomAbs_SurfaceType aSType = theS.GetType();
+
+  const Handle(Geom_Surface) &aSurf = theS.Surface();
+
+  if (aSType == GeomAbs_OffsetSurface)
+  {
+    const Handle(Geom_OffsetSurface) aOS = Handle(Geom_OffsetSurface)::DownCast(aSurf);
+    return AllowExtendVParameter(GeomAdaptor_Surface(aOS->BasisSurface()),
+                                 theNewVFirst, theNewVLast);
+  }
+
+  const Handle(Geom_Curve) aC = aSurf->UIso(theS.FirstUParameter());
+
+  if (!AllowExtend(*aC, theNewVFirst, theNewVLast))
+    return Standard_False;
+
+  switch (aSType)
+  {
+    case GeomAbs_OtherSurface:
+      return Standard_True;
+    case GeomAbs_Sphere:
+    {
+      if ((theNewVFirst < -M_PI_2) || (theNewVLast > M_PI_2))
+      {
+        // After extending, the surface isoline will go 
+        // through the sphere pole
+        return Standard_False;
+      }
+      break;
+    }
+    case GeomAbs_SurfaceOfRevolution:
+    {
+      const Handle(Adaptor3d_HCurve) aCurv = theS.BasisCurve();
+      const Handle(Geom_Line) aL = new Geom_Line(theS.AxeOfRevolution());
+      const GeomAdaptor_Curve aLin(aL);
+
+      Extrema_ECC anExtr(aCurv->Curve(), aLin);
+      anExtr.Perform();
+      if (anExtr.IsDone() && anExtr.NbExt() > 0)
+      {
+        const Standard_Real aParF = theNewVFirst - Precision::PConfusion(),
+                            aParL = theNewVLast + Precision::PConfusion();
+        Extrema_POnCurv aP1, aP2;
+        for (Standard_Integer i = 1; i <= anExtr.NbExt(); i++)
+        {
+          if (anExtr.SquareDistance(i) > Precision::SquareConfusion())
+            continue;
+
+          anExtr.Points(i, aP1, aP2);
+          if ((aParF < aP1.Parameter()) && (aP1.Parameter() < aParL))
+          {
+            // After extending, the surface isoline will go 
+            // through the pole (singular point like pole of sphere)
+
+            return Standard_False;
+          }
+        }
+      }
+      break;
+    }
+  }
+
+  return Standard_True;
+}
+
+//=======================================================================
 //function : CompareWeightPoles
 //purpose  : Checks if thePoles1(i)*theW1(i) is equal to thePoles2(i)*theW2(i)
 //            with tolerance theTol.
 //           It is necessary for not rational B-splines and Bezier curves
-//            to set theW1 and theW2 adresses to zero.
+//            to set theW1 and theW2 addresses to zero.
 //=======================================================================
 static Standard_Boolean CompareWeightPoles(const TColgp_Array1OfPnt& thePoles1, 
                                            const TColStd_Array1OfReal* const theW1,

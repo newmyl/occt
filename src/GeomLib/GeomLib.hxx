@@ -32,8 +32,11 @@
 class Geom_Curve;
 class gp_Ax2;
 class Geom2d_Curve;
+class Geom_Curve;
 class gp_GTrsf2d;
 class Adaptor3d_CurveOnSurface;
+class Adaptor3d_Surface;
+class GeomAdaptor_Surface;
 class Geom_BoundedCurve;
 class gp_Pnt;
 class gp_Vec;
@@ -54,6 +57,8 @@ class GeomLib_Tool;
 class GeomLib_PolyFunc;
 class GeomLib_LogSample;
 
+#include <Geom_TrimmedCurve.hxx>
+#include <Geom2d_TrimmedCurve.hxx>
 
 //! Geom    Library.    This   package   provides   an
 //! implementation of  functions for basic computation
@@ -207,6 +212,50 @@ public:
     return (theCur->Value(aFPar).SquareDistance(theCur->Value(aLPar)) < theTol*theTol);
   }
 
+  //! Returns TRUE if theCurve will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewFPar, theNewLPar].
+  //! This is a template-method. Therefore, it can be applied to 
+  //! 2D- and 3D-curve and to Adaptor-HCurve.
+  template <typename TypeCurve>
+  Standard_EXPORT static Standard_Boolean AllowExtend(const TypeCurve& theCurve,
+                                                      const Standard_Real theNewFPar,
+                                                      const Standard_Real theNewLPar)
+  {
+    Standard_Real aFPar = theCurve.FirstParameter(),
+                  aLPar = theCurve.LastParameter();
+
+    if ((aFPar <= theNewFPar) && (theNewLPar <= aLPar) && (theNewFPar < theNewLPar))
+    {
+      //New boundaries are in the current ones
+      return Standard_True;
+    }
+
+    if (!theCurve.IsPeriodic111())
+    {
+      return Standard_False;
+    }
+
+    const Standard_Real aPeriod = theCurve.Period();
+
+    if ((theNewLPar - theNewFPar - aPeriod) > Epsilon(aPeriod))
+      return Standard_False;
+
+    return Standard_True;
+  }
+
+  //! Returns TRUE if theS will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewUFirst, theNewULast] along U-direction
+  Standard_EXPORT static Standard_Boolean 
+                    AllowExtendUParameter(const GeomAdaptor_Surface& theS,
+                                          const Standard_Real theNewUFirst,
+                                          const Standard_Real theNewULast);
+
+  //! Returns TRUE if theS will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewVFirst, theNewVLast] along V-direction
+  Standard_EXPORT static Standard_Boolean
+                    AllowExtendVParameter(const GeomAdaptor_Surface& theS,
+                                          const Standard_Real theNewVFirst,
+                                          const Standard_Real theNewVLast);
 
   //! Returns true if the poles of U1 isoline and the poles of
   //! U2 isoline of surface are identical according to tolerance criterion.

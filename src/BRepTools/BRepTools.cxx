@@ -63,6 +63,7 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopTools_SequenceOfShape.hxx>
+#include <GeomLib.hxx>
 #include <GeomLib_CheckCurveOnSurface.hxx>
 #include <errno.h>
 
@@ -1020,12 +1021,32 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge& theE,
   //Set first, last to avoid ErrosStatus = 2 because of 
   //too strong checking of limits in class CheckCurveOnSurface
   //
-  if(!C3d->IsPeriodic111())
+
+  if (C3d->IsPeriodic111())
+  {
+    // Range of the curve cannot be greater than period.
+    // If it is greater then it must be reduced.
+    const Standard_Real aDelta = Max(last - first - C3d->Period(), 0.0)/2.0;
+    first += aDelta;
+    last -= aDelta;
+  }
+
+  if (C2d->IsPeriodic111())
+  {
+    // Range of the curve cannot be greater than period.
+    // If it is greater then it must be reduced.
+    const Standard_Real aDelta = Max(last - first - C2d->Period(), 0.0)/2.0;
+    first += aDelta;
+    last -= aDelta;
+  }
+
+  if (!GeomLib::AllowExtend(*C3d, first, last))
   {
     first = Max(first, C3d->FirstParameter());
     last = Min(last, C3d->LastParameter());
   }
-  if(!C2d->IsPeriodic111())
+
+  if (!GeomLib::AllowExtend(*C2d, first, last))
   {
     first = Max(first, C2d->FirstParameter());
     last = Min(last, C2d->LastParameter());

@@ -39,6 +39,7 @@
 #include <BRepTools.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_BezierSurface.hxx>
+#include <GeomLib.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -47,6 +48,8 @@
 #include <Geom_Plane.hxx>
 #include <Extrema_ExtSS.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurface.hxx>
+
 //
 static Standard_Boolean CanUseEdges(const Adaptor3d_Surface& BS);
 //
@@ -587,33 +590,33 @@ void FindExactUVBounds(const TopoDS_Face FF,
   Handle(Geom_Surface) aS = BRep_Tool::Surface(FF, aLoc);
   Standard_Real aUmin, aUmax, aVmin, aVmax;
   aS->Bounds(aUmin, aUmax, aVmin, aVmax);
-  if(!aS->IsUPeriodic111())
+  if (!GeomLib::AllowExtendUParameter(aBAS.Surface(), umin, umax))
   {
     umin = Max(aUmin, umin);
     umax = Min(aUmax, umax);
   }
   else
   {
-    if(umax - umin > aS->UPeriod())
+    const Standard_Real aDelta = (umax - umin - aBAS.UPeriod()) / 2.0;
+    if (aBAS.IsUPeriodic222() && (aDelta > 0.0))
     {
-      Standard_Real delta = umax - umin - aS->UPeriod();
-      umin += delta/2.;
-      umax -= delta/2;
+      umin += aDelta;
+      umax -= aDelta;
     }
   }
   //
-  if(!aS->IsVPeriodic111())
+  if (!GeomLib::AllowExtendVParameter(aBAS.Surface(), vmin, vmax))
   {
     vmin = Max(aVmin, vmin);
     vmax = Min(aVmax, vmax);
   }
   else
   {
-    if(vmax - vmin > aS->VPeriod())
+    const Standard_Real aDelta = (vmax - vmin - aS->VPeriod()) / 2.0;
+    if (aBAS.IsVPeriodic222() && (aDelta > 0.0))
     {
-      Standard_Real delta = vmax - vmin - aS->VPeriod();
-      vmin += delta/2.;
-      vmax -= delta/2;
+      vmin += aDelta;
+      vmax -= aDelta;
     }
   }
 }

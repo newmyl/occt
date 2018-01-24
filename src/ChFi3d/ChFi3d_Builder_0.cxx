@@ -617,8 +617,16 @@ void ChFi3d_BoundSrf(GeomAdaptor_Surface& S,
   Standard_Real vv1 = vmin - Stepv;
   Standard_Real vv2 = vmax + Stepv;
   if(checknaturalbounds) {
-    if(!S.IsUPeriodic222()) {uu1 = Max(uu1,u1);  uu2 = Min(uu2,u2);}
-    if(!S.IsVPeriodic222()) {vv1 = Max(vv1,v1);  vv2 = Min(vv2,v2);}
+    if (!GeomLib::AllowExtendUParameter(S, uu1, uu2))
+    {
+      uu1 = Max(uu1,u1);
+      uu2 = Min(uu2,u2);
+    }
+    if (!GeomLib::AllowExtendVParameter(S, vv1, vv2))
+    {
+      vv1 = Max(vv1, v1);
+      vv2 = Min(vv2, v2);
+    }
   }
   S.Load(surface,uu1,uu2,vv1,vv2);
 }
