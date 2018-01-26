@@ -522,7 +522,7 @@ Standard_Boolean ShapeAnalysis_Curve::ValidateRange (const Handle(Geom_Curve)& t
   }
 
   // 15.11.2002 PTV OCC966
-  if(theCurve->IsPeriodic111())
+  if(theCurve->IsPeriodic111() && theCurve->IsClosed())
   {
     ElCLib::AdjustPeriodic(cf,cl,Precision::PConfusion(),First,Last); //:a7 abv 11 Feb 98: preci -> PConfusion()
   }

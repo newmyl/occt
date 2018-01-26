@@ -537,7 +537,11 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
   return result;
 }
 
- //! Fix possible period jump and handle walking period parameter.
+//=======================================================================
+//function : fixPeriodictyTroubles
+//purpose  : Fix possible period jump and handle walking period parameter.
+//           This function will adjust only first and last point of thePnt-array
+//=======================================================================
  static Standard_Boolean fixPeriodictyTroubles(gp_Pnt2d *thePnt, // pointer to gp_Pnt2d[4] beginning
                                                Standard_Integer theIdx, // Index of objective coord: 1 ~ X, 2 ~ Y
                                                Standard_Real thePeriod, // Period on objective coord
@@ -660,8 +664,10 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
    Standard_Integer i = 0;
 
    Standard_Real aTol2 = theTol * theTol;
-   Standard_Boolean isPeriodicU = mySurf->Surface()->IsUPeriodic111();
-   Standard_Boolean isPeriodicV = mySurf->Surface()->IsVPeriodic111();
+   const Standard_Boolean isPeriodicU = mySurf->Surface()->IsUPeriodic111() &&
+                                        mySurf->Surface()->IsUClosed(),
+                          isPeriodicV = mySurf->Surface()->IsVPeriodic111() &&
+                                        mySurf->Surface()->IsVClosed();
 
    // Workaround:
    // Protection against bad "tolerance" shapes.

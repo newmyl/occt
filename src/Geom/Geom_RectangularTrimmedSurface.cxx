@@ -603,12 +603,18 @@ Standard_Real Geom_RectangularTrimmedSurface::VPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed () const { 
-
-  if (isutrimmed)  
+Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed() const
+{
+  if (!basisSurf->IsUClosed())
     return Standard_False;
-  else             
-    return basisSurf->IsUClosed();
+
+  if (!isutrimmed)
+    return Standard_True;
+
+  Standard_Real aU1 = 0.0, aU2 = 0.0, aV1 = 0.0, aV2 = 0.0;
+  basisSurf->Bounds(aU1, aU2, aV1, aV2);
+
+  return (Abs((utrim2 + aU1) - (utrim1 + aU2)) < Precision::PConfusion());
 }
 
 
@@ -617,12 +623,18 @@ Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsVClosed () const { 
-
-  if (isvtrimmed) 
+Standard_Boolean Geom_RectangularTrimmedSurface::IsVClosed() const
+{
+  if (!basisSurf->IsVClosed())
     return Standard_False;
-  else   
-    return basisSurf->IsVClosed();
+
+  if (!isvtrimmed)
+    return Standard_True;
+
+  Standard_Real aU1 = 0.0, aU2 = 0.0, aV1 = 0.0, aV2 = 0.0;
+  basisSurf->Bounds(aU1, aU2, aV1, aV2);
+
+  return (Abs((vtrim2 + aV1) - (vtrim1 + aV2)) < Precision::PConfusion());
 }
 
 //=======================================================================

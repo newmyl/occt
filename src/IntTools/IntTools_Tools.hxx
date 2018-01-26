@@ -130,14 +130,6 @@ public:
   //! Returns True if D1 and D2 coinside with given tolerance
   Standard_EXPORT static Standard_Boolean IsDirsCoinside (const gp_Dir& D1, const gp_Dir& D2, const Standard_Real aTol);
   
-
-  //! Returns True if aC is BoundedCurve from Geom and
-  //! the distance between first point
-  //! of the curve aC and last point
-  //! is less than 1.e-12
-  Standard_EXPORT static Standard_Boolean IsClosed (const Handle(Geom_Curve)& aC);
-  
-
   //! Returns adaptive tolerance for given aTolBase
   //! if aC is trimmed curve and basis curve is parabola,
   //! otherwise returns value of aTolBase

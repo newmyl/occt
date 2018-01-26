@@ -719,7 +719,10 @@ Standard_Boolean Geom_OffsetSurface::IsUClosed () const
     else if (SBasis->IsKind (STANDARD_TYPE(Geom_SurfaceOfRevolution))) { 
       UClosed = Standard_True; 
     }
-    else { UClosed = Standard_False; }
+    else
+    {
+      UClosed = SBasis->IsUClosed();
+    }
   }  
   return UClosed;
 }
@@ -748,7 +751,10 @@ Standard_Boolean Geom_OffsetSurface::IsVClosed () const
     if (SBasis->IsKind (STANDARD_TYPE(Geom_ElementarySurface))) {
       VClosed = SBasis->IsVClosed();
     }
-    else { VClosed = Standard_False; }
+    else
+    {
+      VClosed = SBasis->IsVClosed();
+    }
   }
   return VClosed;
 }

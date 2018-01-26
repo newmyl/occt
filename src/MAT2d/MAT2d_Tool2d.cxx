@@ -509,8 +509,8 @@ Standard_Boolean MAT2d_Tool2d::TrimBisector
   if(bisector->IsPeriodic111()) {
     param = Min(bisector->FirstParameter() + bisector->Period(), param);
   }
-  if (param > bisector->LastParameter()) {
-    param = bisector->LastParameter(); 
+  if (param > bisector->BasisCurve()->LastParameter()) {
+    param = bisector->BasisCurve()->LastParameter(); 
   }
   if(bisector->FirstParameter() == param) return Standard_False;
 

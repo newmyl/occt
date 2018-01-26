@@ -578,7 +578,7 @@ void ShapeFix_EdgeProjAux::UpdateParam2d (const Handle(Geom2d_Curve)& theCurve2d
   Standard_Real preci2d = Precision::PConfusion(); //:S4136: Parametric(preci, 0.01);
 
   // 15.11.2002 PTV OCC966
-  if(theCurve2d->IsPeriodic111())
+  if(theCurve2d->IsPeriodic111() && theCurve2d->IsClosed())
   {
     ElCLib::AdjustPeriodic(cf,cl,preci2d,myFirstParam,myLastParam);
   }

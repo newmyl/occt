@@ -2797,8 +2797,8 @@ Standard_Boolean GeomLib::AllowExtendVParameter(const GeomAdaptor_Surface& theS,
         // through the sphere pole
         return Standard_False;
       }
-      break;
     }
+    break;
     case GeomAbs_SurfaceOfRevolution:
     {
       const Handle(Adaptor3d_HCurve) aCurv = theS.BasisCurve();
@@ -2827,8 +2827,10 @@ Standard_Boolean GeomLib::AllowExtendVParameter(const GeomAdaptor_Surface& theS,
           }
         }
       }
-      break;
     }
+    break;
+    default:
+      break;
   }
 
   return Standard_True;
