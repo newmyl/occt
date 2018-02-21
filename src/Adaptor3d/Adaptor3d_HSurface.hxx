@@ -95,12 +95,16 @@ public:
   
     Standard_Boolean IsVClosed() const;
   
+    //! Returns true if the surface in this adapter is U periodic 
     Standard_Boolean IsUPeriodic() const;
   
+    //! Returns U period of U-periodic surface
     Standard_Real UPeriod() const;
   
+    //! Returns true if the surface in this adapter is V periodic 
     Standard_Boolean IsVPeriodic() const;
   
+    //! Returns V period of V-periodic surface
     Standard_Real VPeriod() const;
   
     gp_Pnt Value (const Standard_Real U, const Standard_Real V) const;

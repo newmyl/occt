@@ -105,8 +105,10 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the curve is periodic
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the period of the curve
   Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   
   //! Computes the point of parameter U on the curve
@@ -177,12 +179,6 @@ public:
 
 protected:
 
-
-
-
-
-private:
-
   Standard_EXPORT GeomAbs_Shape LocalContinuity (const Standard_Real U1, const Standard_Real U2) const;
   
   Standard_EXPORT void load (const Handle(Geom2d_Curve)& C, const Standard_Real UFirst, const Standard_Real ULast);
@@ -193,6 +189,12 @@ private:
   //! Rebuilds B-spline cache
   //! \param theParameter the value on the knot axis which identifies the caching span
   void RebuildCache (const Standard_Real theParameter) const;
+
+
+
+
+private:
+
 
 
   Handle(Geom2d_Curve) myCurve;

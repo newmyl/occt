@@ -315,11 +315,13 @@ static void Function_SetUVBounds(Standard_Real& myU1,
           Step = Function_ComputeStep(myCurve, R);
         }
         //
-        Standard_Boolean isclandper = (!(myCurve->IsClosed()) && !(myCurve->IsPeriodic()));
+        Standard_Boolean isclandper = !(myCurve->IsClosed() || myCurve->IsPeriodic());
         Standard_Boolean isFirst = Standard_True;
         for(Standard_Real par = W1 + Step; par <= W2; par += Step)
         {
-          if(!isclandper) par += Step;
+          if(myCurve->IsPeriodic()) 
+            par += Step;
+
           P = myCurve->Value(par);
           ElSLib::Parameters( Cone, P, U, V);
           U += Delta;
@@ -839,7 +841,7 @@ static void Function_SetUVBounds(Standard_Real& myU1,
 //
 //
 //=======================================================================
-//classn : ProjLib_Function
+//class : ProjLib_Function
 //purpose  : 
 //=======================================================================
 class ProjLib_Function : public AppCont_Function
@@ -848,25 +850,25 @@ class ProjLib_Function : public AppCont_Function
   Handle(Adaptor3d_HSurface) mySurface;
   Standard_Boolean myIsPeriodic[2];
   Standard_Real myPeriod[2];
-  public :
+public:
 
-  Standard_Real    myU1,myU2,myV1,myV2;
-  Standard_Boolean UCouture,VCouture;
+  Standard_Real    myU1, myU2, myV1, myV2;
+  Standard_Boolean UCouture, VCouture;
 
-  ProjLib_Function(const Handle(Adaptor3d_HCurve)&   C, 
+  ProjLib_Function(const Handle(Adaptor3d_HCurve)&   C,
                    const Handle(Adaptor3d_HSurface)& S)
-: myCurve(C),
-  mySurface(S),
-  myU1(0.0),
-  myU2(0.0),
-  myV1(0.0),
-  myV2(0.0),
-  UCouture(Standard_False),
-  VCouture(Standard_False)
+                   : myCurve(C),
+                   mySurface(S),
+                   myU1(0.0),
+                   myU2(0.0),
+                   myV1(0.0),
+                   myV2(0.0),
+                   UCouture(Standard_False),
+                   VCouture(Standard_False)
   {
     myNbPnt = 0;
     myNbPnt2d = 1;
-    Function_SetUVBounds(myU1,myU2,myV1,myV2,UCouture,VCouture,myCurve,mySurface);
+    Function_SetUVBounds(myU1, myU2, myV1, myV2, UCouture, VCouture, myCurve, mySurface);
     myIsPeriodic[0] = mySurface->IsUPeriodic();
     myIsPeriodic[1] = mySurface->IsVPeriodic();
 
@@ -881,27 +883,27 @@ class ProjLib_Function : public AppCont_Function
       myPeriod[1] = 0.0;
   }
 
-  void PeriodInformation(const Standard_Integer theDimIdx,
-                         Standard_Boolean& IsPeriodic,
-                         Standard_Real& thePeriod) const
+  virtual void PeriodInformation(const Standard_Integer theDimIdx,
+                                 Standard_Boolean& IsPeriodic,
+                                 Standard_Real& thePeriod) const Standard_OVERRIDE
   {
     IsPeriodic = myIsPeriodic[theDimIdx - 1];
     thePeriod = myPeriod[theDimIdx - 1];
   }
 
-  Standard_Real FirstParameter() const
+  virtual Standard_Real FirstParameter() const Standard_OVERRIDE
   {
     return (myCurve->FirstParameter());
   }
 
-  Standard_Real LastParameter() const
+  virtual Standard_Real LastParameter() const Standard_OVERRIDE
   {
     return (myCurve->LastParameter());
   }
 
-  Standard_Boolean Value(const Standard_Real   theT,
-                         NCollection_Array1<gp_Pnt2d>& thePnt2d,
-                         NCollection_Array1<gp_Pnt>&   /*thePnt*/) const
+  virtual Standard_Boolean Value(const Standard_Real   theT,
+                                 NCollection_Array1<gp_Pnt2d>& thePnt2d,
+                                 NCollection_Array1<gp_Pnt>&   /*thePnt*/) const Standard_OVERRIDE
   {
     thePnt2d(1) = Function_Value(theT, myCurve, mySurface, myU1, myU2, myV1, myV2, UCouture, VCouture);
     return Standard_True;
@@ -912,13 +914,13 @@ class ProjLib_Function : public AppCont_Function
     return Function_Value(theT, myCurve, mySurface, myU1, myU2, myV1, myV2, UCouture, VCouture);
   }
 
-  Standard_Boolean D1(const Standard_Real   theT,
-                      NCollection_Array1<gp_Vec2d>& theVec2d,
-                      NCollection_Array1<gp_Vec>&   /*theVec*/) const
+  virtual Standard_Boolean D1(const Standard_Real   theT,
+                              NCollection_Array1<gp_Vec2d>& theVec2d,
+                              NCollection_Array1<gp_Vec>&   /*theVec*/) const Standard_OVERRIDE
   {
     gp_Pnt2d aPnt2d;
     gp_Vec2d aVec2d;
-    Standard_Boolean isOk = Function_D1(theT, aPnt2d,aVec2d, myCurve, mySurface, myU1, myU2, myV1, myV2, UCouture, VCouture);
+    Standard_Boolean isOk = Function_D1(theT, aPnt2d, aVec2d, myCurve, mySurface, myU1, myU2, myV1, myV2, UCouture, VCouture);
     theVec2d(1) = aVec2d;
     return isOk;
   }

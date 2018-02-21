@@ -23,6 +23,7 @@
 
 #include <Standard_Real.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <Precision.hxx>
 #include <Standard_Integer.hxx>
 #include <Standard_Boolean.hxx>
 #include <TColgp_Array1OfPnt.hxx>
@@ -34,6 +35,7 @@ class gp_Ax2;
 class Geom2d_Curve;
 class gp_GTrsf2d;
 class Adaptor3d_CurveOnSurface;
+class GeomAdaptor_Surface;
 class Geom_BoundedCurve;
 class gp_Pnt;
 class gp_Vec;
@@ -53,7 +55,6 @@ class GeomLib_IsPlanarSurface;
 class GeomLib_Tool;
 class GeomLib_PolyFunc;
 class GeomLib_LogSample;
-
 
 //! Geom    Library.    This   package   provides   an
 //! implementation of  functions for basic computation
@@ -192,6 +193,71 @@ public:
   //! coincide with given tolerance
   Standard_EXPORT static void IsClosed(const Handle(Geom_Surface)& S, const Standard_Real Tol,
                                        Standard_Boolean& isUClosed, Standard_Boolean& isVClosed);
+
+  //! This method determines if the ends of the given curve are
+  //! coincided with given tolerance.
+  //! This is a template-method. Therefore, it can be applied to 
+  //! 2D- and 3D-curve and to Adaptor-HCurve.
+  template <typename TypeCurve>
+  Standard_EXPORT static Standard_Boolean IsClosed(const Handle(TypeCurve)& theCurve,
+                                                   const Standard_Real theTol)
+  {
+    const Standard_Real aFPar = theCurve->FirstParameter(),
+                        aLPar = theCurve->LastParameter();
+
+    if (Precision::IsInfinite(aFPar) || Precision::IsInfinite(aLPar))
+      return Standard_False;
+
+    return (theCurve->Value(aFPar).SquareDistance(theCurve->Value(aLPar)) < theTol*theTol);
+  }
+
+  //! Returns TRUE if theCurve will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewFPar, theNewLPar].
+  //! This is a template-method. Therefore, it can be applied to 
+  //! 2D- and 3D-curve.
+  //! Using trimmed curves or Adaptor_HCurves is possible but undesirable
+  //! because theCurve must be parametrized in its default work-range
+  //! in order for this method to work correctly.
+  template <typename TypeCurve>
+  Standard_EXPORT static Standard_Boolean IsTrimAllowed(const Handle(TypeCurve)& theCurve,
+                                                        const Standard_Real theNewFPar,
+                                                        const Standard_Real theNewLPar)
+  {
+    Standard_Real aFPar = theCurve->FirstParameter(),
+                  aLPar = theCurve->LastParameter();
+
+    if ((aFPar <= theNewFPar) && (theNewLPar <= aLPar) && (theNewFPar < theNewLPar))
+    {
+      //New boundaries are in the current ones
+      return Standard_True;
+    }
+
+    if (!theCurve->IsPeriodic())
+    {
+      return Standard_False;
+    }
+
+    const Standard_Real aPeriod = theCurve->Period();
+
+    if ((theNewLPar - theNewFPar - aPeriod) > Epsilon(aPeriod))
+      return Standard_False;
+
+    return Standard_True;
+  }
+
+  //! Returns TRUE if theS will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewUFirst, theNewULast] along U-direction
+  Standard_EXPORT static Standard_Boolean
+                                IsUTrimAllowed(const GeomAdaptor_Surface& theS,
+                                               const Standard_Real theNewUFirst,
+                                               const Standard_Real theNewULast);
+
+  //! Returns TRUE if theS will keep its validity for OCCT-algorithms
+  //! after its trimming in range [theNewVFirst, theNewVLast] along V-direction
+  Standard_EXPORT static Standard_Boolean
+                                IsVTrimAllowed(const GeomAdaptor_Surface& theS,
+                                               const Standard_Real theNewVFirst,
+                                               const Standard_Real theNewVLast);
 
   //! Returns true if the poles of U1 isoline and the poles of
   //! U2 isoline of surface are identical according to tolerance criterion.

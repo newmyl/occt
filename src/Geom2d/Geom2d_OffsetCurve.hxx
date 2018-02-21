@@ -238,16 +238,12 @@ public:
   //! Raised if N < 0.
   Standard_EXPORT Standard_Boolean IsCN (const Standard_Integer N) const Standard_OVERRIDE;
   
-  //! Is the parametrization of a curve is periodic ?
-  //! If the basis curve is a circle or an ellipse the corresponding
-  //! OffsetCurve is periodic. If the basis curve can't be periodic
-  //! (for example BezierCurve) the OffsetCurve can't be periodic.
+  //! Returns TRUE if the basis curve is periodic. Returns FALSE otherwise.
+  //! Moreover, the basis curve must have continuity greater than C0.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
   //! Returns the period of this offset curve, i.e. the period
   //! of the basis curve of this offset curve.
-  //! Exceptions
-  //! Standard_NoSuchObject if the basis curve is not periodic.
   Standard_EXPORT virtual Standard_Real Period() const Standard_OVERRIDE;
   
   //! Applies the transformation T to this offset curve.

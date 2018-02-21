@@ -81,13 +81,17 @@ public:
   
     static Standard_Boolean IsVClosed (const Standard_Address S);
   
-    static Standard_Boolean IsUPeriodic (const Standard_Address S);
+  //! Returns TRUE if S is U-periodic
+  static Standard_Boolean IsUPeriodic (const Standard_Address S);
   
-    static Standard_Real UPeriod (const Standard_Address S);
+  //! Returns U-period of S
+  static Standard_Real UPeriod (const Standard_Address S);
   
-    static Standard_Boolean IsVPeriodic (const Standard_Address S);
+  //! Returns TRUE if S is V-periodic
+  static Standard_Boolean IsVPeriodic (const Standard_Address S);
   
-    static Standard_Real VPeriod (const Standard_Address S);
+  //! Returns V-period of S
+  static Standard_Real VPeriod (const Standard_Address S);
   
     static gp_Pnt Value (const Standard_Address S, const Standard_Real u, const Standard_Real v);
   

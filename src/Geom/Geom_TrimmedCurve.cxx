@@ -126,7 +126,7 @@ void Geom_TrimmedCurve::SetTrim (const Standard_Real U1,
    Standard_Real Udeb = basisCurve->FirstParameter();
    Standard_Real Ufin = basisCurve->LastParameter();
 
-   if (basisCurve->IsPeriodic())  {
+   if (IsPeriodic())  {
      sameSense = Sense;
       
      // set uTrim1 in the range Udeb , Ufin
@@ -170,7 +170,7 @@ void Geom_TrimmedCurve::SetTrim (const Standard_Real U1,
 
 Standard_Boolean Geom_TrimmedCurve::IsClosed () const
 {
-  return ( StartPoint().Distance(EndPoint()) <= gp::Resolution());
+  return ( StartPoint().SquareDistance(EndPoint()) <= gp::Resolution());
 }
 
 //=======================================================================
@@ -180,8 +180,7 @@ Standard_Boolean Geom_TrimmedCurve::IsClosed () const
 
 Standard_Boolean Geom_TrimmedCurve::IsPeriodic () const 
 {
-  //return basisCurve->IsPeriodic();
-  return Standard_False;
+  return basisCurve->IsPeriodic();
 }
 
 

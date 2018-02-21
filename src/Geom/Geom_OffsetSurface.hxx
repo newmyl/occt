@@ -209,24 +209,26 @@ public:
   //! Returns true if this offset surface is periodic in the u
   //! parametric direction, i.e. if the basis
   //! surface of this offset surface is periodic in this direction.
+  //! Moreover, the basis surface must have continuity greater than C0 
+  //! in U-direction (but currently, continuity in both direction is checked).
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
   //! Returns the period of this offset surface in the u
   //! parametric direction respectively, i.e. the period of the
   //! basis surface of this offset surface in this parametric direction.
-  //! raises if the surface is not uperiodic.
   Standard_EXPORT virtual Standard_Real UPeriod() const Standard_OVERRIDE;
   
 
   //! Returns true if this offset surface is periodic in the v
   //! parametric direction, i.e. if the basis
   //! surface of this offset surface is periodic in this direction.
+  //! Moreover, the basis surface must have continuity greater than C0 
+  //! in V-direction (but currently, continuity in both direction is checked).
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
   //! Returns the period of this offset surface in the v
   //! parametric direction respectively, i.e. the period of the
   //! basis surface of this offset surface in this parametric direction.
-  //! raises if the surface is not vperiodic.
   Standard_EXPORT virtual Standard_Real VPeriod() const Standard_OVERRIDE;
   
   //! Computes the U isoparametric curve.

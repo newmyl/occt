@@ -146,8 +146,10 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the projection result is periodic
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! returns the period of the projection result
   Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   
   //! Computes the point of parameter U on the curve.

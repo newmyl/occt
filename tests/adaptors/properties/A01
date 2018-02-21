@@ -1,0 +1,26 @@
+circle c 0 0 20
+
+set ExpPeriodic "Adaptor2d_Curve2d is periodic with period 6.2831853071795862"
+set ExpClosed "Adaptor2d_Curve2d is closed"
+
+nulifyadaptors
+makeadaptor c
+set logp [adaptorproperties -isperiodic]
+set logc [adaptorproperties -isclosed]
+set logpc [adaptorproperties -isperiodic -isclosed]
+
+if { ![regexp $ExpPeriodic $logp] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logc] } {
+  puts "Error: the adaptor is not closed"
+}
+
+if { ![regexp $ExpPeriodic $logpc] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logpc] } {
+  puts "Error: the adaptor is not closed"
+}

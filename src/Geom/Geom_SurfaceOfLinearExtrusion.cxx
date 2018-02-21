@@ -339,6 +339,15 @@ Standard_Boolean Geom_SurfaceOfLinearExtrusion::IsUPeriodic () const {
 }
 
 //=======================================================================
+//function : UPeriod
+//purpose  : 
+//=======================================================================
+Standard_Real Geom_SurfaceOfLinearExtrusion::UPeriod() const
+{
+  return basisCurve->Period();
+}
+
+//=======================================================================
 //function : IsVClosed
 //purpose  : 
 //=======================================================================

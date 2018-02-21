@@ -723,6 +723,143 @@ When you write an algorithm which operates on geometric objects, use <i> Adaptor
 As a result, you can use the algorithm with any kind of object, if you provide for this object an interface derived from *Adaptor3d* or *Adaptor2d*.
 These interfaces are easy to use: simply create an adapted curve or surface from a *Geom2d* curve, and then use this adapted curve as an argument for the algorithm? which requires it.
 
+@section occt_modat_4per Periodicity concept
+
+@subsection occt_modat_4per_1 Mathematical definition
+
+In math, the following definition of periodicity is applied:
+
+A function of a real variable \f$ f(x) \f$ is said to be periodic with period \f$ T \neq 0 \f$ if<br>
+<span>1.</span>	For every \f$ x \in \mathfrak{D}_{f} \f$ (\f$ \mathfrak{D}_{f} \f$ is the domain of the function \f$ f(x) \f$), the point \f$ \left (x \pm T*n  \right ) \in \mathfrak{D}_{f} \f$ (where \f$ n \f$ applies positive integer values only: \f$ n=1,2,... \f$ ) and the condition
+\f[ f(x-T*n)=f(x+T*n)=f(x) \f]
+is satisfied.<br>
+<span>2.</span>	For every \f$ x \notin \mathfrak{D}_{f} \f$, the point \f$ \left (x \pm T*n  \right ) \notin \mathfrak{D}_{f} \f$, (where \f$ n=1,2,... \f$ ).<br>
+
+@subsubsection occt_modat_4per_1_1 Example
+
+For example, the tangent function \f$ f(x)=\tan(x) \f$ is periodic with least period (a least positive constant \f$ T \f$, which will be called later as period) \f$ \pi \f$ because \f$ \tan(x) \f$ is not defined only in points \f$ x=\left (\frac{\pi }{2}\pm \pi *n  \right ) \f$ (where \f$ n=0,1,2,... \f$) and for other points the condition<br>
+\f[ \tan(x-\pi*n)=\tan(x+\pi*n)=\tan(x) \f]
+is satisfied.
+
+As we can see from the definition, any periodic function cannot have bounded domain (because product \f$ T*n \f$ tends to infinite) but can be discontinuous. Let us look, how it is realized in OCCT.
+
+@subsection occt_modat_4per_2 Periodicity of bounded curves
+
+First of all, OCCT works only with continuous elements (curves and surfaces). <b>I.e. work with curves having continuity less than C0 (e.g. with any gaps) is not supported.</b>
+
+In OCCT, set of bounded curves includes only Bezier curves, B-spline curves and trimmed curves. Let us consider these objects from point of view to be periodic.
+
+@subsubsection occt_modat_4per_2_1 Bezier curves
+
+Bezier curve is always defined in the range \f$ \mathfrak{D}=\left [ 0,1 \right ] \f$ and does not allow any analytical extension. Therefore, <b>Bezier curve cannot be periodic at all</b>.
+
+@subsubsection occt_modat_4per_2_2 B-spline curve
+
+OCCT can create a periodic B-spline and can convert any closed B-spline into periodic one. At that, any periodic B-spline is defined on the set of real numbers (\f$ \mathfrak{D}=\mathbb{R} \f$). Nevertheless, in OCCT, periodic B-splines are included in set of bounded curves, too. The class of Bounded curves does not separate periodic and not periodic B-splines.<br>
+
+However, <b>range of not periodic B-spline must be considered as its domain</b>. I.e. if any not periodic B-spline curve is parametrized in the range \f$ t \in \left [ 0,1 \right ] \f$ then its evaluation in the point \f$ t=1.5 \f$ is forbidden (in general). Evaluation of B-spline curve on its analytical extension can be used in some cases. However, it is out of scope of this article.
+
+@subsubsection occt_modat_4per_2_3 Trimmed curve
+
+OCCT algorithms allow trimmed curve’s existing out of trim boundaries (exceptionally, if these boundaries match the domain completely). Evidently, the trimmed curve is not defined in the region where its basis curve is not defined.<br>
+
+E.g. if some trimmed curve is an arc of circle and the trim boundaries are \f$ t \in \left [ \frac{\pi }{2},\pi \right ] \f$ then nothing prevents us to compute the value of this arc in the point \f$ t=\frac{3\pi}{2} \f$. Analogically, for some line trimmed in the range \f$ t \in \left [ 0,1 \right ] \f$ nothing prevents us to compute the value in the point \f$ t=100 \f$. In other words, <b>trim boundaries must not be considered as domain boundaries</b>. And curve trimmed from any periodic curve exists out of trim boundaries. Consequently, this trimmed curve can be considered as periodic curve.<br>
+
+Also, let us make the final conclusion. <b>In OCCT algorithms, trimmed curve is considered to be periodic if its basis curve is periodic. At that trim boundaries do not play any role. I.e. the curve itself can be periodic and not closed</b>.<br>
+
+@subsubsection occt_modat_4per_2_4 Trim boundaries
+
+@ref occt_modat_4per_2_3 "We have just found out" that the trim boundaries are not domain boundaries. But what is their real role in OCCT algorithms?
+
+Trim boundaries define some work range of the trimmed curve. Indeed, this (default) work range exists for any OCCT curve (not only for trimmed one). For any periodic not trimmed curve, the work range is \f$ \mathfrak{W}=\left [ 0,T \right ) \f$ (where \f$ T \f$ is the period of the curve). For bounded not trimmed curve, this work range matches its domain. For other not trimmed curves (e.g. line), the work range is \f$ \mathfrak{W}=\left ( -\infty ,+\infty  \right ) \f$ (i.e. matches its domain, too).
+
+Operation <b><i>"TRIM"</i></b> applied to the curve allows changing its work range (shifting or reducing but not increasing). <b>Setting work range greater than the default one is strictly forbidden</b>.
+
+E.g. the default work range of any circle is \f$ \mathfrak{W}=\left [ 0,2\pi \right ) \f$. With <b><i>"TRIM"</i></b> operation you can create trimmed circle (i.e. arc) with work ranges \f$ \left [ 0,\pi \right ] \f$, \f$ \left [ 5\pi,\frac{11\pi}{2} \right ] \f$, \f$ \left [ 100\pi,102\pi \right ] \f$ etc. However, you must have failed to create arc with work range \f$ \left [ 50\pi,55\pi \right ] \f$, because this new work range is greater than \f$ \mathfrak{W} \f$.
+
+For not periodic B-spline curve with default work range \f$ \mathfrak{W}=\left [ 0,1 \right ] \f$, you can create trimmed B-spline curve with work ranges \f$ \left [ 0,0.1 \right ] \f$, \f$ \left [ 0.6,0.78 \right ] \f$, \f$ \left [ 0.5,1 \right ] \f$ etc. However, you must have failed to set work range to \f$ \left [ 0.8,1.5 \right ] \f$ (because the input B-spline is not defined in the range \f$ \left ( 1,1.5 \right ] \f$).
+
+For a line, you can create any work range with <b><i>"TRIM"</i></b> operation. Every work range will be valid.
+
+Use the method **GeomLib::IsTrimAllowed(...)** in order to check whether the new work range can be applied to the curve. Please see documentation about this method.
+
+However, what does work range bring to OCCT? The point is that the most OCCT algorithms tend to work in work ranges of their input data. So, if you call extrema high level tool (exactly API) then you will obtain point with parameters already adjusted in work range of the arguments. If you call surface-surface intersection algorithm (API again) then you will obtain 3D curve and two 2D curves, which are already in surfaces’ work ranges (you do not need any shifting them). So, correct using work ranges makes work with OCCT more convenient.
+
+@subsection occt_modat_4per_3 Periodicity of curves’ adaptors
+
+In OCCT, periodicity of adaptors depends on the periodicity of their curves only. Any ranges are not taken into account.
+
+At that, it is useful to note the fact that adaptor’s curve is always not trimmed. I.e. if some trimmed curve is sent into some adaptor then the adaptor will store the basis (not trimmed) curve and First/Last parameters of adaptor will be set to the corresponding trim boundaries.
+
+Moreover, there are some specific adaptors in OCCT. E.g. **BRepAdaptor_CompCurve**. Periodicity of such adaptors is defined in a special way. So, it is necessary to read reference manual about these classes in order to get more clear understanding of their behavior.
+
+@subsection occt_modat_4per_4 Periodicity of surfaces
+
+In OCCT, a surface is set in parametric form by vector function of two real variables: \f$ S(U,V) \f$. As result, term of periodicity is considered for every such variable separately (\f$ U\f$ periodic and \f$ V \f$ periodic surfaces are considered). Also, there exist biperiodic surfaces (e.g. Toroidal surface), which are periodic in both \f$ U \f$ and \f$ V \f$ directions (OCCT does not work with univariate function of a complex argument; therefore commonly-used terms "Double periodic" or "Triple periodic" are not figured in OCCT).
+
+Also, it should be noticed that any surface always has rectangular domain. I.e. the surface domain always has such form: \f$ \mathfrak{D}_{S} = \left \{ (U, V) | U_{1}\leq U \leq U_{2}, V_{1}\leq V \leq V_{2} \right \} \f$, where \f$ U_{1} \f$, \f$ U_{2} \f$, \f$ V_{1} \f$ and \f$ V_{2} \f$ are four independent (on each other) numbers (they can apply infinite values).
+
+Having taken into account this remark, periodicity of some surface can be defined as follows:
+
+<b>The surface \f$ S(U,V) \f$ is \f$ U \f$ periodic if for every fixed value of \f$V\f$ argument \f$ (V=V_{0}, V_{0}\in \mathfrak{D}_{S})\f$, the univariate function of real variable \f$ F(U)=S(U,V_{0} ) \f$ is periodic.</b>
+
+Analogically, <b>The surface \f$ S(U,V) \f$ is \f$ V \f$ periodic if for every fixed value of \f$U\f$ argument \f$ (U=U_{0}, U_{0}\in \mathfrak{D}_{S})\f$, the univariate function of real variable \f$ F(V)=S(U_{0}, V) \f$ is periodic.</b>
+
+All remarks made @ref occt_modat_4per_2 "above" considering bounded curves are satisfied for bounded surfaces. At that, a work range of any surface is a region in 2D (rectangular) Cartesian coordinate system taking into account permissible values of U and V parameters. The example is given @ref occt_modat_4per_5 "below".
+
+The methods analogical to **GeomLib::IsTrimAllowed(...)** that can be applied to a surface are called **GeomLib::IsUTrimAllowed(...)** and **GeomLib::IsVTrimAllowed(...)**.
+
+@subsection occt_modat_4per_5 Special questions about periodicity of surfaces
+@subsubsection occt_modat_4per_5_1 Periodicity of a spherical surface
+
+Let us consider a spherical surface having radius \f$ R \f$. It can be defined in local coordinate system (UCS) by the vector function of two scalar arguments:
+\f[ 
+  S\left ( U,V \right )=R* \begin{pmatrix}
+                            \cos (U)*\cos (V)\\ 
+                            \sin (U)*\cos (V)\\ 
+                            \sin (V)
+                          \end{pmatrix} 
+\f]
+
+As we can see, this function is \f$ V \f$ periodic and its \f$ V \f$ period is equal to \f$ 2\pi \f$. And it is \f$ U \f$ periodic with \f$ U \f$ period \f$ 2\pi \f$. I.e. (theoretically) the default work range of any surface with such equation is the set of 2D points such \f$ \mathfrak{W}=\left \{(U,V)|0\leq U < 2\pi, 0\leq V < 2\pi \right \} \f$.
+
+However, let us take two different points in the parametric space: \f$ (0,0) \f$ and \f$ (\pi,\pi) \f$. Their 3D images are: \f$ S\left ( 0,0 \right )=\begin{pmatrix}R & 0 & 0\end{pmatrix}^{T} \f$, \f$ S\left ( \pi,\pi \right )=\begin{pmatrix}R & 0 & 0\end{pmatrix}^{T} \f$. As we can see, 3D points are the same. This fact is inappropriate for different points from one work range. Such result says about that the surface \f$ S(U,V) \f$ is self-interfered surface.
+
+<b>Working with self-interfered elements is not supported by OCCT at all</b>. Therefore, in order to make spherical surface valid, specific domain is assigned to sphere. Namely:<br>
+
+\f[ \mathfrak{D}_{S}= \left \{(U,V)|-\infty < U < +\infty , -\frac{\pi}{2}\leq V \leq  \frac{\pi}{2} \right \} \f]
+
+Of course, the range for V parameter must be \f$ -\frac{\pi}{2}+2\pi n\leq V \leq  \frac{\pi}{2}+2\pi n \f$ (where \f$ n \f$ applies positive integer values only: \f$ n=1,2,... \f$). However, this range is discontinuous and is not supported (see the section @ref occt_modat_4per_2). Therefore, \f$ V \f$ parameter of spherical surface is considered to be bounded. Consequently, <b>sphere is considered to be not \f$ V \f$ periodic</b>.
+
+Based on this fact, the default sphere’s work range is \f$ \mathfrak{W}=\left \{(U,V)|0\leq U < 2\pi, -\frac{\pi}{2}\leq V \leq  \frac{\pi}{2} \right \} \f$. Please pay attention to the fact that the spherical surface is \f$ U \f$ periodic surface with \f$ U \f$ period is equal to \f$ 2\pi \f$. Therefore, value of \f$ U \f$ parameter can be any real number (\f$U \in \mathbb{R}\f$). However, its work range in \f$ U \f$ direction cannot be greater than \f$ 2\pi \f$. In that way the sphere is not self-interfered (the point \f$ (\pi,\pi) \f$ is out of its domain) and is valid completely.
+
+@subsubsection occt_modat_4per_5_2 Periodicity of a Surface-of-Revolution
+
+@ref occt_modat_4per_5_1 "Analogical situation" exists with surface of revolution. Having taken into account all said above, let us formulate conditions when the surface of revolution is \f$ V \f$ periodic.
+
+Evidently, for that case, the basis curve must be periodic curve. Additionally, revolving full curve (taken with its default work range) must not lead to create self-interfered surface of revolution (i.e. this curve must not intersect the rotation axis). In other words, <b>the valid (not self-interfered) surface of revolution must be based on closed periodic curve in order to be \f$ V \f$ periodic</b>.
+
+Please note that the basis curve can be not closed by different reasons (not only in order to avoid creating self-interfered surface of revolution), which are neither nor separated nor analyzed by OCCT. OCCT uses simple check: periodicity of basis curve and its closure. It is connected with the fact that the property of periodicity of a Surface-of-Revolution is not very important for OCCT-algorithms because almost all algorithms work only with work range of a Surface-of-Revolution (i.e. in most cases we do not need in adjusting parameters).
+
+Based on the foregoing, the domain of any not \f$ V \f$ periodic surface of revolution is \f$ \mathfrak{D}_{S}= \left \{(U,V)|-\infty < U < +\infty , C_{f} \leq V \leq  C_{l} \right \} \f$, where \f$ \left [C_{f},C_{l}  \right ] \f$ is the work range of the basis curve (i.e. the work range of the basis curve defines the domain of the surface). The default work range of this surface is \f$ \mathfrak{W}=\left \{(U,V)|0\leq U < 2\pi, C_{f} \leq V \leq  C_{l} \right \} \f$.
+
+Finally, it is got to be said that the constructors of surface of revolution do not check the situation when invalid result can be created. It must be done on application level (e.g. by using **GeomLib::IsVTrimAllowed(...)** method). We recommend to use the following steps (which should be used only in places where you doubt in validity of created surface of revolution):
+
+<span>1.</span>Create a surface of revolution with default work range of the basis curve;<br>
+<span>2.</span>Compute new work range of the basis curve (it depends on your requirements only);<br>
+<span>3.</span>Call **GeomLib::IsVTrimAllowed(...)** method with existing surface of revolution and the new range. If the new range is valid the method will return TRUE.<br>
+
+The method **GeomLib::IsVTrimAllowed(...)** works with spherical surface, too.
+
+@subsection occt_modat_4per_6 Periodicity of surfaces’ adaptors
+
+@ref occt_modat_4per_3 "As for curves", periodicity of adaptors depends on the periodicity of their surfaces only. All remarks about curve's adaptor are fair to surfaces.
+
+@subsection occt_modat_4per_7 Methods IsPeriodic(), IsUPeriodic(), IsVPeriodic(), Period(), UPeriod() and VPeriod()
+
+Periodicity can be checked with methods IsPeriodic(), IsUPeriodic() and IsVPeriodic(), which are overriden for curves, surfaces and adaptors.
+
+For periodic elements (curves/surfaces/adaptors) methods Period(), UPeriod() and VPeriod() return their period value. For not periodic elements, it throws an exception "Standard_NotImplemented".
 
 @section occt_modat_5 Topology
 

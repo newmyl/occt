@@ -1,0 +1,80 @@
+pcylinder cy 100 200
+nurbsconvert bc cy
+
+explode bc f
+
+mksurface s1 bc_1
+mksurface s2 bc_2
+mksurface s3 bc_3
+
+set log1 [surfaceperiod s1]
+set log2 [surfaceperiod s2]
+set log3 [surfaceperiod s3]
+
+if { ![regexp {is U-periodic} $log1 ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true periodic"
+}
+
+if { [regexp {is not V-periodic} $log1 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+
+if { [regexp {is not U-periodic} $log2 ] } {
+  puts "OK. The surface is not U-periodic"
+} else {
+  puts "Error: the not U-periodic surface is detected to be U-periodic"
+}
+
+if { [regexp {is not V-periodic} $log2 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+
+if { [regexp {is not U-periodic} $log3 ] } {
+  puts "OK. The surface is not U-periodic"
+} else {
+  puts "Error: the not U-periodic surface is detected to be U-periodic"
+}
+
+if { [regexp {is not V-periodic} $log3 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+
+# Trim operation does not affect the periodicity
+
+trimu st1 s1 3 5
+if { ![regexp {is U-periodic} [surfaceperiod st1] ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true periodic"
+}
+
+setunotperiodic s1
+if { [regexp {is not U-periodic} [surfaceperiod s1] ] } {
+  puts "OK. The surface is not U-periodic"
+} else {
+  puts "Error: the not U-periodic surface is detected to be U-periodic"
+}
+
+# Not closed surface is not converted. It has to stay periodic
+setunotperiodic st1
+if { ![regexp {is U-periodic} [surfaceperiod st1] ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true periodic"
+}
+
+viso c1 st1 50
+
+if { ![regexp {is periodic} [curveperiod c1] ] } {
+  puts "Error: the periodic curve is detected to be not periodic"
+} else {
+  puts "OK. The curve is true periodic"
+}

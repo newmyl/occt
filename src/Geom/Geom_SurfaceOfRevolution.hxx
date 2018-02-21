@@ -247,9 +247,18 @@ public:
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
   //! IsVPeriodic returns true if the meridian of this
-  //! surface of revolution is periodic.
+  //! surface of revolution is periodic and is closed.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns 2*PI
+  Standard_Real UPeriod() const Standard_OVERRIDE
+  {
+    return (M_PI + M_PI);
+  };
+
+  //! Returns the period of the basis curve
+  Standard_EXPORT virtual Standard_Real VPeriod() const Standard_OVERRIDE;
+
   //! Computes the U isoparametric curve of this surface
   //! of revolution. It is the curve obtained by rotating the
   //! meridian through an angle U about the axis of revolution.

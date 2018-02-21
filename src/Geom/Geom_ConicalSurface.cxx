@@ -230,12 +230,16 @@ void Geom_ConicalSurface::SetSemiAngle (const Standard_Real Ang) {
 //purpose  : 
 //=======================================================================
 
-Pnt Geom_ConicalSurface::Apex () const 
+Pnt Geom_ConicalSurface::Apex(Standard_Real* const theVParametr) const
 {
 
    XYZ Coord = Position().Direction().XYZ();
    Coord.Multiply (-radius / Tan (semiAngle));
    Coord.Add      (Position().Location().XYZ());
+
+   if (theVParametr)
+     *theVParametr = -radius / Sin(semiAngle);
+
    return Pnt     (Coord);
 }
 

@@ -71,9 +71,11 @@ public:
   
     static Standard_Boolean IsClosed (const Handle(Adaptor2d_HCurve2d)& C);
   
-    static Standard_Boolean IsPeriodic (const Handle(Adaptor2d_HCurve2d)& C);
+  //! Returns TRUE if C is periodic
+  static Standard_Boolean IsPeriodic (const Handle(Adaptor2d_HCurve2d)& C);
   
-    static Standard_Real Period (const Handle(Adaptor2d_HCurve2d)& C);
+  //! Returns the period of C
+  static Standard_Real Period (const Handle(Adaptor2d_HCurve2d)& C);
   
   //! Computes the point of parameter U on the curve.
     static gp_Pnt2d Value (const Handle(Adaptor2d_HCurve2d)& C, const Standard_Real U);

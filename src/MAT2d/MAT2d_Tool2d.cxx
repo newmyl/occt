@@ -506,8 +506,8 @@ Standard_Boolean MAT2d_Tool2d::TrimBisector
   Handle(Geom2d_TrimmedCurve) bisector = 
     ChangeGeomBis(abisector->BisectorNumber()).ChangeValue();
 
-  if(bisector->BasisCurve()->IsPeriodic() && param == Precision::Infinite()) {
-    param = bisector->FirstParameter() + 2*M_PI;
+  if(bisector->IsPeriodic()) {
+    param = Min(bisector->FirstParameter() + bisector->Period(), param);
   }
   if (param > bisector->BasisCurve()->LastParameter()) {
     param = bisector->BasisCurve()->LastParameter(); 
@@ -527,8 +527,8 @@ Standard_Boolean MAT2d_Tool2d::TrimBisector
   const Standard_Integer      apoint)
 {
   Standard_Real Param;
-  Handle(Geom2d_TrimmedCurve) Bisector =
-    ChangeGeomBis(abisector->BisectorNumber()).ChangeValue();
+  const Handle(Geom2d_TrimmedCurve) &Bisector = 
+                  ChangeGeomBis(abisector->BisectorNumber()).ChangeValue();
 
   Handle(Bisector_Curve) Bis = Handle(Bisector_Curve)::
     DownCast(Bisector->BasisCurve());
@@ -536,8 +536,8 @@ Standard_Boolean MAT2d_Tool2d::TrimBisector
   //  Param = ParameterOnCurve(Bisector,theGeomPnts.Value(apoint));
   Param = Bis->Parameter(GeomPnt (apoint));
 
-  if (Bisector->BasisCurve()->IsPeriodic()) {
-    if (Bisector->FirstParameter() > Param) Param = Param + 2*M_PI;
+  if (Bisector->IsPeriodic()) {
+    if (Bisector->FirstParameter() > Param) Param += Bisector->Period();
   }
   if(Bisector->FirstParameter() >= Param)return Standard_False;
   if(Bisector->LastParameter()  <  Param)return Standard_False;
@@ -587,7 +587,7 @@ Standard_Boolean MAT2d_Tool2d::Projection (const Standard_Integer IEdge   ,
     INext = (IEdge == theCircuit->NumberOfItems()) ? 1 : (IEdge + 1);
     if (theCircuit->ConnexionOn(INext)) {
       ParamMax = theCircuit->Connexion(INext)->ParameterOnFirst(); 
-      if (Curve->BasisCurve()->IsPeriodic()){
+      if (Curve->IsPeriodic()){
         ElCLib::AdjustPeriodic(0.,2*M_PI,Eps,ParamMin,ParamMax);
       }
     }
@@ -1316,7 +1316,7 @@ IntRes2d_Domain  Domain(const Handle(Geom2d_TrimmedCurve)& Bisector1,
 
   IntRes2d_Domain Domain1(Bisector1->Value(Param1),Param1,Tolerance,
     Bisector1->Value(Param2),Param2,Tolerance);
-  if(Bisector1->BasisCurve()->IsPeriodic()) {
+  if(Bisector1->IsPeriodic()) {
     Domain1.SetEquivalentParameters(0.,2.*M_PI);
   }
   return Domain1;

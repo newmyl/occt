@@ -250,22 +250,6 @@ Standard_Boolean BOPTools_AlgoTools2D::HasCurveOnSurface
 //function : AdjustPCurveOnFace
 //purpose  : 
 //=======================================================================
-void BOPTools_AlgoTools2D::AdjustPCurveOnFace
-  (const TopoDS_Face& theF,
-   const Handle(Geom_Curve)&   theC3D,
-   const Handle(Geom2d_Curve)& theC2D,
-   Handle(Geom2d_Curve)& theC2DA,
-   const Handle(IntTools_Context)& theContext)
-{
-  Standard_Real aT1 = theC3D->FirstParameter();
-  Standard_Real aT2 = theC3D->LastParameter();
-  //
-  BOPTools_AlgoTools2D::AdjustPCurveOnFace (theF, aT1, aT2, theC2D, theC2DA, theContext);
-}
-//=======================================================================
-//function : AdjustPCurveOnFace
-//purpose  : 
-//=======================================================================
 void BOPTools_AlgoTools2D::AdjustPCurveOnFace 
   (const TopoDS_Face& theF,
    const Standard_Real theFirst,

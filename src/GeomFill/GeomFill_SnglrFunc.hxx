@@ -65,8 +65,13 @@ public:
   //! Computes the point of parameter U on the curve.
   Standard_EXPORT gp_Pnt Value (const Standard_Real U) const Standard_OVERRIDE;
   
+  //! This method is overridden from the basis class
+  Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
+
+  //! Returns TRUE if the curve is periodic
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! returns the period of the curve
   Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   
   //! Computes the point of parameter U on the curve.

@@ -1398,7 +1398,16 @@ Standard_Boolean Bisector_BisecAna::IsClosed() const
 //=============================================================================
 Standard_Boolean Bisector_BisecAna::IsPeriodic() const 
 {
-  return thebisector->BasisCurve()->IsPeriodic(); 
+  return thebisector->IsPeriodic();
+}
+
+//=============================================================================
+//function : Period
+//purpose  :
+//=============================================================================
+Standard_Real Bisector_BisecAna::Period() const
+{
+  return thebisector->Period();
 }
 
 //=============================================================================

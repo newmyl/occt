@@ -151,7 +151,7 @@ public:
   //! Returns False.
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  //! return False for an hyperbola.
+  //! Returns FALSE
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
 

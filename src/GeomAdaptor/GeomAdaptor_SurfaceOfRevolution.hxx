@@ -129,12 +129,17 @@ public:
   
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
+  //! Always returns TRUE
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
+  //! Returns 2*PI
   Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
   
+  //! IsVPeriodic returns true if the meridian of this
+  //! surface of revolution is periodic and is closed.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the period of the basis curve
   Standard_EXPORT Standard_Real VPeriod() const Standard_OVERRIDE;
 
   //! Returns the parametric U  resolution corresponding

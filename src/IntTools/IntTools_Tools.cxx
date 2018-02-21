@@ -32,6 +32,7 @@
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <GeomAPI_ProjectPointOnSurf.hxx>
+#include <GeomLib.hxx>
 #include <gp.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
@@ -81,37 +82,6 @@ static
     }
   }
   return !bFlag;
-}
-
-//=======================================================================
-//function : IsClosed
-//purpose  : 
-//=======================================================================
-  Standard_Boolean IntTools_Tools::IsClosed (const Handle(Geom_Curve)& aC3D)
-{
-  Standard_Boolean bRet;
-  Standard_Real aF, aL, aDist, aPC;
-  gp_Pnt aP1, aP2;
-  
-  Handle (Geom_BoundedCurve) aGBC=
-      Handle (Geom_BoundedCurve)::DownCast(aC3D);
-  if (aGBC.IsNull()) {
-    return Standard_False;
-  }
-  
-  aF=aC3D->FirstParameter();
-  aL=aC3D-> LastParameter();
-  
-  aC3D->D0(aF, aP1);
-  aC3D->D0(aL, aP2);
-
-  
-  //
-  aPC=Precision::Confusion();
-  aPC=aPC*aPC;
-  aDist=aP1.SquareDistance(aP2);
-  bRet=aDist<aPC;
-  return bRet;
 }
 
 //=======================================================================
@@ -217,8 +187,9 @@ static
   Handle (Geom2d_Curve) aC2D2=IC.SecondCurve2d();
   Standard_Boolean bIsClosed;
 
-  bIsClosed=IntTools_Tools::IsClosed(aC3D);
-  if (!bIsClosed) {
+  bIsClosed = GeomLib::IsClosed(aC3D, Precision::Confusion());
+  if (!bIsClosed)
+  {
     return 0;
   }
 

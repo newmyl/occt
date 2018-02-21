@@ -75,9 +75,11 @@ public:
   
     static Standard_Boolean IsClosed (const Standard_Address C);
   
-    static Standard_Boolean IsPeriodic (const Standard_Address C);
+  //! Returns TRUE if C is periodic
+  static Standard_Boolean IsPeriodic (const Standard_Address C);
   
-    static Standard_Real Period (const Standard_Address C);
+  //! Returns the period of C
+  static Standard_Real Period (const Standard_Address C);
   
   //! Computes the point of parameter U on the curve.
     static gp_Pnt2d Value (const Standard_Address C, const Standard_Real U);

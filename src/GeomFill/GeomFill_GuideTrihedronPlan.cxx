@@ -644,7 +644,7 @@ void GeomFill_GuideTrihedronPlan::InitX(const Standard_Real Param)
     X(1) = (Pole->Value(1, Ideb).Coord(2) + 
 	    Pole->Value(1, Ifin).Coord(2)) / 2;
   }
-  if (myGuide->IsPeriodic()) {
+  if (myGuide->IsPeriodic() && myGuide->IsClosed()) {
     X(1) = ElCLib::InPeriod(X(1), myGuide->FirstParameter(), 
 			          myGuide->LastParameter());
   }

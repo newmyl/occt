@@ -237,7 +237,7 @@ void Geom_RectangularTrimmedSurface::SetTrim(const Standard_Real U1,
     if ( U1 == U2)
       throw Standard_ConstructionError("Geom_RectangularTrimmedSurface::U1==U2");
 
-    if (basisSurf->IsUPeriodic()) {
+    if (IsUPeriodic()) {
       UsameSense = USense;
       
       // set uTrim1 in the range Udeb , Ufin
@@ -277,7 +277,7 @@ void Geom_RectangularTrimmedSurface::SetTrim(const Standard_Real U1,
     if ( V1 == V2)
       throw Standard_ConstructionError("Geom_RectangularTrimmedSurface::V1==V2");
 
-    if (basisSurf->IsVPeriodic()) {
+    if (IsVPeriodic()) {
       VsameSense = VSense;
 
       // set vTrim1 in the range Vdeb , Vfin
@@ -561,9 +561,7 @@ void Geom_RectangularTrimmedSurface::Transform (const Trsf& T)
 
 Standard_Boolean Geom_RectangularTrimmedSurface::IsUPeriodic () const 
 {
-  if (basisSurf->IsUPeriodic() &&  !isutrimmed) 
-    return Standard_True;
-  return Standard_False;
+  return basisSurf->IsUPeriodic();
 }
 
 
@@ -585,9 +583,7 @@ Standard_Real Geom_RectangularTrimmedSurface::UPeriod() const
 
 Standard_Boolean Geom_RectangularTrimmedSurface::IsVPeriodic () const 
 { 
-  if (basisSurf->IsVPeriodic() && !isvtrimmed)
-    return Standard_True;
-  return Standard_False;
+  return basisSurf->IsVPeriodic();
 }
 
 
@@ -607,12 +603,18 @@ Standard_Real Geom_RectangularTrimmedSurface::VPeriod() const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed () const { 
-
-  if (isutrimmed)  
+Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed() const
+{
+  if (!basisSurf->IsUClosed())
     return Standard_False;
-  else             
-    return basisSurf->IsUClosed();
+
+  if (!isutrimmed)
+    return Standard_True;
+
+  Standard_Real aU1 = 0.0, aU2 = 0.0, aV1 = 0.0, aV2 = 0.0;
+  basisSurf->Bounds(aU1, aU2, aV1, aV2);
+
+  return (Abs((utrim2 + aU1) - (utrim1 + aU2)) < Precision::PConfusion());
 }
 
 
@@ -621,12 +623,18 @@ Standard_Boolean Geom_RectangularTrimmedSurface::IsUClosed () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_RectangularTrimmedSurface::IsVClosed () const { 
-
-  if (isvtrimmed) 
+Standard_Boolean Geom_RectangularTrimmedSurface::IsVClosed() const
+{
+  if (!basisSurf->IsVClosed())
     return Standard_False;
-  else   
-    return basisSurf->IsVClosed();
+
+  if (!isvtrimmed)
+    return Standard_True;
+
+  Standard_Real aU1 = 0.0, aU2 = 0.0, aV1 = 0.0, aV2 = 0.0;
+  basisSurf->Bounds(aU1, aU2, aV1, aV2);
+
+  return (Abs((vtrim2 + aV1) - (vtrim1 + aV2)) < Precision::PConfusion());
 }
 
 //=======================================================================

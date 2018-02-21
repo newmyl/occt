@@ -819,6 +819,11 @@ public:
   //! surface using the function SetVPeriodic.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns U period of this surface
+  Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
+
+  //! Returns V-period of this surface
+  Standard_EXPORT Standard_Real VPeriod() const Standard_OVERRIDE;
 
   //! Returns False if for each column of weights all the weights
   //! are identical.

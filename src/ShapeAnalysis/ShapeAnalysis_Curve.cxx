@@ -521,8 +521,8 @@ Standard_Boolean ShapeAnalysis_Curve::ValidateRange (const Handle(Geom_Curve)& t
     }
   }
 
-  // 15.11.2002 PTV OCC966
-  if (ShapeAnalysis_Curve::IsPeriodic(theCurve)) {
+  if(theCurve->IsPeriodic() && theCurve->IsClosed())
+  {
     ElCLib::AdjustPeriodic(cf,cl,Precision::PConfusion(),First,Last); //:a7 abv 11 Feb 98: preci -> PConfusion()
   }
   else if (First < Last) {
@@ -1204,40 +1204,4 @@ Standard_Boolean ShapeAnalysis_Curve::IsClosed(const Handle(Geom_Curve)& theCurv
   Standard_Real preci2 = prec*prec;
 
   return (aClosedVal <= preci2);
-}
-//=======================================================================
-//function : IsPeriodic
-//purpose  : OCC996
-//=======================================================================
-
-Standard_Boolean ShapeAnalysis_Curve::IsPeriodic(const Handle(Geom_Curve)& theCurve)
-{
-  // 15.11.2002 PTV OCC966
-  // remove regressions in DE tests (diva, divb, divc, toe3) in KAS:dev
-  // ask IsPeriodic on BasisCurve
-  Handle(Geom_Curve) aTmpCurve = theCurve;
-  while ( (aTmpCurve->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
-          (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) ) {
-    if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_OffsetCurve)))
-      aTmpCurve = Handle(Geom_OffsetCurve)::DownCast(aTmpCurve)->BasisCurve();
-    if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
-      aTmpCurve = Handle(Geom_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
-  }
-  return aTmpCurve->IsPeriodic();
-}
-
-Standard_Boolean ShapeAnalysis_Curve::IsPeriodic(const Handle(Geom2d_Curve)& theCurve)
-{
-  // 15.11.2002 PTV OCC966
-  // remove regressions in DE tests (diva, divb, divc, toe3) in KAS:dev
-  // ask IsPeriodic on BasisCurve
-  Handle(Geom2d_Curve) aTmpCurve = theCurve;
-  while ( (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_OffsetCurve))) ||
-          (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve))) ) {
-    if (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_OffsetCurve)))
-      aTmpCurve = Handle(Geom2d_OffsetCurve)::DownCast(aTmpCurve)->BasisCurve();
-    if (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve)))
-      aTmpCurve = Handle(Geom2d_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
-  }
-  return aTmpCurve->IsPeriodic();
 }

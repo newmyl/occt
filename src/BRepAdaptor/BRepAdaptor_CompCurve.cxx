@@ -290,11 +290,6 @@ const TopoDS_Wire& BRepAdaptor_CompCurve::Wire() const
 
 }
 
- Standard_Real BRepAdaptor_CompCurve::Period() const
-{
-  return (TLast - TFirst);
-}
-
  gp_Pnt BRepAdaptor_CompCurve::Value(const Standard_Real U) const
 {
   Standard_Real u = U, d;

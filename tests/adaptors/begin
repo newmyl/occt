@@ -1,0 +1,43 @@
+if { [array get Draw_Groups "TOPOLOGY Check commands"] == "" } {
+    pload TOPTEST
+    pload AISV
+}
+# To prevent loops limit to 10 minutes
+cpulimit 60
+
+if { [info exists imagedir] == 0 } {
+   set imagedir .
+}
+
+if { [info exists test_image ] == 0 } {
+   set test_image photo
+}
+
+proc compare {r1 r2 tol} {
+	if {$r1 - $r2  >= $tol} {
+		puts "Error : evalution" 
+	}
+	if {$r2 - $r1  >= $tol} {
+		puts "Error : evalution" 
+	}
+} 
+
+proc comparepnt2d {p1 p2 tol} {
+	upvar $p1 pp1
+	upvar $p2 pp2
+	coord pp1 x1 y1
+	coord pp2 x2 y2
+	compare [dval x1] [dval x2] $tol
+	compare [dval y1] [dval y2] $tol
+}
+
+proc comparepnt3d {p1 p2 tol} {
+	upvar $p1 pp1
+	upvar $p2 pp2
+	coord pp1 x1 y1 z1
+	coord pp2 x2 y2 z2
+	compare [dval x1] [dval x2] $tol
+	compare [dval y1] [dval y2] $tol
+	compare [dval z1] [dval z2] $tol
+}
+

@@ -175,21 +175,22 @@ Standard_Boolean BRepTools_TrsfModification::NewCurve2d
     NewC = TC->BasisCurve();
   }
 
-  Standard_Real fc = NewC->FirstParameter(), lc = NewC->LastParameter();
-
-  if(!NewC->IsPeriodic()) {
+  const Standard_Real fc = NewC->FirstParameter(), lc = NewC->LastParameter();
+  if (!GeomLib::IsTrimAllowed(NewC, f, l))
+  {
     if(fc - f > Precision::PConfusion()) f = fc;
     if(l - lc > Precision::PConfusion()) l = lc;
-    if(Abs(l - f) < Precision::PConfusion())
+  }
+
+  if (!NewC->IsPeriodic() && (Abs(l - f) < Precision::PConfusion()))
+  {
+    if(Abs(f - fc) < Precision::PConfusion())
     {
-      if(Abs(f - fc) < Precision::PConfusion())
-      {
-        l = lc;
-      }
-      else
-      {
-        f = fc;
-      }
+      l = lc;
+    }
+    else
+    {
+      f = fc;
     }
   }
 

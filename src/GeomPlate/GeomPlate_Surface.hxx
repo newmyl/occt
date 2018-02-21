@@ -149,36 +149,11 @@ public:
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
 
-  //! Is the parametrization of a surface periodic in the
-  //! direction U ?
-  //! It is possible only if the surface is closed in this
-  //! parametric direction and if the following relation is
-  //! satisfied :
-  //! for each parameter V the distance between the point
-  //! P (U, V)  and the point  P (U + T, V) is lower or equal
-  //! to Resolution from package gp. T is the parametric period
-  //! and must be a constant.
+  //! Always returns FALSE
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
-  //! returns the Uperiod.
-  //! raises if the surface is not uperiodic.
-  Standard_EXPORT virtual Standard_Real UPeriod() const Standard_OVERRIDE;
-  
-
-  //! Is the parametrization of a surface periodic in the
-  //! direction U ?
-  //! It is possible only if the surface is closed in this
-  //! parametric direction and if the following relation is
-  //! satisfied :
-  //! for each parameter V the distance between the point
-  //! P (U, V)  and the point  P (U + T, V) is lower or equal
-  //! to Resolution from package gp. T is the parametric period
-  //! and must be a constant.
+  //! Always returns FALSE
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
-  
-  //! returns the Vperiod.
-  //! raises if the surface is not vperiodic.
-  Standard_EXPORT virtual Standard_Real VPeriod() const Standard_OVERRIDE;
   
   //! Computes the U isoparametric curve.
   Standard_EXPORT Handle(Geom_Curve) UIso (const Standard_Real U) const Standard_OVERRIDE;

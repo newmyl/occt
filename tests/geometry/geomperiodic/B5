@@ -1,0 +1,29 @@
+sphere ss 100
+trim st ss 0 pi -1 1
+
+set log1 [surfaceperiod ss]
+set log2 [surfaceperiod st]
+
+if { ![regexp {is U-periodic} $log1 ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true U-periodic"
+}
+
+if { [regexp {is not V-periodic} $log1 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+
+if { ![regexp {is U-periodic} $log2 ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true U-periodic"
+}
+
+if { [regexp {is not V-periodic} $log2 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}

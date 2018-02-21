@@ -1,0 +1,26 @@
+bsplinecurve cc 4 3 0 5 3.1415926535897931 3 6.2831853071795862 5 0 20 100 1 -14.1421356237309 20 106.594586144012 1 -34.9044110322929 0 116.276194167748 1 -14.1421356237311 -20 106.594586144013 1 14.142135623731 -20 93.4054138559873 1 34.904411032293 0 83.7238058322526 1 14.1421356237309 20 93.4054138559873 1 0 20 100 1 
+
+set ExpPeriodic "Adaptor3d_Curve is not periodic"
+set ExpClosed "Adaptor3d_Curve is closed"
+
+nulifyadaptors
+makeadaptor cc
+set logp [adaptorproperties -isperiodic]
+set logc [adaptorproperties -isclosed]
+set logpc [adaptorproperties -isperiodic -isclosed]
+
+if { ![regexp $ExpPeriodic $logp] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logc] } {
+  puts "Error: the adaptor is not closed"
+}
+
+if { ![regexp $ExpPeriodic $logpc] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logpc] } {
+  puts "Error: the adaptor is not closed"
+}

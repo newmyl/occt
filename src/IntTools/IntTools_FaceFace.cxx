@@ -1882,8 +1882,8 @@ Handle(Geom_Curve) MakeBSpline  (const Handle(IntPatch_WLine)& WL,
     }
   }
   //
-  isuperiodic = anAdaptorSurface.IsUPeriodic();
-  isvperiodic = anAdaptorSurface.IsVPeriodic();
+  isuperiodic = (anAdaptorSurface.IsUPeriodic() && anAdaptorSurface.IsUClosed());
+  isvperiodic = (anAdaptorSurface.IsVPeriodic() && anAdaptorSurface.IsVClosed());
   //
   aType=anAdaptorSurface.GetType();
   if((aType==GeomAbs_BezierSurface) ||
@@ -1894,6 +1894,9 @@ Handle(Geom_Curve) MakeBSpline  (const Handle(IntPatch_WLine)& WL,
     enlarge=Standard_True;
   }
   //
+
+  Standard_Real aPar1 = theumin, aPar2 = theumax;
+
   if(!isuperiodic && enlarge) {
 
     if(!Precision::IsInfinite(theumin) &&
@@ -1909,6 +1912,25 @@ Handle(Geom_Curve) MakeBSpline  (const Handle(IntPatch_WLine)& WL,
     else
       theumax = usup;
   }
+
+  if (theumin > theumax)
+  {
+    // It is possible if the face is out
+    // of the surface's domain. E.g.
+    // uinf == 0, usup == 1 and initial values
+    // theumin == -0.5 and theumax == -0.2.
+    // "delta" is a small value (~ 1.0e-7)
+    //
+    // After this correction, 
+    // theumin == 0, theumax = -0.2.
+    //
+    //See testgrid bugs modalg_4 bug6272*
+
+    theumin = aPar1;
+    theumax = aPar2;
+  }
+  //
+  aPar1 = thevmin, aPar2 = thevmax;
   //
   if(!isvperiodic && enlarge) {
     if(!Precision::IsInfinite(thevmin) &&
@@ -1925,6 +1947,23 @@ Handle(Geom_Curve) MakeBSpline  (const Handle(IntPatch_WLine)& WL,
     else {
       thevmax = vsup;
     }
+  }
+
+  if (thevmin > thevmax)
+  {
+    // It is possible if the face is out
+    // of the surface's domain. E.g.
+    // uinf == 0, usup == 1 and initial values
+    // theumin == -0.5 and theumax == -0.2.
+    // "delta" is a small value (~ 1.0e-7)
+    //
+    // After this correction, 
+    // theumin == 0, theumax = -0.2.
+    //
+    //See testgrid bugs modalg_4 bug6272*
+
+    thevmin = aPar1;
+    thevmax = aPar2;
   }
   //
   if(isuperiodic || isvperiodic) {
@@ -2722,10 +2761,7 @@ Standard_Real MaxDistance(const Handle(Geom_Curve)& theC,
 
   // adjust domain for periodic surfaces
   TopLoc_Location aLoc;
-  Handle(Geom_Surface) aSurf = BRep_Tool::Surface(aFace, aLoc);
-  if (aSurf->IsKind(STANDARD_TYPE(Geom_RectangularTrimmedSurface))) {
-    aSurf = (Handle(Geom_RectangularTrimmedSurface)::DownCast(aSurf))->BasisSurface();
-  }
+  const Handle(Geom_Surface) &aSurf = BRep_Tool::Surface(aFace, aLoc);
   gp_Pnt2d pnt = aPC->Value((fp+lp)/2);
   Standard_Real u,v;
   pnt.Coord(u,v);

@@ -103,13 +103,26 @@ public:
   
     Standard_Boolean IsVClosed() const;
   
-    Standard_Boolean IsUPeriodic() const;
+  //! Returns true if the surface is U-periodic 
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  Standard_Boolean IsUPeriodic() const;
+
+  //! Returns the period of this surface in the u
+  //! parametric direction.
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  Standard_Real UPeriod() const;
   
-    Standard_Real UPeriod() const;
+  //! Returns true if the surface is V-periodic 
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  Standard_Boolean IsVPeriodic() const;
   
-    Standard_Boolean IsVPeriodic() const;
-  
-    Standard_Real VPeriod() const;
+  //! Returns the period of this surface in the v parametric direction.
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  Standard_Real VPeriod() const;
   
   //! Computes the point of parameters U,V on the surface.
   Standard_EXPORT gp_Pnt Value (const Standard_Real U, const Standard_Real V) const;

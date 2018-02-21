@@ -267,10 +267,7 @@ STATIC_PRECEDENT_INFLEXION(0)
   if(ResoV2>0.0001*pasuv[3]) ResoV2=0.00001*pasuv[3];
 
 
-  if(Adaptor3d_HSurfaceTool::IsUPeriodic(Caro1)==Standard_False) { 
-    //UM1+=KELARG*pasuv[0];  Um1-=KELARG*pasuv[0];
-  }
-  else { 
+  if(Adaptor3d_HSurfaceTool::IsUPeriodic(Caro1)) { 
     Standard_Real t = UM1-Um1; 
     if(t<Adaptor3d_HSurfaceTool::UPeriod(Caro1)) { 
       t=0.5*(Adaptor3d_HSurfaceTool::UPeriod(Caro1)-t);
@@ -279,10 +276,7 @@ STATIC_PRECEDENT_INFLEXION(0)
     }
   }
 
-  if(Adaptor3d_HSurfaceTool::IsVPeriodic(Caro1)==Standard_False) { 
-    //VM1+=KELARG*pasuv[1];  Vm1-=KELARG*pasuv[1];
-  }
-  else { 
+  if(Adaptor3d_HSurfaceTool::IsVPeriodic(Caro1)) { 
     Standard_Real t = VM1-Vm1; 
     if(t<Adaptor3d_HSurfaceTool::VPeriod(Caro1)) { 
       t=0.5*(Adaptor3d_HSurfaceTool::VPeriod(Caro1)-t);
@@ -291,10 +285,7 @@ STATIC_PRECEDENT_INFLEXION(0)
     }
   }
 
-  if(Adaptor3d_HSurfaceTool::IsUPeriodic(Caro2)==Standard_False) { 
-    //UM2+=KELARG*pasuv[2];  Um2-=KELARG*pasuv[2];
-  }
-  else { 
+  if(Adaptor3d_HSurfaceTool::IsUPeriodic(Caro2)){ 
     Standard_Real t = UM2-Um2; 
     if(t<Adaptor3d_HSurfaceTool::UPeriod(Caro2)) { 
       t=0.5*(Adaptor3d_HSurfaceTool::UPeriod(Caro2)-t);
@@ -303,10 +294,7 @@ STATIC_PRECEDENT_INFLEXION(0)
     }
   }
 
-  if(Adaptor3d_HSurfaceTool::IsVPeriodic(Caro2)==Standard_False) {   
-    //VM2+=KELARG*pasuv[3];  Vm2-=KELARG*pasuv[3];
-  }
-  else { 
+  if(Adaptor3d_HSurfaceTool::IsVPeriodic(Caro2)){ 
     Standard_Real t = VM2-Vm2; 
     if(t<Adaptor3d_HSurfaceTool::VPeriod(Caro2)) { 
       t=0.5*(Adaptor3d_HSurfaceTool::VPeriod(Caro2)-t);

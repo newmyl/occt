@@ -116,14 +116,16 @@ public:
   
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
+  //! IsUPeriodic returns true if the "basis curve" of this
+  //! surface of linear extrusion is periodic.
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the period of the basis curve
   Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
   
+  //! Always returns FALSE
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
-  Standard_EXPORT Standard_Real VPeriod() const Standard_OVERRIDE;
-
   //! Returns the parametric U  resolution corresponding
   //! to the real space resolution <R3d>.
   Standard_EXPORT Standard_Real UResolution (const Standard_Real R3d) const Standard_OVERRIDE;

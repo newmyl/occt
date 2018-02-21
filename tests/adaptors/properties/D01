@@ -1,0 +1,29 @@
+box b 1 1 1
+explode b e
+
+set ExpPeriodic "Adaptor3d_Curve is not periodic"
+set ExpClosed "Adaptor3d_Curve is not closed"
+
+nulifyadaptors
+makeadaptor b_1
+
+set logp [adaptorproperties -isperiodic]
+set logc [adaptorproperties -isclosed]
+set logpc [adaptorproperties -isperiodic -isclosed]
+
+if { ![regexp $ExpPeriodic $logp] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logc] } {
+  puts "Error: the adaptor is not closed"
+}
+
+if { ![regexp $ExpPeriodic $logpc] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logpc] } {
+  puts "Error: the adaptor is not closed"
+}
+

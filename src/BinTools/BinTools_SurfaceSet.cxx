@@ -298,10 +298,10 @@ static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom_Bez
 static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom_BSplineSurface)& S)
 {
   OS << (Standard_Byte)BSPLINE;
-  Standard_Boolean urational = S->IsURational() ? 1:0;
-  Standard_Boolean vrational = S->IsVRational() ? 1:0;
-  Standard_Boolean uperiodic = S->IsUPeriodic() ? 1:0;
-  Standard_Boolean vperiodic = S->IsVPeriodic() ? 1:0;
+  Standard_Boolean urational = S->IsURational() ? Standard_True : Standard_False;
+  Standard_Boolean vrational = S->IsVRational() ? Standard_True : Standard_False;
+  Standard_Boolean uperiodic = S->IsUPeriodic() ? Standard_True : Standard_False;
+  Standard_Boolean vperiodic = S->IsVPeriodic() ? Standard_True : Standard_False;
   BinTools::PutBool(OS, urational); 
   BinTools::PutBool(OS, vrational); 
   BinTools::PutBool(OS, uperiodic); 

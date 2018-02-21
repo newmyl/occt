@@ -104,8 +104,12 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the curve is periodic
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the value of the period
+  Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
+
   Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
   
   Standard_EXPORT void D0 (const Standard_Real U, gp_Pnt2d& P) const Standard_OVERRIDE;

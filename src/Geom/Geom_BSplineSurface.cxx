@@ -1444,3 +1444,32 @@ void Geom_BSplineSurface::SetWeightRow
   Rational(Weights, urational, vrational);
 }
 
+//=======================================================================
+//function : UPeriod
+//purpose  : 
+//=======================================================================
+Standard_Real Geom_BSplineSurface::UPeriod() const
+{
+  if (!uperiodic)
+    throw Standard_NotImplemented("Geom_BSplineSurface::UPeriod");
+
+  const Standard_Real aFPar = ufknots->Value(udeg + 1);
+  const Standard_Real aLpar = ufknots->Value(ufknots->Upper() - udeg);
+
+  return (aLpar - aFPar);
+}
+
+//=======================================================================
+//function : VPeriod
+//purpose  : 
+//=======================================================================
+Standard_Real Geom_BSplineSurface::VPeriod() const
+{
+  if (!vperiodic)
+    throw Standard_NotImplemented("Geom_BSplineSurface::VPeriod");
+
+  const Standard_Real aFPar = vfknots->Value(vdeg + 1);
+  const Standard_Real aLpar = vfknots->Value(vfknots->Upper() - vdeg);
+
+  return (aLpar - aFPar);
+}

@@ -153,6 +153,7 @@ static void Descendants(const TopoDS_Shape&,
   TopTools_ListIteratorOfListOfShape it,it2;
   Standard_Integer sens = 0;
 
+  // Almost all curves in scur are trimmed curve (e.g. see LocOpe_DPrism::Curves(...))
   TColGeom_SequenceOfCurve scur;
   Curves(scur);
 

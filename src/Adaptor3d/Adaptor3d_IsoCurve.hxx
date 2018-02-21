@@ -114,8 +114,11 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the surface (returned by Surface() method) is periodic
+  //! along specified direction.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  // Returns the period value along specified direction.
   Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   
   //! Computes the point of parameter U on the curve.

@@ -265,6 +265,8 @@ static Standard_Integer pcurve(Draw_Interpretor& , Standard_Integer n, const cha
       Standard_Boolean IsPeriodic = c->IsPeriodic();
       if (c->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
       {
+        // E.g. see "boolean bopfuse_complex J6" test script
+
         const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (c)->BasisCurve(); 
         IsPeriodic = aC->IsPeriodic();
         fr = aC->FirstParameter();

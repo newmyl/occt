@@ -1,0 +1,32 @@
+ellipse c1 0 0 0 0 0 1 1 0 0 100 30
+trim c2 c1 1.5 4.5
+extsurf s1 c2 0 0 1
+trim s2 s1 2 3 -100 100
+
+set log1 [surfaceperiod s1]
+set log2 [surfaceperiod s2]
+
+if { ![regexp {is U-periodic} $log1 ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true periodic"
+}
+
+if { [regexp {is not V-periodic} $log1 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+
+if { ![regexp {is U-periodic} $log2 ] } {
+  puts "Error: the U-periodic surface is detected to be not periodic"
+} else {
+  puts "OK. The surface is true periodic"
+}
+
+if { [regexp {is not V-periodic} $log2 ] } {
+  puts "OK. The surface is not V-periodic"
+} else {
+  puts "Error: the not V-periodic surface is detected to be V-periodic"
+}
+

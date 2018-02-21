@@ -81,13 +81,17 @@ public:
   
     static Standard_Boolean IsVClosed (const BRepAdaptor_Surface& S);
   
-    static Standard_Boolean IsUPeriodic (const BRepAdaptor_Surface& S);
+  //! Returns TRUE if S is U-periodic
+  static Standard_Boolean IsUPeriodic (const BRepAdaptor_Surface& S);
+
+  //! Returns U-period of S
+  static Standard_Real UPeriod (const BRepAdaptor_Surface& S);
   
-    static Standard_Real UPeriod (const BRepAdaptor_Surface& S);
+  //! Returns TRUE if S is V-periodic
+  static Standard_Boolean IsVPeriodic (const BRepAdaptor_Surface& S);
   
-    static Standard_Boolean IsVPeriodic (const BRepAdaptor_Surface& S);
-  
-    static Standard_Real VPeriod (const BRepAdaptor_Surface& S);
+  //! Returns V-period of S
+  static Standard_Real VPeriod (const BRepAdaptor_Surface& S);
   
     static gp_Pnt Value (const BRepAdaptor_Surface& S, const Standard_Real u, const Standard_Real v);
   

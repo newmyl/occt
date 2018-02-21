@@ -93,8 +93,10 @@ public:
   
     Standard_Boolean IsClosed() const;
   
+    //! Returns true if the curve in this adapter is periodic 
     Standard_Boolean IsPeriodic() const;
   
+    //! Returns the period of the adapter's curve
     Standard_Real Period() const;
   
     gp_Pnt Value (const Standard_Real U) const;

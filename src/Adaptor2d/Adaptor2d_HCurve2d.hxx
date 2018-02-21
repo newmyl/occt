@@ -76,9 +76,11 @@ public:
   
     Standard_Boolean IsClosed() const;
   
-    Standard_Boolean IsPeriodic() const;
+  //! Returns true if the curve in this adapter is periodic 
+  Standard_Boolean IsPeriodic() const;
   
-    Standard_Real Period() const;
+  //! Returns the period of 2D-adapter's curve
+  Standard_Real Period() const;
   
     gp_Pnt2d Value (const Standard_Real U) const;
   

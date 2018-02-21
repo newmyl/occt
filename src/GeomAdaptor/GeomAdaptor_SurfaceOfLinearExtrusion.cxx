@@ -268,16 +268,6 @@ Standard_Boolean GeomAdaptor_SurfaceOfLinearExtrusion::IsVPeriodic() const
 }
 
 //=======================================================================
-//function : VPeriod
-//purpose  : 
-//=======================================================================
-
-Standard_Real GeomAdaptor_SurfaceOfLinearExtrusion::VPeriod() const 
-{
-  throw Standard_DomainError("GeomAdaptor_SurfaceOfLinearExtrusion::VPeriod");
-}
-
-//=======================================================================
 //function : UResolution
 //purpose  : 
 //=======================================================================

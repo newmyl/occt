@@ -214,8 +214,7 @@ public:
   Standard_EXPORT Standard_Boolean IsCN (const Standard_Integer N) const Standard_OVERRIDE;
   
 
-  //! Returns False. A BezierCurve cannot be periodic in this
-  //! package
+  //! Returns FALSE. A BezierCurve cannot be periodic.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
 

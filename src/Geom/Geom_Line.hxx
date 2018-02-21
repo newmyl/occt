@@ -113,7 +113,7 @@ public:
   //! returns False
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  //! returns False
+  //! returns FALSE
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
   //! Returns GeomAbs_CN, which is the global continuity of any line.

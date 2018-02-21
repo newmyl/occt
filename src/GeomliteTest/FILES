@@ -5,3 +5,4 @@ GeomliteTest_ApproxCommands.cxx
 GeomliteTest_CurveCommands.cxx
 GeomliteTest_ModificationCommands.cxx
 GeomliteTest_SurfaceCommands.cxx
+GeomliteTest_AdaptorCommands.cxx

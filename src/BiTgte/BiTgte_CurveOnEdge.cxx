@@ -178,29 +178,6 @@ Standard_Boolean BiTgte_CurveOnEdge::IsClosed() const
   throw Standard_NotImplemented("BiTgte_CurveOnEdge");
 }
 
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean BiTgte_CurveOnEdge::IsPeriodic() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-
-Standard_Real BiTgte_CurveOnEdge::Period() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-
 //=======================================================================
 //function : 
 //purpose  : 

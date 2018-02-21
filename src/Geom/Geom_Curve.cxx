@@ -21,7 +21,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_NotImplemented.hxx>
 #include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
@@ -49,10 +49,7 @@ Handle(Geom_Curve) Geom_Curve::Reversed () const
 
 Standard_Real Geom_Curve::Period() const
 {
-  Standard_NoSuchObject_Raise_if
-    ( !IsPeriodic(),"Geom_Curve::Period");
-
-  return ( LastParameter() - FirstParameter());
+  throw Standard_NotImplemented("Geom_Curve::Period");
 }
 
 //=======================================================================

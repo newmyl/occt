@@ -83,10 +83,15 @@ public:
   
   Standard_EXPORT virtual GeomAbs_CurveType GetType() const Standard_OVERRIDE;
   
+  //! Returns TRUE if *this has been set to periodic by calling SetPeriodic(...) method
   Standard_EXPORT virtual Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! Returns TRUE if *this is closed
+  Standard_EXPORT virtual Standard_Boolean IsClosed() const Standard_OVERRIDE;
+
   Standard_EXPORT void SetPeriodic (const Standard_Boolean I);
   
+  //! Returns the period of the periodic object
   Standard_EXPORT virtual Standard_Real Period() const Standard_OVERRIDE;
   
   Standard_EXPORT virtual gp_Pnt Value (const Standard_Real AbsC) const Standard_OVERRIDE;

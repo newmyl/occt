@@ -468,11 +468,6 @@ Standard_Boolean Draft_Modification::NewParameter(const TopoDS_Vertex& V,
 
   P = myVMap.ChangeFromKey(V).Parameter(E);
   Handle(Geom_Curve) GC = myEMap.FindFromKey(E).Geometry();
-  Handle(Standard_Type) typc = GC->DynamicType();
-  if (typc == STANDARD_TYPE(Geom_TrimmedCurve)) {
-    GC = Handle(Geom_TrimmedCurve)::DownCast(GC);
-    typc = GC->DynamicType();
-  }
 
   if (GC->IsClosed()) {
     TopoDS_Vertex FV = TopExp::FirstVertex(E);

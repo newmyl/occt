@@ -1,0 +1,10 @@
+circle cc 0 0 0 20
+
+nulifyadaptors
+makeadaptor cc
+
+set log [adaptorproperties -resolution 1.0e-5]
+
+regexp {Adaptor3d_Curve::Resolution = +([-0-9.+eE]+)} ${log} full ResC
+
+checkreal {Circle resolution} $ResC 5.0e-007 0.0 0.1

@@ -307,8 +307,8 @@ Standard_Real TopOpeBRepTool_ShapeTool::PeriodizeParameter
 
   TopLoc_Location Loc;
   const Handle(Geom_Surface) Surf = BRep_Tool::Surface(F,Loc);
-  Standard_Boolean isUperio = Surf->IsUPeriodic();
-  Standard_Boolean isVperio = Surf->IsVPeriodic();
+  Standard_Boolean isUperio = Surf->IsUPeriodic() && Surf->IsUClosed();
+  Standard_Boolean isVperio = Surf->IsVPeriodic() && Surf->IsVClosed();
   if (!isUperio && !isVperio) return periopar;
 
   Standard_Real Ufirst,Ulast,Vfirst,Vlast;

@@ -53,6 +53,7 @@
 #include <CSLib.hxx>
 #include <CSLib_NormalStatus.hxx>
 #include <ElCLib.hxx>
+#include <Extrema_ECC.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2d_Circle.hxx>
@@ -74,16 +75,19 @@
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_Circle.hxx>
+#include <Geom_ConicalSurface.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Ellipse.hxx>
 #include <Geom_Hyperbola.hxx>
 #include <Geom_Line.hxx>
 #include <Geom_OffsetCurve.hxx>
+#include <Geom_OffsetSurface.hxx>
 #include <Geom_Parabola.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_RectangularTrimmedSurface.hxx>
 #include <Geom_Surface.hxx>
 #include <Geom_TrimmedCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomConvert.hxx>
@@ -962,14 +966,7 @@ void GeomLib::SameRange(const Standard_Real         Tolerance,
   else 
   { // On segmente le resultat
     Handle(Geom2d_TrimmedCurve) TC;
-    Handle(Geom2d_Curve) aCCheck = CurvePtr;
-
-    if(aCCheck->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve)))
-    {
-      aCCheck = Handle(Geom2d_TrimmedCurve)::DownCast(aCCheck)->BasisCurve();
-    }
-
-    if(aCCheck->IsPeriodic())
+    if (CurvePtr->IsPeriodic())
     {
       if(Abs(LastOnCurve - FirstOnCurve) > Precision::PConfusion())
       {
@@ -2752,11 +2749,147 @@ Standard_Boolean GeomLib::IsBzVClosed (const Handle(Geom_BezierSurface)& S,
 }
 
 //=======================================================================
+//function : IsUTrimAllowed
+//purpose  : 
+//=======================================================================
+Standard_Boolean GeomLib::IsUTrimAllowed(const GeomAdaptor_Surface& theS,
+                                         const Standard_Real theNewUFirst,
+                                         const Standard_Real theNewULast)
+{
+  const Handle(Geom_Surface) &aSurf = theS.Surface();
+
+  Standard_Real anIsoParameter = theS.FirstVParameter();
+  if (Precision::IsInfinite(anIsoParameter))
+    anIsoParameter = theS.LastVParameter();
+
+  if (Precision::IsInfinite(anIsoParameter))
+    anIsoParameter = 0.0;
+  
+  Handle(Geom_Curve) aC = aSurf->VIso(anIsoParameter);
+
+  if (aC->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
+  {
+    // In order to obtain the default curve's work range
+    aC = Handle(Geom_TrimmedCurve)::DownCast(aC)->BasisCurve();
+  }
+
+  return (IsTrimAllowed(aC, theNewUFirst, theNewULast));
+}
+
+//=======================================================================
+//function : IsVTrimAllowed
+//purpose  : 
+//=======================================================================
+Standard_Boolean GeomLib::IsVTrimAllowed(const GeomAdaptor_Surface& theS,
+                                         const Standard_Real theNewVFirst,
+                                         const Standard_Real theNewVLast)
+{
+  const GeomAbs_SurfaceType aSType = theS.GetType();
+
+  const Handle(Geom_Surface) &aSurf = theS.Surface();
+
+  if (aSType == GeomAbs_OffsetSurface)
+  {
+    const Handle(Geom_OffsetSurface) aOS = Handle(Geom_OffsetSurface)::DownCast(aSurf);
+    return IsVTrimAllowed(GeomAdaptor_Surface(aOS->BasisSurface()),
+                          theNewVFirst, theNewVLast);
+  }
+
+  Standard_Real anIsoParameter = theS.FirstUParameter();
+  if (Precision::IsInfinite(anIsoParameter))
+    anIsoParameter = theS.LastUParameter();
+
+  if (Precision::IsInfinite(anIsoParameter))
+    anIsoParameter = 0.0;
+
+  Handle(Geom_Curve) aC = aSurf->UIso(anIsoParameter);
+
+  if (aC.IsNull())
+    return Standard_False;
+
+  if (aC->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
+  {
+    // In order to obtain the default curve's work range
+    aC = Handle(Geom_TrimmedCurve)::DownCast(aC)->BasisCurve();
+  }
+
+  if (!IsTrimAllowed(aC, theNewVFirst, theNewVLast))
+    return Standard_False;
+
+  switch (aSType)
+  {
+    case GeomAbs_OtherSurface:
+      return Standard_True;
+    case GeomAbs_Sphere:
+    {
+      if ((theNewVFirst < -M_PI_2) || (theNewVLast > M_PI_2))
+      {
+        // After extending, the surface isoline will go 
+        // through the sphere pole
+        return Standard_False;
+      }
+    }
+    break;
+    case GeomAbs_Cone:
+    {
+      const Handle(Geom_ConicalSurface) aCone = Handle(Geom_ConicalSurface)::DownCast(aSurf);
+      Standard_Real anApexPrm = 0.0;
+      aCone->Apex(&anApexPrm);
+
+      if ((anApexPrm - theNewVFirst)*(theNewVLast - anApexPrm) > 0.0)
+      {
+        // The new boundaries intersect the cone apex
+        return Standard_False;
+      }
+    }
+    break;
+    case GeomAbs_SurfaceOfRevolution:
+    {
+      const Handle(Adaptor3d_HCurve) aCurv = theS.BasisCurve();
+
+      const Standard_Real aParTol = aCurv->Resolution(Precision::Confusion());
+
+      const Standard_Real aParF = theNewVFirst + aParTol,
+                          aParL = theNewVLast - aParTol;
+
+      const Handle(Geom_Line) aL = new Geom_Line(theS.AxeOfRevolution());
+      const GeomAdaptor_Curve aLin(aL);
+
+      Extrema_ECC anExtr(aCurv->Curve(), aLin);
+      anExtr.Perform();
+      if (anExtr.IsDone() && anExtr.NbExt() > 0)
+      {
+        Extrema_POnCurv aP1, aP2;
+        for (Standard_Integer i = 1; i <= anExtr.NbExt(); i++)
+        {
+          if (anExtr.SquareDistance(i) > Precision::SquareConfusion())
+            continue;
+
+          anExtr.Points(i, aP1, aP2);
+          if ((aParF < aP1.Parameter()) && (aP1.Parameter() < aParL))
+          {
+            // After extending, the surface isoline will go 
+            // through the pole (singular point like pole of sphere)
+
+            return Standard_False;
+          }
+        }
+      }
+    }
+    break;
+    default:
+      break;
+  }
+
+  return Standard_True;
+}
+
+//=======================================================================
 //function : CompareWeightPoles
 //purpose  : Checks if thePoles1(i)*theW1(i) is equal to thePoles2(i)*theW2(i)
 //            with tolerance theTol.
 //           It is necessary for not rational B-splines and Bezier curves
-//            to set theW1 and theW2 adresses to zero.
+//            to set theW1 and theW2 addresses to zero.
 //=======================================================================
 static Standard_Boolean CompareWeightPoles(const TColgp_Array1OfPnt& thePoles1, 
                                            const TColStd_Array1OfReal* const theW1,

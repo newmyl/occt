@@ -87,9 +87,8 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Always returns FALSE
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
-  
-  Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
   
   Standard_EXPORT gp_Pnt2d Value (const Standard_Real X) const Standard_OVERRIDE;
   

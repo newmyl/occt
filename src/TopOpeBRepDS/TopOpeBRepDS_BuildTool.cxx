@@ -708,7 +708,7 @@ void TopOpeBRepDS_BuildTool::ComputePCurves
   
   if ( C3D->IsPeriodic() ) {
     // ellipse on cone : periodize parmin,parmax
-    Standard_Real period = C3D->LastParameter() - C3D->FirstParameter();
+    Standard_Real period = C3D->Period();
     Standard_Real f,l;
     if (Vmin.Orientation() == TopAbs_FORWARD) { f = parmin; l = parmax; }
     else {                                      f = parmax; l = parmin; }
@@ -998,7 +998,7 @@ void  TopOpeBRepDS_BuildTool::UpdateEdge(const TopoDS_Shape& Ein,
   if ( Cou->IsPeriodic() ) {
     Standard_Real f2n = f2, l2n = l2;
     if ( l2n <= f2n ) {
-      ElCLib::AdjustPeriodic(f1,l1,Precision::PConfusion(),f2n,l2n);
+      ElCLib::AdjustPeriodic(f1,f1+Cou->Period(),Precision::PConfusion(),f2n,l2n);
       Range(Eou,f2n,l2n);
     }
   }
@@ -1082,7 +1082,7 @@ void TopOpeBRepDS_BuildTool::TranslateOnPeriodic
  
   Standard_Real first = C3Df, last = C3Dl;
   if (C3D->IsPeriodic()) {
-    if ( last < first ) last += Abs(first - last);
+    if ( last < first ) last += C3D->Period();
   }
 
   // jyl-xpu : 13-06-97 : 

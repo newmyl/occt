@@ -23,7 +23,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_NotImplemented.hxx>
 #include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
@@ -86,12 +86,7 @@ gp_GTrsf2d Geom_Surface::ParametricTransformation(const gp_Trsf&) const
 
 Standard_Real Geom_Surface::UPeriod() const
 {
-  Standard_NoSuchObject_Raise_if
-    ( !IsUPeriodic(),"Geom_Surface::UPeriod");
-
-  Standard_Real U1, U2, V1, V2;
-  Bounds(U1,U2,V1,V2);
-  return ( U2 - U1);
+  throw Standard_NotImplemented("Geom_Surface::UPeriod");
 }
 
 
@@ -102,12 +97,7 @@ Standard_Real Geom_Surface::UPeriod() const
 
 Standard_Real Geom_Surface::VPeriod() const
 {
-  Standard_NoSuchObject_Raise_if
-    ( !IsVPeriodic(),"Geom_Surface::VPeriod");
-
-  Standard_Real U1, U2, V1, V2;
-  Bounds(U1,U2,V1,V2);
-  return ( V2 - V1);
+  throw Standard_NotImplemented("Geom_Surface::VPeriod");
 }
 
 //=======================================================================

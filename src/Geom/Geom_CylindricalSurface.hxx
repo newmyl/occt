@@ -164,6 +164,11 @@ public:
   //! Returns False.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns 2*PI
+  Standard_Real UPeriod() const Standard_OVERRIDE
+  {
+    return (M_PI + M_PI);
+  };
 
   //! The UIso curve is a Line. The location point of this line is
   //! on the placement plane (XAxis, YAxis) of the surface.

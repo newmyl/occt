@@ -143,38 +143,6 @@ static Standard_Real AdjustByPeriod(const Standard_Real Val,
   return ( diff >0 ? -P : P ) * (Standard_Integer)( D / P + 0.5 );
 }
 
-static Standard_Boolean IsPeriodic(const Handle(Geom_Curve)& theCurve)
-{
-  // 15.11.2002 PTV OCC966
-  // remove regressions in DE tests (diva, divb, divc, toe3) in KAS:dev
-  // ask IsPeriodic on BasisCurve
-  Handle(Geom_Curve) aTmpCurve = theCurve;
-  while ( (aTmpCurve->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
-    (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) ) {
-      if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_OffsetCurve)))
-        aTmpCurve = Handle(Geom_OffsetCurve)::DownCast(aTmpCurve)->BasisCurve();
-      if (aTmpCurve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
-        aTmpCurve = Handle(Geom_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
-  }
-  return aTmpCurve->IsPeriodic();
-}
-
-Standard_Boolean IsPeriodic(const Handle(Geom2d_Curve)& theCurve)
-{
-  // 15.11.2002 PTV OCC966
-  // remove regressions in DE tests (diva, divb, divc, toe3) in KAS:dev
-  // ask IsPeriodic on BasisCurve
-  Handle(Geom2d_Curve) aTmpCurve = theCurve;
-  while ( (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_OffsetCurve))) ||
-    (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve))) ) {
-      if (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_OffsetCurve)))
-        aTmpCurve = Handle(Geom2d_OffsetCurve)::DownCast(aTmpCurve)->BasisCurve();
-      if (aTmpCurve->IsKind(STANDARD_TYPE(Geom2d_TrimmedCurve)))
-        aTmpCurve = Handle(Geom2d_TrimmedCurve)::DownCast(aTmpCurve)->BasisCurve();
-  }
-  return aTmpCurve->IsPeriodic();
-}
-
 void ShapeBuild_Edge::CopyRanges (const TopoDS_Edge& toedge, 
   const TopoDS_Edge& fromedge,
   const Standard_Real alpha,
@@ -235,7 +203,7 @@ void ShapeBuild_Edge::CopyRanges (const TopoDS_Edge& toedge,
         if (toGC->IsKind(STANDARD_TYPE(BRep_Curve3D))) {
           Handle(Geom_Curve) aCrv3d = Handle(BRep_Curve3D)::DownCast(toGC)->Curve3D();
           // 15.11.2002 PTV OCC966
-          if ( ! aCrv3d.IsNull() && IsPeriodic(aCrv3d) ) {
+          if ( ! aCrv3d.IsNull() && aCrv3d->IsPeriodic() ) {
             aPeriod = aCrv3d->Period();
             aCrvF = aCrv3d->FirstParameter();
             aCrvL = aCrv3d->LastParameter();
@@ -245,7 +213,7 @@ void ShapeBuild_Edge::CopyRanges (const TopoDS_Edge& toedge,
         else if  (toGC->IsKind(STANDARD_TYPE(BRep_CurveOnSurface))) {
           Handle(Geom2d_Curve) aCrv2d = Handle(BRep_CurveOnSurface)::DownCast(toGC)->PCurve();
           // 15.11.2002 PTV OCC966
-          if (!aCrv2d.IsNull() && IsPeriodic(aCrv2d)) {
+          if (!aCrv2d.IsNull() && aCrv2d->IsPeriodic()) {
             aPeriod = aCrv2d->Period();
             aCrvF = aCrv2d->FirstParameter();
             aCrvL = aCrv2d->LastParameter();
@@ -618,7 +586,7 @@ Standard_Boolean ShapeBuild_Edge::BuildCurve3d (const TopoDS_Edge& edge) const
         if (c3d.IsNull())
           return Standard_False;
         // 15.11.2002 PTV OCC966
-        if(!IsPeriodic(c3d)) {
+        if(!c3d->IsPeriodic()) {
           Standard_Boolean isLess = Standard_False;
           if(f < c3d->FirstParameter()) {
             isLess = Standard_True;

@@ -57,6 +57,8 @@ public:
   //! - Surface extension by length
   Standard_EXPORT static void ModificationCommands (Draw_Interpretor& I);
 
+  //! Defines commands to work with 3d/2d adapters of curve or surface.
+  Standard_EXPORT static void AdaptorCommands(Draw_Interpretor& theCommands);
 
 
 

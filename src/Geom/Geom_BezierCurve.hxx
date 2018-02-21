@@ -229,8 +229,7 @@ public:
   Standard_EXPORT Standard_Boolean IsCN (const Standard_Integer N) const Standard_OVERRIDE;
   
 
-  //! Returns True if the parametrization of a curve is periodic.
-  //! (P(u) = P(u + T) T = constante)
+  //! Always returns FALSE.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
 

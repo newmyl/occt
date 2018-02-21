@@ -51,7 +51,7 @@ class Adaptor3d_HCurve;
 //! the surface by algorithms which use it.
 //! A derived concrete class is provided:
 //! GeomAdaptor_Surface for a surface from the Geom package.
-//! The  Surface class describes  the standard behaviour
+//! The  Surface class describes  the standard behavior
 //! of a surface for generic algorithms.
 //!
 //! The Surface can  be decomposed in intervals of any
@@ -59,7 +59,7 @@ class Adaptor3d_HCurve;
 //! NbIntervals.  A current interval can be set.  Most
 //! of the methods apply to the current interval.
 //! Warning: All the methods are virtual and implemented with a
-//! raise to allow to redefined only the methods realy
+//! raise to allow to redefined only the methods really
 //! used.
 //!
 //! Polynomial coefficients of BSpline surfaces used for their evaluation are
@@ -117,12 +117,16 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean IsVClosed() const;
   
+  //! Returns TRUE if the surface is U periodic
   Standard_EXPORT virtual Standard_Boolean IsUPeriodic() const;
   
+  //! Returns U period of the surface
   Standard_EXPORT virtual Standard_Real UPeriod() const;
   
+  //! Returns TRUE if the surface is V periodic
   Standard_EXPORT virtual Standard_Boolean IsVPeriodic() const;
   
+  //! Returns V period of the surface
   Standard_EXPORT virtual Standard_Real VPeriod() const;
   
   //! Computes the point of parameters U,V on the surface.

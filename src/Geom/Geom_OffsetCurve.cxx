@@ -139,6 +139,9 @@ void Geom_OffsetCurve::SetOffsetValue (const Standard_Real D)
 
 Standard_Boolean Geom_OffsetCurve::IsPeriodic () const
 {
+  if (basisCurve->Continuity() == GeomAbs_C0)
+    return Standard_False;
+
   return basisCurve->IsPeriodic();
 }
 
@@ -149,6 +152,9 @@ Standard_Boolean Geom_OffsetCurve::IsPeriodic () const
 
 Standard_Real Geom_OffsetCurve::Period () const
 {
+  if (!IsPeriodic())
+    throw Standard_NotImplemented("Geom_OffsetCurve::Period");
+
   return basisCurve->Period();
 }
 

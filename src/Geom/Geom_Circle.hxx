@@ -123,9 +123,15 @@ public:
   //! returns True.
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  //! returns True.
+  //! Returns TRUE.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
-  
+
+  //! Returns 2*PI
+  Standard_Real Period() const Standard_OVERRIDE
+  {
+    return (M_PI + M_PI);
+  }
+
   //! Returns in P the point of parameter U.
   //! P = C + R * Cos (U) * XDir + R * Sin (U) * YDir
   //! where C is the center of the circle , XDir the XDirection and

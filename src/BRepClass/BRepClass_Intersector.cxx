@@ -142,13 +142,6 @@ void  BRepClass_Intersector::Perform(const gp_Lin2d& L,
   }
 
   IntRes2d_Domain DE(pdeb,deb,toldeb,pfin,fin,tolfin);
-  // temporary periodic domain
-  if (C.Curve()->IsPeriodic()) {
-    DE.SetEquivalentParameters(C.FirstParameter(),
-      C.FirstParameter() + 
-      C.Curve()->LastParameter() -
-      C.Curve()->FirstParameter());
-  }
 
   Handle(Geom2d_Line) GL= new Geom2d_Line(L);
   Geom2dAdaptor_Curve CGA(GL);

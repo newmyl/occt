@@ -1772,6 +1772,57 @@ static Standard_Integer GetCurveContinuity( Draw_Interpretor& theDI,
 }
 
 //=======================================================================
+//function : IsPeriodic
+//purpose  : Checks if the curve is periodic and returns the period
+//=======================================================================
+static Standard_Integer IsPeriodic(Draw_Interpretor& theDI,
+                                   Standard_Integer theNArg,
+                                   const char** theArgv)
+{
+  if (theNArg != 2)
+  {
+    theDI << "Use: " << theArgv[0] << " {curve or 2dcurve} \n";
+    return 1;
+  }
+
+  Handle(Geom2d_Curve) aGC2d;
+  Handle(Geom_Curve) aGC3d = DrawTrSurf::GetCurve(theArgv[1]);
+  if (aGC3d.IsNull())
+  {
+    aGC2d = DrawTrSurf::GetCurve2d(theArgv[1]);
+    if (aGC2d.IsNull())
+    {
+      theDI << "Argument is not a 2D or 3D curve!\n";
+      return 1;
+    }
+    else
+    {
+      if (aGC2d->IsPeriodic())
+      {
+        theDI << theArgv[1] << " is periodic with the period " << aGC2d->Period() << "\n";
+      }
+      else
+      {
+        theDI << theArgv[1] << " is not periodic\n";
+      }
+    }
+  }
+  else
+  {
+    if (aGC3d->IsPeriodic())
+    {
+      theDI << theArgv[1] << " is periodic with the period " << aGC3d->Period() << "\n";
+    }
+    else
+    {
+      theDI << theArgv[1] << " is not periodic\n";
+    }
+  }
+
+  return 0;
+}
+
+//=======================================================================
 //function : CurveCommands
 //purpose  : 
 //=======================================================================
@@ -1877,6 +1928,11 @@ void  GeometryTest::CurveCommands(Draw_Interpretor& theCommands)
 		  "getcurvcontinuity {curve or 2dcurve}: \n\tReturns the continuity of the given curve",
 		  __FILE__,
 		  GetCurveContinuity,g);
+
+  theCommands.Add("curveperiod",
+		  "curveperiod {curve or 2dcurve}: \n\tReturns the period of the curve (or the information about not-periodic state)",
+		  __FILE__,
+                  IsPeriodic, g);
 
 
 }

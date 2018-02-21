@@ -37,6 +37,7 @@
 #include <Geom2dConvert_ApproxCurve.hxx>
 #include <Geom2dConvert_CompCurveToBSplineCurve.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <GeomLib.hxx>
 #include <gp.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Dir2d.hxx>
@@ -207,7 +208,8 @@ const Convert_ParameterisationType  Parameterisation)
 
     // Si la courbe n'est pas vraiment restreinte, on ne risque pas 
     // le Raise dans le BS->Segment.
-    if (!Curv->IsPeriodic()) {     
+    if (!GeomLib::IsTrimAllowed(Curv, U1, U2))
+    {
       if (U1 < Curv->FirstParameter())
 	U1 =  Curv->FirstParameter();
       if (U2 > Curv->LastParameter())

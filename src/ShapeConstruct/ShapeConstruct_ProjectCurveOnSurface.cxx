@@ -56,6 +56,7 @@
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomAPI_Interpolate.hxx>
 #include <GeomAPI_PointsToBSpline.hxx>
+#include <GeomLib.hxx>
 #include <GeomProjLib.hxx>
 #include <gp_Pnt2d.hxx>
 #include <ElCLib.hxx>
@@ -537,7 +538,11 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
   return result;
 }
 
- //! Fix possible period jump and handle walking period parameter.
+//=======================================================================
+//function : fixPeriodictyTroubles
+//purpose  : Fix possible period jump and handle walking period parameter.
+//           This function will adjust only first and last point of thePnt-array
+//=======================================================================
  static Standard_Boolean fixPeriodictyTroubles(gp_Pnt2d *thePnt, // pointer to gp_Pnt2d[4] beginning
                                                Standard_Integer theIdx, // Index of objective coord: 1 ~ X, 2 ~ Y
                                                Standard_Real thePeriod, // Period on objective coord
@@ -660,8 +665,17 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
    Standard_Integer i = 0;
 
    Standard_Real aTol2 = theTol * theTol;
-   Standard_Boolean isPeriodicU = mySurf->Surface()->IsUPeriodic();
-   Standard_Boolean isPeriodicV = mySurf->Surface()->IsVPeriodic();
+   const Handle(Geom_Surface) &aSurf = mySurf->Surface();
+
+   // Method IsUClosed/IsVClosed returns incorrect result
+   // for some kind of surfaces (e.g. Geom_OffsetSurface based on
+   // B-spline surface is always not U(V)-closed). Therefore, 
+   // here we use honest computation of closure.
+   Standard_Boolean isUClosed = Standard_False, isVClosed = Standard_False;
+   GeomLib::IsClosed(aSurf, Precision::Confusion(), isUClosed, isVClosed);
+   
+   const Standard_Boolean isPeriodicU = isUClosed && aSurf->IsUPeriodic(),
+                          isPeriodicV = isVClosed && aSurf->IsVPeriodic();
 
    // Workaround:
    // Protection against bad "tolerance" shapes.
@@ -759,7 +773,6 @@ Standard_Boolean ShapeConstruct_ProjectCurveOnSurface::PerformByProjLib(Handle(G
      return 0;
    gp_Vec2d aVec0 (aP2d[0], aP2d[3]);
    gp_Vec2d aVec = aVec0 / dPar;
-   Handle(Geom_Surface) aSurf = mySurf->Surface();
    Standard_Boolean isNormalCheck = aSurf->IsCNu(1) && aSurf->IsCNv(1);
    if (isNormalCheck) {
      for(i = 1; i <= nb; i++)

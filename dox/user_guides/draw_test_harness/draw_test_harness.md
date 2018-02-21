@@ -4380,6 +4380,7 @@ The following topics are covered in the nine sections of this chapter:
   * **Curve and surface modification** deals with the commands used to modify the definition of curves and surfaces, most of which concern modifications to bezier and bspline curves.
   * **Geometric transformations** covers translation, rotation, mirror image and point scaling transformations.
   * **Curve and Surface Analysis** deals with the commands used to compute points, derivatives and curvatures.
+  * **Adaptor commands** deals with the commands providing work with (curve and surface) adaptors.
   * **Intersections** presents intersections of surfaces and curves.
   * **Approximations** deals with creating curves and surfaces from a set of points.
   * **Constraints** concerns construction of 2d circles and lines by constraints such as tangency.
@@ -5385,6 +5386,8 @@ pscale s 0 0 0 2
   * **parameters** to compute (u,v) values for a point on a surface.
   * **proj** and **2dproj** to project a point on a curve or a surface.
   * **surface_radius** to compute the curvature on a surface.
+  * **curveperiod** to check whether the curve is periodic and to compute its period.
+  * **surfaceperiod** to check whether the surface is periodic in U- and V-directions and to compute its period in correspond direction.
 
 @subsubsection occt_draw_6_6_1  coord
 
@@ -5524,6 +5527,258 @@ surface_radius c pi 3 c1 c2
 == Min Radius of Curvature : infinite 
 ~~~~~
 
+@subsubsection occt_draw_6_6_8  curveperiod
+
+Syntax:
+~~~~~
+curveperiod curve
+~~~~~
+
+where "curve" is a 2D- or 3D-curve.
+
+Checks if the curve is periodic and returns (in this case) its period. 
+
+**Example 1** 
+
+~~~~~
+# Create some 3D-curve
+ellipse c1 0 0 0 0 1 1 100 40
+
+# Check its periodicity
+curveperiod c1
+# c1 is periodic with the period 6.2831853071795862
+~~~~~
+
+**Example 2** 
+
+~~~~~
+# Create 2D B-spline curve
+2dbsplinecurve c1 2 6 -2.0943951023932 1 0 2 2.0943951023932 2 4.18879020478639 2 6.28318530717959 2 8.37758040957278 1 100 0 1 100 173 0.5 -50 87 1 -200 0 0.5 -50 -87 1 100 -173 0.5 100 0 1 
+
+# Check its periodicity
+curveperiod c1
+# c1 is not periodic
+
+# Make it periodic
+setperiodic c1 
+
+# Check its periodicity
+curveperiod c1
+#c1 is periodic with the period 6.2831853071795898
+~~~~~
+
+@subsubsection occt_draw_6_6_9 surfaceperiod
+
+Syntax:
+~~~~~
+surfaceperiod surface
+~~~~~
+
+Checks if the surface is periodic (in U- and V-direction) and returns (if that is true) its period.
+
+**Example 1** 
+
+~~~~~
+# Create some surface
+sphere ss 100
+trim st ss 0 pi -1 1
+
+# Check its periodicity
+surfaceperiod st
+# st is U-periodic with U-period 6.2831853071795862
+# st is not V-periodic
+~~~~~
+
+**Example 2** 
+
+~~~~~
+# Create some surface
+torus s1 100 20
+
+# Check its periodicity
+surfaceperiod s1
+# s1 is U-periodic with U-period 6.2831853071795862
+# s1 is V-periodic with V-period 6.2831853071795862
+~~~~~
+
+@subsection occt_draw_6_6a Adaptor commands
+
+This group of Draw-commands allows obtaining (in Draw) some properties of curves/surfaces, which can be read via adapters in C++ code only (e.g. curve's or surface's resolution).
+
+Here is the list of these commands:
+
+* **nulifyadaptors** clears all earlier created adaptors;
+* **makeadaptor** creates new adaptor.
+* **adaptorproperties** returns the property of all existing adaptors.
+
+@subsubsection occt_draw_6_6a_1 nulifyadaptors
+
+Syntax:
+~~~~~
+nulifyadaptors
+~~~~~
+
+Clears all earlier created adaptors.
+
+See example @ref occt_draw_6_6a_3 "below".
+
+@subsubsection occt_draw_6_6a_2 makeadaptor
+
+Syntax:
+~~~~~
+makeadaptor argument
+~~~~~
+
+where argument can be
+
+- 3D/2D-curve;
+- Surface;
+- Edge;
+- Face;
+- Compound, containing edge and face. Moreover, the edge must have 2D-curve on the face.
+
+Creates new adaptor. If adaptor with such type already exists the new adaptor will replace the existing one.
+
+See example @ref occt_draw_6_6a_3 "below".
+
+@subsubsection occt_draw_6_6a_3 adaptorproperties
+
+Syntax:
+~~~~~
+adaptorproperties <set of properties>
+~~~~~
+
+Returns the properties of all created adaptors. Currently the following properties are supported:
+
+- <b><i>-isperiodic</i></b> - Returns **IsPeriodic()** property and the period.
+- <b><i>-isclosed</i></b> - Returns **IsClosed()** property.
+- <b><i>-resolution</i></b> - Returns a value of resolution (see Examples 3 and 6).
+
+**Example 1** 
+
+~~~~~
+# Create some 2D-curve
+circle c 0 0 20
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor c 
+# OK: Adaptor2d_Curve2d has been created.
+
+# Check it
+adaptorproperties -isclosed 
+# Adaptor2d_Curve2d is closed
+~~~~~
+
+**Example 2** 
+
+~~~~~
+# Create some 3D-curve
+bsplinecurve cc 4 3 0 5 3.1415926535897931 3 6.2831853071795862 5 0 20 100 1 -14.1421356237309 20 106.594586144012 1 -34.9044110322929 0 116.276194167748 1 -14.1421356237311 -20 106.594586144013 1 14.142135623731 -20 93.4054138559873 1 34.904411032293 0 83.7238058322526 1 14.1421356237309 20 93.4054138559873 1 0 20 100 1 
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor cc 
+# OK: Adaptor3d_Curve has been created.
+
+# Check it
+adaptorproperties -isperiodic -isclosed 
+# Adaptor3d_Curve is not periodic
+# Adaptor3d_Curve is closed
+~~~~~
+
+**Example 3** 
+
+~~~~~
+# Create some surface
+sphere ss 68 
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor bs 
+# OK: Adaptor3d_Surface has been created.
+
+# Get sphere's resolution from 1.0e-7
+adaptorproperties -resolution 1.0e-7 
+# Adaptor3d_Surface: UResolution = 1.4705882352941176e-009; VResolution = 1.4705882352941176e-009
+~~~~~
+
+**Example 4** 
+
+~~~~~
+# Obtain some edge
+box b 1 1 1 
+explode b e 
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor b_1 
+# OK: Adaptor3d_Curve has been created.
+
+# Check it
+adaptorproperties -isperiodic 
+# Adaptor3d_Curve is not periodic
+
+adaptorproperties -isclosed 
+# Adaptor3d_Curve is not closed
+~~~~~
+
+**Example 5** 
+
+~~~~~
+# Obtain some face
+pcylinder f 20 200 
+explode f f 
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor f_1 
+# OK: Adaptor3d_Curve has been created.
+
+# Check it
+adaptorproperties -isperiodic -isclosed 
+# Adaptor3d_Surface is U-periodic with U-period 6.2831853071795862
+# Adaptor3d_Surface is not V-periodic
+# Adaptor3d_Surface is U-closed
+# Adaptor3d_Surface is not V-closed
+~~~~~
+
+**Example 6** 
+
+~~~~~
+# Obtain compound edge+face
+pcone co 0 10 10 
+explode co f 
+explode co_1 e 
+compound co_1_2 co_1 cm 
+
+# Nulify all already created adaptors
+nulifyadaptors 
+# All adapters have been nullified successful.
+
+# Create new adaptor
+makeadaptor cm 
+# OK: Adaptor2d_Curve2d has been created.
+
+# Get curve's resolution from 1.0e-3
+adaptorproperties -resolution 1.0e-3
+# Adaptor2d_Curve2d::Resolution = 0.001
+~~~~~
 
 @subsection occt_draw_6_7  Intersections
 

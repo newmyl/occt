@@ -133,8 +133,14 @@ public:
   
     Standard_Boolean IsClosed() const;
   
+    //! Returns true if the curve is periodic 
+    //! (please see the documentation, the section
+    //! " /User Guides/Modeling Data/Periodicity concept ").
     Standard_Boolean IsPeriodic() const;
   
+    //! Returns the period of the periodic curve.
+    //! (please see the documentation, the section
+    //! " /User Guides/Modeling Data/Periodicity concept ").
     Standard_Real Period() const;
   
   //! Computes the point of parameter U on the curve.

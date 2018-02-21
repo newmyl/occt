@@ -124,12 +124,16 @@ public:
   
   Standard_EXPORT Standard_Boolean IsVClosed() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the surface is U-periodic
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
+  //! Returns U period of the surface
   Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
   
+  //! Returns TRUE if the surface is V-periodic
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns V period of the surface
   Standard_EXPORT Standard_Real VPeriod() const Standard_OVERRIDE;
   
   //! Computes the point of parameters U,V on the surface.

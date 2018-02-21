@@ -40,6 +40,7 @@
 #include <GeomConvert_ApproxCurve.hxx>
 #include <GeomConvert_ApproxSurface.hxx>
 #include <GeomConvert_CompCurveToBSplineCurve.hxx>
+#include <GeomLib.hxx>
 #include <gp_Pln.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
@@ -392,17 +393,18 @@ static inline HCurve GetCurveCopy(const HCurve& curve,
 }
 
 template<class HCurve> 
-static inline void SegmentCurve (HCurve& curve,
-                                 const Standard_Real first,
-                                 const Standard_Real last)
+static inline void SegmentCurve (HCurve& theCurve,
+                                 const Standard_Real theFirst,
+                                 const Standard_Real theLast)
 {
-  if(curve->FirstParameter() < first - Precision::PConfusion() || 
-     curve->LastParameter() > last + Precision::PConfusion()) {
-    if(curve->IsPeriodic())
-      curve->Segment(first,last);
-    else curve->Segment(Max(curve->FirstParameter(),first),
-                        Min(curve->LastParameter(),last));
+  Standard_Real aF = theFirst, aL = theLast;
+  if (!GeomLib::IsTrimAllowed(theCurve, aF, aL))
+  {
+    aF = Max(theCurve->FirstParameter(), aF);
+    aL = Min(theCurve->LastParameter(), aL);
   } 
+
+  theCurve->Segment(aF, aL);
 }
 
 template<class HPoint> 

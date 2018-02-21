@@ -72,9 +72,15 @@ public:
   
     static Standard_Boolean IsClosed (const BRepAdaptor_Curve& C);
   
-    static Standard_Boolean IsPeriodic (const BRepAdaptor_Curve& C);
+  //! Returns true if the curve is periodic 
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  static Standard_Boolean IsPeriodic (const BRepAdaptor_Curve& C);
   
-    static Standard_Real Period (const BRepAdaptor_Curve& C);
+  //! Returns the period of the periodic curve.
+  //! (please see the documentation, the section
+  //! " /User Guides/Modeling Data/Periodicity concept ").
+  static Standard_Real Period (const BRepAdaptor_Curve& C);
   
   //! Computes the point of parameter U on the curve.
     static gp_Pnt Value (const BRepAdaptor_Curve& C, const Standard_Real U);

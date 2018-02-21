@@ -539,6 +539,9 @@ public:
   //! Returns True if the curve is periodic.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the period of this curve
+  Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
+
 
   //! Returns True if the weights are not identical.
   //! The tolerance criterion is Epsilon of the class Real.

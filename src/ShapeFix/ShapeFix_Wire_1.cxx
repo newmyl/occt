@@ -165,7 +165,7 @@ static Standard_Real AdjustOnPeriodic3d (const Handle(Geom_Curve)& c,
 					 const Standard_Real param)
 {
   // 15.11.2002 PTV OCC966
-  if (ShapeAnalysis_Curve::IsPeriodic(c)) 
+  if (c->IsPeriodic()) 
   {
     Standard_Real T = c->Period();
     Standard_Real shift = -IntegerPart(first/T)*T; if (first<0.) shift += T;
@@ -360,7 +360,7 @@ static Standard_Real AdjustOnPeriodic3d (const Handle(Geom_Curve)& c,
         {
           OCC_CATCH_SIGNALS
           // 15.11.2002 PTV OCC966
-	  if(!ShapeAnalysis_Curve::IsPeriodic(c))
+	  if(!c->IsPeriodic())
 	    tc = new Geom_TrimmedCurve(c,Max(first,c->FirstParameter()),Min(last,c->LastParameter()));
 	  else tc = new Geom_TrimmedCurve(c,first,last);
 	  bsp = GeomConvert::CurveToBSplineCurve(tc);
@@ -755,7 +755,7 @@ static Standard_Real AdjustOnPeriodic2d (const Handle(Geom2d_Curve)& pc,
 					 const Standard_Real param)
 {
   // 15.11.2002 PTV OCC966
-  if (ShapeAnalysis_Curve::IsPeriodic(pc)) 
+  if (pc->IsPeriodic()) 
   {
     Standard_Real T = pc->Period();
     Standard_Real shift = -IntegerPart(first/T)*T; if (first<0.) shift += T;
@@ -942,7 +942,7 @@ static Standard_Real AdjustOnPeriodic2d (const Handle(Geom2d_Curve)& pc,
           OCC_CATCH_SIGNALS
 	  Handle(Geom2d_Curve) c;
           // 15.11.2002 PTV OCC966
-	  if(!ShapeAnalysis_Curve::IsPeriodic(pc))
+	  if(!pc->IsPeriodic())
 	    c = new Geom2d_TrimmedCurve(pc,Max(first,pc->FirstParameter()),Min(last,pc->LastParameter()));
 	  else 
 	    c = new Geom2d_TrimmedCurve(pc,first,last);

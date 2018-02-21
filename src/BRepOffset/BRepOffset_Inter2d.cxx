@@ -951,6 +951,9 @@ void BRepOffset_Inter2d::ExtentEdge(const TopoDS_Edge& E,TopoDS_Edge& NE, const 
           if (theCurve->IsKind(STANDARD_TYPE(Geom2d_BoundedCurve)) &&
               (FirstPar > anEf - a2Offset || LastPar < anEl + a2Offset))
             {
+              // Trimmed curves or periodic B-spline curves are processed
+              // in this branch.
+
               Handle(Geom2d_Curve) NewPCurve;
               if (ExtendPCurve(theCurve, anEf, anEl, a2Offset, NewPCurve))
                 {

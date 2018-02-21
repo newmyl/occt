@@ -100,6 +100,7 @@
 #include <TopTools_MapIteratorOfMapOfShape.hxx>
 #include <TopTools_MapOfShape.hxx>
 #include <TopTools_SequenceOfShape.hxx>
+#include <GeomLib.hxx>
 
 #include <stdio.h>
 #ifdef OCCT_DEBUG
@@ -1292,14 +1293,8 @@ void BRepFill_OffsetWire::UpdateDetromp (BRepFill_DataMapOfOrientedShapeListOfSh
     TopoDS_Vertex    V1,V2;
     
     const Handle(Geom2d_Curve)& Bis = Bisec.Value();
-    Standard_Boolean ForceAdd = Standard_False;
-    Handle(Geom2d_TrimmedCurve) aTC = Handle(Geom2d_TrimmedCurve)::DownCast(Bis);
-    if(!aTC.IsNull() && aTC->BasisCurve()->IsPeriodic())
-    {
-      gp_Pnt2d Pf = Bis->Value(Bis->FirstParameter());
-      gp_Pnt2d Pl = Bis->Value(Bis->LastParameter());
-      ForceAdd = Pf.Distance(Pl) <= Precision::Confusion();
-    }
+    const Standard_Boolean ForceAdd = (Bis->IsPeriodic() &&
+                                       GeomLib::IsClosed(Bis, Precision::Confusion()));
 
     U1 = Bis->FirstParameter();
     

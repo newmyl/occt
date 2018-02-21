@@ -1147,22 +1147,40 @@ void Geom_BSplineCurve::UpdateKnots()
 }
 
 //=======================================================================
-//function : Normalizes the parameters if the curve is periodic
-//purpose  : that is compute the cache so that it is valid
+//function : PeriodicNormalization
+//purpose  : Normalizes the parameters if the curve is periodic
+//            that is compute the cache so that it is valid
+//          (analog of ElCLib::InPeriod(...) method)
 //=======================================================================
-
-void Geom_BSplineCurve::PeriodicNormalization(Standard_Real&  Parameter) const 
+void Geom_BSplineCurve::PeriodicNormalization(Standard_Real& theParameter) const
 {
-  Standard_Real Period ;
+  if (!periodic)
+    return;
 
-  if (periodic) {
-    Period = flatknots->Value(flatknots->Upper() - deg) - flatknots->Value (deg + 1) ;
-    while (Parameter > flatknots->Value(flatknots->Upper()-deg)) {
-      Parameter -= Period ;
-    }
-    while (Parameter < flatknots->Value((deg + 1))) {
-      Parameter +=  Period ;
-    }
+  const Standard_Real aPeriod = Period();
+  const Standard_Real aFPar = FirstParameter();
+  const Standard_Real aLPar = LastParameter();
+
+  if ((aFPar <= theParameter) && (theParameter <= aLPar))
+  {
+    // Already normalized
+    return;
   }
+
+  theParameter = Max(aFPar, theParameter +
+                     aPeriod*Ceiling((aFPar - theParameter) / aPeriod));
 }
 
+//=======================================================================
+//function : Period
+//purpose  :
+//=======================================================================
+Standard_Real Geom_BSplineCurve::Period() const
+{
+  if (!periodic)
+    throw Standard_NotImplemented("Geom_BSplineCurve::Period");
+
+  const Standard_Real aFPar = FirstParameter();
+  const Standard_Real aLPar = LastParameter();
+  return (aLPar - aFPar);
+}

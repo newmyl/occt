@@ -1580,9 +1580,7 @@ void BOPTools_AlgoTools::MakePCurve(const TopoDS_Edge& aE,
   //
   aTolE=BRep_Tool::Tolerance(aE);
   //
-  const Handle(Geom_Curve)& aC3DE=BRep_Tool::Curve(aE, aT1, aT2);
-  Handle(Geom_TrimmedCurve)aC3DETrim=
-    new Geom_TrimmedCurve(aC3DE, aT1, aT2);
+  BRep_Tool::Range(aE, aT1, aT2);
   //
   for (i=0; i<2; ++i) {
     bPC = !i ? bPC1 : bPC2;
@@ -1602,21 +1600,15 @@ void BOPTools_AlgoTools::MakePCurve(const TopoDS_Edge& aE,
     aFFWD.Orientation(TopAbs_FORWARD);
     //
     aC2D=aC2Dx1;
-    if (aC2D.IsNull()) { 
+    if (aC2D.IsNull())
+    {
       BOPTools_AlgoTools2D::BuildPCurveForEdgeOnFace(aE, aFFWD, theContext);
       BOPTools_AlgoTools2D::CurveOnSurface(aE, aFFWD, aC2D, 
                                        aOutFirst, aOutLast, 
                                        aOutTol, theContext);
       }
     //
-    if (aC3DE->IsPeriodic()) {
-      BOPTools_AlgoTools2D::AdjustPCurveOnFace(aFFWD, aT1, aT2,  aC2D, 
-                                               aC2DA, theContext);
-    }
-    else {
-      BOPTools_AlgoTools2D::AdjustPCurveOnFace(aFFWD, aC3DETrim, aC2D, 
-                                               aC2DA, theContext);
-    }
+    BOPTools_AlgoTools2D::AdjustPCurveOnFace(aFFWD, aT1, aT2, aC2D, aC2DA, theContext);
     //
     aBB.UpdateEdge(aE, aC2DA, aFFWD, aTolE);
     //BRepLib::SameParameter(aE);

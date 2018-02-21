@@ -371,6 +371,47 @@ static Standard_Integer GetSurfaceContinuity( Draw_Interpretor& theDI,
   return 0;
 }
 
+//=======================================================================
+//function : IsPeriodic
+//purpose  : Checks if the surface is periodic and returns the period
+//=======================================================================
+static Standard_Integer IsPeriodic(Draw_Interpretor& theDI,
+                                   Standard_Integer theNArg,
+                                   const char** theArgv)
+{
+  if (theNArg != 2)
+  {
+    theDI << "Use: " << theArgv[0] << " surface \n";
+    return 1;
+  }
+
+  Handle(Geom_Surface) aGS1 = DrawTrSurf::GetSurface(theArgv[1]);
+  if (aGS1.IsNull())
+  {
+    theDI << "Argument is not a surface!\n";
+    return 1;
+  }
+
+  if (aGS1->IsUPeriodic())
+  {
+    theDI << theArgv[1] << " is U-periodic with U-period " << aGS1->UPeriod() << "\n";
+  }
+  else
+  {
+    theDI << theArgv[1] << " is not U-periodic\n";
+  }
+
+  if (aGS1->IsVPeriodic())
+  {
+    theDI << theArgv[1] << " is V-periodic with V-period " << aGS1->VPeriod() << "\n";
+  }
+  else
+  {
+    theDI << theArgv[1] << " is not V-periodic\n";
+  }
+
+  return 0;
+}
 
 //=======================================================================
 //function : SurfaceCommands
@@ -425,6 +466,10 @@ void  GeometryTest::SurfaceCommands(Draw_Interpretor& theCommands)
 		  __FILE__,
 		  GetSurfaceContinuity,g);
 
+ theCommands.Add("surfaceperiod",
+                 "surfaceperiod surface: \n\tReturns the period of the surface (or the information about not-periodic state)",
+                 __FILE__,
+                 IsPeriodic, g);
 
 }
 

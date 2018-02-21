@@ -41,6 +41,7 @@
 #include <GeomConvert.hxx>
 #include <GeomConvert_ApproxCurve.hxx>
 #include <GeomConvert_CompCurveToBSplineCurve.hxx>
+#include <GeomLib.hxx>
 #include <GeomLProp.hxx>
 #include <gp.hxx>
 #include <gp_Ax3.hxx>
@@ -194,7 +195,8 @@ Handle(Geom_BSplineCurve)  GeomConvert::CurveToBSplineCurve
 
     // Si la courbe n'est pas vraiment restreinte, on ne risque pas 
     // le Raise dans le BS->Segment.
-    if (!Curv->IsPeriodic()) {
+    if (!GeomLib::IsTrimAllowed(Curv, U1, U2))
+    {
       if (U1 < Curv->FirstParameter())
 	U1 =  Curv->FirstParameter();
       if (U2 > Curv->LastParameter())

@@ -230,6 +230,8 @@ Standard_Boolean BRepMesh_CurveTessellator::Value (
         aSurface->GetType() != GeomAbs_BezierSurface  &&
         aSurface->GetType() != GeomAbs_OtherSurface)
     {
+      // For trimmed cone/cylinder.
+      // Return independently of the fact whether the surface trimmed.
       return Standard_True;
     }
 

@@ -1282,30 +1282,21 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge& theEdge,
   Geom2dAdaptor_Curve& GAC2d = HC2d->ChangeCurve2d();
   GeomAdaptor_Surface& GAS = HS->ChangeSurface(); 
 
-  // modified by NIZHNY-OCC486  Tue Aug 27 17:15:13 2002 :
-  Standard_Boolean m_TrimmedPeriodical = Standard_False;
-  Handle(Standard_Type) TheType = C3d->DynamicType();
-  if( TheType == STANDARD_TYPE(Geom_TrimmedCurve))
+  if (C3d->IsPeriodic())
   {
-    Handle(Geom_Curve) gtC (Handle(Geom_TrimmedCurve)::DownCast (C3d)->BasisCurve());
-    m_TrimmedPeriodical = gtC->IsPeriodic();
+    // Range of the curve cannot be greater than period.
+    // If it is greater then it must be reduced.
+    const Standard_Real aDelta = Max(l3d - f3d - C3d->Period(), 0.0)/2.0;
+    f3d += aDelta;
+    l3d -= aDelta;
   }
-  // modified by NIZHNY-OCC486  Tue Aug 27 17:15:17 2002 .
 
-
-  if(!C3d->IsPeriodic()) {
-    Standard_Real Udeb = C3d->FirstParameter();
-    Standard_Real Ufin = C3d->LastParameter();
-    // modified by NIZHNY-OCC486  Tue Aug 27 17:17:14 2002 :
-    //if (Udeb > f3d) f3d = Udeb;
-    //if (l3d > Ufin) l3d = Ufin;
-    if(!m_TrimmedPeriodical)
-    {
-      if (Udeb > f3d) f3d = Udeb;
-      if (l3d > Ufin) l3d = Ufin;
-    }
-    // modified by NIZHNY-OCC486  Tue Aug 27 17:17:55 2002 .
+  if (!GeomLib::IsTrimAllowed(C3d, f3d, l3d))
+  {
+    if (C3d->FirstParameter() > f3d) f3d = C3d->FirstParameter();
+    if (l3d > C3d->LastParameter()) l3d = C3d->LastParameter();
   }
+
   if(!L3d.IsIdentity()){
     C3d = Handle(Geom_Curve)::DownCast(C3d->Transformed(L3d.Transformation()));
   }

@@ -1,0 +1,44 @@
+puts "========"
+puts "OCC29115"
+puts "========"
+puts ""
+#################################################
+# [Regression] GeomAdaptor mistakenly reports non-periodic curves to be periodic
+#################################################
+
+pload QAcommands
+
+bsplinecurve c1 3 3 0 4 0.5 2 1 4 2 2 2 1 3 3 3 1 4 4 4 1 5 5 5 1 6 6 6 1 7 7 7 1
+2dbsplinecurve c2 3 3 0 4 0.5 2 1 4 2 2 1 3 3 1 4 4 1 5 5 1 6 6 1 7 7 1
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 0 0.1] ] } {
+  puts "Error in \"c1 0 0.1\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 0.6 0.78] ] } {
+  puts "Error in \"c1 0.6 0.78\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 0.5 1] ] } {
+  puts "Error in \"c1 0.5 1\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is not possible" [OCC29115c c1 0.8 1.5] ] } {
+  puts "Error in \"c1 0.8 1.5\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 0 0.1] ] } {
+  puts "Error in \"c2 0 0.1\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 0.6 0.78] ] } {
+  puts "Error in \"c2 0.6 0.78\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 0.5 1] ] } {
+  puts "Error in \"c2 0.5 1\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is not possible" [OCC29115c c2 0.8 1.5] ] } {
+  puts "Error in \"c2 0.8 1.5\"-bounds computation "
+}

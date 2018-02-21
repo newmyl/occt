@@ -162,18 +162,6 @@ Standard_Boolean GeomPlate_Surface::IsUPeriodic() const
   return Standard_False;
 }
 
-
-//=======================================================================
-//function : UPeriod
-//purpose  : 
-//=======================================================================
-
-Standard_Real GeomPlate_Surface::UPeriod() const 
-{ 
- return Standard_False;
-}
-
-
 //=======================================================================
 //function : IsVPeriodic
 //purpose  : 
@@ -183,18 +171,6 @@ Standard_Boolean GeomPlate_Surface::IsVPeriodic() const
 {
   return  Standard_False;
 }
-
-
-//=======================================================================
-//function : VPeriod
-//purpose  : 
-//=======================================================================
-
-Standard_Real GeomPlate_Surface::VPeriod() const 
-{ 
-  return Standard_False;
-}
-
 
 //=======================================================================
 //function : UIso

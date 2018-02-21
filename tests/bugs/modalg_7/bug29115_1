@@ -1,0 +1,44 @@
+puts "========"
+puts "OCC29115"
+puts "========"
+puts ""
+#################################################
+# [Regression] GeomAdaptor mistakenly reports non-periodic curves to be periodic
+#################################################
+
+pload QAcommands
+
+circle c1 0 0 0 10
+circle c2 0 0 0 10
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 0 pi] ] } {
+  puts "Error in \"c1 0 pi\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 5*pi 11*pi/2] ] } {
+  puts "Error in \"c1 5*pi 11*pi/2\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c1 100*pi 102*pi] ] } {
+  puts "Error in \"c1 100*pi 102*pi\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is not possible" [OCC29115c c1 50*pi 55*pi] ] } {
+  puts "Error in \"c1 50*pi 55*pi\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 0 pi] ] } {
+  puts "Error in \"c2 0 pi\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 5*pi 11*pi/2] ] } {
+  puts "Error in \"c2 5*pi 11*pi/2\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is possible" [OCC29115c c2 100*pi 102*pi] ] } {
+  puts "Error in \"c2 100*pi 102*pi\"-bounds computation "
+}
+
+if { ! [regexp "Trimm is not possible" [OCC29115c c2 50*pi 55*pi] ] } {
+  puts "Error in \"c2 50*pi 55*pi\"-bounds computation "
+}

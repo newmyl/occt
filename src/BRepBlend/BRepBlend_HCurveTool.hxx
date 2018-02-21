@@ -71,9 +71,11 @@ public:
   
     static Standard_Boolean IsClosed (const Handle(Adaptor3d_HCurve)& C);
   
-    static Standard_Boolean IsPeriodic (const Handle(Adaptor3d_HCurve)& C);
+  //! Returns TRUE if C is periodic
+  static Standard_Boolean IsPeriodic (const Handle(Adaptor3d_HCurve)& C);
   
-    static Standard_Real Period (const Handle(Adaptor3d_HCurve)& C);
+  //! Returns the period of C
+  static Standard_Real Period (const Handle(Adaptor3d_HCurve)& C);
   
   //! Computes the point of parameter U on the curve.
     static gp_Pnt Value (const Handle(Adaptor3d_HCurve)& C, const Standard_Real U);

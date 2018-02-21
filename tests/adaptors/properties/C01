@@ -1,0 +1,28 @@
+sphere s 100
+convert bs s
+trim bs bs 0 6 -1 1
+
+set ExpPeriodic "Adaptor3d_Surface is U-periodic with U-period 6.2831853071795862\nAdaptor3d_Surface is not V-periodic"
+set ExpClosed "Adaptor3d_Surface is not U-closed\nAdaptor3d_Surface is not V-closed"
+
+nulifyadaptors
+makeadaptor bs
+set logp [adaptorproperties -isperiodic]
+set logc [adaptorproperties -isclosed]
+set logpc [adaptorproperties -isperiodic -isclosed]
+
+if { ![regexp $ExpPeriodic $logp] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logc] } {
+  puts "Error: the adaptor is not closed"
+}
+
+if { ![regexp $ExpPeriodic $logpc] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logpc] } {
+  puts "Error: the adaptor is not closed"
+}

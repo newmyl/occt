@@ -1,0 +1,11 @@
+sphere ss 68
+
+nulifyadaptors
+makeadaptor ss
+
+set log [adaptorproperties -resolution 1.0e-7]
+
+regexp {Adaptor3d_Surface: UResolution = +([-0-9.+eE]+); VResolution = +([-0-9.+eE]+)} ${log} full URes VRes
+
+checkreal {Sphere U-resolution} $URes 1.4705882352941176e-009 0.0 0.1
+checkreal {Sphere V-resolution} $VRes 1.4705882352941176e-009 0.0 0.1

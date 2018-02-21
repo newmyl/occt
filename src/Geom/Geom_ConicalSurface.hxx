@@ -182,7 +182,9 @@ public:
   //! side of the axis of revolution of this cone if the
   //! half-angle at the apex is positive, and on the positive
   //! side of the "main Axis" if the half-angle is negative.
-  Standard_EXPORT gp_Pnt Apex() const;
+  //! If theVParametr != 0 (points on the real variable) then it will store
+  //! the V-parameter of the apex.
+  Standard_EXPORT gp_Pnt Apex(Standard_Real* const theVParametr = 0) const;
   
 
   //! The conical surface is infinite in the V direction so
@@ -225,6 +227,12 @@ public:
   //! Returns False.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns 2*PI
+  Standard_Real UPeriod() const Standard_OVERRIDE
+  {
+    return (M_PI + M_PI);
+  };
+
   //! Builds the U isoparametric line of this cone. The
   //! origin of this line is on the reference plane of this
   //! cone (i.e. the plane defined by the origin, "X Direction"

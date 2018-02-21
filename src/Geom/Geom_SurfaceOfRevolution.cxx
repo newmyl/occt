@@ -151,8 +151,8 @@ const gp_Pnt& Geom_SurfaceOfRevolution::Location () const {
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom_SurfaceOfRevolution::IsUPeriodic () const {
-
+Standard_Boolean Geom_SurfaceOfRevolution::IsUPeriodic () const
+{
   return Standard_True; 
 }
 
@@ -213,12 +213,20 @@ Standard_Boolean Geom_SurfaceOfRevolution::IsVClosed () const
 //function : IsVPeriodic
 //purpose  : 
 //=======================================================================
+Standard_Boolean Geom_SurfaceOfRevolution::IsVPeriodic() const
+{
 
-Standard_Boolean Geom_SurfaceOfRevolution::IsVPeriodic () const { 
-
-  return basisCurve->IsPeriodic(); 
+  return (basisCurve->IsPeriodic() && basisCurve->IsClosed());
 }
 
+//=======================================================================
+//function : VPeriod
+//purpose  : 
+//=======================================================================
+Standard_Real Geom_SurfaceOfRevolution::VPeriod() const
+{
+  return basisCurve->Period();
+}
 
 //=======================================================================
 //function : SetAxis

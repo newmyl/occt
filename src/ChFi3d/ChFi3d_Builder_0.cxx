@@ -585,10 +585,7 @@ void ChFi3d_BoundSrf(GeomAdaptor_Surface& S,
   const Standard_Boolean checknaturalbounds)
 {
   Standard_Real umin = uumin, umax = uumax, vmin = vvmin, vmax = vvmax; 
-  Handle(Geom_Surface) surface = S.Surface();
-  Handle(Geom_RectangularTrimmedSurface) 
-    trs = Handle(Geom_RectangularTrimmedSurface)::DownCast(surface);
-  if(!trs.IsNull()) surface = trs->BasisSurface();
+  const Handle(Geom_Surface) &surface = S.Surface();
   Standard_Real u1,u2,v1,v2;
   surface->Bounds(u1,u2,v1,v2);
   Standard_Real peru=0, perv=0;
@@ -620,8 +617,16 @@ void ChFi3d_BoundSrf(GeomAdaptor_Surface& S,
   Standard_Real vv1 = vmin - Stepv;
   Standard_Real vv2 = vmax + Stepv;
   if(checknaturalbounds) {
-    if(!S.IsUPeriodic()) {uu1 = Max(uu1,u1);  uu2 = Min(uu2,u2);}
-    if(!S.IsVPeriodic()) {vv1 = Max(vv1,v1);  vv2 = Min(vv2,v2);}
+    if (!GeomLib::IsUTrimAllowed(S, uu1, uu2))
+    {
+      uu1 = Max(uu1,u1);
+      uu2 = Min(uu2,u2);
+    }
+    if (!GeomLib::IsVTrimAllowed(S, vv1, vv2))
+    {
+      vv1 = Max(vv1, v1);
+      vv2 = Min(vv2, v2);
+    }
   }
   S.Load(surface,uu1,uu2,vv1,vv2);
 }
@@ -984,12 +989,18 @@ Standard_Boolean ChFi3d_IntTraces(const Handle(ChFiDS_SurfData)& fd1,
   Handle(Geom2d_Curve) pcf1 = fd1->Interference(jf1).PCurveOnFace();
   if(pcf1.IsNull()) return Standard_False;
   Standard_Boolean isper1 = pcf1->IsPeriodic();
-  if(isper1) {
+  if(isper1)
+  {
+    // Extract basis curve to obtain its First and Last parameters.
     Handle(Geom2d_TrimmedCurve) tr1 = Handle(Geom2d_TrimmedCurve)::DownCast(pcf1);
     if(!tr1.IsNull()) pcf1 = tr1->BasisCurve();
     C1.Load(pcf1);
   }
-  else C1.Load(pcf1,first-delta,last+delta);
+  else
+  {
+    C1.Load(pcf1, first - delta, last + delta);
+  }
+
   Standard_Real first1 = pcf1->FirstParameter(), last1 = pcf1->LastParameter();
 
   first = fd2->Interference(jf2).FirstParameter();
@@ -1000,12 +1011,18 @@ Standard_Boolean ChFi3d_IntTraces(const Handle(ChFiDS_SurfData)& fd1,
   Handle(Geom2d_Curve) pcf2 = fd2->Interference(jf2).PCurveOnFace();
   if(pcf2.IsNull()) return Standard_False;
   Standard_Boolean isper2 = pcf2->IsPeriodic();
-  if(isper2) {
+  if(isper2)
+  {
+    // Extract basis curve to obtain its First and Last parameters.
     Handle(Geom2d_TrimmedCurve) tr2 = Handle(Geom2d_TrimmedCurve)::DownCast(pcf2);
     if(!tr2.IsNull()) pcf2 = tr2->BasisCurve();
     C2.Load(pcf2);
   }
-  else C2.Load(fd2->Interference(jf2).PCurveOnFace(),first-delta,last+delta);
+  else
+  {
+    C2.Load(pcf2, first - delta, last + delta);
+  }
+
   Standard_Real first2 = pcf2->FirstParameter(), last2 = pcf2->LastParameter();
 
   IntRes2d_IntersectionPoint int2d;
@@ -1635,13 +1652,13 @@ void  ChFi3d_ComputeArete(const ChFiDS_CommonPoint&   P1,
         Parfin = C3d->ReversedParameter(Parfin);
         C3d->Reverse();
       }
-      Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
-      if(!tc.IsNull()) {
-        C3d = tc->BasisCurve();
-        if (C3d->IsPeriodic()) {
-          ElCLib::AdjustPeriodic(C3d->FirstParameter(),C3d->LastParameter(),
-            tol2d,Pardeb,Parfin);
-        }
+
+      if (C3d->IsPeriodic())
+      {
+        Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
+        if (!tc.IsNull()) C3d = tc->BasisCurve();
+        ElCLib::AdjustPeriodic(C3d->FirstParameter(), C3d->LastParameter(),
+                               tol2d, Pardeb, Parfin);
       }
     }
     if(IFlag != 1) {
@@ -1665,13 +1682,13 @@ void  ChFi3d_ComputeArete(const ChFiDS_CommonPoint&   P1,
         Parfin = C3d->ReversedParameter(Parfin);
         C3d->Reverse();
       }
-      Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
-      if(!tc.IsNull()) {
-        C3d = tc->BasisCurve();
-        if (C3d->IsPeriodic()) {
-          ElCLib::AdjustPeriodic(C3d->FirstParameter(),C3d->LastParameter(),
-            tol2d,Pardeb,Parfin);
-        }
+
+      if (C3d->IsPeriodic())
+      {
+        Handle(Geom_TrimmedCurve) tc = Handle(Geom_TrimmedCurve)::DownCast(C3d);
+        if (!tc.IsNull()) C3d = tc->BasisCurve();
+        ElCLib::AdjustPeriodic(C3d->FirstParameter(), C3d->LastParameter(),
+                               tol2d, Pardeb, Parfin);
       }
     }
     if(IFlag != 1) {
@@ -2966,9 +2983,6 @@ Handle(Geom_Surface) trsfsurf(const Handle(Adaptor3d_HSurface)& HS,
   else if(!hgs.IsNull()) {
     res = hgs->ChangeSurface().Surface();
   }
-  Handle(Geom_RectangularTrimmedSurface) 
-    tr = Handle(Geom_RectangularTrimmedSurface)::DownCast(res);
-  if(!tr.IsNull()) res = tr->BasisSurface();
 
   Standard_Real U1 = HS->FirstUParameter(), U2 = HS->LastUParameter();
   Standard_Real V1 = HS->FirstVParameter(), V2 = HS->LastVParameter();
@@ -3971,7 +3985,7 @@ Standard_EXPORT
   tolpared = edc.Resolution(tol);
   Cv = BRep_Tool::Curve(E, First, Last);
   //Add vertex with tangent
-  if (ES.IsPeriodic())
+  if (ES.IsPeriodic() && ES.IsClosed())
   {
     Standard_Real ParForElSpine = (E.Orientation() == TopAbs_FORWARD)? First : Last;
     gp_Pnt PntForElSpine;
@@ -4314,7 +4328,7 @@ Standard_EXPORT
     }       
   }
   // elspine periodic => BSpline Periodic
-  if(ES.IsPeriodic()) {
+  if(ES.IsPeriodic() && ES.IsClosed()) {
     if(!BSpline->IsPeriodic()) {
       BSpline->SetPeriodic();
       //modified by NIZNHY-PKV Fri Dec 10 12:20:22 2010ft

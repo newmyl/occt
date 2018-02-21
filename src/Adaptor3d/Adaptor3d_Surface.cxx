@@ -179,7 +179,6 @@ Handle(Adaptor3d_HSurface) Adaptor3d_Surface::VTrim(const Standard_Real , const 
   throw Standard_NotImplemented("Adaptor3d_Surface::VTrim");
 }
 
-
 //=======================================================================
 //function : IsUClosed
 //purpose  : 

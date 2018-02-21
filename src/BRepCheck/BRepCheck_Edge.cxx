@@ -197,6 +197,8 @@ void BRepCheck_Edge::Minimum()
           Standard_Real f = C3d->FirstParameter(), l = C3d->LastParameter();
           if (C3d->DynamicType() == STANDARD_TYPE(Geom_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
+
             const Handle(Geom_Curve)& aC = Handle(Geom_TrimmedCurve)::DownCast (C3d)->BasisCurve(); 
             f = aC->FirstParameter();
             l = aC->LastParameter();
@@ -237,6 +239,8 @@ void BRepCheck_Edge::Minimum()
           Standard_Real f = PCref->FirstParameter(), l = PCref->LastParameter();
           if (PCref->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
+
             const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (PCref)->BasisCurve(); 
             f = aC->FirstParameter();
             l = aC->LastParameter();
@@ -373,6 +377,8 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
           Standard_Real fp = pc->FirstParameter(), lp = pc->LastParameter();
           if (pc->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
           {
+            // E.g. see "boolean bopfuse_complex J6" test script
+
             const Handle(Geom2d_Curve)& aC = Handle(Geom2d_TrimmedCurve)::DownCast (pc)->BasisCurve(); 
             fp = aC->FirstParameter();
             lp = aC->LastParameter();

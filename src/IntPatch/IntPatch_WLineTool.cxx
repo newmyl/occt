@@ -19,6 +19,7 @@
 #include <ElCLib.hxx>
 #include <ElSLib.hxx>
 #include <IntPatch_SpecialPoints.hxx>
+#include <IntSurf.hxx>
 #include <NCollection_IncAllocator.hxx>
 #include <TopAbs_State.hxx>
 
@@ -1466,10 +1467,8 @@ void IntPatch_WLineTool::JoinWLines(IntPatch_SequenceOfLine& theSlin,
   const Standard_Real aMinRad = 1.0e-3*Min(theS1->Cylinder().Radius(),
                                               theS2->Cylinder().Radius());
 
-  const Standard_Real anArrPeriods[4] = {theS1->IsUPeriodic() ? theS1->UPeriod() : 0.0,
-                                         theS1->IsVPeriodic() ? theS1->VPeriod() : 0.0,
-                                         theS2->IsUPeriodic() ? theS2->UPeriod() : 0.0,
-                                         theS2->IsVPeriodic() ? theS2->VPeriod() : 0.0};
+  Standard_Real anArrPeriods[4];
+  IntSurf::SetPeriod(theS1, theS2, anArrPeriods);
 
   const Standard_Real anArrFBonds[4] = {theS1->FirstUParameter(), theS1->FirstVParameter(),
                                         theS2->FirstUParameter(), theS2->FirstVParameter()};

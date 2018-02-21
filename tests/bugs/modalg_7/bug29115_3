@@ -1,0 +1,24 @@
+puts "========"
+puts "OCC29115"
+puts "========"
+puts ""
+#################################################
+# [Regression] GeomAdaptor mistakenly reports non-periodic curves to be periodic
+#################################################
+
+pload QAcommands
+
+sphere sp 100
+offset s1 sp 10
+
+if { ! [regexp "U-trimm is possible.\nV-trimm is possible." [OCC29115s s1 0 2*pi -1 1] ] } {
+  puts "Error in \"s1 0 2*pi -1 1\"-bounds computation "
+}
+
+if { ! [regexp "U-trimm is not possible.\nV-trimm is possible." [OCC29115s s1 pi 5*pi -1 1] ] } {
+  puts "Error in \"s1 pi 5*pi -1 1\"-bounds computation "
+}
+
+if { ! [regexp "U-trimm is possible.\nV-trimm is not possible." [OCC29115s s1 0 2*pi 1 2] ] } {
+  puts "Error in \"s1 0 2*pi 1 2\"-bounds computation "
+}

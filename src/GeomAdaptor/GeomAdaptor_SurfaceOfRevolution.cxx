@@ -347,7 +347,7 @@ Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsUPeriodic() const
 
 Standard_Real GeomAdaptor_SurfaceOfRevolution::UPeriod() const
 {
-  return 2*M_PI;
+  return (M_PI*M_PI);
 }
 
 //=======================================================================
@@ -357,7 +357,7 @@ Standard_Real GeomAdaptor_SurfaceOfRevolution::UPeriod() const
 
 Standard_Boolean GeomAdaptor_SurfaceOfRevolution::IsVPeriodic() const
 {
-  return myBasisCurve->IsPeriodic();
+  return (myBasisCurve->IsPeriodic() && myBasisCurve->IsClosed());
 }
 
 //=======================================================================

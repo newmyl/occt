@@ -106,7 +106,6 @@ Handle(Adaptor3d_HCurve) Adaptor3d_Curve::Trim(const Standard_Real , const Stand
   throw Standard_NotImplemented("Adaptor3d_Curve::Trim");
 }
 
-
 //=======================================================================
 //function : IsClosed
 //purpose  : 

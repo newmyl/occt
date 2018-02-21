@@ -21,7 +21,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_NotImplemented.hxx>
 #include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
@@ -70,10 +70,7 @@ Standard_Real Geom2d_Curve::ParametricTransformation(const gp_Trsf2d& ) const
 
 Standard_Real Geom2d_Curve::Period() const
 {
-  Standard_NoSuchObject_Raise_if
-    ( !IsPeriodic(),"Geom2d_Curve::Period");
-
-  return ( LastParameter() - FirstParameter());
+  throw Standard_NotImplemented("Geom2d_Curve::Period");
 }
 
 

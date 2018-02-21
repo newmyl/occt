@@ -80,13 +80,17 @@ public:
   
     static Standard_Boolean IsVClosed (const Handle(Adaptor3d_HSurface)& S);
   
-    static Standard_Boolean IsUPeriodic (const Handle(Adaptor3d_HSurface)& S);
+  //! Returns TRUE if S is U-periodic
+  static Standard_Boolean IsUPeriodic (const Handle(Adaptor3d_HSurface)& S);
   
-    static Standard_Real UPeriod (const Handle(Adaptor3d_HSurface)& S);
+  //! Returns U-period of S
+  static Standard_Real UPeriod (const Handle(Adaptor3d_HSurface)& S);
+
+  //! Returns TRUE if S is V-periodic
+  static Standard_Boolean IsVPeriodic (const Handle(Adaptor3d_HSurface)& S);
   
-    static Standard_Boolean IsVPeriodic (const Handle(Adaptor3d_HSurface)& S);
-  
-    static Standard_Real VPeriod (const Handle(Adaptor3d_HSurface)& S);
+  //! Returns V-period of S
+  static Standard_Real VPeriod (const Handle(Adaptor3d_HSurface)& S);
   
     static gp_Pnt Value (const Handle(Adaptor3d_HSurface)& S, const Standard_Real u, const Standard_Real v);
   

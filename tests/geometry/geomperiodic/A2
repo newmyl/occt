@@ -1,0 +1,41 @@
+2dbsplinecurve c1 2 6 -2.0943951023932 1 0 2 2.0943951023932 2 4.18879020478639 2 6.28318530717959 2 8.37758040957278 1 100 0 1 100 173 0.5 -50 87 1 -200 0 0.5 -50 -87 1 100 -173 0.5 100 0 1
+
+dump c1
+
+if { [regexp {is not periodic} [curveperiod c1] ] } {
+  puts "OK. The curve is not periodic"
+} else {
+  puts "Error: the not periodic curve is detected to be periodic"
+}
+
+setperiodic c1
+dump c1
+
+if { ![regexp {is periodic} [curveperiod c1] ] } {
+  puts "Error: the periodic curve is detected to be not periodic"
+} else {
+  puts "OK. The curve is true periodic"
+}
+
+trim c2 c1 0 6
+
+# Trim operation does not affect the periodicity
+if { ![regexp {is periodic} [curveperiod c2] ] } {
+  puts "Error: the periodic curve is detected to be not periodic"
+} else {
+  puts "OK. The curve is true periodic"
+}
+
+setnotperiodic c1
+if { [regexp {is not periodic} [curveperiod c1] ] } {
+  puts "OK. The curve is not periodic"
+} else {
+  puts "Error: the not periodic curve is detected to be periodic"
+}
+
+# setnotperiodic command works with B-spline curve only.
+# As result, trimmed curves (even based on B-splines)
+# sent as arguments result in TCL-exceptions
+
+#setnotperiodic c2 -- INCORRECT OPERATION
+

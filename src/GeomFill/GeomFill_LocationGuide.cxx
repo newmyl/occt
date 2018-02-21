@@ -1436,7 +1436,7 @@ void GeomFill_LocationGuide::InitX(const Standard_Real Param) const
     X(3) = (P1.Coord(2) + P2.Coord(2)) /2;
   }
 
-  if (myGuide->IsPeriodic()) {
+  if (myGuide->IsPeriodic() && myGuide->IsClosed()) {
     X(1) = ElCLib::InPeriod(X(1), myGuide->FirstParameter(), 
 			          myGuide->LastParameter());
   }

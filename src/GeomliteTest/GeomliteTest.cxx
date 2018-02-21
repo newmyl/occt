@@ -31,6 +31,7 @@ void GeomliteTest::AllCommands(Draw_Interpretor& theCommands)
   GeomliteTest::ApproxCommands(theCommands);
   GeomliteTest::API2dCommands(theCommands);
   GeomliteTest::ModificationCommands(theCommands);
+  GeomliteTest::AdaptorCommands(theCommands);
 
   // define the TCL variable Draw_GEOMETRY
   //char* com = "set Draw_GEOMETRY 1";

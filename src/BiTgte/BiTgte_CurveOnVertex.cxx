@@ -151,29 +151,6 @@ Standard_Boolean BiTgte_CurveOnVertex::IsClosed() const
   throw Standard_NotImplemented("BiTgte_CurveOnVertex");
 }
 
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean BiTgte_CurveOnVertex::IsPeriodic() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnVertex");
-}
-
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-
-Standard_Real BiTgte_CurveOnVertex::Period() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnVertex");
-}
-
-
 //=======================================================================
 //function : 
 //purpose  : 

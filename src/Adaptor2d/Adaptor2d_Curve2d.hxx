@@ -86,8 +86,10 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean IsClosed() const;
   
+  //! Returns TRUE if the curve is periodic
   Standard_EXPORT virtual Standard_Boolean IsPeriodic() const;
   
+  //! Returns the period of the curve
   Standard_EXPORT virtual Standard_Real Period() const;
   
   //! Computes the point of parameter U on the curve.

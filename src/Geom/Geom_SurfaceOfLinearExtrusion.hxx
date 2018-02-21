@@ -157,9 +157,12 @@ public:
   //! surface of linear extrusion is periodic.
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
-  //! IsVPeriodic always returns false.
+  //! Always returns FALSE.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns the period of the basis curve
+  Standard_EXPORT Standard_Real UPeriod() const Standard_OVERRIDE;
+
   //! Computes the U isoparametric curve of this surface
   //! of linear extrusion. This is the line parallel to the
   //! direction of extrusion, passing through the point of

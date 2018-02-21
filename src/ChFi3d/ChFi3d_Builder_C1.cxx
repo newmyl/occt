@@ -241,7 +241,8 @@ static Standard_Boolean Update(const Handle(Adaptor3d_HSurface)& fb,
 
   Standard_Real  wbis = 0.;
 
-  Standard_Boolean isperiodic = ct->IsPeriodic(),recadrebis = Standard_False;
+  Standard_Boolean isperiodic = (ct->IsPeriodic() && ct->IsClosed()),
+                   recadrebis = Standard_False;
   Intersection.Perform(ct,fb);
   if (Intersection.IsDone()) {
     Standard_Integer nbp = Intersection.NbPoints(),i,isol = 0,isolbis = 0;
@@ -384,6 +385,7 @@ static Standard_Boolean Update(const Handle(Adaptor3d_HSurface)& face,
       if (!PConF.IsNull())
       {
         Handle(Geom2d_TrimmedCurve) aTrCurve = Handle(Geom2d_TrimmedCurve)::DownCast(PConF);
+        // Extract basis curve to obtain its first/last parameters.
         if (!aTrCurve.IsNull())
           PConF = aTrCurve->BasisCurve();
         if (!PConF->IsPeriodic())
@@ -483,10 +485,7 @@ static void ChFi3d_Recale(BRepAdaptor_Surface&   Bs,
 			  gp_Pnt2d&              p2,
 			  const Standard_Boolean refon1)
 {
-  Handle(Geom_Surface) surf = Bs.ChangeSurface().Surface();
-  Handle(Geom_RectangularTrimmedSurface)
-    ts = Handle(Geom_RectangularTrimmedSurface)::DownCast(surf);
-  if (!ts.IsNull()) surf = ts->BasisSurface();
+  const Handle(Geom_Surface) &surf = Bs.ChangeSurface().Surface();
   if (surf->IsUPeriodic()) {
     Standard_Real u1 = p1.X(), u2 = p2.X();
     Standard_Real uper = surf->UPeriod();
@@ -2722,7 +2721,7 @@ void ChFi3d_Builder::PerformIntersectionAtEnd(const Standard_Integer Index)
           DStr.SetNewSurface(Face[nb-1],Sfacemoins1);
         }
 	//// for periodic 3d curves ////
-	if (cad.IsPeriodic())
+	if (cad.IsPeriodic() && cad.IsClosed())
 	{
 	  gp_Pnt2d P2d = BRep_Tool::Parameters( Vtx, Face[0] );
 	  Geom2dAPI_ProjectPointOnCurve Projector( P2d, C2dint1 );

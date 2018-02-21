@@ -164,6 +164,12 @@ public:
   //! Returns False.
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
+  //! Returns 2*PI
+  Standard_Real UPeriod() const Standard_OVERRIDE
+  {
+    return (M_PI + M_PI);
+  };
+
   //! Computes the U isoparametric curve.
   //! The U isoparametric curves of the surface are defined by the
   //! section of the spherical surface with plane obtained by rotation

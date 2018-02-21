@@ -123,7 +123,7 @@ void Geom2d_TrimmedCurve::SetTrim (const Standard_Real U1,
   Standard_Real Udeb = basisCurve->FirstParameter();
   Standard_Real Ufin = basisCurve->LastParameter();
   
-  if (basisCurve->IsPeriodic())  {
+  if (IsPeriodic())  {
      sameSense = Sense;
       
      // set uTrim1 in the range Udeb , Ufin
@@ -209,12 +209,10 @@ Standard_Real Geom2d_TrimmedCurve::FirstParameter () const       { return uTrim1
 //function : IsClosed
 //purpose  : 
 //=======================================================================
-
-Standard_Boolean Geom2d_TrimmedCurve::IsClosed () const          
+Standard_Boolean Geom2d_TrimmedCurve::IsClosed() const
 {
-  Standard_Real Dist = 
-    Value(FirstParameter()).Distance(Value(LastParameter()));
-  return ( Dist <= gp::Resolution());
+  return
+    (Value(FirstParameter()).SquareDistance(Value(LastParameter())) < gp::Resolution());
 }
 
 //=======================================================================
@@ -222,10 +220,9 @@ Standard_Boolean Geom2d_TrimmedCurve::IsClosed () const
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean Geom2d_TrimmedCurve::IsPeriodic () const        
+Standard_Boolean Geom2d_TrimmedCurve::IsPeriodic() const
 {
-  //return basisCurve->IsPeriodic();
-  return Standard_False;
+  return basisCurve->IsPeriodic();
 }
 
 //=======================================================================

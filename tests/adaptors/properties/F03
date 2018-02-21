@@ -1,0 +1,39 @@
+pcone co 0 10 10
+explode co f
+
+mksurface ss co_1
+
+if {! [regexp "ConicalSurface" [dump ss] ] } {
+  puts "Error: Wrong face has been chosen"
+}
+
+explode co_1 e
+
+# Degenerated edge
+compound co_1_3 co_1 cm
+
+set ExpPeriodic "Adaptor2d_Curve2d is not periodic"
+set ExpClosed "Adaptor2d_Curve2d is not closed"
+
+nulifyadaptors
+makeadaptor cm
+
+set logp [adaptorproperties -isperiodic]
+set logc [adaptorproperties -isclosed]
+set logpc [adaptorproperties -isperiodic -isclosed]
+
+if { ![regexp $ExpPeriodic $logp] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logc] } {
+  puts "Error: the adaptor is not closed"
+}
+
+if { ![regexp $ExpPeriodic $logpc] } {
+  puts "Error: the adaptor is not periodic"
+}
+
+if { ![regexp $ExpClosed $logpc] } {
+  puts "Error: the adaptor is not closed"
+}

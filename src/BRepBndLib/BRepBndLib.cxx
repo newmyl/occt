@@ -39,6 +39,7 @@
 #include <BRepTools.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_BezierSurface.hxx>
+#include <GeomLib.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -47,6 +48,8 @@
 #include <Geom_Plane.hxx>
 #include <Extrema_ExtSS.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurface.hxx>
+
 //
 static Standard_Boolean CanUseEdges(const Adaptor3d_Surface& BS);
 //
@@ -470,7 +473,6 @@ void FindExactUVBounds(const TopoDS_Face FF,
     umax = aBAS.LastUParameter();
     vmin = aBAS.FirstVParameter();
     vmax = aBAS.LastVParameter();
-    Standard_Boolean isUperiodic = aBAS.IsUPeriodic(), isVperiodic = aBAS.IsVPeriodic();
     Standard_Real aT1, aT2;
     Standard_Real TolU = Max(aBAS.UResolution(Tol), Precision::PConfusion());
     Standard_Real TolV = Max(aBAS.VResolution(Tol), Precision::PConfusion());
@@ -502,13 +504,13 @@ void FindExactUVBounds(const TopoDS_Face FF,
         aV /= Sqrt(magn);
       }
       Standard_Real u = aP.X(), v = aP.Y();
-      if(isUperiodic)
+      if (aBAS.IsUPeriodic())
       {
-        ElCLib::InPeriod(u, umin, umax);
+        ElCLib::InPeriod(u, umin, umin + aBAS.UPeriod());
       }
-      if(isVperiodic)
+      if (aBAS.IsVPeriodic())
       {
-        ElCLib::InPeriod(v, vmin, vmax);
+        ElCLib::InPeriod(v, vmin, vmin + aBAS.VPeriod());
       }
       //
       if(Abs(u - umin) <= TolU || Abs(u - umax) <= TolU)
@@ -588,33 +590,33 @@ void FindExactUVBounds(const TopoDS_Face FF,
   Handle(Geom_Surface) aS = BRep_Tool::Surface(FF, aLoc);
   Standard_Real aUmin, aUmax, aVmin, aVmax;
   aS->Bounds(aUmin, aUmax, aVmin, aVmax);
-  if(!aS->IsUPeriodic())
+  if (!GeomLib::IsUTrimAllowed(aBAS.Surface(), umin, umax))
   {
     umin = Max(aUmin, umin);
     umax = Min(aUmax, umax);
   }
   else
   {
-    if(umax - umin > aS->UPeriod())
+    const Standard_Real aDelta = (umax - umin - aBAS.UPeriod()) / 2.0;
+    if (aBAS.IsUPeriodic() && (aDelta > 0.0))
     {
-      Standard_Real delta = umax - umin - aS->UPeriod();
-      umin += delta/2.;
-      umax -= delta/2;
+      umin += aDelta;
+      umax -= aDelta;
     }
   }
   //
-  if(!aS->IsVPeriodic())
+  if (!GeomLib::IsVTrimAllowed(aBAS.Surface(), vmin, vmax))
   {
     vmin = Max(aVmin, vmin);
     vmax = Min(aVmax, vmax);
   }
   else
   {
-    if(vmax - vmin > aS->VPeriod())
+    const Standard_Real aDelta = (vmax - vmin - aS->VPeriod()) / 2.0;
+    if (aBAS.IsVPeriodic() && (aDelta > 0.0))
     {
-      Standard_Real delta = vmax - vmin - aS->VPeriod();
-      vmin += delta/2.;
-      vmax -= delta/2;
+      vmin += aDelta;
+      vmax -= aDelta;
     }
   }
 }

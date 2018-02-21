@@ -33,6 +33,7 @@
 #include <IntPatch_RstInt.hxx>
 #include <IntPatch_WLine.hxx>
 #include <IntPolyh_Intersection.hxx>
+#include <IntSurf.hxx>
 #include <IntSurf_LineOn2S.hxx>
 #include <IntSurf_ListIteratorOfListOfPntOn2S.hxx>
 #include <IntSurf_PntOn2S.hxx>
@@ -1587,10 +1588,7 @@ void IntPatch_PrmPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)&    
   VmaxLig2 = Surf2->LastVParameter();
 
   Standard_Real Periods [4];
-  Periods[0] = (Surf1->IsUPeriodic())? Surf1->UPeriod() : 0.;
-  Periods[1] = (Surf1->IsVPeriodic())? Surf1->VPeriod() : 0.;
-  Periods[2] = (Surf2->IsUPeriodic())? Surf2->UPeriod() : 0.;
-  Periods[3] = (Surf2->IsVPeriodic())? Surf2->VPeriod() : 0.;
+  IntSurf::SetPeriod(Surf1, Surf2, Periods);
 
   IntSurf_ListIteratorOfListOfPntOn2S IterLOP1(LOfPnts);
   if (Surf1->IsUClosed() || Surf1->IsVClosed() ||
@@ -1996,33 +1994,13 @@ void AdjustOnPeriodic(const Handle(Adaptor3d_HSurface)& Surf1,
                       const Handle(Adaptor3d_HSurface)& Surf2,
                       IntPatch_SequenceOfLine& aSLin)
 {
-  Standard_Boolean bIsPeriodic[4], bModified, bIsNull, bIsPeriod;
+  Standard_Boolean bModified, bIsNull, bIsPeriod;
   Standard_Integer i, j, k, aNbLines, aNbPx, aIndx, aIndq;
   Standard_Real aPeriod[4], dPeriod[4], ux[4], uq[4], aEps, du;
   //
   aEps=Precision::Confusion();
   //
-  for (k=0; k<4; ++k) {
-    aPeriod[k]=0.;
-  }
-  //
-  bIsPeriodic[0]=Surf1->IsUPeriodic();
-  bIsPeriodic[1]=Surf1->IsVPeriodic();
-  bIsPeriodic[2]=Surf2->IsUPeriodic();
-  bIsPeriodic[3]=Surf2->IsVPeriodic();
-  //
-  if (bIsPeriodic[0]){
-    aPeriod[0]=Surf1->UPeriod();
-  }
-  if (bIsPeriodic[1]){
-    aPeriod[1]=Surf1->VPeriod();
-  }
-  if (bIsPeriodic[2]){
-    aPeriod[2]=Surf2->UPeriod();
-  }
-  if (bIsPeriodic[3]){
-    aPeriod[3]=Surf2->VPeriod();
-  }
+  IntSurf::SetPeriod(Surf1, Surf2, aPeriod);
   //
   for (k=0; k<4; ++k) {
     dPeriod[k]=0.25*aPeriod[k];
@@ -2057,7 +2035,8 @@ void AdjustOnPeriodic(const Handle(Adaptor3d_HSurface)& Surf1,
         bIsNull=Standard_False;
         bIsPeriod=Standard_False;
         //
-        if (!bIsPeriodic[k]) {
+        if(aPeriod[k] == 0.0)
+        {
           continue;
         }
         //
@@ -2162,10 +2141,7 @@ void IntPatch_PrmPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
   D2->VParameters(aVpars2);
 
   Standard_Real Periods [4];
-  Periods[0] = (Surf1->IsUPeriodic())? Surf1->UPeriod() : 0.;
-  Periods[1] = (Surf1->IsVPeriodic())? Surf1->VPeriod() : 0.;
-  Periods[2] = (Surf2->IsUPeriodic())? Surf2->UPeriod() : 0.;
-  Periods[3] = (Surf2->IsVPeriodic())? Surf2->VPeriod() : 0.;
+  IntSurf::SetPeriod(Surf1, Surf2, Periods);
 
   //---------------------------------------------
   if((NbU1*NbV1<=Limit && NbV2*NbU2<=Limit))

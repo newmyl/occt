@@ -205,24 +205,19 @@ public:
   //! Raised if N < 0.
   Standard_EXPORT Standard_Boolean IsCNv (const Standard_Integer N) const Standard_OVERRIDE;
   
-  //! Returns true if this patch is periodic and not trimmed in the given
-  //! parametric direction.
+  //! Returns true if the basis surface is periodic in U-direction
   Standard_EXPORT Standard_Boolean IsUPeriodic() const Standard_OVERRIDE;
   
-  //! Returns the period of this patch in the u
+  //! Returns the period of the basis surface in the u
   //! parametric direction.
-  //! raises if the surface is not uperiodic.
   Standard_EXPORT virtual Standard_Real UPeriod() const Standard_OVERRIDE;
   
 
-  //! Returns true if this patch is periodic and not trimmed in the given
-  //! parametric direction.
+  //! Returns true if the basis surface is periodic in V-direction
   Standard_EXPORT Standard_Boolean IsVPeriodic() const Standard_OVERRIDE;
   
-  //! Returns the period of this patch in the v
+  //! Returns the period of the basis surface in the v
   //! parametric direction.
-  //! raises if the surface is not vperiodic.
-  //! value and derivatives
   Standard_EXPORT virtual Standard_Real VPeriod() const Standard_OVERRIDE;
   
   //! computes the U isoparametric curve.

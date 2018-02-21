@@ -110,14 +110,6 @@ public:
   Standard_EXPORT static Standard_Boolean HasCurveOnSurface(const TopoDS_Edge& aE,
                                                             const TopoDS_Face& aF);
 
-  //! Adjust P-Curve <theC2D> (3D-curve <theC3D>) on surface of the face <theF>.<br>
-  //! <theContext> - storage for caching the geometrical tools
-  Standard_EXPORT static void AdjustPCurveOnFace(const TopoDS_Face& theF,
-                                                 const Handle(Geom_Curve)& theC3D,
-                                                 const Handle(Geom2d_Curve)& theC2D,
-                                                 Handle(Geom2d_Curve)& theC2DA,
-                                                 const Handle(IntTools_Context)& theContext = Handle(IntTools_Context)());
-
   //! Adjust P-Curve <aC2D> (3D-curve <C3D>) on surface <aF> .<br>
   //! [aT1,  aT2] - range to adjust<br>
   //! <theContext> - storage for caching the geometrical tools

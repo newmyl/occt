@@ -173,12 +173,10 @@ public:
   //! the EndPoint is lower or equal to Resolution from package gp.
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
-  //! Always returns FALSE (independently of the type of basis curve).
+  //! Returns TRUE if the basis curve is periodic. Otherwise, returns FALSE.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
   //! Returns the period of the basis curve of this trimmed curve.
-  //! Exceptions
-  //! Standard_NoSuchObject if the basis curve is not periodic.
   Standard_EXPORT virtual Standard_Real Period() const Standard_OVERRIDE;
   
 

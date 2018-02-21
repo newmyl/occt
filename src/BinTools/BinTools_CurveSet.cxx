@@ -250,9 +250,9 @@ static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom_Bez
 static Standard_OStream& operator <<(Standard_OStream& OS, const Handle(Geom_BSplineCurve)& B)
 {
   OS << (Standard_Byte)BSPLINE;
-  Standard_Boolean aRational = B->IsRational() ? 1:0;
+  Standard_Boolean aRational = B->IsRational() ? Standard_True : Standard_False;
   BinTools::PutBool(OS, aRational); //rational
-  Standard_Boolean aPeriodic = B->IsPeriodic() ? 1:0;
+  Standard_Boolean aPeriodic = B->IsPeriodic() ? Standard_True : Standard_False;
   BinTools::PutBool(OS, aPeriodic); //periodic
   // poles and weights
   Standard_Integer i,aDegree,aNbPoles,aNbKnots;

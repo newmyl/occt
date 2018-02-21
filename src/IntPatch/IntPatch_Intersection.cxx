@@ -25,6 +25,7 @@
 #include <IntPatch_PrmPrmIntersection.hxx>
 #include <IntPatch_WLine.hxx>
 #include <IntPatch_WLineTool.hxx>
+#include <IntSurf.hxx>
 
 #include <ProjLib_ProjectOnPlane.hxx>
 #include <Geom_Plane.hxx>
@@ -1429,11 +1430,8 @@ void IntPatch_Intersection::GeomGeomPerfom(const Handle(Adaptor3d_HSurface)& the
     aBx1.Enlarge(Precision::PConfusion());
     aBx2.Enlarge(Precision::PConfusion());
 
-    const Standard_Real
-            anArrOfPeriod[4] = {theS1->IsUPeriodic()? theS1->UPeriod() : 0.0,
-                                theS1->IsVPeriodic()? theS1->VPeriod() : 0.0,
-                                theS2->IsUPeriodic()? theS2->UPeriod() : 0.0,
-                                theS2->IsVPeriodic()? theS2->VPeriod() : 0.0};
+    Standard_Real anArrOfPeriod[4];
+    IntSurf::SetPeriod(theS1, theS2, anArrOfPeriod);
 
     NCollection_List<gp_Pnt> aListOfCriticalPoints;
 

@@ -1,0 +1,17 @@
+ellipse c1 0 0 0 0 1 1 100 40
+
+if { ![regexp {is periodic} [curveperiod c1] ] } {
+  puts "Error: the periodic curve is detected to be not periodic"
+} else {
+  puts "OK. The curve is true periodic"
+}
+
+trim c2 c1 0 2
+
+dump c2
+
+if { ![regexp {is periodic} [curveperiod c2] ] } {
+  puts "Error: the trimmed curve must be periodic"
+} else {
+  puts "OK. The trimmed curve is true periodic"
+}

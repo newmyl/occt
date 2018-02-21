@@ -127,6 +127,7 @@ public:
   
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
   
+  //! Returns FALSE
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
   //! Returns the point of parameter U.

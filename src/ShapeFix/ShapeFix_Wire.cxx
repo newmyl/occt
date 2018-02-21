@@ -1367,9 +1367,13 @@ Standard_Boolean ShapeFix_Wire::FixShifted()
   Standard_Boolean IsVCrvClosed = Standard_False;
   Standard_Real VRange = 1.;
   if (surf->Surface()->IsKind (STANDARD_TYPE(Geom_SurfaceOfRevolution))) {
+    //! Issue #29115. Surface of revolution is considered to be V-periodic
+    //! if and only if its basis curve is periodic and closed simultaneously.
+    //! Therefore, we need to keep this complex check for the given specific algorithm.
+
     Handle(Geom_SurfaceOfRevolution) aSurOfRev = Handle(Geom_SurfaceOfRevolution)::DownCast(surf->Surface());
     Handle(Geom_Curve) aBaseCrv = aSurOfRev->BasisCurve();
-    while ( (aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
+    while ((aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve))) ||
            (aBaseCrv->IsKind(STANDARD_TYPE(Geom_TrimmedCurve))) ) {
       if (aBaseCrv->IsKind(STANDARD_TYPE(Geom_OffsetCurve)))
         aBaseCrv = Handle(Geom_OffsetCurve)::DownCast(aBaseCrv)->BasisCurve();
@@ -1378,7 +1382,7 @@ Standard_Boolean ShapeFix_Wire::FixShifted()
     }
     if (aBaseCrv->IsPeriodic()) {
       vclosed = Standard_True;
-      VRange = aBaseCrv->Period();
+      VRange = aSurOfRev->VPeriod();
       IsVCrvClosed = Standard_True;
 #ifdef OCCT_DEBUG
       cout << "Warning: ShapeFix_Wire::FixShifted set vclosed True for Surface of Revolution" << endl;

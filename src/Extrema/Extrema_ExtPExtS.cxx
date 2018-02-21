@@ -313,7 +313,8 @@ void Extrema_ExtPExtS::Perform (const gp_Pnt& P)
     if (myC->IsPeriodic())
     {
       Standard_Real U2 = U;
-      ElCLib::AdjustPeriodic(myuinf, myuinf + 2.*M_PI, Precision::PConfusion(), U, U2);
+      ElCLib::AdjustPeriodic(myuinf, myuinf + myC->Period(), 
+                             Precision::PConfusion(), U, U2);
     }
     //////////////////////////////////////////////////
     gp_Pnt E = POC.Value();

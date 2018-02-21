@@ -243,14 +243,12 @@ public:
   //! Raised if N < 0.
   Standard_EXPORT Standard_Boolean IsCN (const Standard_Integer N) const Standard_OVERRIDE;
   
-  //! Returns true if this offset curve is periodic, i.e. if the
-  //! basis curve of this offset curve is periodic.
+  //! Returns TRUE if the basis curve is periodic. Otherwise, returns FALSE.
+  //! Moreover, the basis curve must have continuity greater than C0.
   Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
   
   //! Returns the period of this offset curve, i.e. the period
   //! of the basis curve of this offset curve.
-  //! Exceptions
-  //! Standard_NoSuchObject if the basis curve is not periodic.
   Standard_EXPORT virtual Standard_Real Period() const Standard_OVERRIDE;
   
   //! Applies the transformation T to this offset curve.

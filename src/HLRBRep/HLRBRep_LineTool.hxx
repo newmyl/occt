@@ -82,9 +82,11 @@ public:
   
     static Standard_Boolean IsClosed (const gp_Lin& C);
   
-    static Standard_Boolean IsPeriodic (const gp_Lin& C);
+  //! Returns TRUE if C is periodic
+  static Standard_Boolean IsPeriodic (const gp_Lin& C);
   
-    static Standard_Real Period (const gp_Lin& C);
+  //! Always returns 0
+  static Standard_Real Period (const gp_Lin& C);
   
   //! Computes the point of parameter U on the line.
     static gp_Pnt Value (const gp_Lin& C, const Standard_Real U);
