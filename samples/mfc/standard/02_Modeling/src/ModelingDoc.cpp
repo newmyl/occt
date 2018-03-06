@@ -1000,7 +1000,7 @@ void CModelingDoc::OnEvolved()
 	myAISContext->Display(ais3,Standard_False);
 	Fit();
 	Sleep(500);
-	TopoDS_Shape S = BRepOffsetAPI_MakeEvolved(W,wprof,GeomAbs_Arc,Standard_True,Standard_False,Standard_True,0.0001);
+	TopoDS_Shape S = BRepOffsetAPI_MakeEvolved(W,wprof,GeomAbs_Arc,Standard_True,Standard_False,Standard_True,Standard_False,0.0001);
 	
 	Handle(AIS_Shape) ais2 = new AIS_Shape(S);
 	myAISContext->SetColor(ais2,Quantity_NOC_MATRABLUE,Standard_False); 

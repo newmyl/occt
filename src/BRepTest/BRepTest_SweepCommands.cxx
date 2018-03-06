@@ -240,33 +240,84 @@ Standard_Integer evolved(Draw_Interpretor& di, Standard_Integer n, const char** 
 
   if ( n < 4 ) return 1;
   Standard_Boolean IsAFace = Standard_False;
-  Standard_Boolean Solid   = (!strcmp(a[0],"evolvedsolid"));
+  Standard_Boolean Solid   = Standard_False;  
+  Standard_Boolean isVolume = Standard_False;
+  Standard_Boolean hasToComputeAxes = Standard_False;
+  Standard_Real aTolerance = 0.0;
+  TopoDS_Shape Base;
+  TopoDS_Wire Prof;
 
+  for (Standard_Integer i = 2; i < n; i++)
+  {
+    if (a[i][0] != '-')
+    {
+      di << "Error: wrong option!\n";
+      return 1;
+    }
 
+    if (!Solid && !strcmp(a[i], "-solid"))
+    {
+      Solid = Standard_True;
+      continue;
+    }
+
+    switch (a[i][1])
+    {
+      case 's':
+      {
+        Base = DBRep::Get(a[++i], TopAbs_WIRE, Standard_False);
+        if (Base.IsNull())
+        {
+          Base = DBRep::Get(a[i], TopAbs_FACE, Standard_False);
+          IsAFace = Standard_True;
+        }
+      }
+      break;
+
+      case 'p':
+      {
+        Prof = TopoDS::Wire(DBRep::Get(a[++i], TopAbs_WIRE, Standard_False));
+      }
+      break;
+
+      case 'v':
+      {
+        isVolume = Standard_True;
+      }
+      break;
+
+      case 'a':
+      {
+        hasToComputeAxes = Standard_True;
+      }
+      break;
+
+      case 't':
+      {
+        aTolerance = Draw::Atof(a[++i]);
+      }
+      break;
+
+      default: 
+        di << "Error: Unknown option!\n";
+        break;
+    }
+  }
  
-  TopoDS_Shape Base = DBRep::Get(a[2],TopAbs_WIRE,Standard_False);
-  if ( Base.IsNull()) {
-    Base = DBRep::Get(a[2],TopAbs_FACE,Standard_False);
-    IsAFace = Standard_True; 
+  if (Base.IsNull() || Prof.IsNull())
+  {
+    di << "Error: Null-shapes are not allowed\n";
+    return 1;
   }
-  if ( Base.IsNull()) return 1;
 
-  TopoDS_Shape InpuTShape(DBRep::Get(a[3],TopAbs_WIRE,Standard_False));
-  TopoDS_Wire Prof = TopoDS::Wire(InpuTShape);
-//  TopoDS_Wire Prof = 
-//    TopoDS::Wire(DBRep::Get(a[3],TopAbs_WIRE,Standard_False));
-  if ( Prof.IsNull()) return 1;
+  TopoDS_Shape Volevo = IsAFace ? BRepOffsetAPI_MakeEvolved(TopoDS::Face(Base),
+                                                            Prof, GeomAbs_Arc, !hasToComputeAxes,
+                                                            Solid, Standard_False, isVolume, aTolerance) :
+                                  BRepOffsetAPI_MakeEvolved(TopoDS::Wire(Base),
+                                                            Prof, GeomAbs_Arc, !hasToComputeAxes,
+                                                            Solid, Standard_False, isVolume, aTolerance);
 
-  if (IsAFace) {
-    TopoDS_Shape Volevo 
-      = BRepOffsetAPI_MakeEvolved(TopoDS::Face(Base),Prof,GeomAbs_Arc,n == 4,Solid);
-    DBRep::Set(a[1],Volevo);
-  }
-  else {
-    TopoDS_Shape Volevo 
-      = BRepOffsetAPI_MakeEvolved(TopoDS::Wire(Base),Prof,GeomAbs_Arc,n == 4,Solid);
-    DBRep::Set(a[1],Volevo);
-  }
+  DBRep::Set(a[1],Volevo);
 
   return 0;
 }
@@ -742,7 +793,11 @@ static Standard_Integer buildsweep(Draw_Interpretor& di,
     Sweep->SetTransitionMode(Transition);
   }
   // Reading solid ?
-  if ((n>cur) && (!strcmp(a[cur],"-S")) ) mksolid = Standard_True;
+  if ((n > cur) && (!strcmp(a[cur], "-S")))
+  {
+    mksolid = Standard_True;
+    ++cur;
+  }
 
   // Calcul le resultat
   Sweep->Build();
@@ -900,10 +955,6 @@ void  BRepTest::SweepCommands(Draw_Interpretor& theCommands)
 		  "evolved , no args to get help",
 		  __FILE__,evolved,g);  
 
-  theCommands.Add("evolvedsolid",
-		  "evolved , no args to get help",
-		  __FILE__,evolved,g);  
-  
   theCommands.Add("pruled",
 		  "pruled result Edge1/Wire1 Edge2/Wire2",
 		  __FILE__,pruled,g);
