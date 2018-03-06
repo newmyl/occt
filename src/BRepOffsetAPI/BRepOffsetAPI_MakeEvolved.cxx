@@ -22,6 +22,8 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
+#include <TopoDS_Iterator.hxx>
+#include <TopoDS.hxx>
 
 //=======================================================================
 //function : BRepOffsetAPI_MakeEvolved
@@ -43,19 +45,29 @@ BRepOffsetAPI_MakeEvolved::BRepOffsetAPI_MakeEvolved(const TopoDS_Wire&     Spin
 					 const Standard_Boolean AxeProf,
 					 const Standard_Boolean Solid,
 					 const Standard_Boolean ProfOnSpine,
-					 const Standard_Real    Tol)
+                                         const Standard_Boolean theIsVolume,
+                                         const Standard_Real    Tol)
 {
-  gp_Ax3 Axis(gp_Pnt(0.,0.,0.),
-	      gp_Dir(0.,0.,1.),
-	      gp_Dir(1.,0.,0.));
+  if (theIsVolume)
+  {
+    myVolume.Perform(Spine, Profil, Tol, Solid);
+  }
+  else
+  {
+    gp_Ax3 Axis(gp_Pnt(0., 0., 0.),
+                gp_Dir(0., 0., 1.),
+                gp_Dir(1., 0., 0.));
 
-  if ( !AxeProf) {
-    Standard_Boolean POS;
-    BRepFill::Axe(Spine,Profil,Axis,POS,Tol);
-    if (ProfOnSpine && !POS) return;
+    if (!AxeProf)
+    {
+      Standard_Boolean POS;
+      BRepFill::Axe(Spine, Profil, Axis, POS, Max(Tol, Precision::Confusion()));
+      if (ProfOnSpine && !POS) return;
+    }
+
+    myEvolved.Perform(Spine, Profil, Axis, Join, Solid);
   }
 
-  myEvolved.Perform(Spine,Profil,Axis,Join,Solid);
   Build();
   Done();
 }
@@ -72,20 +84,31 @@ BRepOffsetAPI_MakeEvolved::BRepOffsetAPI_MakeEvolved(const TopoDS_Face&     Spin
 					 const Standard_Boolean AxeProf,
 					 const Standard_Boolean Solid,
 					 const Standard_Boolean ProfOnSpine,
-					 const Standard_Real    Tol)
+                                         const Standard_Boolean theIsVolume,
+                                         const Standard_Real    Tol)
 {
-  gp_Ax3 Axis(gp_Pnt(0.,0.,0.),
-	      gp_Dir(0.,0.,1.),
-	      gp_Dir(1.,0.,0.));
+  if (theIsVolume)
+  {
+    myVolume.Perform(TopoDS::Wire(TopoDS_Iterator(Spine).Value()), Profil, Tol, Solid);
+  }
+  else
+  {
+    gp_Ax3 Axis(gp_Pnt(0., 0., 0.),
+                gp_Dir(0., 0., 1.),
+                gp_Dir(1., 0., 0.));
 
-  if ( !AxeProf) {
-    Standard_Boolean POS;
-    BRepFill::Axe(Spine,Profil,Axis,POS,Tol);
-    if (ProfOnSpine && !POS) return;
+    if (!AxeProf)
+    {
+      Standard_Boolean POS;
+      BRepFill::Axe(Spine, Profil, Axis, POS, Max(Tol, Precision::Confusion()));
+      if (ProfOnSpine && !POS) return;
+    }
+
+    myEvolved.Perform(Spine, Profil, Axis, Join, Solid);
   }
 
-  myEvolved.Perform(Spine,Profil,Axis,Join,Solid);
   Build();
+  Done();
 }
 
 
@@ -107,8 +130,16 @@ const BRepFill_Evolved& BRepOffsetAPI_MakeEvolved::Evolved() const
 
 void BRepOffsetAPI_MakeEvolved::Build()
 {
-  myShape = myEvolved.Shape();
-  if (myEvolved.IsDone())  Done();
+  if (myEvolved.IsDone())
+  {
+    myShape = myEvolved.Shape();
+  }
+  else if (myVolume.IsDone())
+  {
+    myShape = myVolume.Shape();
+  }
+  
+  Done();
 }
 
 

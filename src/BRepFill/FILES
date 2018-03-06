@@ -83,3 +83,5 @@ BRepFill_TrimShellCorner.hxx
 BRepFill_TrimSurfaceTool.cxx
 BRepFill_TrimSurfaceTool.hxx
 BRepFill_TypeOfContact.hxx
+BRepFill_Voluved.cxx
+BRepFill_Voluved.hxx

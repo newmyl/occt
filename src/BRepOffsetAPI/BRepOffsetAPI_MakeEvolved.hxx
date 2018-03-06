@@ -22,6 +22,7 @@
 #include <Standard_Handle.hxx>
 
 #include <BRepFill_Evolved.hxx>
+#include <BRepFill_Voluved.hxx>
 #include <BRepBuilderAPI_MakeShape.hxx>
 #include <GeomAbs_JoinType.hxx>
 #include <Standard_Boolean.hxx>
@@ -66,7 +67,7 @@ public:
   
   Standard_EXPORT BRepOffsetAPI_MakeEvolved();
   
-  Standard_EXPORT BRepOffsetAPI_MakeEvolved(const TopoDS_Wire& Spine, const TopoDS_Wire& Profil, const GeomAbs_JoinType Join = GeomAbs_Arc, const Standard_Boolean AxeProf = Standard_True, const Standard_Boolean Solid = Standard_False, const Standard_Boolean ProfOnSpine = Standard_False, const Standard_Real Tol = 0.0000001);
+  Standard_EXPORT BRepOffsetAPI_MakeEvolved(const TopoDS_Wire& Spine, const TopoDS_Wire& Profil, const GeomAbs_JoinType Join/* = GeomAbs_Arc*/, const Standard_Boolean AxeProf/* = Standard_True*/, const Standard_Boolean Solid/* = Standard_False*/, const Standard_Boolean ProfOnSpine/* = Standard_False*/, const Standard_Boolean theIsVolume, const Standard_Real Tol/* = Precision::Confusion()*/);
   
   //! These constructors construct an evolved shape by sweeping the profile
   //! Profile along the spine Spine.
@@ -88,7 +89,7 @@ public:
   //! axis passing along the vertex and the normal to the
   //! plane of the spine. At present, this is the only
   //! construction type implemented.
-  Standard_EXPORT BRepOffsetAPI_MakeEvolved(const TopoDS_Face& Spine, const TopoDS_Wire& Profil, const GeomAbs_JoinType Join = GeomAbs_Arc, const Standard_Boolean AxeProf = Standard_True, const Standard_Boolean Solid = Standard_False, const Standard_Boolean ProfOnSpine = Standard_False, const Standard_Real Tol = 0.0000001);
+  Standard_EXPORT BRepOffsetAPI_MakeEvolved(const TopoDS_Face& Spine, const TopoDS_Wire& Profil, const GeomAbs_JoinType Join/* = GeomAbs_Arc*/, const Standard_Boolean AxeProf/* = Standard_True*/, const Standard_Boolean Solid/* = Standard_False*/, const Standard_Boolean ProfOnSpine/* = Standard_False*/, const Standard_Boolean theIsVolume, const Standard_Real Tol/* = Precision::Confusion()*/);
   
   Standard_EXPORT const BRepFill_Evolved& Evolved() const;
   
@@ -118,9 +119,8 @@ protected:
 private:
 
 
-
   BRepFill_Evolved myEvolved;
-
+  BRepFill_Voluved myVolume;
 
 };
 

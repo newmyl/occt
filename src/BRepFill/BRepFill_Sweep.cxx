@@ -914,7 +914,7 @@ static Standard_Boolean Filling(const TopoDS_Shape& EF,
   // Control the direction of the rotation
   Standard_Boolean ToReverseResult = Standard_False;
   gp_Vec d1u;
-  d1u = Surf->DN(0, (f1+l1)/2, 1, 0);
+  d1u = Surf->DN(0, aPrm[aMaxIdx], 1, 0);
   if (d1u.Angle(TangentOnPart1) > M_PI/2) { //Invert everything
     ToReverseResult = Standard_True;
     /*
@@ -1815,8 +1815,6 @@ BRepFill_Sweep::BRepFill_Sweep(const Handle(BRepFill_SectionLaw)& Section,
 			       const Standard_Boolean WithKPart) : 
 			       isDone(Standard_False),
 			       KPart(WithKPart)
-
-
 {
  mySec = Section;
  myLoc = Location;
@@ -3349,7 +3347,8 @@ TopoDS_Shape BRepFill_Sweep::Tape(const Standard_Integer Index) const
 	  // Filling
 	  B = Filling(It1.Value(), myFaces->Value(ii, I1),
 		      It2.Value(), myFaces->Value(ii, I2),
-		      myVEdgesModified, myTol3d, Axe, T1, Bord1, Bord2, FF);
+                      myVEdgesModified, myTol3d, Axe, T1,
+                      Bord1, Bord2, FF);
 	  
 	  if (B) {
 	    myAuxShape.Append(FF);
