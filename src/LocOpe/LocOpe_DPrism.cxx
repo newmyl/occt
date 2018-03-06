@@ -117,7 +117,7 @@ LocOpe_DPrism::LocOpe_DPrism(const TopoDS_Face&  Spine,
 
   myProfile  = BRepLib_MakeWire(myProfile1,myProfile2,myProfile3);
 
-  myDPrism.Perform(mySpine,myProfile,gp::XOY()); 
+  myDPrism.Perform(mySpine,myProfile,gp::XOY(), GeomAbs_Arc, Standard_False); 
 
 
   if (myDPrism.IsDone()) {
@@ -370,7 +370,7 @@ LocOpe_DPrism::LocOpe_DPrism(const TopoDS_Face&   Spine,
   myProfile1 = BRepLib_MakeEdge(Vert4, Vert1);
   
   myProfile = BRepLib_MakeWire(myProfile1,myProfile2,myProfile3);
-  myDPrism.Perform(mySpine,myProfile,gp::XOY()); 
+  myDPrism.Perform(mySpine,myProfile,gp::XOY(), GeomAbs_Arc, Standard_False); 
 
 
   if (myDPrism.IsDone()) {
