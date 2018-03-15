@@ -1464,3 +1464,13 @@ The following obsolete features have been removed:
 @subsection upgrade_730_BOPAlgo_Section Changes in BOPAlgo_Section
 
 The public method *BuildSection()* in the class *BOPAlgo_Section* has became protected. The methods *Perform()* or *PerformWithFiller()* should be called for construction of the result of SECTION operation.
+
+@subsection upgrade_730_BuilderSolid Boolean Operations - Solid Builder algorithm
+
+Previously, the unclassified faces of *BOPAlgo_BuilderSolid* algorithm (the faces which have not been used for solids creation and located outside of all created solids) have been used to form an additional solid (not closed one) with INTERNAL orientation.
+Since new version, these unclassified faces are no longer added into resulting solids. Instead, the @ref occt_algorithms_ers "warning" containing these faces appears.
+
+The following public methods of the *BOPAlgo_BuilderSolid* class have been removed as excessive:
+* void SetSolid(const TopoDS_Solid& theSolid);
+* const TopoDS_Solid& Solid() const;
+

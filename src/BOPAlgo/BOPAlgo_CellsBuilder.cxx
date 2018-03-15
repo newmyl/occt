@@ -887,6 +887,8 @@ Standard_Boolean BOPAlgo_CellsBuilder::RemoveInternals(const BOPCol_ListOfShape&
         continue;
       }
       //
+      myReport->Merge(aBS.GetReport());
+      //
       TopoDS_Solid& aSNew = *(TopoDS_Solid*)&aBS.Areas().First();
       //
       // put all internal parts into new solid

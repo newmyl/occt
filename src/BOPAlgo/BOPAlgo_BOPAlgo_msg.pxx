@@ -78,4 +78,7 @@ static const char BOPAlgo_BOPAlgo_msg[] =
   "Warning: Building 2D curve of edge on face has failed\n"
   "\n"
   ".BOPAlgo_AlertAcquiredSelfIntersection\n"
-  "Warning: Some sub-shapes of some of the argument become connected through other shapes and the argument became self-interfered\n";
+  "Warning: Some sub-shapes of some of the argument become connected through other shapes and the argument became self-interfered\n"
+  "\n"
+  ".BOPAlgo_AlertSolidBuilderUnusedFaces\n"
+  "Warning: Some of the faces passed to the Solid Builder algorithm have not been classified and not used for solids creation\n";

@@ -88,4 +88,8 @@ DEFINE_ALERT_WITH_SHAPE(BOPAlgo_AlertBuildingPCurveFailed)
 //! other shapes and the argument became self-interfered
 DEFINE_ALERT_WITH_SHAPE(BOPAlgo_AlertAcquiredSelfIntersection)
 
+//! Some of the faces passed to the Solid Builder algorithm have not been classified
+//! and not used for solids creation
+DEFINE_ALERT_WITH_SHAPE(BOPAlgo_AlertSolidBuilderUnusedFaces)
+
 #endif // _BOPAlgo_Alerts_HeaderFile

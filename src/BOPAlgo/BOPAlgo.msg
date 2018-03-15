@@ -76,3 +76,6 @@ Warning: Building 2D curve of edge on face has failed
 
 .BOPAlgo_AlertAcquiredSelfIntersection
 Warning: Some sub-shapes of some of the argument become connected through other shapes and the argument became self-interfered
+
+.BOPAlgo_AlertSolidBuilderUnusedFaces
+Warning: Some of the faces passed to the Solid Builder algorithm have not been classified and not used for solids creation

@@ -255,7 +255,6 @@ void BOPAlgo_MakerVolume::BuildSolids(BOPCol_ListOfShape& theLSR)
   //
   BOPAlgo_BuilderSolid aBS;
   //
-  aBS.SetSolid(mySBox);
   aBS.SetShapes(myFaces);
   aBS.SetRunParallel(myRunParallel);
   aBS.SetAvoidInternalShapes(myAvoidInternalShapes);
@@ -265,6 +264,8 @@ void BOPAlgo_MakerVolume::BuildSolids(BOPCol_ListOfShape& theLSR)
     AddError (new BOPAlgo_AlertSolidBuilderFailed); // SolidBuilder failed
     return;
   }
+  //
+  myReport->Merge(aBS.GetReport());
   //
   theLSR = aBS.Areas();
 }
