@@ -94,3 +94,15 @@ Warning: Some of the faces passed to the Solid Builder algorithm have not been c
 
 .BOPAlgo_AlertUnableToOrientTheShape
 Warning: Unable to orient the shape correctly
+
+.BOPAlgo_AlertNoPeriodicityRequired
+Error: No periodicity has been requested for the shape
+
+.BOPAlgo_AlertUnableToTrim
+Error: Unable to trim the shape for making it periodic (BOP Common fails)
+
+.BOPAlgo_AlertUnableToMakeIdentical
+Error: Unable to make the shape to look identical on opposite sides (Splitter fails)
+
+.BOPAlgo_AlertUnableToRepeat
+Error: Unable to repeat the shape (Gluer fails)
