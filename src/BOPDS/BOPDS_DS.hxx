@@ -303,6 +303,9 @@ Standard_EXPORT virtual ~BOPDS_DS();
   //! ++
   Standard_EXPORT void RefineFaceInfoOn();
   
+  //! Removes faces with state ON from the 
+  //! list of IN-faces
+  Standard_EXPORT void RefineFaceInfoIn();
 
   //! Returns information about ON/IN sub-shapes of the given faces.
   //! @param theMVOnIn  the indices of ON/IN vertices from both faces
