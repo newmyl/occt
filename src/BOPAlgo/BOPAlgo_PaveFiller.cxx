@@ -298,6 +298,8 @@ void BOPAlgo_PaveFiller::PerformInternal()
   //
   UpdateBlocksWithSharedVertices();
   //
+  myDS->RefineFaceInfoIn();
+  //
   MakeSplitEdges();
   if (HasErrors()) {
     return; 
