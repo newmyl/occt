@@ -981,14 +981,22 @@ Standard_Integer Extrema_GenExtPS::NbExt () const
 
 Standard_Real Extrema_GenExtPS::SquareDistance (const Standard_Integer N) const
 {
-  if (!IsDone()) { throw StdFail_NotDone(); }
+  if ((N<1) || (N>NbExt()))
+  {
+    throw Standard_OutOfRange();
+  }
+
   return myF.SquareDistance(N);
 }
 //=============================================================================
 
 const Extrema_POnSurf& Extrema_GenExtPS::Point (const Standard_Integer N) const
 {
-  if (!IsDone()) { throw StdFail_NotDone(); }
+  if ((N<1) || (N>NbExt()))
+  {
+    throw Standard_OutOfRange();
+  }
+
   return myF.Point(N);
 }
 //=============================================================================
