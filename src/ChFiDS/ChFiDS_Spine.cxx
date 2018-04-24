@@ -40,29 +40,35 @@ IMPLEMENT_STANDARD_RTTIEXT(ChFiDS_Spine,Standard_Transient)
 //function : ChFiDS_Spine
 //purpose  : 
 //=======================================================================
-ChFiDS_Spine::ChFiDS_Spine():
-       splitdone(Standard_False),
-       tolesp(Precision::Confusion()),
-       firstprolon(Standard_False), 
-       lastprolon(Standard_False),
-       firstistgt(Standard_False), 
-       lastistgt(Standard_False),
-       hasfirsttgt(Standard_False), 
-       haslasttgt(Standard_False),
-       hasref(Standard_False)
+ChFiDS_Spine::ChFiDS_Spine()
+: splitdone(Standard_False),
+  myMode(ChFiDS_ClassicChamfer),
+  tolesp(Precision::Confusion()),
+  firstprolon(Standard_False), 
+  lastprolon(Standard_False),
+  firstistgt(Standard_False), 
+  lastistgt(Standard_False),
+  hasfirsttgt(Standard_False), 
+  haslasttgt(Standard_False),
+  hasref(Standard_False)
 {
 }
 
-ChFiDS_Spine::ChFiDS_Spine(const Standard_Real Tol):
-       splitdone(Standard_False),
-       tolesp(Tol),
-       firstprolon(Standard_False), 
-       lastprolon(Standard_False),
-       firstistgt(Standard_False), 
-       lastistgt(Standard_False),
-       hasfirsttgt(Standard_False), 
-       haslasttgt(Standard_False),
-       hasref(Standard_False)
+//=======================================================================
+//function : ChFiDS_Spine
+//purpose  : 
+//=======================================================================
+ChFiDS_Spine::ChFiDS_Spine(const Standard_Real Tol)
+  : splitdone(Standard_False),
+    myMode(ChFiDS_ClassicChamfer),
+    tolesp(Tol),
+    firstprolon(Standard_False), 
+    lastprolon(Standard_False),
+    firstistgt(Standard_False), 
+    lastistgt(Standard_False),
+    hasfirsttgt(Standard_False), 
+    haslasttgt(Standard_False),
+    hasref(Standard_False)
 {
 }
 

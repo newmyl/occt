@@ -1490,7 +1490,8 @@ Standard_Boolean ChFi3d_Builder::ComputeData
 {
   //Get offset guide if exists
   Handle(ChFiDS_HElSpine) OffsetHGuide;
-  if (Spine->Mode() == ChFiDS_ConstThroatWithPenetrationChamfer)
+  if (!Spine.IsNull() &&
+      Spine->Mode() == ChFiDS_ConstThroatWithPenetrationChamfer)
   {
     ChFiDS_ListOfHElSpine& ll = Spine->ChangeElSpines();
     ChFiDS_ListOfHElSpine& ll_offset = Spine->ChangeOffsetElSpines();
