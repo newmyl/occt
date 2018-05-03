@@ -123,7 +123,6 @@
 #include <TopTools_ListOfShape.hxx>
 #include <TopTools_MapOfShape.hxx>
 #include <TopTools_SequenceOfShape.hxx>
-#include <ShapeConstruct_ProjectCurveOnSurface.hxx>
 #include <ShapeFix_Edge.hxx>
 #include <ShapeBuild_Edge.hxx>
 #include <ShapeFix_ShapeTolerance.hxx>
@@ -759,7 +758,6 @@ TopoDS_Edge BRepBuilderAPI_Sewing::SameParameterEdge(const TopoDS_Edge& edgeFirs
   else               itf2.Initialize(listFacesFirst);
   Standard_Boolean isResEdge = Standard_False;
   TopoDS_Face fac2;
-
   for (; itf2.More(); itf2.Next()) {
     Handle(Geom2d_Curve) c2d2, c2d21;
     Standard_Real firstOld, lastOld;
@@ -943,8 +941,6 @@ TopoDS_Edge BRepBuilderAPI_Sewing::SameParameterEdge(const TopoDS_Edge& edgeFirs
       for (i = 1; i <= nbp; i++)
         c3dpnt(i) = c3dAdapt.Value(first3d + (i - 1)*deltaT);
 
-
-
       Standard_Real dist = 0., maxTol = -1.0;
       Standard_Boolean more = Standard_True;
 
@@ -1006,8 +1002,8 @@ TopoDS_Edge BRepBuilderAPI_Sewing::SameParameterEdge(const TopoDS_Edge& edgeFirs
       }
       aBuilder.SameParameter(edge, Standard_True);
     }
-
   }
+
   Standard_Real tolEdge1 = BRep_Tool::Tolerance(edge);
   if (tolEdge1 > MaxTolerance()) edge.Nullify();
   return edge;
