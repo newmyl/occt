@@ -91,6 +91,7 @@ proc chamf_sequence { args } {
      set shape_edges [lindex $args 1]
      set shape_faces [lindex $args 2]
 
+     global group
      global chamf_edge_face
      global chamf_type
      global chamf_parameters
@@ -134,7 +135,9 @@ proc chamf_sequence { args } {
 		       set y1 $y
 		       set z1 $z
 		    } else {
+		      if { [string compare $group "equal_dist"] != 0 } {
 	       	       lappend chamf_current "\[get_element $name $x $y $z $x1 $y1 $z1\]"
+		       }
 		    }
 	    	 }
 	 }
@@ -150,9 +153,7 @@ proc chamf_sequence { args } {
 # Compute new name of EDGE
      	     lset chamf_current 2 [expr [lindex $chamf_current 2]]
 # Compute new name of FACE
-	    if { [string compare $group "equal_dist"] == 0 } {
-     	     lset chamf_current 3 ""
-	     } else {
+	    if { [string compare $group "equal_dist"] != 0 } {
      	     lset chamf_current 3 [expr [lindex $chamf_current 3]]
 	     }
 

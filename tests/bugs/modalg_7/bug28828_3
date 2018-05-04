@@ -9,10 +9,12 @@ puts ""
 restore [locate_data_file bug28828_b3.brep] b
 explode b
 bfuse a b_1 b_2
-explode a e
-donly a a_10
+savehistory hh
 
-chamf_throat result a a_10 0.1
+explode b_2 e
+donly a b_2_1
+
+chamf_throat result a b_2_1 0.1
 
 checkshape result
 
@@ -24,4 +26,4 @@ if { ${tolres} > 0.0001} {
    puts "Error: bad tolerance of result"
 }
 
-checkprops result -v 1041.98
+checkprops result -v 1041.98 -deps 1.e-7

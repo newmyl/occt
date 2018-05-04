@@ -10,13 +10,15 @@ puts ""
 pcylinder a1 10 50
 box a2 -20 -20 -20  25 40 40
 bfuse b a1 a2
-donly b
+savehistory hh
 
-explode b f
-explode b_2 e
-donly b b_2_3 b_2_5
+explode a1 f
+modified ff hh a1_1
+generated ee hh a1_1
+explode ee
+donly b ff ee_3 ee_4
 
-chamf_throat_with_penetration result b  b_2_3 b_2 1. 1.2  b_2_5 b_2 1. 1.2
+chamf_throat_with_penetration result b  ee_3 ff 1. 1.2  ee_4 ff 1. 1.2
 
 checkshape result
 
@@ -28,4 +30,4 @@ if { ${tolres} > 0.0001} {
    puts "Error: bad tolerance of result"
 }
 
-checkprops result -v 50702.4
+checkprops result -v 50702.4 -deps 1.e-7

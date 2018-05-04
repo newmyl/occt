@@ -10,7 +10,6 @@ puts ""
 polyline b 0 0 0  20 0 0  20 0 20  10 0 20  10 0 40  0 0 40  0 0 0
 mkplane b b
 prism b b 0 20 0
-
 explode b f
 explode b_4 e
 donly b b_4_1
@@ -27,4 +26,4 @@ if { ${tolres} > 0.0001} {
    puts "Error: bad tolerance of result"
 }
 
-checkprops result -v 12052
+checkprops result -v 12052 -deps 1.e-7

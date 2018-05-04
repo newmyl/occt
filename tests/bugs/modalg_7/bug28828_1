@@ -10,11 +10,16 @@ pcylinder a1 10 50
 box a2 -20 -20 -20  40 40 40
 nurbsconvert ba2 a2
 bfuse b a1 ba2
-donly b
-explode b e
-donly b b_4 b_1
+savehistory hh
 
-chamf_throat result b  b_4 2.  b_1 1.
+explode a1 f
+generated ee hh a1_1
+explode ee e
+explode a1 e
+
+donly b a1_1 ee_1
+
+chamf_throat result b  a1_1 1.  ee_1 2.
 
 checkshape result
 
@@ -26,4 +31,4 @@ if { ${tolres} > 0.00014} {
    puts "Error: bad tolerance of result"
 }
 
-checkprops result -v 73669.4
+checkprops result -v 73639.9 -deps 1.e-7

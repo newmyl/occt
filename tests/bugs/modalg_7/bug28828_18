@@ -10,13 +10,14 @@ puts ""
 pcone a1 10 30 50
 box a2 -25 -25 -20  50 50 40
 bfuse b a1 a2
-donly b
+savehistory hh
 
-explode b f
-explode b_2 e
-donly b b_2_2
+explode a1 f
+modified ff hh a1_1
+generated ee hh a1_1
+donly b ff ee
 
-chamf_throat_with_penetration result b b_2_2 b_2 3. 6.
+chamf_throat_with_penetration result b ee ff 3. 6.
 
 checkshape result
 
@@ -28,4 +29,4 @@ if { ${tolres} > 1.001e-7} {
    puts "Error: bad tolerance of result"
 }
 
-checkprops result -v 156442
+checkprops result -v 156442 -deps 1.e-7
