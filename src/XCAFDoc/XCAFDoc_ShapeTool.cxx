@@ -1042,12 +1042,15 @@ Standard_Boolean XCAFDoc_ShapeTool::IsSubShape (const TDF_Label &shapeL,
 					     const TopoDS_Shape &sub) const
 {
   Handle(XCAFDoc_ShapeMapTool) A;
-  if ( ! shapeL.FindAttribute(XCAFDoc_ShapeMapTool::GetID(), A) )
-    return Standard_False;
-  
-  //TopoDS_Shape S = GetShape ( shapeL );
-  //return ! S.IsNull() && CheckSubShape ( S, sub );
-  
+  if (!shapeL.FindAttribute(XCAFDoc_ShapeMapTool::GetID(), A))
+  {
+    TopoDS_Shape aShape = GetShape(shapeL);
+    if (aShape.IsNull())
+      return Standard_False;
+    A = XCAFDoc_ShapeMapTool::Set(shapeL);
+    A->SetShape(aShape);
+  }
+
   return A->IsSubShape(sub);
 }
 
