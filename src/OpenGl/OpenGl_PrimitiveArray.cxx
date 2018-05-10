@@ -811,7 +811,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                                 anAspectFace->Aspect()->AlphaMode(),
                                                 hasVertColor,
                                                 toEnableEnvMap,
-                                                anAspectFace->ShaderProgramRes (aCtx));
+                                                anAspectFace->ShaderProgramRes (aCtx),
+                                                anAspectFace->Aspect()->InteriorStyle());
 
         if (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HLR)
         {
@@ -823,17 +824,12 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
             ? myBounds->Colors
             : NULL;
 
-          const Handle(Graphic3d_Camera)& aCamera = theWorkspace->View()->Camera();
-          OpenGl_Mat4 anOrientationMatrix = aCamera->OrientationMatrixF();
-          OpenGl_Mat4 aViewMappingMatrix = aCtx->ProjectionState.Current();
-          OpenGl_Mat4 aViewMatrix = aViewMappingMatrix * anOrientationMatrix;
+          /*const Handle(Graphic3d_Camera)& aCamera = theWorkspace->View()->Camera();
 
-          aProgram->SetUniform(aCtx, myLocation.ViewMatrix, aViewMatrix);
-          aProgram->SetUniform(aCtx, myLocation.ModelMatrix, anOrientationMatrix);
           aProgram->SetUniform(aCtx, myLocation.OrthoScale, (float)aCamera->Scale());
-          aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 1.0f);
+          aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 1.0f);*/
 
-          aProgram->SetUniform(aCtx, myLocation.Color, OpenGl_Vec4(0.0, 0.0, 0.0, 1.0));
+          /*aProgram->SetUniform(aCtx, myLocation.Color, OpenGl_Vec4(0.0, 0.0, 0.0, 1.0));
           aProgram->SetUniform(aCtx, myLocation.UseVertexColor, 1.0f);
           aProgram->SetUniform(aCtx, myLocation.SelectionColor, OpenGl_Vec3(1.0, 0.0, 0.0));//TODO
           aProgram->SetUniform(aCtx, myLocation.IsSelected, 0.0f);
@@ -841,7 +837,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
           aProgram->SetUniform(aCtx, myLocation.CappingIndex, 0.0f);
           //aProgram->SetUniform (aCtx, myLocation.PlaneEquations );
           aProgram->SetUniform(aCtx, myLocation.BackgroundColor, OpenGl_Vec3(1.0, 1.0, 1.0));
-          aProgram->SetUniform(aCtx, myLocation.SilhouetteColor, OpenGl_Vec3(0.0, 0.0, 0.0));
+          aProgram->SetUniform(aCtx, myLocation.SilhouetteColor, OpenGl_Vec3(0.0, 0.0, 0.0));*/
 
           GLboolean isCull = glIsEnabled(GL_CULL_FACE);
           glEnable(GL_CULL_FACE);
@@ -849,7 +845,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
           glCullFace(GL_BACK);
-          aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 0.0f);
+          //aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 0.0f);
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
           if (!isCull)
@@ -1081,11 +1077,9 @@ void OpenGl_PrimitiveArray::updateLocations(const Handle(OpenGl_ShaderProgram)& 
   if (theProgram.IsNull())
     return;
 
-  myLocation.ViewMatrix = theProgram->GetUniformLocation(theContext, "uModelViewProjection");
-  myLocation.ModelMatrix = theProgram->GetUniformLocation(theContext, "uModelView");
   myLocation.OrthoScale = theProgram->GetUniformLocation(theContext, "uOrthoScale");
   myLocation.IsSilhouettePass = theProgram->GetUniformLocation(theContext, "uIsSilhouettePass");
-  myLocation.Color = theProgram->GetUniformLocation(theContext, "uColor");
+  /*myLocation.Color = theProgram->GetUniformLocation(theContext, "uColor");
   myLocation.UseVertexColor = theProgram->GetUniformLocation(theContext, "uUseVertexColor");
   myLocation.SelectionColor = theProgram->GetUniformLocation(theContext, "uSelectionColor");
   myLocation.IsSelected = theProgram->GetUniformLocation(theContext, "uIsSelected");
@@ -1093,6 +1087,6 @@ void OpenGl_PrimitiveArray::updateLocations(const Handle(OpenGl_ShaderProgram)& 
   myLocation.CappingIndex = theProgram->GetUniformLocation(theContext, "uCappingIndex");
   myLocation.PlaneEquations = theProgram->GetUniformLocation(theContext, "uPlaneEquations");
   myLocation.BackgroundColor = theProgram->GetUniformLocation(theContext, "uBackgroundColor");
-  myLocation.SilhouetteColor = theProgram->GetUniformLocation(theContext, "uSilhouetteColor");
+  myLocation.SilhouetteColor = theProgram->GetUniformLocation(theContext, "uSilhouetteColor");*/
 }
 

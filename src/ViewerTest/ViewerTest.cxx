@@ -1575,14 +1575,18 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   {
     anInterStyle = Aspect_IS_POINT;
   }
+  else if (aStyleArg == "hlr")
+  {
+    anInterStyle = Aspect_IS_HLR;
+  }
   else
   {
     const Standard_Integer anIntStyle = aStyleArg.IntegerValue();
     if (anIntStyle < Aspect_IS_EMPTY
-     || anIntStyle > Aspect_IS_POINT)
+     || anIntStyle > Aspect_IS_HLR)
     {
       std::cout << "Error: style must be within a range [0 (Aspect_IS_EMPTY), "
-                << Aspect_IS_POINT << " (Aspect_IS_POINT)]\n";
+                << Aspect_IS_HLR << " (Aspect_IS_HLR)]\n";
       return 1;
     }
     anInterStyle = (Aspect_InteriorStyle )anIntStyle;

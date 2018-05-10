@@ -14,7 +14,6 @@
 // commercial license or contractual agreement.
 
 #include <Graphic3d_AspectFillArea3d.hxx>
-#include <Graphic3d_HLR.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Graphic3d_AspectFillArea3d, Standard_Transient)
 
@@ -73,7 +72,6 @@ Graphic3d_AspectFillArea3d::Graphic3d_AspectFillArea3d (const Aspect_InteriorSty
   {
     throw Aspect_AspectFillAreaDefinitionError("Bad value for EdgeLineWidth");
   }
-  SetInteriorStyle (theInteriorStyle);
 }
 
 // =======================================================================
@@ -89,31 +87,4 @@ void Graphic3d_AspectFillArea3d::SetTextureMap (const Handle(Graphic3d_TextureMa
   }
 
   myTextureSet = new Graphic3d_TextureSet (theTexture);
-}
-
-// =======================================================================
-// function : SetInteriorStyle
-// purpose  :
-// =======================================================================
-void Graphic3d_AspectFillArea3d::SetInteriorStyle(const Aspect_InteriorStyle theStyle)
-{
-  myInteriorStyle = theStyle;
-
-  if (myInteriorStyle == Aspect_IS_HLR)
-  {
-    Handle(Graphic3d_ShaderProgram) aProgram = new Graphic3d_ShaderProgram();
-    aProgram->SetHeader(Graphic3d_HLR::header());
-
-    Handle(Graphic3d_ShaderObject) aVertexShader =
-      Graphic3d_ShaderObject::CreateFromSource(Graphic3d_TOS_VERTEX, Graphic3d_HLR::vertexShader());
-    aProgram->AttachShader(aVertexShader);
-
-    Handle(Graphic3d_ShaderObject) aFragmentShader =
-      Graphic3d_ShaderObject::CreateFromSource(Graphic3d_TOS_FRAGMENT, Graphic3d_HLR::fragmentShader());
-    aProgram->AttachShader(aFragmentShader);
-
-    SetShaderProgram(aProgram);
-  }
-  else
-    SetShaderProgram(Handle(Graphic3d_ShaderProgram)());
 }

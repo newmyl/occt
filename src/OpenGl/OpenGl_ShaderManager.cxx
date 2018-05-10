@@ -1603,6 +1603,60 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     }
   }
 
+  if ((theBits & OpenGl_PO_HLR) != 0)
+  {
+    aSrcVertExtraOut +=
+      EOL"uniform float uOrthoScale;"
+      EOL"uniform float uIsSilhouettePass;"
+      EOL""
+      EOL"THE_SHADER_IN  vec4 normal;"
+      EOL"THE_SHADER_IN  vec4 color0;"
+      EOL"THE_SHADER_OUT vec4 vPosition;"
+      EOL"THE_SHADER_OUT vec4 vNormal;"
+      EOL"THE_SHADER_OUT vec3 vNormalWorld;"
+      EOL"THE_SHADER_OUT vec4 vColor;"
+      ;
+
+    aSrcVertEndMain +=
+      EOL"  vPosition = occWorldViewMatrix * occModelWorldMatrix * occVertex;"
+      EOL"  vec4 aNormal = vec4(normal.xyz, 0.0);"
+      EOL"  vNormal = occWorldViewMatrix * occModelWorldMatrix * aNormal;"
+      EOL"  vNormalWorld = aNormal.xyz;"
+      EOL"  vec3 aDisplacedPosition;"
+      EOL"  "
+      EOL"  if (uIsSilhouettePass > 0.1)"
+      EOL"  {"
+      EOL"    float aShift = 0.0008;"
+      EOL"    "
+      EOL"    if (uOrthoScale > 0.0)"
+      EOL"    {"
+      EOL"      aShift *= uOrthoScale;"
+      EOL"      aDisplacedPosition = occVertex.xyz + (normal.xyz * aShift);"
+      EOL"    }"
+      EOL"    else"
+      EOL"    {"
+      EOL"      aDisplacedPosition = occVertex.xyz + (normal.xyz * aShift * gl_Position.w);"
+      EOL"    }"
+      EOL"  }"
+      EOL"  gl_Position = occProjectionMatrix * vec4(aDisplacedPosition, 1.0);"
+      EOL"  vColor = color0;";
+
+    aSrcVertExtraOut +=
+      EOL"uniform float uIsSelected;"
+      EOL"uniform vec3 uBackgroundColor;"
+      EOL"uniform vec3 uSelectionColor;"
+      EOL"uniform vec3 uSilhouetteColor;";
+
+    aSrcFragExtraMain +=
+      EOL"  vec3 aColor = uBackgroundColor;"
+      EOL"  if (uIsSilhouettePass > 0.1)"
+      EOL"  {"
+      EOL"    aColor = uSilhouetteColor;"
+      EOL"    if (uIsSelected > 0.1)"
+      EOL"      aColor = uSelectionColor;"
+      EOL"  }";
+  }
+
   aSrcVert =
       aSrcVertExtraFunc
     + aSrcVertExtraOut
@@ -1623,6 +1677,14 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     + aSrcFragMainGetColor
     + aSrcFragWriteOit
     + EOL"}";
+
+  if ((theBits & OpenGl_PO_HLR) != 0)
+  {
+    std::cout << "VERTEX:" << std::endl;
+    std::cout <<  aSrcVert << std::endl;
+    std::cout << "FRAGMENT:" << std::endl;
+    std::cout << aSrcFrag << std::endl;
+  }
 
 #if !defined(GL_ES_VERSION_2_0)
   if (myContext->core32 != NULL)

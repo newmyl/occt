@@ -66,7 +66,7 @@ const TCollection_AsciiString VERTEX_SHADER = UNIFORM + WRAP_STR(
   
     if (uIsSilhouettePass > 0.1)
     {
-      float aShift = 0.0008;
+      float aShift = 0.008;
   
       if (uOrthoScale > 0.0)
       {
