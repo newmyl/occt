@@ -77,7 +77,7 @@ public:
   Aspect_InteriorStyle InteriorStyle() const { return myInteriorStyle; }
 
   //! Modifies the interior type used for rendering
-  void SetInteriorStyle (const Aspect_InteriorStyle theStyle) { myInteriorStyle = theStyle; }
+  Standard_EXPORT void SetInteriorStyle (const Aspect_InteriorStyle theStyle);
 
   //! Returns shading model (Graphic3d_TOSM_DEFAULT by default, which means that Shading Model set as default for entire Viewer will be used)
   Graphic3d_TypeOfShadingModel ShadingModel() const { return myShadingModel; }
