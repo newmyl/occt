@@ -67,6 +67,16 @@ class BRepExtrema_DistShapeShape
   { 
     return mySolutionsShape1.Length();
   }
+  //! Returns the <N>th solution on the first Shape <br>
+  const BRepExtrema_SolutionElem& Solution1(const Standard_Integer N) const
+  {
+    return mySolutionsShape1.Value(N);
+  }
+  //! Returns the <N>th solution on the second Shape <br>
+  const BRepExtrema_SolutionElem& Solution2(const Standard_Integer N) const
+  {
+    return mySolutionsShape2.Value(N);
+  }
   //! Returns the value of the minimum distance. <br>
   Standard_EXPORT Standard_Real Value() const;
   //! True if one of the shapes is a solid and the other shape <br>
