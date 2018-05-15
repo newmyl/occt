@@ -3282,18 +3282,24 @@ Standard_Boolean ChFi3d_ComputeCurves(const Handle(Adaptor3d_HSurface)&   S1,
             Pc1 = new Geom2d_TrimmedCurve(Pc1,Uf,Ul);
             Pc2 = new Geom2d_TrimmedCurve(Pc2,Uf,Ul);
             //is it necesary to invert ?
-            Standard_Real distdeb = ptestdeb.Distance(pdeb);
-            Standard_Real distfin = ptestfin.Distance(pfin);
-            if(distdeb > distref || distfin > distref) {
+            Standard_Real DistDebToDeb = ptestdeb.Distance(pdeb);
+            Standard_Real DistDebToFin = ptestdeb.Distance(pfin);
+            Standard_Real DistFinToFin = ptestfin.Distance(pfin);
+            Standard_Real DistFinToDeb = ptestfin.Distance(pdeb);
+            
+            if (DistDebToDeb > DistDebToFin &&
+                DistFinToFin > DistFinToDeb)
+            {
               C3d->Reverse();
               Pc1->Reverse();
               Pc2->Reverse();
               ptestdeb = C3d->Value(C3d->FirstParameter());
               ptestfin = C3d->Value(C3d->LastParameter());
-              distdeb = ptestdeb.Distance(pdeb);
-              distfin = ptestfin.Distance(pfin);
+              DistDebToDeb = ptestdeb.Distance(pdeb);
+              DistFinToFin = ptestfin.Distance(pfin);
             }
-            if(distdeb < distref && distfin < distref) {
+            if(DistDebToDeb < distref && DistFinToFin < distref)
+            {
               Uf = C3d->FirstParameter();
               Ul = C3d->LastParameter();
               ChFi3d_ReparamPcurv(Uf,Ul,Pc1);

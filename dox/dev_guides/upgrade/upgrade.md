@@ -1560,3 +1560,8 @@ Since new version, these unclassified faces are no longer added into resulting s
 The following public methods of the *BOPAlgo_BuilderSolid* class have been removed as excessive:
 * void SetSolid(const TopoDS_Solid& theSolid);
 * const TopoDS_Solid& Solid() const;
+
+@subsection upgrade_730_Modifications_In_Chamfer_Algorithm Syntax of the Draw command *chamf*
+
+* The Draw command *chamf* has now simple syntax in case of equal distances from edge chamfer:
+chamf newname shape edge dist
