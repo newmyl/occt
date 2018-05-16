@@ -79,3 +79,6 @@ Warning: Some sub-shapes of some of the argument become connected through other 
 
 .BOPAlgo_AlertSolidBuilderUnusedFaces
 Warning: Some of the faces passed to the Solid Builder algorithm have not been classified and not used for solids creation
+
+.BOPAlgo_AlertFaceBuilderUnusedEdges
+Warning: Some of the edges passed to the Face Builder algorithm have not been classified and not used for faces creation

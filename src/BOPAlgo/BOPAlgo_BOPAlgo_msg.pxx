@@ -81,4 +81,7 @@ static const char BOPAlgo_BOPAlgo_msg[] =
   "Warning: Some sub-shapes of some of the argument become connected through other shapes and the argument became self-interfered\n"
   "\n"
   ".BOPAlgo_AlertSolidBuilderUnusedFaces\n"
-  "Warning: Some of the faces passed to the Solid Builder algorithm have not been classified and not used for solids creation\n";
+  "Warning: Some of the faces passed to the Solid Builder algorithm have not been classified and not used for solids creation\n"
+  "\n"
+  ".BOPAlgo_AlertFaceBuilderUnusedEdges\n"
+  "Warning: Some of the edges passed to the Face Builder algorithm have not been classified and not used for faces creation\n";

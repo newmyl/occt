@@ -90,7 +90,8 @@ BOPDS_DS::BOPDS_DS()
   myInterfVZ(0, myAllocator),
   myInterfEZ(0, myAllocator),
   myInterfFZ(0, myAllocator),
-  myInterfZZ(0, myAllocator)
+  myInterfZZ(0, myAllocator),
+  myInterfered(100, myAllocator)
 {
   myNbShapes=0;
   myNbSourceShapes=0;
@@ -121,7 +122,8 @@ BOPDS_DS::BOPDS_DS(const Handle(NCollection_BaseAllocator)& theAllocator)
   myInterfVZ(0, myAllocator),
   myInterfEZ(0, myAllocator),
   myInterfFZ(0, myAllocator),
-  myInterfZZ(0, myAllocator)
+  myInterfZZ(0, myAllocator),
+  myInterfered(100, myAllocator)
 {
   myNbShapes=0;
   myNbSourceShapes=0;
@@ -163,6 +165,7 @@ void BOPDS_DS::Clear()
   myInterfEZ.Clear();
   myInterfFZ.Clear();
   myInterfZZ.Clear();
+  myInterfered.Clear();
 }
 //=======================================================================
 //function : SetArguments
@@ -680,30 +683,6 @@ void BOPDS_DS::InitShape
   }
 }
 
-//=======================================================================
-//function : HasInterf
-//purpose  : 
-//=======================================================================
-Standard_Boolean BOPDS_DS::HasInterf(const Standard_Integer theI) const
-{
-  Standard_Integer n1, n2;
-  Standard_Boolean bRet;
-  BOPDS_MapIteratorOfMapOfPair aIt;
-  //
-  bRet = Standard_False;
-  //
-  aIt.Initialize(myInterfTB);
-  for (; aIt.More(); aIt.Next()) {
-    const BOPDS_Pair& aPK = aIt.Value();
-    aPK.Indices(n1, n2);
-    if (n1 == theI || n2 == theI) {
-      bRet = Standard_True;
-      break;
-    }
-  }
-  //
-  return bRet;
-}
 //=======================================================================
 //function : HasInterfShapeSubShapes
 //purpose  : 
@@ -1755,43 +1734,6 @@ void BOPDS_DS::Paves(const Standard_Integer theEdge,
   //
   for (i = 1; i <= aNb; ++i) {
     theLP.Append(pPaves(i));
-  }
-}
-//=======================================================================
-// function: UpdateTolerance
-// purpose:
-//=======================================================================
-void BOPDS_DS::UpdateEdgeTolerance(const Standard_Integer nE,
-                                   const Standard_Real aTol,
-                                   const Standard_Real theFuzz)
-{
-  Standard_Integer nV;
-  Standard_Real aTolV;
-  BRep_Builder aBB;
-  BOPCol_ListIteratorOfListOfInteger aIt;
-  //
-  Standard_Real aTolAdd = Max(theFuzz, Precision::Confusion()) * 0.5;
-
-  const TopoDS_Edge& aE = *(TopoDS_Edge*)&Shape(nE);
-  aBB.UpdateEdge(aE, aTol);
-  BOPDS_ShapeInfo& aSIE=ChangeShapeInfo(nE);
-  Bnd_Box& aBoxE=aSIE.ChangeBox();
-  BRepBndLib::Add(aE, aBoxE);
-  aBoxE.SetGap(aBoxE.GetGap() + aTolAdd);
-  //
-  const BOPCol_ListOfInteger& aLI = aSIE.SubShapes();
-  aIt.Initialize(aLI);
-  for (; aIt.More(); aIt.Next()) {
-    nV = aIt.Value();
-    const TopoDS_Vertex& aV = *(TopoDS_Vertex*)&Shape(nV);
-    aTolV = BRep_Tool::Tolerance(aV);
-    if (aTolV < aTol) {
-      aBB.UpdateVertex(aV, aTol);
-      BOPDS_ShapeInfo& aSIV = ChangeShapeInfo(nV);
-      Bnd_Box& aBoxV = aSIV.ChangeBox();
-      BRepBndLib::Add(aV, aBoxV);
-      aBoxV.SetGap(aBoxV.GetGap() + aTolAdd);
-    }
   }
 }
 //=======================================================================

@@ -18,7 +18,7 @@
 #ifndef NMTDS_BoxBndTree_HeaderFile
 #define NMTDS_BoxBndTree_HeaderFile
 
-#include <NCollection_UBTree.hxx>
+#include <NCollection_EBTree.hxx>
 #include <Bnd_Box.hxx>
 #include <BOPCol_ListOfInteger.hxx>
 /**
@@ -26,7 +26,7 @@
  * of overlapped bounding boxes.
  *
 */
-typedef NCollection_UBTree <Standard_Integer , Bnd_Box> BOPCol_BoxBndTree;
+typedef NCollection_EBTree <Standard_Integer , Bnd_Box> BOPCol_BoxBndTree;
 
   class BOPCol_BoxBndTreeSelector : public BOPCol_BoxBndTree::Selector {
     public:

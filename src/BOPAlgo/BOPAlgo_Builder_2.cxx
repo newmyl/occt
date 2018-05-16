@@ -311,8 +311,8 @@ void BOPAlgo_Builder::BuildSplitFaces()
 
       // No internal parts for the face, so just build the draft face
       // and keep it to pass directly into result.
-      // If the original face has any internal edges, the draft face
-      // will be null, as the internal edges may split the face on parts
+      // If the original face has any internal edges or multi-connected vertices,
+      // the draft face will be null, as such sub-shapes may split the face on parts
       // (as in the case "bugs modalg_5 bug25245_1").
       // The BuilderFace algorithm will be called in this case.
       TopoDS_Face aFD = BuildDraftFace(aF, myImages, myContext);
@@ -464,6 +464,7 @@ void BOPAlgo_Builder::BuildSplitFaces()
   {
     BOPAlgo_BuilderFace& aBF = aVBF(k);
     aFacesIm.Add(myDS->Index(aBF.Face()), aBF.Areas());
+    myReport->Merge(aBF.GetReport());
   }
 
   aNbBF = aFacesIm.Extent();
@@ -813,6 +814,36 @@ void BOPAlgo_Builder::FillInternalVertices()
   }
 }
 //=======================================================================
+//function : HasMultiConnected
+//purpose  : Checks if the edge has multi-connected vertices.
+//=======================================================================
+static Standard_Boolean HasMultiConnected(const TopoDS_Edge& theEdge,
+                                          BOPCol_DataMapOfShapeListOfShape& theMap)
+{
+  TopoDS_Iterator itV(theEdge);
+  for (; itV.More(); itV.Next())
+  {
+    const TopoDS_Shape& aV = itV.Value();
+    TopTools_ListOfShape *pList = theMap.ChangeSeek(aV);
+    if (!pList)
+    {
+      pList = theMap.Bound(aV, TopTools_ListOfShape());
+      pList->Append(theEdge);
+    }
+    else
+    {
+      // The list is expected to be 1-2 elements long,
+      // thus using "Contains" is safe.
+      if (!pList->Contains(theEdge))
+        pList->Append(theEdge);
+
+      if (pList->Extent() > 2)
+        return Standard_True;
+    }
+  }
+  return Standard_False;
+}
+//=======================================================================
 //function : BuildDraftFace
 //purpose  : Build draft faces, updating the bounding edges,
 //           according to the information stored into the <theImages> map
@@ -829,6 +860,13 @@ TopoDS_Face BuildDraftFace(const TopoDS_Face& theFace,
   // Make the new face, without any wires
   TopoDS_Face aDraftFace;
   aBB.MakeFace(aDraftFace, aS, aLoc, aTol);
+
+  // Check if the thin face can be split by a vertex - in this case
+  // this vertex will be contained in more than two edges. Thus, count
+  // the vertices appearance, and if the multi-connexity is met return
+  // the null face to use the BuilderFace algorithm for checking the
+  // possibility of split.
+  BOPCol_DataMapOfShapeListOfShape aVerticesCounter;
 
   // Update wires of the original face and add them to draft face
   TopoDS_Iterator aItW(theFace.Oriented(TopAbs_FORWARD));
@@ -855,19 +893,24 @@ TopoDS_Face BuildDraftFace(const TopoDS_Face& theFace,
       {
         // The internal edges could split the original face on halves.
         // Thus, use the BuilderFace algorithm to build the new face.
-        TopoDS_Face aNull;
-        return aNull;
-      }
-
-      const BOPCol_ListOfShape* pLEIm = theImages.Seek(aE);
-      if (!pLEIm)
-      {
-        aBB.Add(aNewWire, aE);
-        continue;
+        return TopoDS_Face();
       }
 
       // Check if the original edge is degenerated
       Standard_Boolean bIsDegenerated = BRep_Tool::Degenerated(aE);
+
+      // Check for the splits of the edge
+      const TopTools_ListOfShape* pLEIm = theImages.Seek(aE);
+      if (!pLEIm)
+      {
+        // Check if the edge has multi-connected vertices
+        if (!bIsDegenerated && HasMultiConnected(aE, aVerticesCounter))
+          return TopoDS_Face();
+
+        aBB.Add(aNewWire, aE);
+        continue;
+      }
+
       // Check if the original edge is closed on the face
       Standard_Boolean bIsClosed = BRep_Tool::IsClosed(aE, theFace);
 
@@ -876,6 +919,10 @@ TopoDS_Face BuildDraftFace(const TopoDS_Face& theFace,
       {
         TopoDS_Edge& aSp = TopoDS::Edge(aItLEIm.Value());
 
+        // Check if the split has multi-connected vertices
+        if (!bIsDegenerated && HasMultiConnected(aSp, aVerticesCounter))
+          return TopoDS_Face();
+
         aSp.Orientation(anOriE);
         if (bIsDegenerated)
         {
@@ -883,8 +930,8 @@ TopoDS_Face BuildDraftFace(const TopoDS_Face& theFace,
           continue;
         }
 
-        // Check closeness of the split edge and if it is not
-        // make the second PCurve
+        // If the original edge is closed on the face check closeness
+        // of the split edge and if it is not closed make the second PCurve
         if (bIsClosed && !BRep_Tool::IsClosed(aSp, theFace))
           BOPTools_AlgoTools3D::DoSplitSEAMOnFace(aSp, theFace);
 
