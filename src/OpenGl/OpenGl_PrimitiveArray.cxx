@@ -24,6 +24,7 @@
 #include <OpenGl_ShaderProgram.hxx>
 #include <OpenGl_Structure.hxx>
 #include <OpenGl_VertexBufferCompat.hxx>
+#include <OpenGl_View.hxx>
 #include <OpenGl_Workspace.hxx>
 #include <Graphic3d_TextureParams.hxx>
 #include <NCollection_AlignedAllocator.hxx>
@@ -453,7 +454,7 @@ void OpenGl_PrimitiveArray::drawEdges (const OpenGl_Vec4&              theEdgeCo
   const OpenGl_AspectLine* anAspect = theWorkspace->ApplyAspectLine();
 
 #if !defined(GL_ES_VERSION_2_0)
-  glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+  const Standard_Integer aPolygModeBack = aGlContext->SetPolygonMode (GL_LINE);
 #endif
 
   if (aGlContext->core20fwd != NULL)
@@ -527,6 +528,11 @@ void OpenGl_PrimitiveArray::drawEdges (const OpenGl_Vec4&              theEdgeCo
 
   // restore line context
   theWorkspace->SetAspectLine (anAspectLineOld);
+
+  // restore OpenGL polygon mode if needed
+#if !defined(GL_ES_VERSION_2_0)
+  aGlContext->SetPolygonMode (aPolygModeBack);
+#endif
 }
 
 // =======================================================================
@@ -759,6 +765,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
 
   Graphic3d_TypeOfShadingModel aShadingModel = Graphic3d_TOSM_UNLIT;
+  Aspect_InteriorStyle anInteriorStyle = Aspect_IS_SOLID;
   if (toDrawArray)
   {
     const bool hasColorAttrib = !myVboAttribs.IsNull()
@@ -803,6 +810,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
       default:
       {
         aShadingModel = aCtx->ShaderManager()->ChooseFaceShadingModel (anAspectFace->ShadingModel(), hasVertNorm);
+        anInteriorStyle = anAspectFace->Aspect()->InteriorStyle();
+
         const Handle(OpenGl_TextureSet)& aTextures = aCtx->ActiveTextures();
         const Standard_Boolean toEnableEnvMap = (!aTextures.IsNull() && (aTextures == theWorkspace->EnvironmentTexture()));
         aCtx->ShaderManager()->BindFaceProgram (aTextures,
@@ -810,7 +819,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                                 anAspectFace->Aspect()->AlphaMode(),
                                                 hasVertColor,
                                                 toEnableEnvMap,
-                                                anAspectFace->ShaderProgramRes (aCtx));
+                                                anAspectFace->ShaderProgramRes (aCtx),
+                                                anInteriorStyle == Aspect_IS_OUTLINED_SOLID ? Aspect_IS_SOLID : anInteriorStyle);
         break;
       }
     }
@@ -859,7 +869,57 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
                                       ?  myBounds->Colors
                                       :  NULL;
-    drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+
+    if ((anInteriorStyle == Aspect_IS_OUTLINE
+      || anInteriorStyle == Aspect_IS_OUTLINED_SOLID)
+    && !aCtx->ActiveProgram().IsNull())
+    {
+      // two passes rendering for silhouette
+      const bool toCullFaces = aCtx->ToCullBackFaces();
+      const Graphic3d_Vec2i aViewSize (aCtx->VirtualViewport()[2], aCtx->VirtualViewport()[3]);
+      const Standard_Integer   aMin         = aViewSize.minComp();
+      const Standard_ShortReal anEdgeWidth  = (Standard_ShortReal )anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal )aMin;
+      const Standard_ShortReal anOrthoScale = theWorkspace->View()->Camera()->IsOrthographic() ? (Standard_ShortReal )theWorkspace->View()->Camera()->Scale() : -1.0f;
+
+      {
+        const Handle(OpenGl_ShaderProgram)& aProgram1 = aCtx->ActiveProgram();
+        aProgram1->SetUniform (aCtx, aProgram1->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), -1.0f);
+      }
+      aCtx->SetCullBackFaces (true);
+      aCtx->core11fwd->glCullFace (GL_BACK);
+      if (anInteriorStyle == Aspect_IS_OUTLINE)
+      {
+        aCtx->SetColor4fv (theWorkspace->View()->BackgroundColor());
+        drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+      }
+      else
+      {
+        drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+        aCtx->ShaderManager()->BindFaceProgram (Handle(OpenGl_TextureSet)(),
+                                                aShadingModel,
+                                                anAspectFace->Aspect()->AlphaMode(),
+                                                hasVertColor,
+                                                false,
+                                                anAspectFace->ShaderProgramRes (aCtx),
+                                                Aspect_IS_OUTLINE);
+      }
+
+      {
+        const Handle(OpenGl_ShaderProgram)& aProgram2 = aCtx->ActiveProgram();
+        aProgram2->SetUniform (aCtx, aProgram2->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), anOrthoScale);
+        aProgram2->SetUniform (aCtx, aProgram2->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), anEdgeWidth);
+        aCtx->SetColor4fv (anAspectFace->Aspect()->EdgeColorRGBA());
+      }
+      aCtx->core11fwd->glCullFace (GL_FRONT);
+      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+
+      aCtx->core11fwd->glCullFace (GL_BACK);
+      aCtx->SetCullBackFaces (toCullFaces);
+    }
+    else
+    {
+      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+    }
   }
 
   if (myDrawMode <= GL_LINE_STRIP)
@@ -868,20 +928,12 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
   else
   {
-    if (anAspectFace->Aspect()->ToDrawEdges()
-     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+    if ((anAspectFace->Aspect()->ToDrawEdges()
+        || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+        && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_OUTLINE)
     {
       const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
       drawEdges (anEdgeColor, theWorkspace);
-
-      // restore OpenGL polygon mode if needed
-    #if !defined(GL_ES_VERSION_2_0)
-      if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
-      {
-        glPolygonMode (GL_FRONT_AND_BACK,
-          anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
-      }
-    #endif
     }
   }
 }
@@ -1026,3 +1078,4 @@ void OpenGl_PrimitiveArray::InitBuffers (const Handle(OpenGl_Context)&        th
 
   setDrawMode (theType);
 }
+

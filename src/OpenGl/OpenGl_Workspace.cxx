@@ -342,6 +342,8 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
       }
       case Aspect_IS_SOLID:
       case Aspect_IS_HIDDENLINE:
+      case Aspect_IS_OUTLINE:
+      case Aspect_IS_OUTLINED_SOLID:
       {
         myGlContext->SetPolygonMode (GL_FILL);
         myGlContext->SetPolygonHatchEnabled (false);

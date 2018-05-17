@@ -384,6 +384,64 @@ Standard_Boolean ViewerTest::ParseShadingModel (Standard_CString              th
   return Standard_True;
 }
 
+//! Parse Aspect_InteriorStyle enumeration.
+static Standard_Boolean parseInteriorStyle (Standard_CString      theArg,
+                                            Aspect_InteriorStyle& theStyle)
+{
+  TCollection_AsciiString aStyleStr (theArg);
+  aStyleStr.LowerCase();
+  if (aStyleStr == "empty")
+  {
+    theStyle = Aspect_IS_EMPTY;
+  }
+  else if (aStyleStr == "hollow")
+  {
+    theStyle = Aspect_IS_HOLLOW;
+  }
+  else if (aStyleStr == "hatch")
+  {
+    theStyle = Aspect_IS_HATCH;
+  }
+  else if (aStyleStr == "solid")
+  {
+    theStyle = Aspect_IS_SOLID;
+  }
+  else if (aStyleStr == "hiddenline")
+  {
+    theStyle = Aspect_IS_HIDDENLINE;
+  }
+  else if (aStyleStr == "point")
+  {
+    theStyle = Aspect_IS_POINT;
+  }
+  else if (aStyleStr == "outline"
+        || aStyleStr == "silhouette")
+  {
+    theStyle = Aspect_IS_OUTLINE;
+  }
+  else if (aStyleStr == "outlined_solid"
+        || aStyleStr == "outlinedsolid"
+        || aStyleStr == "solid_outline")
+  {
+    theStyle = Aspect_IS_OUTLINED_SOLID;
+  }
+  else if (aStyleStr.IsIntegerValue())
+  {
+    const Standard_Integer anIntStyle = aStyleStr.IntegerValue();
+    if (aStyleStr < Aspect_IS_EMPTY
+     || aStyleStr > Aspect_IS_OUTLINED_SOLID)
+    {
+      return Standard_False;
+    }
+    theStyle = (Aspect_InteriorStyle )anIntStyle;
+  }
+  else
+  {
+    return Standard_False;
+  }
+  return Standard_True;
+}
+
 //=======================================================================
 //function : GetTypeNames
 //purpose  :
@@ -1513,108 +1571,6 @@ private:
 
 };
 
-//==============================================================================
-//function : VInteriorStyle
-//purpose  : sets interior style of the a selected or named or displayed shape
-//==============================================================================
-static int VSetInteriorStyle (Draw_Interpretor& theDI,
-                              Standard_Integer  theArgNb,
-                              const char**      theArgVec)
-{
-  const Handle(AIS_InteractiveContext)& aCtx = ViewerTest::GetAISContext();
-  ViewerTest_AutoUpdater anUpdateTool (aCtx, ViewerTest::CurrentView());
-  if (aCtx.IsNull())
-  {
-    std::cerr << "Error: no active view!\n";
-    return 1;
-  }
-
-  Standard_Integer anArgIter = 1;
-  for (; anArgIter < theArgNb; ++anArgIter)
-  {
-    if (!anUpdateTool.parseRedrawMode (theArgVec[anArgIter]))
-    {
-      break;
-    }
-  }
-  TCollection_AsciiString aName;
-  if (theArgNb - anArgIter == 2)
-  {
-    aName = theArgVec[anArgIter++];
-  }
-  else if (theArgNb - anArgIter != 1)
-  {
-    std::cout << "Error: wrong number of arguments! See usage:\n";
-    theDI.PrintHelp (theArgVec[0]);
-    return 1;
-  }
-  Aspect_InteriorStyle    anInterStyle = Aspect_IS_SOLID;
-  TCollection_AsciiString aStyleArg (theArgVec[anArgIter++]);
-  aStyleArg.LowerCase();
-  if (aStyleArg == "empty")
-  {
-    anInterStyle = Aspect_IS_EMPTY;
-  }
-  else if (aStyleArg == "hollow")
-  {
-    anInterStyle = Aspect_IS_HOLLOW;
-  }
-  else if (aStyleArg == "hatch")
-  {
-    anInterStyle = Aspect_IS_HATCH;
-  }
-  else if (aStyleArg == "solid")
-  {
-    anInterStyle = Aspect_IS_SOLID;
-  }
-  else if (aStyleArg == "hiddenline")
-  {
-    anInterStyle = Aspect_IS_HIDDENLINE;
-  }
-  else if (aStyleArg == "point")
-  {
-    anInterStyle = Aspect_IS_POINT;
-  }
-  else
-  {
-    const Standard_Integer anIntStyle = aStyleArg.IntegerValue();
-    if (anIntStyle < Aspect_IS_EMPTY
-     || anIntStyle > Aspect_IS_POINT)
-    {
-      std::cout << "Error: style must be within a range [0 (Aspect_IS_EMPTY), "
-                << Aspect_IS_POINT << " (Aspect_IS_POINT)]\n";
-      return 1;
-    }
-    anInterStyle = (Aspect_InteriorStyle )anIntStyle;
-  }
-
-  if (!aName.IsEmpty()
-   && !GetMapOfAIS().IsBound2 (aName))
-  {
-    std::cout << "Error: object " << aName << " is not displayed!\n";
-    return 1;
-  }
-
-  for (ViewTest_PrsIter anIter (aName); anIter.More(); anIter.Next())
-  {
-    const Handle(AIS_InteractiveObject)& anIO = anIter.Current();
-    if (!anIO.IsNull())
-    {
-      const Handle(Prs3d_Drawer)& aDrawer        = anIO->Attributes();
-      Handle(Prs3d_ShadingAspect) aShadingAspect = aDrawer->ShadingAspect();
-      Handle(Graphic3d_AspectFillArea3d) aFillAspect = aShadingAspect->Aspect();
-      aFillAspect->SetInteriorStyle (anInterStyle);
-      if (anInterStyle == Aspect_IS_HATCH
-       && aFillAspect->HatchStyle().IsNull())
-      {
-        aFillAspect->SetHatchStyle (Aspect_HS_VERTICAL);
-      }
-      aCtx->RecomputePrsOnly (anIO, Standard_False, Standard_True);
-    }
-  }
-  return 0;
-}
-
 //! Auxiliary structure for VAspects
 struct ViewerTest_AspectsChangeSet
 {
@@ -1673,6 +1629,10 @@ struct ViewerTest_AspectsChangeSet
   Graphic3d_TypeOfShadingModel ShadingModel;
   TCollection_AsciiString      ShadingModelName;
 
+  Standard_Integer             ToSetInteriorStyle;
+  Aspect_InteriorStyle         InteriorStyle;
+  TCollection_AsciiString      InteriorStyleName;
+
   //! Empty constructor
   ViewerTest_AspectsChangeSet()
   : ToSetVisibility   (0),
@@ -1708,7 +1668,9 @@ struct ViewerTest_AspectsChangeSet
     ToSetHatch                 (0),
     StdHatchStyle              (-1),
     ToSetShadingModel          (0),
-    ShadingModel               (Graphic3d_TOSM_DEFAULT)
+    ShadingModel               (Graphic3d_TOSM_DEFAULT),
+    ToSetInteriorStyle         (0),
+    InteriorStyle              (Aspect_IS_SOLID)
     {}
 
   //! @return true if no changes have been requested
@@ -1726,7 +1688,8 @@ struct ViewerTest_AspectsChangeSet
         && ToSetMaxParamValue     == 0
         && ToSetSensitivity       == 0
         && ToSetHatch             == 0
-        && ToSetShadingModel      == 0;
+        && ToSetShadingModel      == 0
+        && ToSetInteriorStyle     == 0;
   }
 
   //! @return true if properties are valid
@@ -1793,6 +1756,12 @@ struct ViewerTest_AspectsChangeSet
     && (ShadingModel < Graphic3d_TOSM_DEFAULT || ShadingModel > Graphic3d_TOSM_FRAGMENT))
     {
       std::cout << "Error: unknown shading model " << ShadingModelName << ".\n";
+      isOk = Standard_False;
+    }
+    if (ToSetInteriorStyle == 1
+    && (InteriorStyle < Aspect_IS_EMPTY || InteriorStyle > Aspect_IS_OUTLINED_SOLID))
+    {
+      std::cout << "Error: unknown interior style " << InteriorStyleName << ".\n";
       isOk = Standard_False;
     }
     return isOk;
@@ -1958,6 +1927,22 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
   else if (aCmdName == "vunsetmaterial")
   {
     aChangeSet->ToSetMaterial = -1;
+  }
+  else if (aCmdName == "vsetinteriorstyle")
+  {
+    if (aNames.IsEmpty())
+    {
+      std::cout << "Error: not enough arguments!\n";
+      return 1;
+    }
+    else if (!parseInteriorStyle (aNames.Last().ToCString(), aChangeSet->InteriorStyle))
+    {
+      std::cout << "Syntax error: unknown interior style '" << aNames.Last() << "'\n";
+      return 1;
+    }
+
+    aChangeSet->ToSetInteriorStyle = 1;
+    aNames.Remove (aNames.Length());
   }
   else if (anArgIter >= theArgNb)
   {
@@ -2400,6 +2385,8 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
       aChangeSet->PathToHatchPattern.Clear();
       aChangeSet->ToSetShadingModel = -1;
       aChangeSet->ShadingModel = Graphic3d_TOSM_DEFAULT;
+      aChangeSet->ToSetInteriorStyle = -1;
+      aChangeSet->InteriorStyle = Aspect_IS_SOLID;
     }
     else if (anArg == "-isoontriangulation"
           || anArg == "-isoontriang")
@@ -2512,6 +2499,26 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
       aChangeSet->ToSetShadingModel = -1;
       aChangeSet->ShadingModel = Graphic3d_TOSM_DEFAULT;
     }
+    else if (anArg == "-setinteriorstyle")
+    {
+      if (++anArgIter >= theArgNb)
+      {
+        std::cout << "Error: wrong syntax at " << anArg << "\n";
+        return 1;
+      }
+      aChangeSet->ToSetInteriorStyle = 1;
+      aChangeSet->InteriorStyleName  = theArgVec[anArgIter];
+      if (!parseInteriorStyle (theArgVec[anArgIter], aChangeSet->InteriorStyle))
+      {
+        std::cout << "Error: wrong syntax at " << anArg << "\n";
+        return 1;
+      }
+    }
+    else if (anArg == "-unsetinteriorstyle")
+    {
+      aChangeSet->ToSetInteriorStyle = -1;
+      aChangeSet->InteriorStyle = Aspect_IS_SOLID;
+    }
     else
     {
       std::cout << "Error: wrong syntax at " << anArg << "\n";
@@ -2610,6 +2617,15 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
     if (aChangeSet->ToSetShadingModel == 1)
     {
       aDrawer->ShadingAspect()->Aspect()->SetShadingModel (aChangeSet->ShadingModel);
+    }
+    if (aChangeSet->ToSetInteriorStyle == 1)
+    {
+      aDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+      if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+       && aDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+      {
+        aDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+      }
     }
 
     // redisplay all objects in context
@@ -2770,6 +2786,21 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
         {
           aDrawer->SetMaximalParameterValue (aChangeSet->MaxParamValue);
         }
+        if (aChangeSet->ToSetInteriorStyle != 0)
+        {
+          if (!aDrawer->HasOwnShadingAspect())
+          {
+            aDrawer->SetShadingAspect (new Prs3d_ShadingAspect());
+            *aDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
+          }
+          aDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+          if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+           && aDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+          {
+            aDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+          }
+          toRedisplay = Standard_True;
+        }
         if (aChangeSet->ToSetHatch != 0)
         {
           if (!aDrawer->HasOwnShadingAspect())
@@ -2861,6 +2892,21 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
           {
             Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects (aSubShape);
             aCurColDrawer->SetShadingModel ((aChangeSet->ToSetShadingModel == -1) ? Graphic3d_TOSM_DEFAULT : aChangeSet->ShadingModel, aChangeSet->ToSetShadingModel != -1);
+          }
+          if (aChangeSet->ToSetInteriorStyle != 0)
+          {
+            Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects (aSubShape);
+            if (!aCurColDrawer->HasOwnShadingAspect())
+            {
+              aCurColDrawer->SetShadingAspect (new Prs3d_ShadingAspect());
+              *aCurColDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
+            }
+            aCurColDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+            if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+             && aCurColDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+            {
+              aCurColDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+            }
           }
         }
       }
@@ -6010,6 +6056,7 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
       "\n\t\t:          [-setHatch HatchStyle]"
       "\n\t\t:          [-setShadingModel {color|flat|gouraud|phong}]"
       "\n\t\t:          [-unsetShadingModel]"
+      "\n\t\t:          [-setInteriorStyle {empty|hollow|hatch|solid|hiddenline|point|outline}]"
       "\n\t\t:          [-setAlphaMode {opaque|mask|blend|blendauto} [alphaCutOff=0.5]]"
       "\n\t\t: Manage presentation properties of all, selected or named objects."
       "\n\t\t: When -subshapes is specified than following properties will be"
@@ -6066,9 +6113,9 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
 		  __FILE__,VAspects,group);
 
   theCommands.Add("vsetinteriorstyle",
-		  "vsetinteriorstyle [-noupdate|-update] [name] style"
-      "\n\t\t: Where style is: 0 = EMPTY, 1 = HOLLOW, 2 = HATCH, 3 = SOLID, 4 = HIDDENLINE.",
-		  __FILE__,VSetInteriorStyle,group);
+		  "vsetinteriorstyle [-noupdate|-update] [name] Style"
+      "\n\t\t: Alias for vaspects -setInteriorStyle [name] Style.",
+		  __FILE__,VAspects,group);
 
   theCommands.Add("vsensdis",
       "vsensdis : Display active entities (sensitive entities of one of the standard types corresponding to active selection modes)."

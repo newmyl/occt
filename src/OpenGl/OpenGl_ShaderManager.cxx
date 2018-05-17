@@ -1602,14 +1602,38 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
         GL_DEBUG_TYPE_PORTABILITY, 0, GL_DEBUG_SEVERITY_HIGH, aWarnMessage);
     }
   }
+  else if ((theBits & OpenGl_PO_OUTLINE) != 0)
+  {
+    aSrcVertExtraOut +=
+      EOL"uniform float occOrthoScale;"
+      EOL"uniform float occSilhouetteThickness;"
+      EOL"";
+
+    aSrcVertExtraMain +=
+      EOL"  if (occSilhouetteThickness >= 0.0)"
+      EOL"  {"
+      EOL"    vec3 aDelta = vec3 (0.0, 0.0, 0.0);"
+      EOL"    if (occOrthoScale > 0.0)"
+      EOL"    {"
+      EOL"      aDelta = occNormal * (occOrthoScale * occSilhouetteThickness);"
+      EOL"    }"
+      EOL"    else"
+      EOL"    {"
+      EOL"      vec4 aPos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * aVertex;"
+      EOL"      aDelta = occNormal * occSilhouetteThickness * aPos.w;"
+      EOL"    }"
+      EOL"    aVertex += vec4 (aDelta, 0.0);"
+      EOL"  }";
+  }
 
   aSrcVert =
       aSrcVertExtraFunc
     + aSrcVertExtraOut
     + EOL"void main()"
       EOL"{"
+      EOL"  vec4 aVertex = occVertex;"
     + aSrcVertExtraMain
-    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * occVertex;"
+    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * aVertex;"
     + aSrcVertEndMain
     + EOL"}";
 

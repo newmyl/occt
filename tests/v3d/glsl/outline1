@@ -1,0 +1,28 @@
+puts "========"
+puts "0024437: Visualization - silhouette edges based on OpenGL"
+puts "========"
+puts ""
+
+pload MODELING VISUALIZATION
+
+vclear
+vinit View1
+vsetcolorbg 220 220 220
+#vsetgradientbg 180 200 255 180 180 180 2
+vaxo
+
+psphere s 1.0
+box b 2 -2 -2 1 2 3
+
+vdisplay -dispMode 1 b
+vaspects b -setInteriorStyle outline
+vshowfaceboundary b 1 255 0 0 1.0
+vsetedgetype b -color 255 0 0
+
+vdisplay -dispMode 1 s
+vaspects s -setInteriorStyle outline
+vshowfaceboundary s 1 255 0 0 1.0
+vsetedgetype s -color 255 0 0
+vfit
+
+vdump $::imagedir/${::casename}.png
