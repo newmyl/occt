@@ -1,0 +1,26 @@
+puts "========"
+puts "0024437: Efficient HLR visualization based on OpenGL and GLSL"
+puts "========"
+puts ""
+
+pload MODELING VISUALIZATION
+
+vclear
+vinit View1
+vsetcolorbg 220 220 220
+
+psphere sph 1.0
+box b 1 2 3
+ttranslate b 2 -2 -2
+
+vdisplay -dispMode 1 b
+vsetinteriorstyle b outline
+vshowfaceboundary b 1 255 0 0 1.0
+vsetedgetype b -color 255 0 0
+vfit
+
+vdisplay -dispMode 1 sph
+vsetinteriorstyle sph outline
+vshowfaceboundary sph 1 255 0 0 1.0
+vsetedgetype sph -color 255 0 0
+vfit

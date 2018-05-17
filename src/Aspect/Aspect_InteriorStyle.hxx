@@ -32,7 +32,8 @@ Aspect_IS_HOLLOW,
 Aspect_IS_HATCH,
 Aspect_IS_SOLID,
 Aspect_IS_HIDDENLINE,
-Aspect_IS_POINT
+Aspect_IS_POINT,
+Aspect_IS_OUTLINE
 };
 
 #endif // _Aspect_InteriorStyle_HeaderFile
