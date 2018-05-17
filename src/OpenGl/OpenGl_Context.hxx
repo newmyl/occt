@@ -45,6 +45,8 @@
 
 #include <NCollection_Shared.hxx>
 
+class OpenGl_Workspace;
+
 //! Forward declarations
 #if defined(__APPLE__)
   #import <TargetConditionals.h>
@@ -721,6 +723,14 @@ public: //! @name methods to alter or retrieve current state
 
   //! Setup texture matrix to active GLSL program or to FFP global state using glMatrixMode (GL_TEXTURE).
   Standard_EXPORT void SetTextureMatrix (const Handle(Graphic3d_TextureParams)& theParams);
+
+  Standard_EXPORT void PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspace);
+  Standard_EXPORT void SetIsSilhouettePass (Standard_Boolean);
+  Standard_EXPORT void SetIsSelected (Standard_Boolean);
+  Standard_EXPORT void PushBackgroundColor (const Handle(OpenGl_Workspace)& theWorkspace);
+  Standard_EXPORT void SetSelectionColor (const OpenGl_Vec3&);
+  Standard_EXPORT void SetSilhouetteColor (const OpenGl_Vec3&);
+  Standard_EXPORT void SetSilhouetteThickness (Standard_ShortReal);
 
   //! Bind default Vertex Array Object
   Standard_EXPORT void BindDefaultVao();

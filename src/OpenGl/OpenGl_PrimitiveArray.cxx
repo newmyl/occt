@@ -816,36 +816,25 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
 
         if (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HLR)
         {
-          const Handle(OpenGl_ShaderProgram)& aProgram = anAspectFace->ShaderProgramRes(aCtx);
-          if (myLocation.ViewMatrix == OpenGl_ShaderProgram::INVALID_LOCATION)
-            const_cast<OpenGl_PrimitiveArray*>(this)->updateLocations(aProgram, aCtx);
-
           const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
             ? myBounds->Colors
             : NULL;
 
-          /*const Handle(Graphic3d_Camera)& aCamera = theWorkspace->View()->Camera();
+          aCtx->PushOrthoScale(theWorkspace);
+          aCtx->SetIsSelected(Standard_False); //TODO
+          aCtx->PushBackgroundColor(theWorkspace);
+          aCtx->SetSelectionColor(OpenGl_Vec3(1.0, 0.0, 0.0));  //TODO
+          aCtx->SetSilhouetteColor(OpenGl_Vec3(1.0, 0.0, 0.0)); //TODO
+          aCtx->SetSilhouetteThickness(0.01f); //TODO
 
-          aProgram->SetUniform(aCtx, myLocation.OrthoScale, (float)aCamera->Scale());
-          aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 1.0f);*/
-
-          /*aProgram->SetUniform(aCtx, myLocation.Color, OpenGl_Vec4(0.0, 0.0, 0.0, 1.0));
-          aProgram->SetUniform(aCtx, myLocation.UseVertexColor, 1.0f);
-          aProgram->SetUniform(aCtx, myLocation.SelectionColor, OpenGl_Vec3(1.0, 0.0, 0.0));//TODO
-          aProgram->SetUniform(aCtx, myLocation.IsSelected, 0.0f);
-          aProgram->SetUniform(aCtx, myLocation.NbClipPlanes, 0.0f);
-          aProgram->SetUniform(aCtx, myLocation.CappingIndex, 0.0f);
-          //aProgram->SetUniform (aCtx, myLocation.PlaneEquations );
-          aProgram->SetUniform(aCtx, myLocation.BackgroundColor, OpenGl_Vec3(1.0, 1.0, 1.0));
-          aProgram->SetUniform(aCtx, myLocation.SilhouetteColor, OpenGl_Vec3(0.0, 0.0, 0.0));*/
-
+          aCtx->SetIsSilhouettePass(Standard_True);
           GLboolean isCull = glIsEnabled(GL_CULL_FACE);
           glEnable(GL_CULL_FACE);
           glCullFace(GL_FRONT);
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
           glCullFace(GL_BACK);
-          //aProgram->SetUniform(aCtx, myLocation.IsSilhouettePass, 0.0f);
+          aCtx->SetIsSilhouettePass(Standard_False);
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
           if (!isCull)
@@ -1065,28 +1054,5 @@ void OpenGl_PrimitiveArray::InitBuffers (const Handle(OpenGl_Context)&        th
 #endif
 
   setDrawMode (theType);
-}
-
-// =======================================================================
-// function : updateLocations
-// purpose  :
-// =======================================================================
-void OpenGl_PrimitiveArray::updateLocations(const Handle(OpenGl_ShaderProgram)& theProgram,
-                                            const Handle(OpenGl_Context)& theContext)
-{
-  if (theProgram.IsNull())
-    return;
-
-  myLocation.OrthoScale = theProgram->GetUniformLocation(theContext, "uOrthoScale");
-  myLocation.IsSilhouettePass = theProgram->GetUniformLocation(theContext, "uIsSilhouettePass");
-  /*myLocation.Color = theProgram->GetUniformLocation(theContext, "uColor");
-  myLocation.UseVertexColor = theProgram->GetUniformLocation(theContext, "uUseVertexColor");
-  myLocation.SelectionColor = theProgram->GetUniformLocation(theContext, "uSelectionColor");
-  myLocation.IsSelected = theProgram->GetUniformLocation(theContext, "uIsSelected");
-  myLocation.NbClipPlanes = theProgram->GetUniformLocation(theContext, "uNbClipPlanes");
-  myLocation.CappingIndex = theProgram->GetUniformLocation(theContext, "uCappingIndex");
-  myLocation.PlaneEquations = theProgram->GetUniformLocation(theContext, "uPlaneEquations");
-  myLocation.BackgroundColor = theProgram->GetUniformLocation(theContext, "uBackgroundColor");
-  myLocation.SilhouetteColor = theProgram->GetUniformLocation(theContext, "uSilhouetteColor");*/
 }
 

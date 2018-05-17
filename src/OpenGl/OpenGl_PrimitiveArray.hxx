@@ -147,45 +147,6 @@ protected:
 
   Standard_Size                         myUID; //!< Unique ID of primitive array. 
 
-private:
-  struct Location
-  {
-    GLint ViewMatrix;
-    GLint ModelMatrix;
-    GLint OrthoScale;
-    GLint IsSilhouettePass;
-    GLint Color;
-    GLint UseVertexColor;
-    GLint SelectionColor;
-    GLint IsSelected;
-    GLint NbClipPlanes;
-    GLint CappingIndex;
-    GLint PlaneEquations;
-    GLint BackgroundColor;
-    GLint SilhouetteColor;
-
-    Location()
-      : ViewMatrix(OpenGl_ShaderProgram::INVALID_LOCATION),
-      ModelMatrix(OpenGl_ShaderProgram::INVALID_LOCATION),
-      OrthoScale(OpenGl_ShaderProgram::INVALID_LOCATION),
-      IsSilhouettePass(OpenGl_ShaderProgram::INVALID_LOCATION),
-      Color(OpenGl_ShaderProgram::INVALID_LOCATION),
-      UseVertexColor(OpenGl_ShaderProgram::INVALID_LOCATION),
-      SelectionColor(OpenGl_ShaderProgram::INVALID_LOCATION),
-      IsSelected(OpenGl_ShaderProgram::INVALID_LOCATION),
-      NbClipPlanes(OpenGl_ShaderProgram::INVALID_LOCATION),
-      CappingIndex(OpenGl_ShaderProgram::INVALID_LOCATION),
-      PlaneEquations(OpenGl_ShaderProgram::INVALID_LOCATION),
-      BackgroundColor(OpenGl_ShaderProgram::INVALID_LOCATION),
-      SilhouetteColor(OpenGl_ShaderProgram::INVALID_LOCATION)
-    {
-    }
-  };
-
-  void updateLocations(const Handle(OpenGl_ShaderProgram)&, const Handle(OpenGl_Context)&);
-
-  Location myLocation;
-
 public:
 
   DEFINE_STANDARD_ALLOC

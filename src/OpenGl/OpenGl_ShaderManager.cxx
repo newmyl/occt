@@ -1606,55 +1606,51 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   if ((theBits & OpenGl_PO_HLR) != 0)
   {
     aSrcVertExtraOut +=
-      EOL"uniform float uOrthoScale;"
-      EOL"uniform float uIsSilhouettePass;"
+      EOL"uniform float occOrthoScale;"
+      EOL"uniform float occIsSilhouettePass;"
+      EOL"uniform float occSilhouetteThickness;"
       EOL""
       EOL"THE_SHADER_IN  vec4 normal;"
-      EOL"THE_SHADER_IN  vec4 color0;"
-      EOL"THE_SHADER_OUT vec4 vPosition;"
-      EOL"THE_SHADER_OUT vec4 vNormal;"
-      EOL"THE_SHADER_OUT vec3 vNormalWorld;"
-      EOL"THE_SHADER_OUT vec4 vColor;"
       ;
 
     aSrcVertEndMain +=
-      EOL"  vPosition = occWorldViewMatrix * occModelWorldMatrix * occVertex;"
-      EOL"  vec4 aNormal = vec4(normal.xyz, 0.0);"
-      EOL"  vNormal = occWorldViewMatrix * occModelWorldMatrix * aNormal;"
-      EOL"  vNormalWorld = aNormal.xyz;"
-      EOL"  vec3 aDisplacedPosition;"
+
+      EOL"  vec3 delta = vec3(0.0, 0.0, 0.0);"
       EOL"  "
-      EOL"  if (uIsSilhouettePass > 0.1)"
+      EOL"  if (occIsSilhouettePass > 0.1)"
       EOL"  {"
-      EOL"    float aShift = 0.0008;"
-      EOL"    "
-      EOL"    if (uOrthoScale > 0.0)"
+      EOL"    float aShift = occSilhouetteThickness;"
+      EOL"    if (occOrthoScale > 0.0)"
       EOL"    {"
-      EOL"      aShift *= uOrthoScale;"
-      EOL"      aDisplacedPosition = occVertex.xyz + (normal.xyz * aShift);"
+      EOL"      aShift *= occOrthoScale;"
+      EOL"      delta = normal.xyz * aShift;"
       EOL"    }"
       EOL"    else"
       EOL"    {"
-      EOL"      aDisplacedPosition = occVertex.xyz + (normal.xyz * aShift * gl_Position.w);"
+      EOL"      delta = normal.xyz * aShift * gl_Position.w;"
       EOL"    }"
       EOL"  }"
-      EOL"  gl_Position = occProjectionMatrix * vec4(aDisplacedPosition, 1.0);"
-      EOL"  vColor = color0;";
+      EOL"  gl_Position += occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vec4(delta, 1.0);"
+      ;
 
-    aSrcVertExtraOut +=
-      EOL"uniform float uIsSelected;"
-      EOL"uniform vec3 uBackgroundColor;"
-      EOL"uniform vec3 uSelectionColor;"
-      EOL"uniform vec3 uSilhouetteColor;";
+    aSrcFragExtraOut +=
+      EOL"uniform float occIsSilhouettePass;"
+      EOL"uniform float occIsSelected;"
+      EOL"uniform vec3 occBackgroundColor;"
+      EOL"uniform vec3 occSelectionColor;"
+      EOL"uniform vec3 occSilhouetteColor;"
+      ;
 
     aSrcFragExtraMain +=
-      EOL"  vec3 aColor = uBackgroundColor;"
-      EOL"  if (uIsSilhouettePass > 0.1)"
+      EOL"  vec3 aColor = occBackgroundColor;"
+      EOL"  if (occIsSilhouettePass > 0.1)"
       EOL"  {"
-      EOL"    aColor = uSilhouetteColor;"
-      EOL"    if (uIsSelected > 0.1)"
-      EOL"      aColor = uSelectionColor;"
+      EOL"    aColor = occSilhouetteColor;"
+      EOL"    if (occIsSelected > 0.1)"
+      EOL"      aColor = occSelectionColor;"
       EOL"  }";
+
+    aSrcFragWriteOit = EOL"  occSetFragColor(vec4(aColor, 1.0));";
   }
 
   aSrcVert =
