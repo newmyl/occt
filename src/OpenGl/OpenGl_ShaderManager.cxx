@@ -1603,13 +1603,72 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     }
   }
 
+  if ((theBits & OpenGl_PO_OUTLINE) != 0)
+  {
+    aSrcVertExtraOut +=
+      EOL"uniform float occOrthoScale;"
+      EOL"uniform float occIsSilhouettePass;"
+      EOL"uniform float occSilhouetteThickness;"
+      ;
+
+    aSrcVertExtraMain +=
+      EOL"  vec3 delta = vec3(0.0, 0.0, 0.0);"
+      EOL"  vec3 pdelta = vec3(0.0, 0.0, 0.0);"
+      EOL"  vec4 proj_normal = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vec4(occNormal, 0.0);"
+      EOL""
+      EOL"  float aShift = occSilhouetteThickness;"
+      EOL"  if (occOrthoScale > 0.0)"
+      EOL"  {"
+      EOL"    if (abs(proj_normal[2]) < 0.25)"
+      EOL"    {"
+      EOL"      float k = 1.0;"
+      EOL"      if (occIsSilhouettePass < 0.1)"
+      EOL"        k = -1.0;"
+      EOL"                 "
+      EOL"      vec3 pn = normalize(vec3(proj_normal.xy, 0.0));"
+      EOL"      pdelta = k * pn * aShift / 2;"
+      EOL"    }"
+      EOL"  }"
+      EOL"  else"
+      EOL"  {"
+      EOL"    if (occIsSilhouettePass > 0.1)"
+      EOL"    {"
+      EOL"      vec4 proj_vertex = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
+      EOL"      delta = occNormal.xyz * aShift/2 * proj_vertex.w;"
+      EOL"    }"
+      EOL"  }"
+      EOL"  "
+      EOL"  vertex += vec4(delta, 0.0);"
+      EOL"  vertex[3] = 1.0;"
+      ;
+
+    aSrcVertEndMain +=
+      EOL"gl_Position += vec4(pdelta.xy, 0.0, 0.0);"
+      ;
+
+    aSrcFragExtraOut +=
+      EOL"uniform float occIsSilhouettePass;"
+      EOL"uniform vec3 occBackgroundColor;"
+      EOL"uniform vec3 occSilhouetteColor;"
+      ;
+
+    aSrcFragExtraMain +=
+      EOL"  vec3 aColor = occBackgroundColor;"
+      EOL"  if (occIsSilhouettePass > 0.1)"
+      EOL"    aColor = occSilhouetteColor;"
+      ;
+
+    aSrcFragWriteOit = EOL"  occSetFragColor(vec4(aColor, 1.0));";
+  }
+
   aSrcVert =
       aSrcVertExtraFunc
     + aSrcVertExtraOut
     + EOL"void main()"
       EOL"{"
+      EOL"  vec4 vertex = occVertex;"
     + aSrcVertExtraMain
-    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * occVertex;"
+    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
     + aSrcVertEndMain
     + EOL"}";
 

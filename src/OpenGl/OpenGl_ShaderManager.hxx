@@ -87,7 +87,8 @@ public:
                                     const Graphic3d_AlphaMode           theAlphaMode,
                                     const Standard_Boolean              theHasVertColor,
                                     const Standard_Boolean              theEnableEnvMap,
-                                    const Handle(OpenGl_ShaderProgram)& theCustomProgram)
+                                    const Handle(OpenGl_ShaderProgram)& theCustomProgram,
+                                    const Aspect_InteriorStyle          theStyle)
   {
     if (!theCustomProgram.IsNull()
      || myContext->caps->ffpEnable)
@@ -99,7 +100,7 @@ public:
                                                         && (theTextures.IsNull() || theTextures->IsModulate())
                                                         ? theShadingModel
                                                         : Graphic3d_TOSM_UNLIT;
-    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, theEnableEnvMap);
+    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, theEnableEnvMap, theStyle);
     Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits);
     return bindProgramWithState (aProgram);
   }
@@ -401,7 +402,8 @@ protected:
   Standard_Integer getProgramBits (const Handle(OpenGl_TextureSet)& theTextures,
                                    Graphic3d_AlphaMode theAlphaMode,
                                    Standard_Boolean theHasVertColor,
-                                   Standard_Boolean theEnableEnvMap)
+                                   Standard_Boolean theEnableEnvMap,
+                                   Aspect_InteriorStyle theStyle=Aspect_IS_EMPTY)
 
   {
     Standard_Integer aBits = 0;
@@ -444,6 +446,11 @@ protected:
     {
       aBits |= OpenGl_PO_WriteOit;
     }
+
+    if (theStyle == Aspect_IS_OUTLINE)
+    {
+      aBits |= OpenGl_PO_OUTLINE;
+    }
     return aBits;
   }
 
@@ -452,7 +459,8 @@ protected:
                                                Standard_Integer theBits)
   {
     if (theShadingModel == Graphic3d_TOSM_UNLIT
-     || (theBits & OpenGl_PO_TextureEnv) != 0)
+     || (theBits & OpenGl_PO_TextureEnv) != 0
+     || (theBits & OpenGl_PO_OUTLINE) != 0)
     {
       // If environment map is enabled lighting calculations are
       // not needed (in accordance with default OCCT behavior)

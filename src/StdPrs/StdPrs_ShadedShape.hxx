@@ -25,6 +25,7 @@
 #include <Prs3d_Drawer.hxx>
 #include <StdPrs_Volume.hxx>
 #include <Standard_Boolean.hxx>
+#include <GeomAbs_Shape.hxx>
 
 class Graphic3d_ArrayOfSegments;
 class Graphic3d_ArrayOfTriangles;
@@ -43,13 +44,27 @@ public:
   //! @param theVolumeType defines the way how to interpret input shapes - as Closed volumes (to activate back-face
   //! culling and capping plane algorithms), as Open volumes (shells or solids with holes)
   //! or to perform Autodetection (would split input shape into two groups)
-  Standard_EXPORT static void Add (const Handle(Prs3d_Presentation)& thePresentation, const TopoDS_Shape& theShape, const Handle(Prs3d_Drawer)& theDrawer, const StdPrs_Volume theVolume = StdPrs_Volume_Autodetection);
+  //! @param theMostAllowedEdgeClass the most edge continuity class to be included to result (edges with more continuity should be ignored)
+  Standard_EXPORT static void Add (const Handle(Prs3d_Presentation)& thePresentation,
+                                   const TopoDS_Shape& theShape,
+                                   const Handle(Prs3d_Drawer)& theDrawer,
+                                   const StdPrs_Volume theVolume = StdPrs_Volume_Autodetection,
+                                   const GeomAbs_Shape theMostAllowedEdgeClass = GeomAbs_CN);
   
   //! Shades <theShape> with texture coordinates.
   //! @param theVolumeType defines the way how to interpret input shapes - as Closed volumes (to activate back-face
   //! culling and capping plane algorithms), as Open volumes (shells or solids with holes)
   //! or to perform Autodetection (would split input shape into two groups)
-  Standard_EXPORT static void Add (const Handle(Prs3d_Presentation)& thePresentation, const TopoDS_Shape& theShape, const Handle(Prs3d_Drawer)& theDrawer, const Standard_Boolean theHasTexels, const gp_Pnt2d& theUVOrigin, const gp_Pnt2d& theUVRepeat, const gp_Pnt2d& theUVScale, const StdPrs_Volume theVolume = StdPrs_Volume_Autodetection);
+  //! @param theMostAllowedEdgeClass the most edge continuity class to be included to result (edges with more continuity should be ignored)
+  Standard_EXPORT static void Add (const Handle(Prs3d_Presentation)& thePresentation,
+                                   const TopoDS_Shape& theShape,
+                                   const Handle(Prs3d_Drawer)& theDrawer,
+                                   const Standard_Boolean theHasTexels,
+                                   const gp_Pnt2d& theUVOrigin,
+                                   const gp_Pnt2d& theUVRepeat,
+                                   const gp_Pnt2d& theUVScale,
+                                   const StdPrs_Volume theVolume = StdPrs_Volume_Autodetection,
+                                   const GeomAbs_Shape theMostAllowedEdgeClass = GeomAbs_CN);
   
   //! Searches closed and unclosed subshapes in shape structure and puts them
   //! into two compounds for separate processing of closed and unclosed sub-shapes
@@ -90,8 +105,9 @@ public:
 
   //! Define primitive array of boundary segments for specified shape.
   //! @param theShape segments array or NULL if specified face does not have computed triangulation
-  Standard_EXPORT static Handle(Graphic3d_ArrayOfSegments) FillFaceBoundaries (const TopoDS_Shape& theShape);
-
+  //! @param theMostAllowedEdgeClass the most edge continuity class to be included to result (edges with more continuity should be ignored)
+  Standard_EXPORT static Handle(Graphic3d_ArrayOfSegments) FillFaceBoundaries
+    (const TopoDS_Shape& theShape, const GeomAbs_Shape theMostAllowedEdgeClass = GeomAbs_CN);
 };
 
 #endif // _StdPrs_ShadedShape_HeaderFile

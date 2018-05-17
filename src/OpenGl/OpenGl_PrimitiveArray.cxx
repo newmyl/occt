@@ -24,6 +24,7 @@
 #include <OpenGl_ShaderProgram.hxx>
 #include <OpenGl_Structure.hxx>
 #include <OpenGl_VertexBufferCompat.hxx>
+#include <OpenGl_View.hxx>
 #include <OpenGl_Workspace.hxx>
 #include <Graphic3d_TextureParams.hxx>
 #include <NCollection_AlignedAllocator.hxx>
@@ -810,7 +811,39 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                                 anAspectFace->Aspect()->AlphaMode(),
                                                 hasVertColor,
                                                 toEnableEnvMap,
-                                                anAspectFace->ShaderProgramRes (aCtx));
+                                                anAspectFace->ShaderProgramRes (aCtx),
+                                                anAspectFace->Aspect()->InteriorStyle());
+
+        if (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_OUTLINE)
+        {
+          const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
+            ? myBounds->Colors
+            : NULL;
+
+          aCtx->PushOrthoScale(theWorkspace);
+          aCtx->PushBackgroundColor(theWorkspace);
+          aCtx->SetSilhouetteColor(anAspectFace->Aspect()->EdgeColor());
+
+          Standard_Integer aViewWidth, aViewHeight;
+          theWorkspace->View()->Window()->Size(aViewWidth, aViewHeight);
+          Standard_Integer aMin = aViewWidth < aViewHeight ? aViewWidth : aViewHeight;
+
+          Standard_ShortReal anEdgeWidth = (Standard_ShortReal)anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal)aMin;
+          aCtx->SetSilhouetteThickness(anEdgeWidth);
+
+          aCtx->SetIsSilhouettePass(Standard_True);
+          GLboolean isCull = glIsEnabled(GL_CULL_FACE);
+          glEnable(GL_CULL_FACE);
+          glCullFace(GL_FRONT);
+          drawArray(theWorkspace, aFaceColors, hasColorAttrib);
+
+          aCtx->SetIsSilhouettePass(Standard_False);
+          glCullFace(GL_BACK);
+          drawArray(theWorkspace, aFaceColors, hasColorAttrib);
+
+          if (!isCull)
+            glDisable(GL_CULL_FACE);
+        }
         break;
       }
     }
@@ -868,8 +901,9 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
   else
   {
-    if (anAspectFace->Aspect()->ToDrawEdges()
-     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+    if ((anAspectFace->Aspect()->ToDrawEdges()
+        || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+        && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_OUTLINE)
     {
       const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
       drawEdges (anEdgeColor, theWorkspace);
@@ -1026,3 +1060,4 @@ void OpenGl_PrimitiveArray::InitBuffers (const Handle(OpenGl_Context)&        th
 
   setDrawMode (theType);
 }
+
