@@ -5739,6 +5739,12 @@ static int VSetEdgeType (Draw_Interpretor& theDI,
 
         aFillAreaAspect->Aspect()->SetEdgeColor (aColor);
       }
+      else if (anIt + 1 < theArgNum
+            && aParam.IsEqual ("-width"))
+      {
+        const Standard_Real aWidth = Draw::Atof (theArgs[++anIt]);
+        aFillAreaAspect->Aspect()->SetEdgeWidth (aWidth);
+      }
       else if (aParam.IsEqual ("-force"))
       {
         isForceRedisplay = Standard_True;
@@ -6729,7 +6735,7 @@ void ViewerTest::ObjectCommands(Draw_Interpretor& theCommands)
   
   theCommands.Add ("vsetedgetype",
                    "vsetedgetype usage:\n"
-                   "vsetedgetype ShapeName [-force] [-type {solid, dash, dot}] [-color R G B] "
+                   "vsetedgetype ShapeName [-force] [-type {solid, dash, dot}] [-color R G B] [-width Value]"
                    "\n\t\t:        Sets edges type and color for input shape",
                    __FILE__, VSetEdgeType, group);
 

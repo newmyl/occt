@@ -74,6 +74,10 @@ enum OpenGl_StateVariable
   OpenGl_OCCT_TEXTURE_TRSF2D,
   OpenGl_OCCT_POINT_SIZE,
 
+  // Parameters of outline (silhouette) shader
+  OpenGl_OCCT_ORTHO_SCALE,
+  OpenGl_OCCT_SILHOUETTE_THICKNESS,
+
   // DON'T MODIFY THIS ITEM (insert new items before it)
   OpenGl_OCCT_NUMBER_OF_STATE_VARIABLES
 };

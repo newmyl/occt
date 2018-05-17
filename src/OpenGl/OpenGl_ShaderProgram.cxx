@@ -74,7 +74,10 @@ Standard_CString OpenGl_ShaderProgram::PredefinedKeywords[] =
   "occOitDepthFactor",     // OpenGl_OCCT_OIT_DEPTH_FACTOR
 
   "occTexTrsf2d",          // OpenGl_OCCT_TEXTURE_TRSF2D
-  "occPointSize"           // OpenGl_OCCT_POINT_SIZE
+  "occPointSize",          // OpenGl_OCCT_POINT_SIZE
+
+  "occOrthoScale",         // OpenGl_OCCT_ORTHO_SCALE
+  "occSilhouetteThickness" // OpenGl_OCCT_SILHOUETTE_THICKNESS
 };
 
 namespace

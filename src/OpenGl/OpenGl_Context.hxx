@@ -45,6 +45,8 @@
 
 #include <NCollection_Shared.hxx>
 
+class OpenGl_Workspace;
+
 //! Forward declarations
 #if defined(__APPLE__)
   #import <TargetConditionals.h>
