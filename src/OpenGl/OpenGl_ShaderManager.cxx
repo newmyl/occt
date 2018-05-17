@@ -1616,7 +1616,6 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     aSrcVertEndMain +=
 
       EOL"  vec3 delta = vec3(0.0, 0.0, 0.0);"
-      EOL"  "
       EOL"  if (occIsSilhouettePass > 0.1)"
       EOL"  {"
       EOL"    float aShift = occSilhouetteThickness;"
@@ -1630,25 +1629,20 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       EOL"      delta = normal.xyz * aShift * gl_Position.w;"
       EOL"    }"
       EOL"  }"
-      EOL"  gl_Position += occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vec4(delta, 1.0);"
+      EOL"  gl_Position += occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vec4(delta, 0.0);"
       ;
 
     aSrcFragExtraOut +=
       EOL"uniform float occIsSilhouettePass;"
-      EOL"uniform float occIsSelected;"
       EOL"uniform vec3 occBackgroundColor;"
-      EOL"uniform vec3 occSelectionColor;"
       EOL"uniform vec3 occSilhouetteColor;"
       ;
 
     aSrcFragExtraMain +=
       EOL"  vec3 aColor = occBackgroundColor;"
       EOL"  if (occIsSilhouettePass > 0.1)"
-      EOL"  {"
       EOL"    aColor = occSilhouetteColor;"
-      EOL"    if (occIsSelected > 0.1)"
-      EOL"      aColor = occSelectionColor;"
-      EOL"  }";
+      ;
 
     aSrcFragWriteOit = EOL"  occSetFragColor(vec4(aColor, 1.0));";
   }
@@ -1674,13 +1668,13 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     + aSrcFragWriteOit
     + EOL"}";
 
-  if ((theBits & OpenGl_PO_HLR) != 0)
+  /*if ((theBits & OpenGl_PO_HLR) != 0)
   {
     std::cout << "VERTEX:" << std::endl;
     std::cout <<  aSrcVert << std::endl;
     std::cout << "FRAGMENT:" << std::endl;
     std::cout << aSrcFrag << std::endl;
-  }
+  }*/
 
 #if !defined(GL_ES_VERSION_2_0)
   if (myContext->core32 != NULL)

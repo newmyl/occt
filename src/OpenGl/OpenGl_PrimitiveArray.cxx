@@ -821,9 +821,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
             : NULL;
 
           aCtx->PushOrthoScale(theWorkspace);
-          aCtx->SetIsSelected(Standard_False); //TODO
           aCtx->PushBackgroundColor(theWorkspace);
-          aCtx->SetSelectionColor(OpenGl_Vec3(1.0, 0.0, 0.0));  //TODO
           aCtx->SetSilhouetteColor(OpenGl_Vec3(1.0, 0.0, 0.0)); //TODO
           aCtx->SetSilhouetteThickness(0.01f); //TODO
 

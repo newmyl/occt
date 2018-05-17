@@ -78,9 +78,7 @@ Standard_CString OpenGl_ShaderProgram::PredefinedKeywords[] =
 
   "occOrthoScale",         // OpenGl_OCCT_ORTHO_SCALE
   "occIsSilhouettePass",   // OpenGl_OCCT_IS_SILHOUETTE_PASS
-  "occIsSelected",         // OpenGl_OCCT_IS_SELECTED
   "occBackgroundColor",    // OpenGl_OCCT_BACKGROUND_COLOR
-  "occSelectionColor",     // OpenGl_OCCT_SELECTION_COLOR
   "occSilhouetteColor",    // OpenGl_OCCT_SILHOUETTE_COLOR
   "occSilhouetteThickness" // OpenGl_OCCT_SILHOUETTE_THICKNESS
 };

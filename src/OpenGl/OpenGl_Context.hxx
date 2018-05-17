@@ -726,9 +726,7 @@ public: //! @name methods to alter or retrieve current state
 
   Standard_EXPORT void PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspace);
   Standard_EXPORT void SetIsSilhouettePass (Standard_Boolean);
-  Standard_EXPORT void SetIsSelected (Standard_Boolean);
   Standard_EXPORT void PushBackgroundColor (const Handle(OpenGl_Workspace)& theWorkspace);
-  Standard_EXPORT void SetSelectionColor (const OpenGl_Vec3&);
   Standard_EXPORT void SetSilhouetteColor (const OpenGl_Vec3&);
   Standard_EXPORT void SetSilhouetteThickness (Standard_ShortReal);
 

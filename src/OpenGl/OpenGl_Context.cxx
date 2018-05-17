@@ -3476,20 +3476,6 @@ void OpenGl_Context::SetIsSilhouettePass (Standard_Boolean isSilhouettePass)
 }
 
 // =======================================================================
-// function : SetIsSelected
-// purpose  :
-// =======================================================================
-void OpenGl_Context::SetIsSelected (Standard_Boolean isSelected)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_IS_SELECTED),
-      isSelected ? 1.0f : 0.0f);
-  }
-}
-
-// =======================================================================
 // function : PushBackgroundColor
 // purpose  :
 // =======================================================================
@@ -3503,19 +3489,6 @@ void OpenGl_Context::PushBackgroundColor (const Handle(OpenGl_Workspace)& theWor
       OpenGl_Vec3((Standard_ShortReal)aBackground.Red(),
                   (Standard_ShortReal)aBackground.Green(),
                   (Standard_ShortReal)aBackground.Blue()));
-  }
-}
-
-// =======================================================================
-// function : SetSelectionColor
-// purpose  :
-// =======================================================================
-void OpenGl_Context::SetSelectionColor (const OpenGl_Vec3& theColor)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_SELECTION_COLOR), theColor);
   }
 }
 

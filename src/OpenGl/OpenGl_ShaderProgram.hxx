@@ -77,9 +77,7 @@ enum OpenGl_StateVariable
   // Parameters of outline (silhouette) shader
   OpenGl_OCCT_ORTHO_SCALE,
   OpenGl_OCCT_IS_SILHOUETTE_PASS,
-  OpenGl_OCCT_IS_SELECTED,
   OpenGl_OCCT_BACKGROUND_COLOR,
-  OpenGl_OCCT_SELECTION_COLOR,
   OpenGl_OCCT_SILHOUETTE_COLOR,
   OpenGl_OCCT_SILHOUETTE_THICKNESS,
 
