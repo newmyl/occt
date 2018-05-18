@@ -3496,12 +3496,15 @@ void OpenGl_Context::PushBackgroundColor (const Handle(OpenGl_Workspace)& theWor
 // function : SetSilhouetteColor
 // purpose  :
 // =======================================================================
-void OpenGl_Context::SetSilhouetteColor (const OpenGl_Vec3& theColor)
+void OpenGl_Context::SetSilhouetteColor (const Quantity_Color& theColor)
 {
   if (!myActiveProgram.IsNull())
   {
     myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_SILHOUETTE_COLOR), theColor);
+      myActiveProgram->GetStateLocation(OpenGl_OCCT_SILHOUETTE_COLOR),
+      OpenGl_Vec3((Standard_ShortReal)theColor.Red(),
+                  (Standard_ShortReal)theColor.Green(),
+                  (Standard_ShortReal)theColor.Blue()));
   }
 }
 

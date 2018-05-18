@@ -1614,7 +1614,6 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       ;
 
     aSrcVertExtraMain +=
-
       EOL"  vec3 delta = vec3(0.0, 0.0, 0.0);"
       EOL"  if (occIsSilhouettePass > 0.1)"
       EOL"  {"
@@ -1625,9 +1624,12 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       EOL"      delta = normal.xyz * aShift;"
       EOL"    }"
       EOL"    else"
-      EOL"      delta = normal.xyz * aShift * gl_Position.w;"
+      EOL"    {"
+      EOL"      vec4 pos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
+      EOL"      delta = normal.xyz * aShift * pos.w;"
+      EOL"    }"
       EOL"  }"
-      EOL"  modifiedOccVertex += vec4(delta, 0.0);"
+      EOL"  vertex += vec4(delta, 0.0);"
       ;
 
     aSrcFragExtraOut +=
@@ -1650,9 +1652,9 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     + aSrcVertExtraOut
     + EOL"void main()"
       EOL"{"
-      EOL"  vec4 modifiedOccVertex = occVertex;"
+      EOL"  vec4 vertex = occVertex;"
     + aSrcVertExtraMain
-    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * modifiedOccVertex;"
+    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
     + aSrcVertEndMain
     + EOL"}";
 

@@ -822,8 +822,15 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
 
           aCtx->PushOrthoScale(theWorkspace);
           aCtx->PushBackgroundColor(theWorkspace);
-          aCtx->SetSilhouetteColor(OpenGl_Vec3(1.0, 0.0, 0.0)); //TODO
-          aCtx->SetSilhouetteThickness(0.01f); //TODO
+          aCtx->SetSilhouetteColor(anAspectFace->Aspect()->EdgeColor());
+
+          Standard_Integer aViewWidth, aViewHeight;
+          theWorkspace->View()->Window()->Size(aViewWidth, aViewHeight);
+          Standard_Integer aMin = aViewWidth < aViewHeight ? aViewWidth : aViewHeight;
+
+          // the coefficient 2 is necessary since the normalized coordinates are [-1..1], so the "normalized" width of view is 2
+          Standard_ShortReal anEdgeWidth = 2 * (Standard_ShortReal)anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal)aMin;
+          aCtx->SetSilhouetteThickness(anEdgeWidth);
 
           aCtx->SetIsSilhouettePass(Standard_True);
           GLboolean isCull = glIsEnabled(GL_CULL_FACE);
@@ -831,8 +838,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
           glCullFace(GL_FRONT);
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
-          glCullFace(GL_BACK);
           aCtx->SetIsSilhouettePass(Standard_False);
+          glCullFace(GL_BACK);
           drawArray(theWorkspace, aFaceColors, hasColorAttrib);
 
           if (!isCull)
@@ -895,8 +902,9 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
   else
   {
-    if (anAspectFace->Aspect()->ToDrawEdges()
-     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+    if ((anAspectFace->Aspect()->ToDrawEdges()
+        || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+        && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HLR)
     {
       const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
       drawEdges (anEdgeColor, theWorkspace);
