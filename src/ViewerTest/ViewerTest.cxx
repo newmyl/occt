@@ -1619,6 +1619,72 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   return 0;
 }
 
+//==============================================================================
+//function : VSetMostCont
+//purpose  : sets the most continuity class of edges in presentation
+//==============================================================================
+static int VSetMostCont(Draw_Interpretor& theDI,
+  Standard_Integer  theArgNb,
+  const char**      theArgVec)
+{
+  const Handle(AIS_InteractiveContext)& aCtx = ViewerTest::GetAISContext();
+  ViewerTest_AutoUpdater anUpdateTool(aCtx, ViewerTest::CurrentView());
+  if (aCtx.IsNull())
+  {
+    std::cerr << "Error: no active view!\n";
+    return 1;
+  }
+
+  if (theArgNb != 3)
+  {
+    std::cout << "Error: wrong number of arguments! See usage:\n";
+    theDI.PrintHelp(theArgVec[0]);
+    return 1;
+  }
+
+  TCollection_AsciiString aName = theArgVec[1];
+  TCollection_AsciiString aClassArg = theArgVec[2];
+  aClassArg.LowerCase();
+
+  GeomAbs_Shape aClass = GeomAbs_CN;
+  if (aClassArg == "c0")
+    aClass = GeomAbs_C0;
+  else if (aClassArg == "c1")
+    aClass = GeomAbs_C1;
+  else if (aClassArg == "c2")
+    aClass = GeomAbs_C2;
+  else if (aClassArg == "c3")
+    aClass = GeomAbs_C3;
+  else if (aClassArg == "cn")
+    aClass = GeomAbs_CN;
+  else
+  {
+    std::cout << "Error: incorrect class! See usage:\n";
+    theDI.PrintHelp(theArgVec[0]);
+    return 1;
+  }
+
+  if (!aName.IsEmpty()
+    && !GetMapOfAIS().IsBound2(aName))
+  {
+    std::cout << "Error: object " << aName << " is not displayed!\n";
+    return 1;
+  }
+
+  for (ViewTest_PrsIter anIter(aName); anIter.More(); anIter.Next())
+  {
+    const Handle(AIS_Shape)& aShape = Handle(AIS_Shape)::DownCast(anIter.Current());
+    if (!aShape.IsNull())
+    {
+      aShape->SetMostContinuityClass(aClass);
+      aCtx->RecomputePrsOnly(aShape, Standard_False, Standard_True);
+    }
+  }
+  return 0;
+}
+
+
+
 //! Auxiliary structure for VAspects
 struct ViewerTest_AspectsChangeSet
 {
@@ -6073,6 +6139,12 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
 		  "vsetinteriorstyle [-noupdate|-update] [name] style"
       "\n\t\t: Where style is: 0 = EMPTY, 1 = HOLLOW, 2 = HATCH, 3 = SOLID, 4 = HIDDENLINE.",
 		  __FILE__,VSetInteriorStyle,group);
+
+  theCommands.Add("vsetmostcont",
+    "vsetmostcont : ObjectName class"
+    "- sets the most continuity class of edges in presentation",
+    "\n\t\t: Where class is c0, c1, c2, c3, cn"
+    __FILE__, VSetMostCont, group);
 
   theCommands.Add("vsensdis",
       "vsensdis : Display active entities (sensitive entities of one of the standard types corresponding to active selection modes)."

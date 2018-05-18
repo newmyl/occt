@@ -90,7 +90,8 @@ AIS_Shape::AIS_Shape(const TopoDS_Shape& theShape)
   myUVRepeat(1.0, 1.0),
   myUVScale (1.0, 1.0),
   myInitAng (0.0),
-  myCompBB (Standard_True)
+  myCompBB (Standard_True),
+  myMostEdgeClass(GeomAbs_CN)
 {
   //
 }
@@ -164,7 +165,8 @@ void AIS_Shape::Compute(const Handle(PrsMgr_PresentationManager3d)& /*aPresentat
             StdPrs_ShadedShape::Add (aPrs, myshape, myDrawer,
                                      myDrawer->ShadingAspect()->Aspect()->ToMapTexture()
                                  && !myDrawer->ShadingAspect()->Aspect()->TextureMap().IsNull(),
-                                     myUVOrigin, myUVRepeat, myUVScale);
+                                     myUVOrigin, myUVRepeat, myUVScale, StdPrs_Volume_Autodetection,
+                                     myMostEdgeClass);
           }
           catch (Standard_Failure const& anException)
           {
@@ -1191,4 +1193,24 @@ Standard_Boolean AIS_Shape::OwnHLRDeviationAngle ( Standard_Real &  anAngle,
   anAngle = myDrawer->HLRAngle();
   aPreviousAngle = myDrawer->PreviousHLRDeviationAngle (); 
   return myDrawer->HasOwnHLRDeviationAngle();
+}
+
+//=======================================================================
+//function : SetMostContinuityClass
+//purpose  : 
+//=======================================================================
+
+void AIS_Shape::SetMostContinuityClass(const GeomAbs_Shape theMostAllowedEdgeClass)
+{
+  myMostEdgeClass = theMostAllowedEdgeClass;
+}
+
+//=======================================================================
+//function : MostContinuityClass
+//purpose  : 
+//=======================================================================
+
+GeomAbs_Shape AIS_Shape::MostContinuityClass() const
+{
+  return myMostEdgeClass;
 }
