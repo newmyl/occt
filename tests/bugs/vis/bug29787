@@ -1,0 +1,25 @@
+puts "========"
+puts "0029787: Avoid in presentation edges of certain continuity class"
+puts "========"
+puts ""
+
+pload MODELING VISUALIZATION
+
+vclear
+vinit View1
+vsetcolorbg 255 255 255
+
+psphere sph1 1.0
+psphere sph2 1.0
+psphere sph3 1.0
+
+ttranslate sph2 4.0 0.0 0.0
+ttranslate sph3 8.0 0.0 0.0
+
+vdisplay -dispMode 0 sph1
+vdisplay -dispMode 1 sph2
+vshowfaceboundary sph2 1 255 0 0
+vdisplay -dispMode 1 sph3
+vshowfaceboundary sph3 1 255 0 0
+vsetmostcont sph3 c2
+vfit

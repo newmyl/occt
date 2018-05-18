@@ -301,7 +301,8 @@ namespace
   }
 
   //! Compute boundary presentation for faces of the shape.
-  static Handle(Graphic3d_ArrayOfSegments) fillFaceBoundaries (const TopoDS_Shape& theShape)
+  static Handle(Graphic3d_ArrayOfSegments) fillFaceBoundaries
+    (const TopoDS_Shape& theShape, const GeomAbs_Shape theMostAllowedEdgeClass)
   {
     // collection of all triangulation nodes on edges
     // for computing boundaries presentation
@@ -341,6 +342,16 @@ namespace
       }
 
       const TopoDS_Edge& anEdge = TopoDS::Edge (anEdgeIter.Key());
+      if (anEdgeIter.Value().Extent() > 1)
+      {
+        TopTools_ListIteratorOfListOfShape anIter2(anEdgeIter.Value());
+        anIter2.Next();
+        const TopoDS_Face& aFace2 = TopoDS::Face(anIter2.Value());
+        GeomAbs_Shape aShape = BRep_Tool::Continuity(anEdge, aFace, aFace2);
+        if (aShape > theMostAllowedEdgeClass)
+          continue;
+      }
+
       Handle(Poly_PolygonOnTriangulation) anEdgePoly = BRep_Tool::PolygonOnTriangulation (anEdge, aTriangulation, aTrsf);
       if (!anEdgePoly.IsNull()
         && anEdgePoly->Nodes().Length() >= 2)
@@ -384,6 +395,16 @@ namespace
       }
 
       const TopoDS_Edge& anEdge = TopoDS::Edge (anEdgeIter.Key());
+      if (anEdgeIter.Value().Extent() > 1)
+      {
+        TopTools_ListIteratorOfListOfShape anIter2(anEdgeIter.Value());
+        anIter2.Next();
+        const TopoDS_Face& aFace2 = TopoDS::Face(anIter2.Value());
+        GeomAbs_Shape aShape = BRep_Tool::Continuity(anEdge, aFace, aFace2);
+        if (aShape > theMostAllowedEdgeClass)
+          continue;
+      }
+
       Handle(Poly_PolygonOnTriangulation) anEdgePoly = BRep_Tool::PolygonOnTriangulation (anEdge, aTriangulation, aTrsf);
       if (anEdgePoly.IsNull()
        || anEdgePoly->Nodes().Length () < 2)
@@ -501,11 +522,12 @@ void StdPrs_ShadedShape::ExploreSolids (const TopoDS_Shape&    theShape,
 void StdPrs_ShadedShape::Add (const Handle(Prs3d_Presentation)& thePrs,
                               const TopoDS_Shape&               theShape,
                               const Handle(Prs3d_Drawer)&       theDrawer,
-                              const StdPrs_Volume               theVolume)
+                              const StdPrs_Volume               theVolume,
+                              const GeomAbs_Shape               theMostAllowedEdgeClass)
 {
   gp_Pnt2d aDummy;
   StdPrs_ShadedShape::Add (thePrs, theShape, theDrawer,
-                           Standard_False, aDummy, aDummy, aDummy, theVolume);
+                           Standard_False, aDummy, aDummy, aDummy, theVolume, theMostAllowedEdgeClass);
 }
 
 // =======================================================================
@@ -519,7 +541,8 @@ void StdPrs_ShadedShape::Add (const Handle (Prs3d_Presentation)& thePrs,
                               const gp_Pnt2d&                    theUVOrigin,
                               const gp_Pnt2d&                    theUVRepeat,
                               const gp_Pnt2d&                    theUVScale,
-                              const StdPrs_Volume                theVolume)
+                              const StdPrs_Volume                theVolume,
+                              const GeomAbs_Shape                theMostAllowedEdgeClass)
 {
   if (theShape.IsNull())
   {
@@ -578,7 +601,7 @@ void StdPrs_ShadedShape::Add (const Handle (Prs3d_Presentation)& thePrs,
 
   if (theDrawer->FaceBoundaryDraw())
   {
-    Handle(Graphic3d_ArrayOfSegments) aBndSegments = fillFaceBoundaries (theShape);
+    Handle(Graphic3d_ArrayOfSegments) aBndSegments = fillFaceBoundaries (theShape, theMostAllowedEdgeClass);
     if (!aBndSegments.IsNull())
     {
       Handle(Graphic3d_AspectLine3d) aBoundaryAspect = theDrawer->FaceBoundaryAspect()->Aspect();
@@ -606,9 +629,10 @@ Handle(Graphic3d_ArrayOfTriangles) StdPrs_ShadedShape::FillTriangles (const Topo
 // function : FillFaceBoundaries
 // purpose  :
 // =======================================================================
-Handle(Graphic3d_ArrayOfSegments) StdPrs_ShadedShape::FillFaceBoundaries (const TopoDS_Shape& theShape)
+Handle(Graphic3d_ArrayOfSegments) StdPrs_ShadedShape::FillFaceBoundaries (const TopoDS_Shape& theShape,
+                                                                          const GeomAbs_Shape theMostAllowedEdgeClass)
 {
-  return fillFaceBoundaries (theShape);
+  return fillFaceBoundaries (theShape, theMostAllowedEdgeClass);
 }
 
 // =======================================================================
