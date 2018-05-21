@@ -35,8 +35,6 @@
 #include <XCAFPrs.hxx>
 #include <XCAFPrs_IndexedDataMapOfShapeStyle.hxx>
 #include <XCAFPrs_DataMapIteratorOfIndexedDataMapOfShapeStyle.hxx>
-#include <XCAFPrs_Style.hxx>
-
 
 IMPLEMENT_STANDARD_RTTIEXT(XCAFPrs_AISObject,AIS_ColoredShape)
 
@@ -49,6 +47,9 @@ XCAFPrs_AISObject::XCAFPrs_AISObject (const TDF_Label& theLabel)
 : AIS_ColoredShape(TopoDS_Shape()),
   myToSyncStyles (Standard_True)
 {
+  myDefaultStyle.SetColorSurf (Quantity_NOC_WHITE);
+  myDefaultStyle.SetColorCurv (Quantity_NOC_WHITE);
+
   // define plastic material by default for proper color reproduction
   setMaterial (myDrawer, Graphic3d_NOM_PLASTIC, Standard_False, Standard_False);
   hasOwnMaterial = Standard_True;
@@ -320,16 +321,6 @@ void XCAFPrs_AISObject::SetColors (const Handle(Prs3d_Drawer)& theDrawer,
   theDrawer->ShadingAspect()->Aspect()->SetFrontMaterial (aMaterial);
   theDrawer->UIsoAspect()->SetColor (theColorSurf.GetRGB());
   theDrawer->VIsoAspect()->SetColor (theColorSurf.GetRGB());
-}
-
-//=======================================================================
-//function : DefaultStyle
-//purpose  : DefaultStyle() can be redefined by subclasses in order to set custom default style
-//=======================================================================
-void XCAFPrs_AISObject::DefaultStyle (XCAFPrs_Style& theStyle) const
-{
-  theStyle.SetColorSurf (Quantity_NOC_WHITE);
-  theStyle.SetColorCurv (Quantity_NOC_WHITE);
 }
 
 // =======================================================================

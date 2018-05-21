@@ -17,12 +17,12 @@
 #include <AIS_ColoredShape.hxx>
 
 #include <TDF_Label.hxx>
-
-class XCAFPrs_Style;
+#include <XCAFPrs_Style.hxx>
 
 //! Implements AIS_InteractiveObject functionality for shape in DECAF document.
 class XCAFPrs_AISObject : public AIS_ColoredShape
 {
+  DEFINE_STANDARD_RTTIEXT(XCAFPrs_AISObject, AIS_ColoredShape)
 public:
 
   //! Creates an object to visualise the shape label.
@@ -50,6 +50,13 @@ public:
   //! Re-computation of existing presentation is not required after calling this method.
   Standard_EXPORT virtual void SetMaterial (const Graphic3d_MaterialAspect& theMaterial) Standard_OVERRIDE;
 
+  //! Fills out a default style object which is used when styles are not explicitly defined in the document.
+  //! By default, the style uses white color for curves and surfaces.
+  virtual void DefaultStyle (XCAFPrs_Style& theStyle) const { theStyle = myDefaultStyle; }
+
+  //! Sets default style to be used when styles are not explicitly defined in the document.
+  virtual void SetDefaultStyle (const XCAFPrs_Style& theStyle) {  myDefaultStyle = theStyle; }
+
 protected:
 
   //! Redefined method to compute presentation.
@@ -67,19 +74,11 @@ protected:
                   const Quantity_Color& theColorCurv,
                   const Quantity_Color& theColorSurf) { SetColors (theDrawer, theColorCurv, Quantity_ColorRGBA (theColorSurf)); }
 
-  //! Fills out a default style object which is used when styles are
-  //! not explicitly defined in the document.
-  //! By default, the style uses white color for curves and surfaces.
-  Standard_EXPORT virtual  void DefaultStyle (XCAFPrs_Style& theStyle) const;
-
 protected:
 
+  XCAFPrs_Style    myDefaultStyle; //!< default presentation style
   TDF_Label        myLabel;        //!< label pointing onto the shape
   Standard_Boolean myToSyncStyles; //!< flag indicating that shape and sub-shapes should be updates within Compute()
-
-public:
-
-  DEFINE_STANDARD_RTTIEXT(XCAFPrs_AISObject,AIS_ColoredShape)
 
 };
 
