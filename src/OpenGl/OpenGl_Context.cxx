@@ -3452,12 +3452,11 @@ void OpenGl_Context::SetPointSize (const Standard_ShortReal theSize)
 // function : PushOrthoScale
 // purpose  :
 // =======================================================================
-void OpenGl_Context::PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspace)
+void OpenGl_Context::PushOrthoScale (Standard_ShortReal theOrthoScale)
 {
-  if (!myActiveProgram.IsNull() && !theWorkspace.IsNull())
+  if (!myActiveProgram.IsNull())
   {
-    Standard_ShortReal aScale = (Standard_ShortReal)theWorkspace->View()->Camera()->Scale();
-    myActiveProgram->SetUniform(this, myActiveProgram->GetStateLocation(OpenGl_OCCT_ORTHO_SCALE), aScale);
+    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), theOrthoScale);
   }
 }
 
@@ -3465,13 +3464,11 @@ void OpenGl_Context::PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspac
 // function : SetIsSilhouettePass
 // purpose  :
 // =======================================================================
-void OpenGl_Context::SetIsSilhouettePass (Standard_Boolean isSilhouettePass)
+void OpenGl_Context::SetIsSilhouettePass (Standard_Boolean theIsSilhouettePass)
 {
-  if (!myActiveProgram.IsNull() )
+  if (!myActiveProgram.IsNull())
   {
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_IS_SILHOUETTE_PASS),
-      isSilhouettePass ? 1.0f : 0.0f);
+    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_IS_SILHOUETTE_PASS), GLint(theIsSilhouettePass ? 1 : 0));
   }
 }
 
@@ -3479,16 +3476,11 @@ void OpenGl_Context::SetIsSilhouettePass (Standard_Boolean isSilhouettePass)
 // function : PushBackgroundColor
 // purpose  :
 // =======================================================================
-void OpenGl_Context::PushBackgroundColor (const Handle(OpenGl_Workspace)& theWorkspace)
+void OpenGl_Context::PushBackgroundColor (const OpenGl_Vec3& theColor)
 {
-  if (!myActiveProgram.IsNull() && !theWorkspace.IsNull())
+  if (!myActiveProgram.IsNull())
   {
-    const Quantity_Color& aBackground = theWorkspace->View()->BackgroundColor().GetRGB();
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_BACKGROUND_COLOR), 
-      OpenGl_Vec3((Standard_ShortReal)aBackground.Red(),
-                  (Standard_ShortReal)aBackground.Green(),
-                  (Standard_ShortReal)aBackground.Blue()));
+    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_BACKGROUND_COLOR), theColor);
   }
 }
 
@@ -3496,15 +3488,11 @@ void OpenGl_Context::PushBackgroundColor (const Handle(OpenGl_Workspace)& theWor
 // function : SetSilhouetteColor
 // purpose  :
 // =======================================================================
-void OpenGl_Context::SetSilhouetteColor (const Quantity_Color& theColor)
+void OpenGl_Context::SetSilhouetteColor (const OpenGl_Vec3& theColor)
 {
   if (!myActiveProgram.IsNull())
   {
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_SILHOUETTE_COLOR),
-      OpenGl_Vec3((Standard_ShortReal)theColor.Red(),
-                  (Standard_ShortReal)theColor.Green(),
-                  (Standard_ShortReal)theColor.Blue()));
+    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_COLOR), theColor);
   }
 }
 
@@ -3516,8 +3504,7 @@ void OpenGl_Context::SetSilhouetteThickness (Standard_ShortReal theThickness)
 {
   if (!myActiveProgram.IsNull())
   {
-    myActiveProgram->SetUniform(this,
-      myActiveProgram->GetStateLocation(OpenGl_OCCT_SILHOUETTE_THICKNESS), theThickness);
+    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), theThickness);
   }
 }
 

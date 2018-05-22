@@ -724,11 +724,11 @@ public: //! @name methods to alter or retrieve current state
   //! Setup texture matrix to active GLSL program or to FFP global state using glMatrixMode (GL_TEXTURE).
   Standard_EXPORT void SetTextureMatrix (const Handle(Graphic3d_TextureParams)& theParams);
 
-  Standard_EXPORT void PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspace);
-  Standard_EXPORT void SetIsSilhouettePass (Standard_Boolean);
-  Standard_EXPORT void PushBackgroundColor (const Handle(OpenGl_Workspace)& theWorkspace);
-  Standard_EXPORT void SetSilhouetteColor (const Quantity_Color&);
-  Standard_EXPORT void SetSilhouetteThickness (Standard_ShortReal);
+  Standard_EXPORT void PushOrthoScale (Standard_ShortReal theOrthoScale);
+  Standard_EXPORT void SetIsSilhouettePass (Standard_Boolean theIsSilhouettePass);
+  Standard_EXPORT void PushBackgroundColor (const OpenGl_Vec3& theColor);
+  Standard_EXPORT void SetSilhouetteColor  (const OpenGl_Vec3& theColor);
+  Standard_EXPORT void SetSilhouetteThickness (Standard_ShortReal theThickness);
 
   //! Bind default Vertex Array Object
   Standard_EXPORT void BindDefaultVao();

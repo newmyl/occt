@@ -34,8 +34,8 @@ enum OpenGl_ProgramOptions
   OpenGl_PO_ClipPlanesN = 0x100, //!< handle N clipping planes
   OpenGl_PO_AlphaTest   = 0x200, //!< discard fragment by alpha test (defined by cutoff value)
   OpenGl_PO_WriteOit    = 0x400, //!< write coverage buffer for Blended Order-Independent Transparency
-  OpenGl_PO_OUTLINE     = 0x800, //!< HLR presentation (outline shader)
-  OpenGl_PO_NB          = 0x1000  //!< overall number of combinations
+  OpenGl_PO_OUTLINE     = 0x800, //!< outline (silhouette) rendering
+  OpenGl_PO_NB          = 0x1000 //!< overall number of combinations
 };
 
 //! Alias to programs array of predefined length

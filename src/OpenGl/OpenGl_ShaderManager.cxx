@@ -1607,44 +1607,37 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   {
     aSrcVertExtraOut +=
       EOL"uniform float occOrthoScale;"
-      EOL"uniform float occIsSilhouettePass;"
       EOL"uniform float occSilhouetteThickness;"
-      EOL""
-      EOL"THE_SHADER_IN  vec4 normal;"
-      ;
+      EOL"uniform int   occIsSilhouettePass;"
+      EOL"";
 
     aSrcVertExtraMain +=
-      EOL"  vec3 delta = vec3(0.0, 0.0, 0.0);"
-      EOL"  if (occIsSilhouettePass > 0.1)"
+      EOL"  if (occIsSilhouettePass == 1)"
       EOL"  {"
       EOL"    float aShift = occSilhouetteThickness;"
+      EOL"    vec3 aDelta = vec3 (0.0, 0.0, 0.0);"
       EOL"    if (occOrthoScale > 0.0)"
       EOL"    {"
       EOL"      aShift *= occOrthoScale;"
-      EOL"      delta = normal.xyz * aShift;"
+      EOL"      aDelta = occNormal * aShift;"
       EOL"    }"
       EOL"    else"
       EOL"    {"
-      EOL"      vec4 pos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
-      EOL"      delta = normal.xyz * aShift * pos.w;"
+      EOL"      vec4 aPos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * aVertex;"
+      EOL"      aDelta = occNormal * aShift * aPos.w;"
       EOL"    }"
-      EOL"  }"
-      EOL"  vertex += vec4(delta, 0.0);"
-      ;
+      EOL"    aVertex += vec4 (aDelta, 0.0);"
+      EOL"  }";
 
     aSrcFragExtraOut +=
-      EOL"uniform float occIsSilhouettePass;"
       EOL"uniform vec3 occBackgroundColor;"
       EOL"uniform vec3 occSilhouetteColor;"
-      ;
+      EOL"uniform int  occIsSilhouettePass;";
 
     aSrcFragExtraMain +=
-      EOL"  vec3 aColor = occBackgroundColor;"
-      EOL"  if (occIsSilhouettePass > 0.1)"
-      EOL"    aColor = occSilhouetteColor;"
-      ;
+      EOL"  vec3 aColor = occIsSilhouettePass == 1 ? occSilhouetteColor : occBackgroundColor;";
 
-    aSrcFragWriteOit = EOL"  occSetFragColor(vec4(aColor, 1.0));";
+    aSrcFragWriteOit = EOL"  occSetFragColor (vec4 (aColor, 1.0));";
   }
 
   aSrcVert =
@@ -1652,9 +1645,9 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     + aSrcVertExtraOut
     + EOL"void main()"
       EOL"{"
-      EOL"  vec4 vertex = occVertex;"
+      EOL"  vec4 aVertex = occVertex;"
     + aSrcVertExtraMain
-    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
+    + EOL"  gl_Position = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * aVertex;"
     + aSrcVertEndMain
     + EOL"}";
 
