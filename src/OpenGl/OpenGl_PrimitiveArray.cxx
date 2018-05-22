@@ -805,6 +805,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
       default:
       {
         aShadingModel = aCtx->ShaderManager()->ChooseFaceShadingModel (anAspectFace->ShadingModel(), hasVertNorm);
+        anInteriorStyle = anAspectFace->Aspect()->InteriorStyle();
+
         const Handle(OpenGl_TextureSet)& aTextures = aCtx->ActiveTextures();
         const Standard_Boolean toEnableEnvMap = (!aTextures.IsNull() && (aTextures == theWorkspace->EnvironmentTexture()));
         aCtx->ShaderManager()->BindFaceProgram (aTextures,
@@ -813,8 +815,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                                 hasVertColor,
                                                 toEnableEnvMap,
                                                 anAspectFace->ShaderProgramRes (aCtx),
-                                                anAspectFace->Aspect()->InteriorStyle());
-        anInteriorStyle = anAspectFace->Aspect()->InteriorStyle();
+                                                anInteriorStyle == Aspect_IS_OUTLINED_SOLID ? Aspect_IS_SOLID : anInteriorStyle);
         break;
       }
     }
@@ -864,27 +865,47 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                       ?  myBounds->Colors
                                       :  NULL;
 
-    if (anInteriorStyle == Aspect_IS_OUTLINE
+    if ((anInteriorStyle == Aspect_IS_OUTLINE
+      || anInteriorStyle == Aspect_IS_OUTLINED_SOLID)
     && !aCtx->ActiveProgram().IsNull())
     {
       // two passes rendering for silhouette
-      const Handle(OpenGl_ShaderProgram)& aProgram = aCtx->ActiveProgram();
-
+      const bool toCullFaces = aCtx->ToCullBackFaces();
+      const bool wasColorOn  = aCtx->ColorMask();
       const Graphic3d_Vec2i aViewSize (aCtx->VirtualViewport()[2], aCtx->VirtualViewport()[3]);
       const Standard_Integer   aMin         = aViewSize.minComp();
       const Standard_ShortReal anEdgeWidth  = (Standard_ShortReal )anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal )aMin;
       const Standard_ShortReal anOrthoScale = theWorkspace->View()->Camera()->IsOrthographic() ? (Standard_ShortReal )theWorkspace->View()->Camera()->Scale() : -1.0f;
-      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), anOrthoScale);
 
-      const bool toCullFaces = aCtx->ToCullBackFaces();
+      {
+        const Handle(OpenGl_ShaderProgram)& aProgram1 = aCtx->ActiveProgram();
+        aProgram1->SetUniform (aCtx, aProgram1->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), -1.0f);
+      }
       aCtx->SetCullBackFaces (true);
-
-      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), -1.0f);
-      const bool wasColorOn = aCtx->SetColorMask (false);
       aCtx->core11fwd->glCullFace (GL_BACK);
-      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+      if (anInteriorStyle == Aspect_IS_OUTLINE)
+      {
+        aCtx->SetColorMask (false);
+        drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+      }
+      else
+      {
+        drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+        aCtx->ShaderManager()->BindFaceProgram (Handle(OpenGl_TextureSet)(),
+                                                aShadingModel,
+                                                anAspectFace->Aspect()->AlphaMode(),
+                                                hasVertColor,
+                                                false,
+                                                anAspectFace->ShaderProgramRes (aCtx),
+                                                Aspect_IS_OUTLINE);
+      }
 
-      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), anEdgeWidth);
+      {
+        const Handle(OpenGl_ShaderProgram)& aProgram2 = aCtx->ActiveProgram();
+        aProgram2->SetUniform (aCtx, aProgram2->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), anOrthoScale);
+        aProgram2->SetUniform (aCtx, aProgram2->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), anEdgeWidth);
+        aCtx->SetColor4fv (anAspectFace->Aspect()->EdgeColorRGBA());
+      }
       aCtx->SetColorMask (wasColorOn);
       aCtx->core11fwd->glCullFace (GL_FRONT);
       drawArray (theWorkspace, aFaceColors, hasColorAttrib);

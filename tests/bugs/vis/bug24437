@@ -1,5 +1,5 @@
 puts "========"
-puts "0024437: Efficient HLR visualization based on OpenGL and GLSL"
+puts "0024437: Visualization - silhouette edges based on OpenGL"
 puts "========"
 puts ""
 

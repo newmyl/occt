@@ -19,13 +19,14 @@
 //! Definition of interior types for primitive faces.
 enum Aspect_InteriorStyle
 {
-  Aspect_IS_EMPTY,      //!< no interior
-  Aspect_IS_HOLLOW,     //!< display triangulation edges
-  Aspect_IS_HATCH,      //!< display hatched with a hatch style
-  Aspect_IS_SOLID,      //!< display the interior entirely filled
-  Aspect_IS_HIDDENLINE, //!< display in hidden lines removed
-  Aspect_IS_POINT,      //!< display only vertices
-  Aspect_IS_OUTLINE     //!< display only silhouette
+  Aspect_IS_EMPTY,         //!< no interior
+  Aspect_IS_HOLLOW,        //!< display triangulation edges
+  Aspect_IS_HATCH,         //!< display hatched with a hatch style
+  Aspect_IS_SOLID,         //!< display the interior entirely filled
+  Aspect_IS_HIDDENLINE,    //!< display triangulation edges on top of unlit interior (makes back edges hidden)
+  Aspect_IS_POINT,         //!< display only vertices
+  Aspect_IS_OUTLINE,       //!< display only outline (silhouette)
+  Aspect_IS_OUTLINED_SOLID //!< display shaded interior with an outline (silhouette)
 };
 
 #endif // _Aspect_InteriorStyle_HeaderFile

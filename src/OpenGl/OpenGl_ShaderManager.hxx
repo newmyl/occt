@@ -119,7 +119,7 @@ public:
       return bindProgramWithState (theCustomProgram);
     }
 
-    Standard_Integer aBits = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false);
+    Standard_Integer aBits = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false, Aspect_IS_EMPTY);
     if (theLineType != Aspect_TOL_SOLID)
     {
       aBits |= OpenGl_PO_StippleLine;
@@ -142,7 +142,7 @@ public:
       return bindProgramWithState (theCustomProgram);
     }
 
-    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false) | OpenGl_PO_Point;
+    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false, Aspect_IS_EMPTY) | OpenGl_PO_Point;
     Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (theShadingModel, aBits);
     return bindProgramWithState (aProgram);
   }
@@ -403,7 +403,7 @@ protected:
                                    Graphic3d_AlphaMode theAlphaMode,
                                    Standard_Boolean theHasVertColor,
                                    Standard_Boolean theEnableEnvMap,
-                                   Aspect_InteriorStyle theStyle=Aspect_IS_EMPTY)
+                                   Aspect_InteriorStyle theStyle)
 
   {
     Standard_Integer aBits = 0;

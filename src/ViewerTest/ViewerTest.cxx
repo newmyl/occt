@@ -419,11 +419,17 @@ static Standard_Boolean parseInteriorStyle (Standard_CString      theArg,
   {
     theStyle = Aspect_IS_OUTLINE;
   }
+  else if (aStyleStr == "outlined_solid"
+        || aStyleStr == "outlinedsolid"
+        || aStyleStr == "solid_outline")
+  {
+    theStyle = Aspect_IS_OUTLINED_SOLID;
+  }
   else if (aStyleStr.IsIntegerValue())
   {
     const Standard_Integer anIntStyle = aStyleStr.IntegerValue();
     if (aStyleStr < Aspect_IS_EMPTY
-     || aStyleStr > Aspect_IS_OUTLINE)
+     || aStyleStr > Aspect_IS_OUTLINED_SOLID)
     {
       return Standard_False;
     }
@@ -1753,7 +1759,7 @@ struct ViewerTest_AspectsChangeSet
       isOk = Standard_False;
     }
     if (ToSetInteriorStyle == 1
-    && (InteriorStyle < Aspect_IS_EMPTY || InteriorStyle > Aspect_IS_OUTLINE))
+    && (InteriorStyle < Aspect_IS_EMPTY || InteriorStyle > Aspect_IS_OUTLINED_SOLID))
     {
       std::cout << "Error: unknown interior style " << InteriorStyleName << ".\n";
       isOk = Standard_False;
