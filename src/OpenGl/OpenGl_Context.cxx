@@ -33,7 +33,6 @@
 #include <OpenGl_ShaderManager.hxx>
 #include <OpenGl_Workspace.hxx>
 #include <OpenGl_AspectFace.hxx>
-#include <OpenGl_View.hxx>
 #include <Graphic3d_TransformUtils.hxx>
 #include <Graphic3d_RenderingParams.hxx>
 
@@ -3446,66 +3445,6 @@ void OpenGl_Context::SetPointSize (const Standard_ShortReal theSize)
     }
   }
 #endif
-}
-
-// =======================================================================
-// function : PushOrthoScale
-// purpose  :
-// =======================================================================
-void OpenGl_Context::PushOrthoScale (Standard_ShortReal theOrthoScale)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), theOrthoScale);
-  }
-}
-
-// =======================================================================
-// function : SetIsSilhouettePass
-// purpose  :
-// =======================================================================
-void OpenGl_Context::SetIsSilhouettePass (Standard_Boolean theIsSilhouettePass)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_IS_SILHOUETTE_PASS), GLint(theIsSilhouettePass ? 1 : 0));
-  }
-}
-
-// =======================================================================
-// function : PushBackgroundColor
-// purpose  :
-// =======================================================================
-void OpenGl_Context::PushBackgroundColor (const OpenGl_Vec3& theColor)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_BACKGROUND_COLOR), theColor);
-  }
-}
-
-// =======================================================================
-// function : SetSilhouetteColor
-// purpose  :
-// =======================================================================
-void OpenGl_Context::SetSilhouetteColor (const OpenGl_Vec3& theColor)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_COLOR), theColor);
-  }
-}
-
-// =======================================================================
-// function : SetSilhouetteThickness
-// purpose  :
-// =======================================================================
-void OpenGl_Context::SetSilhouetteThickness (Standard_ShortReal theThickness)
-{
-  if (!myActiveProgram.IsNull())
-  {
-    myActiveProgram->SetUniform (this, myActiveProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), theThickness);
-  }
 }
 
 // =======================================================================

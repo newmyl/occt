@@ -77,9 +77,6 @@ Standard_CString OpenGl_ShaderProgram::PredefinedKeywords[] =
   "occPointSize",          // OpenGl_OCCT_POINT_SIZE
 
   "occOrthoScale",         // OpenGl_OCCT_ORTHO_SCALE
-  "occIsSilhouettePass",   // OpenGl_OCCT_IS_SILHOUETTE_PASS
-  "occBackgroundColor",    // OpenGl_OCCT_BACKGROUND_COLOR
-  "occSilhouetteColor",    // OpenGl_OCCT_SILHOUETTE_COLOR
   "occSilhouetteThickness" // OpenGl_OCCT_SILHOUETTE_THICKNESS
 };
 

@@ -760,6 +760,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
 
   Graphic3d_TypeOfShadingModel aShadingModel = Graphic3d_TOSM_UNLIT;
+  Aspect_InteriorStyle anInteriorStyle = Aspect_IS_SOLID;
   if (toDrawArray)
   {
     const bool hasColorAttrib = !myVboAttribs.IsNull()
@@ -813,40 +814,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
                                                 toEnableEnvMap,
                                                 anAspectFace->ShaderProgramRes (aCtx),
                                                 anAspectFace->Aspect()->InteriorStyle());
-
-        if (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_OUTLINE)
-        {
-          const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
-                                            ? myBounds->Colors
-                                            : NULL;
-
-          const Graphic3d_Vec3& aBackColor = theWorkspace->View()->BackgroundColor().GetRGB();
-          aCtx->PushOrthoScale ((Standard_ShortReal )theWorkspace->View()->Camera()->Scale());
-          aCtx->PushBackgroundColor (aBackColor);
-
-          aCtx->SetSilhouetteColor (anAspectFace->Aspect()->EdgeColor());
-
-          Graphic3d_Vec2i aViewSize (0, 0);
-          theWorkspace->View()->Window()->Size (aViewSize.x(), aViewSize.y());
-          const Standard_Integer   aMin        = aViewSize.x() < aViewSize.y() ? aViewSize.x() : aViewSize.y();
-          const Standard_ShortReal anEdgeWidth = (Standard_ShortReal )anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal )aMin;
-          aCtx->SetSilhouetteThickness (anEdgeWidth);
-
-          GLboolean isCull = glIsEnabled (GL_CULL_FACE);
-          glEnable (GL_CULL_FACE);
-
-          aCtx->SetIsSilhouettePass (Standard_True);
-          glCullFace (GL_FRONT);
-          drawArray (theWorkspace, aFaceColors, hasColorAttrib);
-
-          aCtx->SetIsSilhouettePass (Standard_False);
-          glCullFace (GL_BACK);
-          drawArray (theWorkspace, aFaceColors, hasColorAttrib);
-          if (!isCull)
-          {
-            glDisable (GL_CULL_FACE);
-          }
-        }
+        anInteriorStyle = anAspectFace->Aspect()->InteriorStyle();
         break;
       }
     }
@@ -895,7 +863,39 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
                                       ?  myBounds->Colors
                                       :  NULL;
-    drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+
+    if (anInteriorStyle == Aspect_IS_OUTLINE
+    && !aCtx->ActiveProgram().IsNull())
+    {
+      // two passes rendering for silhouette
+      const Handle(OpenGl_ShaderProgram)& aProgram = aCtx->ActiveProgram();
+
+      const Graphic3d_Vec2i aViewSize (aCtx->VirtualViewport()[2], aCtx->VirtualViewport()[3]);
+      const Standard_Integer   aMin         = aViewSize.minComp();
+      const Standard_ShortReal anEdgeWidth  = (Standard_ShortReal )anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal )aMin;
+      const Standard_ShortReal anOrthoScale = theWorkspace->View()->Camera()->IsOrthographic() ? (Standard_ShortReal )theWorkspace->View()->Camera()->Scale() : -1.0f;
+      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_ORTHO_SCALE), anOrthoScale);
+
+      const bool toCullFaces = aCtx->ToCullBackFaces();
+      aCtx->SetCullBackFaces (true);
+
+      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), -1.0f);
+      const bool wasColorOn = aCtx->SetColorMask (false);
+      aCtx->core11fwd->glCullFace (GL_BACK);
+      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+
+      aProgram->SetUniform (aCtx, aProgram->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), anEdgeWidth);
+      aCtx->SetColorMask (wasColorOn);
+      aCtx->core11fwd->glCullFace (GL_FRONT);
+      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+
+      aCtx->core11fwd->glCullFace (GL_BACK);
+      aCtx->SetCullBackFaces (toCullFaces);
+    }
+    else
+    {
+      drawArray (theWorkspace, aFaceColors, hasColorAttrib);
+    }
   }
 
   if (myDrawMode <= GL_LINE_STRIP)

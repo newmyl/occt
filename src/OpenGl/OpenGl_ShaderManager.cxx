@@ -1602,42 +1602,28 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
         GL_DEBUG_TYPE_PORTABILITY, 0, GL_DEBUG_SEVERITY_HIGH, aWarnMessage);
     }
   }
-
-  if ((theBits & OpenGl_PO_OUTLINE) != 0)
+  else if ((theBits & OpenGl_PO_OUTLINE) != 0)
   {
     aSrcVertExtraOut +=
       EOL"uniform float occOrthoScale;"
       EOL"uniform float occSilhouetteThickness;"
-      EOL"uniform int   occIsSilhouettePass;"
       EOL"";
 
     aSrcVertExtraMain +=
-      EOL"  if (occIsSilhouettePass == 1)"
+      EOL"  if (occSilhouetteThickness >= 0.0)"
       EOL"  {"
-      EOL"    float aShift = occSilhouetteThickness;"
       EOL"    vec3 aDelta = vec3 (0.0, 0.0, 0.0);"
       EOL"    if (occOrthoScale > 0.0)"
       EOL"    {"
-      EOL"      aShift *= occOrthoScale;"
-      EOL"      aDelta = occNormal * aShift;"
+      EOL"      aDelta = occNormal * (occOrthoScale * occSilhouetteThickness);"
       EOL"    }"
       EOL"    else"
       EOL"    {"
       EOL"      vec4 aPos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * aVertex;"
-      EOL"      aDelta = occNormal * aShift * aPos.w;"
+      EOL"      aDelta = occNormal * occSilhouetteThickness * aPos.w;"
       EOL"    }"
       EOL"    aVertex += vec4 (aDelta, 0.0);"
       EOL"  }";
-
-    aSrcFragExtraOut +=
-      EOL"uniform vec3 occBackgroundColor;"
-      EOL"uniform vec3 occSilhouetteColor;"
-      EOL"uniform int  occIsSilhouettePass;";
-
-    aSrcFragExtraMain +=
-      EOL"  vec3 aColor = occIsSilhouettePass == 1 ? occSilhouetteColor : occBackgroundColor;";
-
-    aSrcFragWriteOit = EOL"  occSetFragColor (vec4 (aColor, 1.0));";
   }
 
   aSrcVert =
