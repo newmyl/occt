@@ -454,7 +454,7 @@ void OpenGl_PrimitiveArray::drawEdges (const OpenGl_Vec4&              theEdgeCo
   const OpenGl_AspectLine* anAspect = theWorkspace->ApplyAspectLine();
 
 #if !defined(GL_ES_VERSION_2_0)
-  glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+  const Standard_Integer aPolygModeBack = aGlContext->SetPolygonMode (GL_LINE);
 #endif
 
   if (aGlContext->core20fwd != NULL)
@@ -528,6 +528,11 @@ void OpenGl_PrimitiveArray::drawEdges (const OpenGl_Vec4&              theEdgeCo
 
   // restore line context
   theWorkspace->SetAspectLine (anAspectLineOld);
+
+  // restore OpenGL polygon mode if needed
+#if !defined(GL_ES_VERSION_2_0)
+  aGlContext->SetPolygonMode (aPolygModeBack);
+#endif
 }
 
 // =======================================================================
@@ -931,15 +936,6 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     {
       const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
       drawEdges (anEdgeColor, theWorkspace);
-
-      // restore OpenGL polygon mode if needed
-    #if !defined(GL_ES_VERSION_2_0)
-      if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
-      {
-        glPolygonMode (GL_FRONT_AND_BACK,
-          anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
-      }
-    #endif
     }
   }
 }

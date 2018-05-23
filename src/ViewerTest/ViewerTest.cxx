@@ -2621,6 +2621,11 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
     if (aChangeSet->ToSetInteriorStyle == 1)
     {
       aDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+      if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+       && aDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+      {
+        aDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+      }
     }
 
     // redisplay all objects in context
@@ -2781,6 +2786,21 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
         {
           aDrawer->SetMaximalParameterValue (aChangeSet->MaxParamValue);
         }
+        if (aChangeSet->ToSetInteriorStyle != 0)
+        {
+          if (!aDrawer->HasOwnShadingAspect())
+          {
+            aDrawer->SetShadingAspect (new Prs3d_ShadingAspect());
+            *aDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
+          }
+          aDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+          if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+           && aDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+          {
+            aDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+          }
+          toRedisplay = Standard_True;
+        }
         if (aChangeSet->ToSetHatch != 0)
         {
           if (!aDrawer->HasOwnShadingAspect())
@@ -2820,16 +2840,6 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
         if (aChangeSet->ToSetShadingModel != 0)
         {
           aDrawer->SetShadingModel ((aChangeSet->ToSetShadingModel == -1) ? Graphic3d_TOSM_DEFAULT : aChangeSet->ShadingModel, aChangeSet->ToSetShadingModel != -1);
-          toRedisplay = Standard_True;
-        }
-        if (aChangeSet->ToSetInteriorStyle != 0)
-        {
-          if (!aDrawer->HasOwnShadingAspect())
-          {
-            aDrawer->SetShadingAspect (new Prs3d_ShadingAspect());
-            *aDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
-          }
-          aDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
           toRedisplay = Standard_True;
         }
         if (aChangeSet->ToSetAlphaMode != 0)
@@ -2892,6 +2902,11 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
               *aCurColDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
             }
             aCurColDrawer->ShadingAspect()->Aspect()->SetInteriorStyle (aChangeSet->InteriorStyle);
+            if (aChangeSet->InteriorStyle == Aspect_IS_HATCH
+             && aCurColDrawer->ShadingAspect()->Aspect()->HatchStyle().IsNull())
+            {
+              aCurColDrawer->ShadingAspect()->Aspect()->SetHatchStyle (Aspect_HS_VERTICAL);
+            }
           }
         }
       }
