@@ -876,7 +876,6 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     {
       // two passes rendering for silhouette
       const bool toCullFaces = aCtx->ToCullBackFaces();
-      const bool wasColorOn  = aCtx->ColorMask();
       const Graphic3d_Vec2i aViewSize (aCtx->VirtualViewport()[2], aCtx->VirtualViewport()[3]);
       const Standard_Integer   aMin         = aViewSize.minComp();
       const Standard_ShortReal anEdgeWidth  = (Standard_ShortReal )anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal )aMin;
@@ -890,7 +889,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
       aCtx->core11fwd->glCullFace (GL_BACK);
       if (anInteriorStyle == Aspect_IS_OUTLINE)
       {
-        aCtx->SetColorMask (false);
+        aCtx->SetColor4fv (theWorkspace->View()->BackgroundColor());
         drawArray (theWorkspace, aFaceColors, hasColorAttrib);
       }
       else
@@ -911,7 +910,6 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
         aProgram2->SetUniform (aCtx, aProgram2->GetStateLocation (OpenGl_OCCT_SILHOUETTE_THICKNESS), anEdgeWidth);
         aCtx->SetColor4fv (anAspectFace->Aspect()->EdgeColorRGBA());
       }
-      aCtx->SetColorMask (wasColorOn);
       aCtx->core11fwd->glCullFace (GL_FRONT);
       drawArray (theWorkspace, aFaceColors, hasColorAttrib);
 
