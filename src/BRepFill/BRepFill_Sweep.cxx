@@ -478,6 +478,7 @@ static void UpdateEdgeOnPlane(const TopoDS_Face& F, const TopoDS_Edge& E,
 //        Edge1/3 are iso u (recp v)
 //        Edge2/4 are iso v (recp u)
 //=======================================================================
+#include <BOPTools_AlgoTools.hxx>
 static void BuildFace(const Handle(Geom_Surface)& S,
 		      const TopoDS_Edge& E1,
 		      const TopoDS_Edge& E2,
@@ -688,6 +689,21 @@ static void BuildFace(const Handle(Geom_Surface)& S,
   if (UReverse) F.Reverse();
 }
 
+//=======================================================================
+//Function : 
+//Objet : Construct an empty edge
+//=======================================================================
+static TopoDS_Edge NullEdge(TopoDS_Shape& Vertex)
+{
+  TopoDS_Edge E;
+  BRep_Builder B;
+  B.MakeEdge(E);
+  Vertex.Orientation(TopAbs_FORWARD);
+  B.Add(E, Vertex);
+  B.Add(E, Vertex.Reversed());
+  B.Degenerated(E, Standard_True);
+  return E;
+}
 
 //=======================================================================
 //Fonction : BuildEdge
@@ -702,7 +718,7 @@ static TopoDS_Edge BuildEdge(Handle(Geom_Curve)& C3d,
 			     const Standard_Real l,
 			     const Standard_Real Tol3d)
 {
-  gp_Pnt P1, P2, P;
+  gp_Pnt P;
   Standard_Real Tol1, Tol2, Tol, d;
 // Class BRep_Tool without fields and without Constructor :
 //  BRep_Tool BT;
@@ -710,11 +726,11 @@ static TopoDS_Edge BuildEdge(Handle(Geom_Curve)& C3d,
   TopoDS_Edge E;
 
 //  P1  = BT.Pnt(VF);
-  P1  = BRep_Tool::Pnt(VF);
+  const gp_Pnt P1  = BRep_Tool::Pnt(VF);
 //  Tol1 = BT.Tolerance(VF);
   Tol1 = BRep_Tool::Tolerance(VF);
 //  P2  = BT.Pnt(VL);
-  P2  = BRep_Tool::Pnt(VL);
+  const gp_Pnt P2  = BRep_Tool::Pnt(VL);
 //  Tol2 = BT.Tolerance(VF);
   Tol2 = BRep_Tool::Tolerance(VL);
   Tol = Max(Tol1, Tol2);
@@ -750,8 +766,6 @@ static TopoDS_Edge BuildEdge(Handle(Geom_Curve)& C3d,
   if (d > Tol1)
       B.UpdateVertex(VF, d);
 
-//  P1 = BT.Pnt(VL);
-  P1 = BRep_Tool::Pnt(VL);
   C3d->D0(l, P);
   d = P2.Distance(P);
   if (d > Tol2)
@@ -776,6 +790,19 @@ static TopoDS_Edge BuildEdge(Handle(Geom_Curve)& C3d,
   E = MkE.Edge();
   TopLoc_Location Loc;
   B.UpdateEdge(E, C2d, S, Loc, Tol3d);
+
+  const Handle(IntTools_Context) aNullCtx;
+  if (BOPTools_AlgoTools::IsMicroEdge(E, aNullCtx))
+  {
+    TopoDS_Vertex aV = VF;
+    B.UpdateVertex(aV, P1.Distance(P2));
+    B.MakeEdge(E);
+    B.UpdateEdge(E, C2d, S, TopLoc_Location(), Tol);
+    B.Add(E, TopoDS::Vertex(aV.Oriented(TopAbs_FORWARD)));
+    B.Add(E, TopoDS::Vertex(aV.Oriented(TopAbs_REVERSED)));
+    B.Range(E, f, l);
+    B.Degenerated(E, Standard_True);
+  }
 
   return E;
 }
@@ -1371,23 +1398,6 @@ static void BuildVertex(const Handle(Geom_Curve)& Iso,
 	       Precision::Confusion());
 }
 
-//=======================================================================
-//Function : 
-//Objet : Construct an empty edge
-//=======================================================================
-static TopoDS_Edge NullEdge(TopoDS_Shape& Vertex)
-{
-  TopoDS_Edge E;
-  BRep_Builder B;
-  B.MakeEdge(E);
-  Vertex.Orientation(TopAbs_FORWARD);
-  B.Add(E, Vertex);
-  B.Add(E, Vertex.Reversed());
-  B.Degenerated(E, Standard_True);
-  return E;
-
-}
-	
 //=======================================================================
 //Function : 
 //Objet : Construct an edge via an iso
