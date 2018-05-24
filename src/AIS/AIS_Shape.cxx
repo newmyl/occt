@@ -164,7 +164,8 @@ void AIS_Shape::Compute(const Handle(PrsMgr_PresentationManager3d)& /*aPresentat
             StdPrs_ShadedShape::Add (aPrs, myshape, myDrawer,
                                      myDrawer->ShadingAspect()->Aspect()->ToMapTexture()
                                  && !myDrawer->ShadingAspect()->Aspect()->TextureMap().IsNull(),
-                                     myUVOrigin, myUVRepeat, myUVScale);
+                                     myUVOrigin, myUVRepeat, myUVScale, StdPrs_Volume_Autodetection,
+                                     myDrawer->MostContinuityClass());
           }
           catch (Standard_Failure const& anException)
           {

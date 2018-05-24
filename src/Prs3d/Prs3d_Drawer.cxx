@@ -94,7 +94,8 @@ Prs3d_Drawer::Prs3d_Drawer()
   myHasOwnDimLengthModelUnits   (Standard_False),
   myHasOwnDimAngleModelUnits    (Standard_False),
   myHasOwnDimLengthDisplayUnits (Standard_False),
-  myHasOwnDimAngleDisplayUnits  (Standard_False)
+  myHasOwnDimAngleDisplayUnits  (Standard_False),
+  myMostEdgeClass               (GeomAbs_CN)
 {
   myDimensionModelUnits.SetLengthUnits ("m");
   myDimensionModelUnits.SetAngleUnits ("rad");
@@ -1307,4 +1308,24 @@ bool Prs3d_Drawer::SetShadingModel (Graphic3d_TypeOfShadingModel theModel,
   }
 
   return isUpdateNeeded;
+}
+
+//=======================================================================
+//function : SetMostContinuityClass
+//purpose  : 
+//=======================================================================
+
+void Prs3d_Drawer::SetMostContinuityClass(const GeomAbs_Shape theMostAllowedEdgeClass)
+{
+  myMostEdgeClass = theMostAllowedEdgeClass;
+}
+
+//=======================================================================
+//function : MostContinuityClass
+//purpose  : 
+//=======================================================================
+
+GeomAbs_Shape Prs3d_Drawer::MostContinuityClass() const
+{
+  return myMostEdgeClass;
 }
