@@ -1615,70 +1615,6 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   return 0;
 }
 
-//==============================================================================
-//function : VSetMostCont
-//purpose  : sets the most continuity class of edges in presentation
-//==============================================================================
-static int VSetMostCont(Draw_Interpretor& theDI,
-  Standard_Integer  theArgNb,
-  const char**      theArgVec)
-{
-  const Handle(AIS_InteractiveContext)& aCtx = ViewerTest::GetAISContext();
-  ViewerTest_AutoUpdater anUpdateTool(aCtx, ViewerTest::CurrentView());
-  if (aCtx.IsNull())
-  {
-    std::cerr << "Error: no active view!\n";
-    return 1;
-  }
-
-  if (theArgNb != 3)
-  {
-    std::cout << "Error: wrong number of arguments! See usage:\n";
-    theDI.PrintHelp(theArgVec[0]);
-    return 1;
-  }
-
-  TCollection_AsciiString aName = theArgVec[1];
-  TCollection_AsciiString aClassArg = theArgVec[2];
-  aClassArg.LowerCase();
-
-  GeomAbs_Shape aClass = GeomAbs_CN;
-  if (aClassArg == "c0")
-    aClass = GeomAbs_C0;
-  else if (aClassArg == "c1")
-    aClass = GeomAbs_C1;
-  else if (aClassArg == "c2")
-    aClass = GeomAbs_C2;
-  else if (aClassArg == "c3")
-    aClass = GeomAbs_C3;
-  else if (aClassArg == "cn")
-    aClass = GeomAbs_CN;
-  else
-  {
-    std::cout << "Error: incorrect class! See usage:\n";
-    theDI.PrintHelp(theArgVec[0]);
-    return 1;
-  }
-
-  if (!aName.IsEmpty()
-    && !GetMapOfAIS().IsBound2(aName))
-  {
-    std::cout << "Error: object " << aName << " is not displayed!\n";
-    return 1;
-  }
-
-  for (ViewTest_PrsIter anIter(aName); anIter.More(); anIter.Next())
-  {
-    const Handle(AIS_Shape)& aShape = Handle(AIS_Shape)::DownCast(anIter.Current());
-    if (!aShape.IsNull())
-    {
-      aShape->SetMostContinuityClass(aClass);
-      aCtx->RecomputePrsOnly(aShape, Standard_False, Standard_True);
-    }
-  }
-  return 0;
-}
-
 
 
 //! Auxiliary structure for VAspects
@@ -1739,6 +1675,9 @@ struct ViewerTest_AspectsChangeSet
   Graphic3d_TypeOfShadingModel ShadingModel;
   TCollection_AsciiString      ShadingModelName;
 
+  Standard_Integer             ToSetMostContinuity;
+  GeomAbs_Shape                MostContinuity;
+
   //! Empty constructor
   ViewerTest_AspectsChangeSet()
   : ToSetVisibility   (0),
@@ -1774,7 +1713,9 @@ struct ViewerTest_AspectsChangeSet
     ToSetHatch                 (0),
     StdHatchStyle              (-1),
     ToSetShadingModel          (0),
-    ShadingModel               (Graphic3d_TOSM_DEFAULT)
+    ShadingModel               (Graphic3d_TOSM_DEFAULT),
+    ToSetMostContinuity        (0),
+    MostContinuity             (GeomAbs_CN)
     {}
 
   //! @return true if no changes have been requested
@@ -1792,7 +1733,8 @@ struct ViewerTest_AspectsChangeSet
         && ToSetMaxParamValue     == 0
         && ToSetSensitivity       == 0
         && ToSetHatch             == 0
-        && ToSetShadingModel      == 0;
+        && ToSetShadingModel      == 0
+        && ToSetMostContinuity    == 0;
   }
 
   //! @return true if properties are valid
@@ -2578,6 +2520,34 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
       aChangeSet->ToSetShadingModel = -1;
       aChangeSet->ShadingModel = Graphic3d_TOSM_DEFAULT;
     }
+    else if (anArg == "-setmostcontinuity")
+    {
+      if (++anArgIter >= theArgNb)
+      {
+        std::cout << "Error: wrong syntax at " << anArg << "\n";
+        return 1;
+      }
+
+      TCollection_AsciiString aClassArg = theArgVec[anArgIter];
+      GeomAbs_Shape aClass = GeomAbs_CN;
+      if (aClassArg == "c0")
+        aClass = GeomAbs_C0;
+      else if (aClassArg == "c1")
+        aClass = GeomAbs_C1;
+      else if (aClassArg == "c2")
+        aClass = GeomAbs_C2;
+      else if (aClassArg == "c3")
+        aClass = GeomAbs_C3;
+      else if (aClassArg == "cn")
+        aClass = GeomAbs_CN;
+      else
+      {
+        std::cout << "Error: incorrect class! See usage:\n";
+        return 1;
+      }
+      aChangeSet->ToSetMostContinuity = 1;
+      aChangeSet->MostContinuity = aClass;
+    }
     else
     {
       std::cout << "Error: wrong syntax at " << anArg << "\n";
@@ -2676,6 +2646,10 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
     if (aChangeSet->ToSetShadingModel == 1)
     {
       aDrawer->ShadingAspect()->Aspect()->SetShadingModel (aChangeSet->ShadingModel);
+    }
+    if (aChangeSet->ToSetMostContinuity == 1)
+    {
+      aDrawer->SetMostContinuityClass(aChangeSet->MostContinuity);
     }
 
     // redisplay all objects in context
@@ -2887,6 +2861,11 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
           aDrawer->ShadingAspect()->Aspect()->SetAlphaMode (aChangeSet->AlphaMode, aChangeSet->AlphaCutoff);
           toRedisplay = Standard_True;
         }
+        if (aChangeSet->ToSetMostContinuity != 0)
+        {
+          aDrawer->SetMostContinuityClass (aChangeSet->MostContinuity);
+          toRedisplay = Standard_True;
+        }
       }
 
       for (aChangesIter.Next(); aChangesIter.More(); aChangesIter.Next())
@@ -2927,6 +2906,12 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
           {
             Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects (aSubShape);
             aCurColDrawer->SetShadingModel ((aChangeSet->ToSetShadingModel == -1) ? Graphic3d_TOSM_DEFAULT : aChangeSet->ShadingModel, aChangeSet->ToSetShadingModel != -1);
+          }
+          if (aChangeSet->ToSetMostContinuity != 0)
+          {
+            Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects(aSubShape);
+            aCurColDrawer->SetMostContinuityClass(aChangeSet->MostContinuity);
+            toRedisplay = Standard_True;
           }
         }
       }
@@ -6077,6 +6062,7 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
       "\n\t\t:          [-setShadingModel {color|flat|gouraud|phong}]"
       "\n\t\t:          [-unsetShadingModel]"
       "\n\t\t:          [-setAlphaMode {opaque|mask|blend|blendauto} [alphaCutOff=0.5]]"
+      "\n\t\t:          [-setMostContinuity {c0|c1|c2|c3|cn}"
       "\n\t\t: Manage presentation properties of all, selected or named objects."
       "\n\t\t: When -subshapes is specified than following properties will be"
       "\n\t\t: assigned to specified sub-shapes."
@@ -6135,12 +6121,6 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
 		  "vsetinteriorstyle [-noupdate|-update] [name] style"
       "\n\t\t: Where style is: 0 = EMPTY, 1 = HOLLOW, 2 = HATCH, 3 = SOLID, 4 = HIDDENLINE.",
 		  __FILE__,VSetInteriorStyle,group);
-
-  theCommands.Add("vsetmostcont",
-    "vsetmostcont : ObjectName class"
-    "- sets the most continuity class of edges in presentation",
-    "\n\t\t: Where class is c0, c1, c2, c3, cn"
-    __FILE__, VSetMostCont, group);
 
   theCommands.Add("vsensdis",
       "vsensdis : Display active entities (sensitive entities of one of the standard types corresponding to active selection modes)."

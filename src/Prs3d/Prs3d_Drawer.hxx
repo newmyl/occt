@@ -29,6 +29,7 @@
 #include <Prs3d_DimensionUnits.hxx>
 #include <Prs3d_TypeOfHLR.hxx>
 #include <Standard_Transient.hxx>
+#include <GeomAbs_Shape.hxx>
 
 class Prs3d_IsoAspect;
 class Prs3d_LineAspect;
@@ -740,6 +741,15 @@ public:
   //! "draw face boundaries" flag that overrides the one in the link.
   Standard_Boolean HasOwnFaceBoundaryDraw() const { return myHasOwnFaceBoundaryDraw; }
 
+  //! Set the most edge continuity class
+  //! @param theMostAllowedEdgeClass the most edge continuity class to be included to presentation;
+  //! this option affects only Face Boundaries and not Wireframe nor free edges presentation.
+  //! (edges with more continuity should be ignored)
+  Standard_EXPORT void SetMostContinuityClass(const GeomAbs_Shape theMostAllowedEdgeClass);
+
+  //! Get the most edge continuity class
+  Standard_EXPORT GeomAbs_Shape MostContinuityClass() const;
+
   //! Returns settings for the appearance of dimensions. 
   Standard_EXPORT const Handle(Prs3d_DimensionAspect)& DimensionAspect();
 
@@ -940,7 +950,7 @@ protected:
   Prs3d_DimensionUnits          myDimensionDisplayUnits;
   Standard_Boolean              myHasOwnDimLengthDisplayUnits;
   Standard_Boolean              myHasOwnDimAngleDisplayUnits;
-
+  GeomAbs_Shape                 myMostEdgeClass;   //!< the most edge continuity class to be included to the presentation
 };
 
 Standard_DEPRECATED("Class name is deprecated - use Prs3d_Drawer instead")

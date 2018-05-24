@@ -22,7 +22,6 @@
 #include <TopoDS_Shape.hxx>
 #include <Prs3d_Drawer.hxx>
 #include <Prs3d_TypeOfHLR.hxx>
-#include <GeomAbs_Shape.hxx>
 
 //! A framework to manage presentation and selection of shapes.
 //! AIS_Shape is the interactive object which is used the
@@ -215,14 +214,6 @@ public:
   //! the current facing model;
   Standard_EXPORT virtual Standard_Real Transparency() const Standard_OVERRIDE;
 
-  //! Set the most edge continuity class
-  //! @param theMostAllowedEdgeClass the most edge continuity class to be included to presentation 
-  //! (edges with more continuity should be ignored)
-  Standard_EXPORT void SetMostContinuityClass(const GeomAbs_Shape theMostAllowedEdgeClass);
-
-  //! Get the most edge continuity class
-  Standard_EXPORT GeomAbs_Shape MostContinuityClass() const;
-
   //! Return shape type for specified selection mode.
   static TopAbs_ShapeEnum SelectionType (const Standard_Integer theSelMode)
   {
@@ -339,7 +330,6 @@ protected:
   gp_Pnt2d         myUVScale;  //!< UV scale  vector for generating texture coordinates
   Standard_Real    myInitAng;
   Standard_Boolean myCompBB;   //!< if TRUE, then bounding box should be recomputed
-  GeomAbs_Shape    myMostEdgeClass; //!< the most edge continuity class to be included to the presentation
 };
 
 DEFINE_STANDARD_HANDLE(AIS_Shape, AIS_InteractiveObject)
