@@ -171,11 +171,100 @@ OpenGl_ShaderProgram::OpenGl_ShaderProgram (const Handle(Graphic3d_ShaderProgram
 }
 
 // =======================================================================
+// function : fileName
+// purpose  : 
+// =======================================================================
+TCollection_AsciiString fileName(Graphic3d_TypeOfShaderObject theType)
+{
+  switch (theType)
+  {
+  case Graphic3d_TOS_VERTEX:
+    return TCollection_AsciiString("vs");
+  case Graphic3d_TOS_FRAGMENT:
+    return TCollection_AsciiString("fs");
+  default:
+    return "";
+  }
+}
+
+// =======================================================================
+// function : ToBeUpdated
+// purpose  : 
+// =======================================================================
+Standard_Boolean OpenGl_ShaderProgram::ToBeUpdated(const TCollection_AsciiString& theExtShader) const
+{
+  OSD_File aFile1(theExtShader + "/" + fileName(Graphic3d_TOS_VERTEX));
+  if (!aFile1.Exists())
+    return Standard_True;
+
+  Quantity_Date aDate = aFile1.AccessMoment();
+  if (aDate > myDate)
+    return Standard_True;
+
+  OSD_File aFile2(theExtShader + "/" + fileName(Graphic3d_TOS_FRAGMENT));
+  if (!aFile2.Exists())
+    return Standard_True;
+
+  aDate = aFile2.AccessMoment();
+  return (aDate > myDate);
+}
+
+// =======================================================================
+// function : Load
+// purpose  : 
+// =======================================================================
+Standard_Boolean OpenGl_ShaderProgram::Load (const TCollection_AsciiString& theFolder,
+                                             Graphic3d_TypeOfShaderObject theType,
+                                             TCollection_AsciiString& theSource) const
+{
+  TCollection_AsciiString aFileName = theFolder + "/" + fileName(theType);
+  OSD_File aFile(aFileName);
+  aFile.Open(OSD_ReadOnly, OSD_Protection());
+  if (aFile.IsOpen())
+  {
+    Standard_Size s = aFile.Size();
+    Standard_Integer rs;
+    char* aBuf = new char[s + 1];
+    aFile.Read(aBuf, (Standard_Integer)s, rs);
+    aBuf[rs] = 0;
+    aFile.Close();
+    theSource = aBuf;
+    delete[] aBuf;
+    return Standard_True;
+  }
+  else
+    return Standard_False;
+}
+
+// =======================================================================
+// function : Save
+// purpose  : 
+// =======================================================================
+Standard_Boolean OpenGl_ShaderProgram::Save (const TCollection_AsciiString& theFolder,
+                                             Graphic3d_TypeOfShaderObject theType,
+                                             const TCollection_AsciiString& theSource) const
+{
+  TCollection_AsciiString aFileName = theFolder + "/" + fileName(theType);
+  OSD_File aFile(aFileName);
+  aFile.Build(OSD_WriteOnly, OSD_Protection());
+  if (aFile.IsOpen())
+  {
+    aFile.Write(theSource, theSource.Length());
+    aFile.Close();
+    return Standard_True;
+  }
+  else
+    return Standard_False;
+}
+
+
+// =======================================================================
 // function : Initialize
 // purpose  : Initializes program object with the list of shader objects
 // =======================================================================
 Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&     theCtx,
-                                                   const Graphic3d_ShaderObjectList& theShaders)
+                                                   const Graphic3d_ShaderObjectList& theShaders,
+                                                   const TCollection_AsciiString& theExtShader)
 {
   myHasTessShader = false;
   if (theCtx.IsNull() || !Create (theCtx))
@@ -367,7 +456,7 @@ Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&
     aHeaderConstants += TCollection_AsciiString("#define THE_MAX_CLIP_PLANES ") + myNbClipPlanesMax + "\n";
     aHeaderConstants += TCollection_AsciiString("#define THE_NB_FRAG_OUTPUTS ") + myNbFragOutputs + "\n";
 
-    const TCollection_AsciiString aSource = aHeaderVer                     // #version   - header defining GLSL version, should be first
+    TCollection_AsciiString aSource = aHeaderVer                     // #version   - header defining GLSL version, should be first
                                           + (!aHeaderVer.IsEmpty() ? "\n" : "")
                                           + anExtensions                   // #extension - list of enabled extensions,   should be second
                                           + aPrecisionHeader               // precision  - default precision qualifiers, should be before any code
@@ -376,6 +465,13 @@ Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&
                                           + Shaders_Declarations_glsl      // common declarations (global constants and Vertex Shader inputs)
                                           + Shaders_DeclarationsImpl_glsl
                                           + anIter.Value()->Source();      // the source code itself (defining main() function)
+
+    if (theExtShader.Length() > 0)
+    {
+      if( !Load(theExtShader, anIter.Value()->Type(), aSource))
+        Save(theExtShader, anIter.Value()->Type(), aSource);
+    }
+
     if (!aShader->LoadSource (theCtx, aSource))
     {
       theCtx->PushMessage (GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 0, GL_DEBUG_SEVERITY_HIGH, aSource);
@@ -416,6 +512,12 @@ Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&
       return Standard_False;
     }
   }
+
+  //TODO: get current time via the OCCT functions
+  SYSTEMTIME now;
+  GetSystemTime(&now);
+  myDate = Quantity_Date(now.wMonth, now.wDay, now.wYear, now.wHour, now.wMinute, now.wSecond, now.wMilliseconds);
+
 
   // bind locations for pre-defined Vertex Attributes
   SetAttributeName (theCtx, Graphic3d_TOA_POS,   "occVertex");

@@ -806,13 +806,16 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
         aShadingModel = aCtx->ShaderManager()->ChooseFaceShadingModel (anAspectFace->ShadingModel(), hasVertNorm);
         const Handle(OpenGl_TextureSet)& aTextures = aCtx->ActiveTextures();
         const Standard_Boolean toEnableEnvMap = (!aTextures.IsNull() && (aTextures == theWorkspace->EnvironmentTexture()));
+
+        TCollection_AsciiString extShader = "c://shaders"; //TODO: to take value from face aspect???
         aCtx->ShaderManager()->BindFaceProgram (aTextures,
                                                 aShadingModel,
                                                 anAspectFace->Aspect()->AlphaMode(),
                                                 hasVertColor,
                                                 toEnableEnvMap,
                                                 anAspectFace->ShaderProgramRes (aCtx),
-                                                anAspectFace->Aspect()->InteriorStyle());
+                                                anAspectFace->Aspect()->InteriorStyle(),
+                                                extShader);
 
         if (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_OUTLINE)
         {

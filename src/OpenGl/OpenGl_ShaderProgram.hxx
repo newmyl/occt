@@ -28,6 +28,8 @@
 #include <OpenGl_NamedResource.hxx>
 #include <OpenGl_ShaderObject.hxx>
 
+#include <Quantity_Date.hxx>
+
 class OpenGl_ShaderProgram;
 DEFINE_STANDARD_HANDLE(OpenGl_ShaderProgram, OpenGl_NamedResource)
 
@@ -197,7 +199,8 @@ public:
 
   //! Initializes program object with the list of shader objects.
   Standard_EXPORT Standard_Boolean Initialize (const Handle(OpenGl_Context)&     theCtx,
-                                               const Graphic3d_ShaderObjectList& theShaders);
+                                               const Graphic3d_ShaderObjectList& theShaders,
+                                               const TCollection_AsciiString& theExtShader);
 
   //! Links the program object.
   Standard_EXPORT Standard_Boolean Link (const Handle(OpenGl_Context)& theCtx);
@@ -561,6 +564,14 @@ public:
                                                GLint                         theLocation,
                                                const Graphic3d_TextureUnit   theTextureUnit);
 
+  Standard_EXPORT Standard_Boolean ToBeUpdated(const TCollection_AsciiString&) const;
+  Standard_EXPORT Standard_Boolean Load (const TCollection_AsciiString&,
+                                         Graphic3d_TypeOfShaderObject,
+                                         TCollection_AsciiString&) const;
+  Standard_EXPORT Standard_Boolean Save (const TCollection_AsciiString&,
+                                         Graphic3d_TypeOfShaderObject,
+                                         const TCollection_AsciiString&) const;
+
 protected:
 
   //! Increments counter of users.
@@ -598,6 +609,9 @@ protected:
 
   //! Stores locations of OCCT state uniform variables.
   GLint myStateLocations[OpenGl_OCCT_NUMBER_OF_STATE_VARIABLES];
+
+private:
+  Quantity_Date myDate;
 
 };
 

@@ -69,7 +69,8 @@ public:
   //! @return true on success
   Standard_EXPORT Standard_Boolean Create (const Handle(Graphic3d_ShaderProgram)& theProxy,
                                            TCollection_AsciiString&               theShareKey,
-                                           Handle(OpenGl_ShaderProgram)&          theProgram);
+                                           Handle(OpenGl_ShaderProgram)&          theProgram,
+                                           const TCollection_AsciiString&         theExtShader="");
 
   //! Unregisters specified shader program.
   Standard_EXPORT void Unregister (TCollection_AsciiString&      theShareKey,
@@ -88,7 +89,8 @@ public:
                                     const Standard_Boolean              theHasVertColor,
                                     const Standard_Boolean              theEnableEnvMap,
                                     const Handle(OpenGl_ShaderProgram)& theCustomProgram,
-                                    const Aspect_InteriorStyle          theStyle)
+                                    const Aspect_InteriorStyle          theStyle,
+                                    const TCollection_AsciiString&      theExternalShader )
   {
     if (!theCustomProgram.IsNull()
      || myContext->caps->ffpEnable)
@@ -101,7 +103,7 @@ public:
                                                         ? theShadingModel
                                                         : Graphic3d_TOSM_UNLIT;
     const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, theEnableEnvMap, theStyle);
-    Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits);
+    Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits, theExternalShader);
     return bindProgramWithState (aProgram);
   }
 
@@ -456,7 +458,8 @@ protected:
 
   //! Prepare standard GLSL program.
   Handle(OpenGl_ShaderProgram)& getStdProgram (Graphic3d_TypeOfShadingModel theShadingModel,
-                                               Standard_Integer theBits)
+                                               Standard_Integer theBits,
+                                               const TCollection_AsciiString& theExternalShader="")
   {
     if (theShadingModel == Graphic3d_TOSM_UNLIT
      || (theBits & OpenGl_PO_TextureEnv) != 0
@@ -465,9 +468,9 @@ protected:
       // If environment map is enabled lighting calculations are
       // not needed (in accordance with default OCCT behavior)
       Handle(OpenGl_ShaderProgram)& aProgram = myUnlitPrograms->ChangeValue (Graphic3d_TOSM_UNLIT, theBits);
-      if (aProgram.IsNull())
+      if (aProgram.IsNull() || (theExternalShader.Length()>0 && aProgram->ToBeUpdated(theExternalShader)))
       {
-        prepareStdProgramUnlit (aProgram, theBits);
+        prepareStdProgramUnlit (aProgram, theBits, theExternalShader);
       }
       return aProgram;
     }
@@ -497,7 +500,8 @@ protected:
 
   //! Prepare standard GLSL program without lighting.
   Standard_EXPORT Standard_Boolean prepareStdProgramUnlit (Handle(OpenGl_ShaderProgram)& theProgram,
-                                                           const Standard_Integer        theBits);
+                                                           const Standard_Integer        theBits,
+                                                           const TCollection_AsciiString& theExternalShader="");
 
   //! Prepare standard GLSL program with lighting.
   Standard_Boolean prepareStdProgramLight (Handle(OpenGl_ShaderProgram)& theProgram,

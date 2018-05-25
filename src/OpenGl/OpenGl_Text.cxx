@@ -761,7 +761,7 @@ void OpenGl_Text::drawRect (const Handle(OpenGl_Context)& theCtx,
   // bind unlit program
   theCtx->ShaderManager()->BindFaceProgram (Handle(OpenGl_TextureSet)(), Graphic3d_TOSM_UNLIT,
                                             Graphic3d_AlphaMode_Opaque, Standard_False, Standard_False,
-                                            Handle(OpenGl_ShaderProgram)(), Aspect_IS_SOLID);
+                                            Handle(OpenGl_ShaderProgram)(), Aspect_IS_SOLID, "");
 
 #if !defined(GL_ES_VERSION_2_0)
   if (theCtx->core11 != NULL

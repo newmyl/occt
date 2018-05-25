@@ -390,7 +390,8 @@ void OpenGl_ShaderManager::clear()
 // =======================================================================
 Standard_Boolean OpenGl_ShaderManager::Create (const Handle(Graphic3d_ShaderProgram)& theProxy,
                                                TCollection_AsciiString&               theShareKey,
-                                               Handle(OpenGl_ShaderProgram)&          theProgram)
+                                               Handle(OpenGl_ShaderProgram)&          theProgram,
+                                               const TCollection_AsciiString&         theExtShader)
 {
   theProgram.Nullify();
   if (theProxy.IsNull())
@@ -408,8 +409,9 @@ Standard_Boolean OpenGl_ShaderManager::Create (const Handle(Graphic3d_ShaderProg
     return Standard_True;
   }
 
-  theProgram = new OpenGl_ShaderProgram (theProxy);
-  if (!theProgram->Initialize (myContext, theProxy->ShaderObjects()))
+  if(theProgram.IsNull() || theExtShader.Length()==0)
+    theProgram = new OpenGl_ShaderProgram (theProxy);
+  if (!theProgram->Initialize (myContext, theProxy->ShaderObjects(), theExtShader))
   {
     theProgram->Release (myContext);
     theShareKey.Clear();
@@ -1429,13 +1431,15 @@ namespace
 // purpose  :
 // =======================================================================
 Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_ShaderProgram)& theProgram,
-                                                               const Standard_Integer        theBits)
+                                                               const Standard_Integer        theBits,
+                                                               const TCollection_AsciiString& theExternalShader)
 {
   Handle(Graphic3d_ShaderProgram) aProgramSrc = new Graphic3d_ShaderProgram();
   TCollection_AsciiString aSrcVert, aSrcVertExtraOut, aSrcVertExtraMain, aSrcVertExtraFunc, aSrcGetAlpha;
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragExtraMain, aSrcFragWriteOit;
   TCollection_AsciiString aSrcFragGetColor     = EOL"vec4 getColor(void) { return occColor; }";
   TCollection_AsciiString aSrcFragMainGetColor = EOL"  occSetFragColor (getColor());";
+
   if ((theBits & OpenGl_PO_Point) != 0)
   {
   #if defined(GL_ES_VERSION_2_0)
@@ -1689,7 +1693,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   aProgramSrc->AttachShader (Graphic3d_ShaderObject::CreateFromSource (Graphic3d_TOS_FRAGMENT, aSrcFrag));
 
   TCollection_AsciiString aKey;
-  if (!Create (aProgramSrc, aKey, theProgram))
+  if (!Create (aProgramSrc, aKey, theProgram, theExternalShader))
   {
     theProgram = new OpenGl_ShaderProgram(); // just mark as invalid
     return Standard_False;
