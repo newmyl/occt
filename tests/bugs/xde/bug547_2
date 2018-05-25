@@ -29,7 +29,7 @@ if { ${face2} > ${face1} || ${edge2} > ${edge1} || ${vert2} > ${vert1} } {
     puts "Tolerance valed. Function FixShape works CORRECTLY"
 }
 
-checkmaxtol result -ref 1.59071e+000
+checkmaxtol result -ref 0.17775413987830679
 checknbshapes result -shell 1
 checkfreebounds result 227
 

@@ -21,7 +21,20 @@
 #include <Precision.hxx>
 #include <TopExp.hxx>
 #include <TopoDS_Vertex.hxx>
-
+#include <BRepCheck_Edge.hxx>
+#include <BRepAdaptor_HSurface.hxx>
+#include <GeomAdaptor_HSurface.hxx>
+#include <BRepAdaptor_HCurve.hxx>
+#include <GeomAdaptor_HCurve.hxx>
+#include <ProjLib_ProjectedCurve.hxx>
+#include <AppParCurves_Constraint.hxx>
+#include <ProjLib.hxx>
+#include <GeomLib_CheckCurveOnSurface.hxx>
+#include <GeomAdaptor.hxx>
+#include <Adaptor3d_CurveOnSurface.hxx>
+#include <Geom2dAdaptor_HCurve.hxx>
+#include <GeomLib.hxx>
+#include <BRep_TEdge.hxx>
 //=======================================================================
 // function: findNearestValidPoint
 // purpose : Starting from the appointed end of the curve, find the nearest
@@ -268,4 +281,380 @@ void BRepLib::BuildPCurveForEdgeOnPlane(const TopoDS_Edge& aE,
   Standard_Boolean isStored;
   aC2D = BRep_Tool::CurveOnSurface(aE, aF, aT1, aT2, &isStored);
   bToUpdate = !isStored && !aC2D.IsNull();
+}
+//=======================================================================
+//function : CompTol
+//purpose  : 
+//=======================================================================
+static Standard_Real CompTol(const Handle(Geom_Curve)& theC3D, 
+                             const Handle(Geom2d_Curve)& theC2D,
+                             const Handle(Geom_Surface)& theS,
+                             const Standard_Real theFirstPar,
+                             const Standard_Real theLastPar)
+{
+  Standard_Real aTolRange = Max(Precision::PConfusion(),
+    0.001 * (theLastPar - theFirstPar));
+  GeomLib_CheckCurveOnSurface aCheckDist(theC3D, theS, theFirstPar, theLastPar, aTolRange);
+  aCheckDist.Perform(theC2D);
+  Standard_Real aTolR = 0.;
+  if (aCheckDist.IsDone())
+  {
+    aTolR = aCheckDist.MaxDistance();
+  }
+  else
+  {
+    const Standard_Integer aNbPnts = 23;
+    TColStd_Array1OfReal aPars(1, aNbPnts);
+    Standard_Integer i;
+    Standard_Real t, dt = (theLastPar - theFirstPar) / (aNbPnts - 1);
+    aPars(1) = theFirstPar;
+    aPars(aNbPnts) = theLastPar;
+    for (i = 2, t = theFirstPar + dt; i < aNbPnts; ++i, t += dt)
+    {
+      aPars(i) = t;
+    }
+    Handle(Geom2dAdaptor_HCurve) aG2dAHC = new Geom2dAdaptor_HCurve(theC2D);
+    GeomAdaptor_Curve aGAC(theC3D);
+    Handle(GeomAdaptor_HSurface) aGAHS = new GeomAdaptor_HSurface(theS);
+    Adaptor3d_CurveOnSurface aConS(aG2dAHC, aGAHS);
+    GeomLib::EvalMaxParametricDistance(aConS, aGAC, 1., aPars, aTolR);
+    aTolR *= 1.5; //possible deflection
+  }
+
+  return aTolR;
+}
+//=======================================================================
+//function : UpdateTol
+//purpose  : 
+//=======================================================================
+static void UpdateTol(const TopoDS_Edge& theE, const Standard_Real theTol)
+{
+  BRep_Builder aBB;
+  TopoDS_Vertex aV1, aV2;
+  TopExp::Vertices(theE, aV1, aV2);
+  if (!aV1.IsNull())
+  {
+    aBB.UpdateVertex(aV1, theTol);
+  }
+  if (!aV2.IsNull())
+  {
+    aBB.UpdateVertex(aV2, theTol);
+  }
+  aBB.UpdateEdge(theE, theTol);
+}
+
+//=======================================================================
+//function : SetPCurve
+//purpose  : 
+//=======================================================================
+void BRepLib::SetPCurve(const TopoDS_Edge& theE,
+                        const Handle(Geom2d_Curve)& theC,
+                        const TopoDS_Face& theF, 
+                        const Standard_Real theMaxTol,
+                        Standard_Real& theTolReached, Handle(Geom2d_Curve)& theProjCurve)
+{
+  Standard_Real aSMTol = Precision::PConfusion();
+  Standard_Real aTol = BRep_Tool::Tolerance(theE);
+  BRep_Builder aBB;
+  Standard_Real fr, lr, f, l;
+  BRep_Tool::Range(theE, fr, lr);
+  Handle(Geom2d_Curve) aC = theC;
+  f = theC->FirstParameter();
+  l = theC->LastParameter();
+  if (!(Precision::IsInfinite(f) || Precision::IsInfinite(l)))
+  {
+    GeomLib::SameRange(aSMTol, theC, f, l, fr, lr, aC);
+  }
+  aBB.UpdateEdge(theE, aC, theF, aTol);
+  Handle(Geom_Surface) anS = BRep_Tool::Surface(theF);
+  Handle(Geom_Curve) aC3D = BRep_Tool::Curve(theE, f, l);
+  Standard_Real aTol1 = CompTol(aC3D, aC, anS, fr, lr);
+  if (aTol1 <= aTol)
+  {
+    theTolReached = aTol1;
+    aBB.SameParameter(theE, Standard_True);
+    return;
+  }
+  else if (theMaxTol < aTol && aTol1 < 2.*aTol)
+  {
+    theTolReached = aTol1;
+    UpdateTol(theE, theTolReached);
+    return;
+  }
+  aBB.SameParameter(theE, Standard_False);
+  Standard_Real aNewTol = -1;
+  BRepLib::SameParameter(theE, aTol, aNewTol, Standard_True);
+  if (aNewTol > 0)
+  {
+    //Set old tolerance for edge, which has been changed by sameparameter
+    static_cast<BRep_TEdge*>(theE.TShape().get())->Tolerance(aTol);
+  }
+  if (aNewTol > 0.)
+  {
+    aC = BRep_Tool::CurveOnSurface(theE, theF, f, l);
+    aNewTol = CompTol(aC3D, aC, anS, fr, lr);
+    if (aNewTol < theMaxTol)
+    {
+      aBB.SameParameter(theE, Standard_True);
+      theTolReached = aNewTol;
+      UpdateTol(theE, theTolReached);
+      return ;
+    }
+  }
+  //Projection
+  Handle(BRepAdaptor_HSurface) aBAHS = 
+    new BRepAdaptor_HSurface(BRepAdaptor_Surface(theF, Standard_False));
+  Handle(BRepAdaptor_HCurve) aBAHC = new BRepAdaptor_HCurve(theE);
+  ProjLib_ProjectedCurve aProjCurv(aBAHS);
+  Standard_Integer aDegMin = -1, aDegMax = -1, aMaxSegments = -1;
+  Standard_Real aMaxDist = Max(1.e3 * theMaxTol, aNewTol);
+  Standard_Real aTR = Precision::Confusion();
+  Standard_Real aMaxTol = 1.e3 * aTR; //0.0001
+  Standard_Boolean isAnaSurf = ProjLib::IsAnaSurf(aBAHS);
+  AppParCurves_Constraint aBndPnt = AppParCurves_TangencyPoint;
+  if (theMaxTol >= aMaxTol || aNewTol > 10. * theMaxTol)
+  {
+    aTR = aMaxTol;
+    if (aNewTol >= 1.)
+    {
+      aTR = Min(10. * aTR, theMaxTol);
+    }
+    if (!isAnaSurf )
+    {
+      aBndPnt = AppParCurves_PassPoint;
+    }
+  }
+  //
+  theTolReached = RealLast();
+  aProjCurv.Load(aTR);
+  aProjCurv.SetDegree(aDegMin, aDegMax);
+  aProjCurv.SetMaxSegments(aMaxSegments);
+  aProjCurv.SetBndPnt(aBndPnt);
+  aProjCurv.SetMaxDist(aMaxDist);
+  aProjCurv.Perform(aBAHC);
+  ProjLib::MakePCurveOfType(aProjCurv, theProjCurve);
+  if (!theProjCurve.IsNull())
+  {
+    Standard_Real pf = theProjCurve->FirstParameter(), 
+                  pl = theProjCurve->LastParameter();
+    if (!(Precision::IsInfinite(pf) || Precision::IsInfinite(pl)))
+    {
+      if (Abs(pf - fr) > aSMTol || Abs(pl - lr) > aSMTol)
+      {
+        aC.Nullify();
+        GeomLib::SameRange(aSMTol, theProjCurve, pf, pl, fr, lr, aC);
+        if (!aC.IsNull() && theProjCurve != aC)
+        {
+          theProjCurve = aC;
+        }
+      }
+    }
+    Standard_Real aTolR = CompTol(aC3D, theProjCurve, anS, fr, lr);
+    //
+    if ((aNewTol > 0. && aTolR < aNewTol) || aNewTol < 0.) 
+    {
+      theTolReached = aTolR;
+      //
+      //Set new pcurve
+      aBB.UpdateEdge(theE, theProjCurve, theF, theTolReached);
+      UpdateTol(theE, theTolReached);
+      aBB.SameParameter(theE, Standard_True);
+    }
+    else
+    {
+      if (aNewTol > 0.)
+      {
+        theTolReached = aNewTol;
+      }
+      else
+      {
+        theTolReached = aTol1;
+      }
+      UpdateTol(theE, theTolReached);
+      aBB.SameParameter(theE, Standard_True);
+    }
+  }
+  else
+  {
+    if (aNewTol > 0.)
+    {
+      theTolReached = aNewTol;
+    }
+    else
+    {
+      theTolReached = aTol1;
+    }
+    UpdateTol(theE, theTolReached);
+    aBB.SameParameter(theE, Standard_True);
+  }
+}
+//=======================================================================
+//function : SetPCurve
+//purpose  : 
+//=======================================================================
+void BRepLib::SetPCurve(const TopoDS_Edge& theE,
+  const Handle(Geom2d_Curve)& theC1, const Handle(Geom2d_Curve)& theC2,
+  const TopoDS_Face& theF,
+  const Standard_Real theMaxTol,
+  Standard_Real& theTolReached, 
+  Handle(Geom2d_Curve)& theProjCurve1,
+  Handle(Geom2d_Curve)& theProjCurve2)
+{
+  Standard_Real aSMTol = Precision::PConfusion();
+  Standard_Real aTol = BRep_Tool::Tolerance(theE);
+  BRep_Builder aBB;
+  Standard_Real fr, lr, f, l;
+  BRep_Tool::Range(theE, fr, lr);
+  Handle(Geom2d_Curve) aC1 = theC1, aC2 = theC2;
+  f = theC1->FirstParameter();
+  l = theC1->LastParameter();
+  if (!(Precision::IsInfinite(f) || Precision::IsInfinite(l)))
+  {
+    GeomLib::SameRange(aSMTol, theC1, f, l, fr, lr, aC1);
+  }
+  f = theC2->FirstParameter();
+  l = theC2->LastParameter();
+  if (!(Precision::IsInfinite(f) || Precision::IsInfinite(l)))
+  {
+    GeomLib::SameRange(aSMTol, theC2, f, l, fr, lr, aC2);
+  }
+  aBB.UpdateEdge(theE, aC1, aC2, theF, aTol);
+  Handle(Geom_Surface) anS = BRep_Tool::Surface(theF);
+  Handle(Geom_Curve) aC3D = BRep_Tool::Curve(theE, f, l);
+  Standard_Real aTol1 = CompTol(aC3D, aC1, anS, fr, lr);
+  aTol1 = Max(aTol1, CompTol(aC3D, aC2, anS, fr, lr));
+  if (aTol1 <= aTol)
+  {
+    theTolReached = aTol1;
+    aBB.SameParameter(theE, Standard_True);
+    return;
+  }
+  aBB.SameParameter(theE, Standard_False);
+  Standard_Real aNewTol = -1;
+  BRepLib::SameParameter(theE, aTol, aNewTol, Standard_False);
+  if (aNewTol > 0)
+  {
+    //Set old tolerance for edge, which has been changed by sameparameter
+    static_cast<BRep_TEdge*>(theE.TShape().get())->Tolerance(aTol);
+  }
+  if (aNewTol > 0. && aNewTol < theMaxTol)
+  {
+    TopoDS_Vertex aV1, aV2;
+    TopExp::Vertices(theE, aV1, aV2);
+    if (!aV1.IsNull())
+    {
+      aBB.UpdateVertex(aV1, aNewTol);
+    }
+    if (!aV2.IsNull())
+    {
+      aBB.UpdateVertex(aV2, aNewTol);
+    }
+    theTolReached = aNewTol;
+    return;
+  }
+  //Projection
+  Handle(BRepAdaptor_HSurface) aBAHS = new BRepAdaptor_HSurface(theF);
+  Handle(BRepAdaptor_HCurve) aBAHC = new BRepAdaptor_HCurve(theE);
+  ProjLib_ProjectedCurve aProjCurv(aBAHS);
+  Standard_Integer aDegMin = -1, aDegMax = -1, aMaxSegments = -1;
+  Standard_Real aMaxDist = Max(1.e3 * theMaxTol, aNewTol);
+  Standard_Real aTR = Precision::Confusion();
+  Standard_Real aMaxTol = 1.e3 * aTR; //0.0001
+  Standard_Boolean isAnaSurf = ProjLib::IsAnaSurf(aBAHS);
+  AppParCurves_Constraint aBndPnt = AppParCurves_TangencyPoint;
+  if (theMaxTol >= aMaxTol || aNewTol > 10. * theMaxTol)
+  {
+    aTR = aMaxTol;
+    if (aNewTol >= 1.)
+    {
+      aTR = Min(10. * aTR, theMaxTol);
+    }
+    if (!isAnaSurf)
+    {
+      aBndPnt = AppParCurves_PassPoint;
+    }
+  }
+  //
+  theTolReached = RealLast();
+  aProjCurv.Load(aTR);
+  aProjCurv.SetDegree(aDegMin, aDegMax);
+  aProjCurv.SetMaxSegments(aMaxSegments);
+  aProjCurv.SetBndPnt(aBndPnt);
+  aProjCurv.SetMaxDist(aMaxDist);
+  aProjCurv.Perform(aBAHC);
+  Handle(Geom2d_Curve) aCProj;
+  ProjLib::MakePCurveOfType(aProjCurv, aCProj);
+  if (!aCProj.IsNull())
+  {
+    Standard_Real pf = aCProj->FirstParameter(),
+      pl = aCProj->LastParameter();
+    if (!(Precision::IsInfinite(pf) || Precision::IsInfinite(pl)))
+    {
+      if (Abs(pf - fr) > aSMTol || Abs(pl - lr) > aSMTol)
+      {
+        aC1.Nullify();
+        GeomLib::SameRange(aSMTol, aCProj, pf, pl, fr, lr, aC1);
+        if (!aC1.IsNull() && aCProj != aC1)
+        {
+          aCProj = aC1;
+        }
+      }
+    }
+    Standard_Real aTolR = CompTol(aC3D, aCProj, anS, fr, lr);
+    //
+    if ((aNewTol > 0. && aTolR < aNewTol) || aNewTol < 0.)
+    {
+      theTolReached = aTolR;
+      //
+      gp_Pnt2d aP1, aP2, aPProj;
+      Handle(Geom2d_Curve) aPC = BRep_Tool::CurveOnSurface(theE, theF, f, l);
+      aP1 = aPC->Value(f);
+      aPC = BRep_Tool::CurveOnSurface(TopoDS::Edge(theE.Reversed()), theF, f, l);
+      aP2 = aPC->Value(f);
+      aPProj = aCProj->Value(f);
+      Standard_Real Dist1, Dist2;
+      Dist1 = aPProj.Distance(aP1);
+      Dist2 = aPProj.Distance(aP2);
+      if (Dist1 < Dist2)  {
+        theProjCurve1 = aCProj;
+        Handle(Geom2d_Geometry) GG = aCProj->Translated(aP1, aP2);
+        theProjCurve2 = Handle(Geom2d_Curve)::DownCast(GG);
+      }
+      else {
+        theProjCurve2 = aCProj;
+        Handle(Geom2d_Geometry) GG = aCProj->Translated(aP2, aP1);
+        theProjCurve1 = Handle(Geom2d_BSplineCurve)::DownCast(GG);
+      }
+      //Set new pcurves
+      aBB.UpdateEdge(theE, theProjCurve1, theProjCurve2, theF, aTolR);
+      UpdateTol(theE, theTolReached);
+      aBB.SameParameter(theE, Standard_True);
+    }
+    else
+    {
+      if (aNewTol > 0.)
+      {
+        theTolReached = aNewTol;
+      }
+      else
+      {
+        theTolReached = aTol1;
+      }
+      UpdateTol(theE, theTolReached);
+      aBB.SameParameter(theE, Standard_True);
+    }
+  }
+  else
+  {
+    if (aNewTol > 0.)
+    {
+      theTolReached = aNewTol;
+    }
+    else
+    {
+      theTolReached = aTol1;
+    }
+    UpdateTol(theE, theTolReached);
+    aBB.SameParameter(theE, Standard_True);
+  }
 }

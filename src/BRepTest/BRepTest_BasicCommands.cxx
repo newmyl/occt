@@ -107,6 +107,30 @@ static Standard_Integer addpcurve(Draw_Interpretor& , Standard_Integer n, const 
   return 0;
 }
 
+//=======================================================================
+// setpcurve
+//=======================================================================
+
+static Standard_Integer setpcurve(Draw_Interpretor&, Standard_Integer n, const char** a)
+{
+  if (n < 4) return 1;
+  TopoDS_Shape E = DBRep::Get(a[1]);
+  if (E.IsNull()) return 1;
+  Handle(Geom2d_Curve) PC = DrawTrSurf::GetCurve2d(a[2]);
+  TopoDS_Shape F = DBRep::Get(a[3]);
+  Standard_Real tol = 1.e-4;
+  if (n > 4) {
+    tol = Draw::Atof(a[4]);
+  }
+  //BRep_Builder BB;
+  //BB.UpdateEdge(TopoDS::Edge(E), PC, TopoDS::Face(F), tol);
+  Standard_Real tolreached;
+  Handle(Geom2d_Curve) ProjC;
+  BRepLib::SetPCurve(TopoDS::Edge(E), PC, TopoDS::Face(F), tol,
+    tolreached, ProjC);
+  DBRep::Set(a[1], E);
+  return 0;
+}
 
 //=======================================================================
 // transform
@@ -1355,6 +1379,10 @@ void  BRepTest::BasicCommands(Draw_Interpretor& theCommands)
 		  "addpcurve edge 2dcurve face [tol (default 1.e-7)]",
 		  __FILE__,
 		  addpcurve,g);
+  theCommands.Add("setpcurve",
+                  "addpcurve edge 2dcurve face [tol (default 1.e-4)]",
+                  __FILE__,
+                  setpcurve, g);
 
   theCommands.Add("reset",
 		  "reset name1 name2 ..., remove location",

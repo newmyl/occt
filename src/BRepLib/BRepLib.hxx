@@ -114,6 +114,34 @@ public:
   //! return False if one of the computation failed.
   Standard_EXPORT static Standard_Boolean BuildCurves3d (const TopoDS_Shape& S);
 
+  //! Sets a pcurve theC for the edge theE on the face theF.
+  //! Setting pcurve can include calling sameparameter algorithm.
+  //! theMaxTol is the maximal tolerance allowed for pcurve.
+  //! If given pcurve cannot be set with tolerance less then theMaxtol,
+  //! algorithm builds new pcurve by projecting edge on face and sets curve,
+  //! which provides minimal tolerance. If projecting was done, algorithm sets
+  //! result of projecting in theProjCurve
+  //! Algorithm sets in theTolReached tolerance of edge after setting pcurve.
+  Standard_EXPORT static void SetPCurve(const TopoDS_Edge& theE, 
+    const Handle(Geom2d_Curve)& theC, 
+    const TopoDS_Face& theF, const Standard_Real theMaxTol, 
+    Standard_Real& theTolReached, Handle(Geom2d_Curve)& theProjCurve);
+
+  //! Sets the pcurve theC1, theC2 for the edge theE on the closed face theF.
+  //! Setting pcurve can include calling sameparameter algorithm.
+  //! theMaxTol is the maximal tolerance allowed for pcurve.
+  //! If given pcurve cannot be set with tolerance less then theMaxtol,
+  //! algorithm builds new pcurves by projecting edge on face and sets curves,
+  //! which provides minimal tolerance. If projecting was done, algorithm sets
+  //! result of projecting in theProjCurve1 and theProjCurve2.
+  //! Algorithm sets in theTolReached tolerance of edge after setting pcurve.
+  Standard_EXPORT static void SetPCurve(const TopoDS_Edge& theE,
+    const Handle(Geom2d_Curve)& theC1, const Handle(Geom2d_Curve)& theC2,
+    const TopoDS_Face& theF, const Standard_Real theMaxTol,
+    Standard_Real& theTolReached, 
+    Handle(Geom2d_Curve)& theProjCurve1, 
+    Handle(Geom2d_Curve)& theProjCurve2);
+
   //! Builds pcurve of edge on face if the surface is plane, and updates the edge.
   Standard_EXPORT static void BuildPCurveForEdgeOnPlane(const TopoDS_Edge& theE, const TopoDS_Face& theF);
 

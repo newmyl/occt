@@ -151,10 +151,19 @@ void Geom_TrimmedCurve::SetTrim (const Standard_Real U1,
        uTrim2 = U1;
      }
 
-     if ((Udeb - uTrim1 > Precision::PConfusion()) ||
-	 (uTrim2 - Ufin > Precision::PConfusion()))
-      throw Standard_ConstructionError("Geom_TrimmedCurve::parameters out of range");
-       
+     Standard_Real eps1 = Max(Precision::PConfusion(), Abs(Precision::PConfusion() * Udeb)),
+       eps2 = Max(Precision::PConfusion(), Abs(Precision::PConfusion() * Ufin));
+     if ((Udeb - uTrim1 > eps1) || (uTrim2 - Ufin > eps2))   {
+       throw Standard_ConstructionError("Geom_TrimmedCurve::parameters out of range");
+     }
+     if (Udeb > uTrim1)
+     {
+       uTrim1 = Udeb;
+     }
+     if (Ufin < uTrim2)
+     {
+       uTrim2 = Ufin;
+     }
 
    }
    if (!sameSense) {

@@ -231,25 +231,50 @@ Standard_Boolean Approx_ComputeCLine::Compute(const MultiLine& Line,
 					     Standard_Real&   TheTol2d)
 {
 
-
-  Standard_Integer deg, NbPoints = 24;
+  const Standard_Integer NbPointsMax = 24;
+  Standard_Integer deg, NbPoints;
   Standard_Boolean mydone;
   Standard_Real Fv;
 
-  for (deg = mydegremin; deg <= mydegremax; deg++) {
-
+  AppParCurves_MultiCurve aPrevCurve;
+  Standard_Real aPrevTol3d = RealLast(), aPrevTol2d = RealLast();
+  Standard_Boolean aPrevIsOk = Standard_False;
+  //for (deg = mydegremin; deg <= mydegremax; deg++) {
+  for (deg = mydegremax; deg >= mydegremin; deg--) {
+      NbPoints = Min(2 * deg + 1, NbPointsMax);
     AppCont_LeastSquare LSquare(Line, Ufirst, Ulast, myfirstC, mylastC, deg, NbPoints);
     mydone = LSquare.IsDone();
     if (mydone) {
       LSquare.Error(Fv, TheTol3d, TheTol2d);
-      if (TheTol3d <= mytol3d && TheTol2d <= mytol2d) {
+      if (TheTol3d <= mytol3d && TheTol2d <= mytol2d)
+      {
+        if (deg == mydegremin)
+        {
+          // Stockage de la multicurve approximee.
+          tolreached = Standard_True;
+          myMultiCurves.Append(LSquare.Value());
+          myfirstparam.Append(Ufirst);
+          mylastparam.Append(Ulast);
+          Tolers3d.Append(TheTol3d);
+          Tolers2d.Append(TheTol2d);
+          return Standard_True;
+        }
+        aPrevTol3d = TheTol3d;
+        aPrevTol2d = TheTol2d;
+        aPrevCurve = LSquare.Value();
+        aPrevIsOk = Standard_True;
+      }
+      else if (aPrevIsOk)
+      {    
 	// Stockage de la multicurve approximee.
-	tolreached = Standard_True;
-        myMultiCurves.Append(LSquare.Value());
+        tolreached = Standard_True;
+        TheTol3d = aPrevTol3d;
+        TheTol2d = aPrevTol2d;
+        myMultiCurves.Append(aPrevCurve);
 	myfirstparam.Append(Ufirst);
 	mylastparam.Append(Ulast);
-	Tolers3d.Append(TheTol3d);
-	Tolers2d.Append(TheTol2d);
+        Tolers3d.Append(aPrevTol3d);
+        Tolers2d.Append(aPrevTol2d);
  	return Standard_True;
       }
     }
@@ -257,8 +282,14 @@ Standard_Boolean Approx_ComputeCLine::Compute(const MultiLine& Line,
       TheMultiCurve = LSquare.Value();
       currenttol3d = TheTol3d;
       currenttol2d = TheTol2d;
-    }
-    
+      aPrevTol3d = TheTol3d;
+      aPrevTol2d = TheTol2d;
+      aPrevCurve = TheMultiCurve;
+      if (!aPrevIsOk)
+      {
+        return Standard_False;
+      }
+    }   
   }
   return Standard_False;
 }
