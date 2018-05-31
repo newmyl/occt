@@ -69,6 +69,7 @@ The following extensions should be used for source files, depending on their typ
 * <i>.cxx</i> -- C++ source files
 * <i>.hxx</i> -- C++ header files
 * <i>.lxx</i> -- additional headers containing definitions of inline methods and auxiliary code
+* <i>.pxx</i> -- reusable C++ code snippets included in some C++ file(s) using \#include statement
 
 Note that .lxx files should be avoided in most cases - inline method should be placed in header file instead.
 
@@ -508,6 +509,40 @@ The source or header file should include only minimal set of headers necessary f
 #include <windows.h>
 ~~~~~
 
+### Declaration of class friends
+
+Friend classes should be listed at the beginning of the class definition.
+
+### Use of standard OCCT macros
+
+Open CASCADE declares a set of macros defining elements of its RTTI (run-time type identification) system and other auxiliary properties (like memory allocation).
+
+* *DEFINE_STANDARD_ALLOC* defines non-standard *new* and *delete* operators redirecting memory allocations to *Standard::Allocate()* and *Standard::Free()* memory allocation routines. 
+
+  This macro should be put into the very base class in the hierarchy (no need to put it into the descendant classes, in particular, any class inheriting Standard_Transient).
+
+  The preferred location is at the beginning of class definition after "public:".
+
+* *DEFINE_STANDARD_RTTIEXT* or *DEFINE_STANDARD_RTTI_INLINE* provide definitions of OCCT RTTI system.
+
+  These macros should be put at the beginning of the class definition.
+  Note that they include "public: ", so that there is no need putting "public:" explicitly.
+
+  Use of *DEFINE_STANDARD_RTTIEXT* is preferred; it implies that definition of the methods is placed in the .cpp file (by macro *IMPLEMENT_STANDARD_RTTIEXT* with the same parameters), thus avoiding duplicate definitions in binary code. Macro *DEFINE_STANDARD_RTTI_INLINE* should be used for header-only classes (e.g. template); note that virtual method and RTTI descriptor will be instantiated in all libaries that include that header, thus increasing size of their binary code.
+
+* *DEFINE_STANDARD_HANDLE* macro declares a handle class with the name of its argument prefixed by *Handle_*, which can be used as a substitute of the normal (templated) handle class.
+
+  Note that OCCT code does not use classes with *Handle_* prefix, but they are defined for compatibility reasons:
+  - for a legacy code that already uses *Handle_* in the class names,
+  - for use in Qt interfaces processed by MOC generator (it does not recognize template definitions),
+  - as a workaround in C++/CLI projects: as C++ template classes cannot be declared as public to be exported by an assembly DLL, the only way to expot OCCT handle is to use this *Handle_* prefixed definition.
+  
+
+* *Standard_EXPORT* macro should be put before non-inline public methods (i.e. those implemented in cpp file) to have them exported from DLL on Windows.
+
+  Do not put Standard_EXPORT at inline methods (this leads to export table pollution).
+  Exporting entire class using Standard_EXPORT (in contrast to exporting each method individually) should be avoided.
+
 @section occt_coding_rules_4 Documentation rules
 
 The source code is one of the most important references for documentation.
@@ -620,7 +655,7 @@ A class with virtual function(s) ought to have a virtual destructor.
 
 ### Overriding virtual methods
 
-Declaration of overriding method should contains specifiers "virtual" and "override"
+Declaration of overriding method should contain specifiers "virtual" and "override"
 (using Standard_OVERRIDE alias for compatibility with old compilers).
 
 ~~~~~{.cpp}
@@ -651,6 +686,37 @@ or when method in base class is intended to be optional.
 
 And here "override" specifier introduces additional protection against situations when interface changes might be missed
 (class might contain old methods which will be never called).
+
+### Inline methods
+
+Trivial methods such as accessors to the class fields should be defined as inline to optimize the code.
+
+It is recommended to define inline methods in the place of their declaration (i.e. inside the class definition).
+For such methods, keyword *inline* is redundant and should be avoided.
+
+If the method to be inlined is long (usually a template method), it can be defined in the same header after the class definition, or put in the *.lxx* file included in the header.
+Keyword *inline* should be put at the method definition, not declaration.
+
+~~~~~{.cpp}
+class AClass
+{
+public:
+
+  //! Method with inline implementation (in place definition, recommended)
+  Standard_Integer Value() const { return myValue; }
+
+  //! Method with inline implementation (defined below)
+  Standard_Integer& ChangeValue();
+
+  //! Method implemented in cpp file - should be declared as exported
+  Standard_EXPORT void SetValue (Standard_Integer theValue);
+
+protected:
+  Standard_Integer myValue;
+};
+
+inline Standard_Integer& AClass::ChangeValue() { return myValue; }
+~~~~~
 
 ### Default parameter value
 
