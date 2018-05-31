@@ -508,6 +508,84 @@ The source or header file should include only minimal set of headers necessary f
 #include <windows.h>
 ~~~~~
 
+### RTTI macros
+
+Open CASCADE declares a set of macros defining elements of its RTTI (run-time type identification) system and other auxiliary properties (like memory allocation).
+The following order is suggested:
+* *DEFINE_STANDARD_ALLOC* should be put into the very base class in hierarchy (no need to put it into class inheriting Standard_Transient).
+  The preferred location - at the beginning of class definition following "public: ".
+  This will put new/delete operators redirecting to Standard::Allocate()/Standard::Free() memory allocation routines.
+* Friend classes should be listed at the very beginning of the class definition.
+* *DEFINE_STANDARD_RTTIEXT*/*DEFINE_STANDARD_RTTI_INLINE* should be put at the beginning of class definition.
+  Note that these macros include "public: ", so that there is no need putting "public" explicitly.
+  DEFINE_STANDARD_RTTIEXT will require putting IMPLEMENT_STANDARD_RTTIEXT in a .cpp file
+  and is preferred over DEFINE_STANDARD_RTTI_INLINE, since inline definition increases library size.
+* *DEFINE_STANDARD_HANDLE* is an obsolete macros declaring a Handle(TClass) type as Handle_TClass.
+  Handle_ prefix should not be used anymore, so that omiting DEFINE_STANDARD_HANDLE will have no effect while building OCCT;
+  it is preserved, however, for a (limited) backward compatibility with old code, as well as a workaround in C++/CLI projects
+  (where C++ template classes cannot be declared as public to be exported by assembly DLL).
+* *Standard_EXPORT* should be put before methods, which have implementations in cpp file.
+  This is an error putting Standard_EXPORT to inline methods (leads to export table pollution).
+  Exporting entire class using Standard_EXPORT (in contrast to exporting each method individually) should be avoided.
+* Note that OCCT currently does not provide a macros Standard_LOCAL, which would be an opposite to Standard_EXPORT
+  for explicitly hiding visibility of method (overriding default gcc behavior, to make export table more consistent to DLLs on Windows platform).
+  Therefore, no extra macros is expected in front of methods which should not be exported.
+* There is no need putting *inline* in front of the method combining declaration and definition at the same time.
+  "inline" should be used explicitly when otherwise this would cause compiler errors
+  (e.g. when method definition is separated from declaration, but still put into the same class header file).
+* Virtual methods overriding implementation of inherited class should be marked with *virtual* and *Standard_OVERRIDE* keywords.
+
+~~~~~{.cpp}
+//! Base class definition.
+class MyPackage_MyBaseClass
+{
+public:
+  DEFINE_STANDARD_ALLOC
+
+public:
+
+  //! Virtual method.
+  virtual Perform() {}
+};
+
+//! Dummy class definition.
+class MyPackage_MyDummyClass : public MyPackage_MyBaseClass
+{
+public:
+  virtual Perform() MyPackage_MyBaseClass {}
+};
+
+//! Definition of the class within Standard_Transient hierarchy.
+class MyPackage_MyTClass : public Standard_Transient
+{
+  friend class MyPackage_MyTClass2;
+  DEFINE_STANDARD_RTTIEXT(MyPackage_MyTClass, Standard_Transient)
+public:
+
+  //! Method with inline implementation.
+  Standard_Integer Value() const { return myValue; }
+
+  //! Method with inline implementation.
+  Standard_Integer& ChangeValue();
+
+  //! Method implemented in cpp file - should be declared as exported.
+  Standard_EXPORT void SetValue (Standard_Integer theValue);
+
+protected:
+
+  Standard_Integer myValue;
+};
+
+//! Obsolete alias for Handle(MyPackage_MyTClass) declaring "Handle_MyPackage_MyTClass" type.
+DEFINE_STANDARD_HANDLE(MyPackage_MyTClass, Standard_Transient)
+
+// =======================================================================
+// function : ChangeValue
+// purpose  :
+// =======================================================================
+inline Standard_Integer& MyPackage_MyTClass::ChangeValue() { return myValue; }
+~~~~~
+
 @section occt_coding_rules_4 Documentation rules
 
 The source code is one of the most important references for documentation.
