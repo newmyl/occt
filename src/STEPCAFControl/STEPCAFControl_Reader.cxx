@@ -849,21 +849,6 @@ Handle(STEPCAFControl_ExternFile) STEPCAFControl_Reader::ReadExternFile (const S
   return EF;
 }
 
-
-//=======================================================================
-//function : SetColorToSubshape
-//purpose  : auxilary
-//=======================================================================
-static void SetColorToSubshape(const Handle(XCAFDoc_ColorTool) & CTool,
-			       const TopoDS_Shape & S,
-			       const Quantity_Color& col,
-			       const XCAFDoc_ColorType type)
-{
-  for (TopoDS_Iterator it(S); it.More(); it.Next())
-    if (! CTool->SetColor( it.Value(), col, type)) break;
-}
-
-
 //=======================================================================
 //function : findStyledSR
 //purpose  : auxilary
@@ -911,6 +896,8 @@ Standard_Boolean STEPCAFControl_Reader::ReadColors (const Handle(XSControl_WorkS
   
   Handle(XCAFDoc_ColorTool) CTool = XCAFDoc_DocumentTool::ColorTool( Doc->Main() );
   if ( CTool.IsNull() ) return Standard_False;
+  Handle(XCAFDoc_ShapeTool) STool = XCAFDoc_DocumentTool::ShapeTool(Doc->Main());
+  if (STool.IsNull()) return Standard_False;
 
   // parse and search for color attributes
   Standard_Integer nb = Styles.NbStyles();
@@ -1002,29 +989,51 @@ Standard_Boolean STEPCAFControl_Reader::ReadColors (const Handle(XSControl_WorkS
       if ( S.IsNull() )
         continue;
       
-      if ( ! SurfCol.IsNull() ) {
-        Quantity_Color col;
-        Styles.DecodeColor ( SurfCol, col );
-        if ( ! CTool->SetColor ( S, col, XCAFDoc_ColorSurf ))
-          SetColorToSubshape( CTool, S, col, XCAFDoc_ColorSurf );
-      }
-      if ( ! BoundCol.IsNull() ) {
-        Quantity_Color col;
-        Styles.DecodeColor ( BoundCol, col );
-        if ( ! CTool->SetColor ( S, col, XCAFDoc_ColorCurv ))
-          SetColorToSubshape(  CTool, S, col, XCAFDoc_ColorCurv );
-      }
-      if ( ! CurveCol.IsNull() ) {
-        Quantity_Color col;
-        Styles.DecodeColor ( CurveCol, col );
-        if ( ! CTool->SetColor ( S, col, XCAFDoc_ColorCurv ))
-          SetColorToSubshape(  CTool, S, col, XCAFDoc_ColorCurv );
-      }
-      if ( !IsVisible ) {
-        // sets the invisibility for shape.
-        TDF_Label aInvL;
-        if ( CTool->ShapeTool()->Search( S, aInvL ) )
-          CTool->SetVisibility( aInvL, Standard_False );
+      if (!SurfCol.IsNull() || !BoundCol.IsNull() || !CurveCol.IsNull() || !IsVisible)
+      {
+        TDF_Label aL;
+        Standard_Boolean isFound = STool->SearchUsingMap(S, aL, Standard_False, Standard_True);
+        if (!SurfCol.IsNull() || !BoundCol.IsNull() || !CurveCol.IsNull())
+        {
+          Quantity_Color aSCol, aBCol, aCCol;
+          if (!SurfCol.IsNull())
+            Styles.DecodeColor(SurfCol, aSCol);
+          if (!BoundCol.IsNull())
+            Styles.DecodeColor(BoundCol, aBCol);
+          if (!CurveCol.IsNull())
+            Styles.DecodeColor(CurveCol, aCCol);
+          if (isFound)
+          {
+            if (!SurfCol.IsNull())
+              CTool->SetColor(aL, aSCol, XCAFDoc_ColorSurf);
+            if (!BoundCol.IsNull())
+              CTool->SetColor(aL, aBCol, XCAFDoc_ColorCurv);
+            if (!CurveCol.IsNull())
+              CTool->SetColor(aL, aCCol, XCAFDoc_ColorCurv);
+          }
+          else
+          {
+            for (TopoDS_Iterator it(S); it.More(); it.Next())
+            {
+              TDF_Label aL1;
+              if (STool->SearchUsingMap(it.Value(), aL1, Standard_False, Standard_True))
+              {
+                if (!SurfCol.IsNull())
+                  CTool->SetColor(aL1, aSCol, XCAFDoc_ColorSurf);
+                if (!BoundCol.IsNull())
+                  CTool->SetColor(aL1, aBCol, XCAFDoc_ColorCurv);
+                if (!CurveCol.IsNull())
+                  CTool->SetColor(aL1, aCCol, XCAFDoc_ColorCurv);
+              }
+            }
+          }
+        }
+        if (!IsVisible)
+        {
+          // sets the invisibility for shape.
+          if (isFound)
+            CTool->SetVisibility(aL, Standard_False);
+        }
       }
     }
   }
