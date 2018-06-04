@@ -806,9 +806,9 @@ void BOPAlgo_PaveFiller::PostTreatFF
     TColStd_MapIteratorOfMapOfInteger itmap(aMV);
     for(; itmap.More(); itmap.Next())
     {
-      Standard_Integer nV = itmap.Value();
-      const TopoDS_Shape& aVertex = myDS->Shape(nV);
-      if (IndMap.Add(nV))
+      Standard_Integer indV = itmap.Value();
+      const TopoDS_Shape& aVertex = myDS->Shape(indV);
+      if (IndMap.Add(indV))
         VertsUnused.Add(aVertex);
       else
         VertsUnused.RemoveKey(aVertex);
