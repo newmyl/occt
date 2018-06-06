@@ -561,7 +561,7 @@ void OpenGl_View::Redraw()
   }
   else
   {
-    aCtx->core11fwd->glFlush();
+    aCtx->core11fwd->glFinish();
   }
 
   // reset render mode state
@@ -731,7 +731,7 @@ void OpenGl_View::RedrawImmediate()
   }
   else
   {
-    aCtx->core11fwd->glFlush();
+    aCtx->core11fwd->glFinish();
   }
   aCtx->FrameStats()->FrameEnd (myWorkspace);
 
