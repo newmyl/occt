@@ -828,7 +828,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
           theWorkspace->View()->Window()->Size(aViewWidth, aViewHeight);
           Standard_Integer aMin = aViewWidth < aViewHeight ? aViewWidth : aViewHeight;
 
-          Standard_ShortReal anEdgeWidth = (Standard_ShortReal)anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal)aMin;
+          Standard_ShortReal anEdgeWidth = 2*(Standard_ShortReal)anAspectFace->Aspect()->EdgeWidth() / (Standard_ShortReal)aMin;
           aCtx->SetSilhouetteThickness(anEdgeWidth);
 
           aCtx->SetIsSilhouettePass(Standard_True);
