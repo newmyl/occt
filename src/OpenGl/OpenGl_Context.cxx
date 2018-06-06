@@ -567,7 +567,7 @@ void OpenGl_Context::SwapBuffers()
   if ((HDC )myWindowDC != NULL)
   {
     ::SwapBuffers ((HDC )myWindowDC);
-    glFlush();
+    glFinish();
   }
 #else
   if ((Display* )myDisplay != NULL)
