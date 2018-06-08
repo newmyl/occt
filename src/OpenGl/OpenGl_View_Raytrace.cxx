@@ -1436,7 +1436,7 @@ Standard_Boolean OpenGl_View::initRaytraceResources (const Handle(OpenGl_Context
       aToRebuildShaders = Standard_True;
     }
 
-    const bool toEnableDof = !myCamera->IsOrthographic() && myRaytraceParameters.GlobalIllumination;
+    const bool toEnableDof = !myEffectiveCamera->IsOrthographic() && myRaytraceParameters.GlobalIllumination;
     if (myRaytraceParameters.DepthOfField != toEnableDof)
     {
       myRaytraceParameters.DepthOfField = toEnableDof;
@@ -1934,7 +1934,7 @@ Standard_Boolean OpenGl_View::updateRaytraceBuffers (const Standard_Integer     
     myRaytraceFBO2[0]->InitLazy (theGlContext, theSizeX, theSizeY, GL_RGBA32F, myFboDepthFormat);
 
     // Init second set of buffers for stereographic rendering
-    if (myCamera->ProjectionType() == Graphic3d_Camera::Projection_Stereo)
+    if (myEffectiveCamera->ProjectionType() == Graphic3d_Camera::Projection_Stereo)
     {
       myRaytraceFBO1[1]->InitLazy (theGlContext, theSizeX, theSizeY, GL_RGBA32F, myFboDepthFormat);
       myRaytraceFBO2[1]->InitLazy (theGlContext, theSizeX, theSizeY, GL_RGBA32F, myFboDepthFormat);
@@ -1988,7 +1988,7 @@ Standard_Boolean OpenGl_View::updateRaytraceBuffers (const Standard_Integer     
       GL_RG32I, GL_RG_INTEGER, GL_INT, myTileSampler.NbTilesX(), myTileSampler.NbTilesY(), Graphic3d_TOT_2D);
   }
 
-  if (myCamera->ProjectionType() == Graphic3d_Camera::Projection_Stereo)
+  if (myEffectiveCamera->ProjectionType() == Graphic3d_Camera::Projection_Stereo)
   {
     if (myRaytraceOutputTexture[1]->SizeX() / 3 != theSizeX
      || myRaytraceOutputTexture[1]->SizeY() / 2 != theSizeY)
@@ -2092,28 +2092,28 @@ void OpenGl_View::updatePerspCameraPT (const OpenGl_Mat4&           theOrientati
   theViewPr.Inverted(theUnview);
   
   // get camera stereo params
-  float anIOD = myCamera->GetIODType() == Graphic3d_Camera::IODType_Relative
-    ? static_cast<float> (myCamera->IOD() * myCamera->Distance())
-    : static_cast<float> (myCamera->IOD());
+  float anIOD = myEffectiveCamera->GetIODType() == Graphic3d_Camera::IODType_Relative
+    ? static_cast<float> (myEffectiveCamera->IOD() * myEffectiveCamera->Distance())
+    : static_cast<float> (myEffectiveCamera->IOD());
 
-  float aZFocus = myCamera->ZFocusType() == Graphic3d_Camera::FocusType_Relative
-    ? static_cast<float> (myCamera->ZFocus() * myCamera->Distance())
-    : static_cast<float> (myCamera->ZFocus());
+  float aZFocus = myEffectiveCamera->ZFocusType() == Graphic3d_Camera::FocusType_Relative
+    ? static_cast<float> (myEffectiveCamera->ZFocus() * myEffectiveCamera->Distance())
+    : static_cast<float> (myEffectiveCamera->ZFocus());
 
   // get camera view vectors
-  const gp_Pnt anOrig = myCamera->Eye();
+  const gp_Pnt anOrig = myEffectiveCamera->Eye();
 
   myEyeOrig = OpenGl_Vec3 (static_cast<float> (anOrig.X()),
                            static_cast<float> (anOrig.Y()),
                            static_cast<float> (anOrig.Z()));
 
-  const gp_Dir aView = myCamera->Direction();
+  const gp_Dir aView = myEffectiveCamera->Direction();
 
   OpenGl_Vec3 anEyeViewMono = OpenGl_Vec3 (static_cast<float> (aView.X()),
                                            static_cast<float> (aView.Y()),
                                            static_cast<float> (aView.Z()));
 
-  const gp_Dir anUp = myCamera->Up();
+  const gp_Dir anUp = myEffectiveCamera->Up();
 
   myEyeVert = OpenGl_Vec3 (static_cast<float> (anUp.X()),
                            static_cast<float> (anUp.Y()),
@@ -2121,7 +2121,7 @@ void OpenGl_View::updatePerspCameraPT (const OpenGl_Mat4&           theOrientati
 
   myEyeSide = OpenGl_Vec3::Cross (anEyeViewMono, myEyeVert);
 
-  const double aScaleY = tan (myCamera->FOVy() / 360 * M_PI);
+  const double aScaleY = tan (myEffectiveCamera->FOVy() / 360 * M_PI);
   const double aScaleX = theWinSizeX * aScaleY / theWinSizeY;
  
   myEyeSize = OpenGl_Vec2 (static_cast<float> (aScaleX),
@@ -2600,10 +2600,10 @@ Standard_Boolean OpenGl_View::setUniformState (const Standard_Integer        the
   OpenGl_Vec3 aOrigins[4];
   OpenGl_Vec3 aDirects[4];
 
-  if (myCamera->IsOrthographic()
+  if (myEffectiveCamera->IsOrthographic()
    || !myRenderParams.IsGlobalIlluminationEnabled)
   {
-    updateCamera (myCamera->OrientationMatrixF(),
+    updateCamera (myEffectiveCamera->OrientationMatrixF(),
                   aCntxProjectionState.Current(),
                   aOrigins,
                   aDirects,
@@ -2612,7 +2612,7 @@ Standard_Boolean OpenGl_View::setUniformState (const Standard_Integer        the
   }
   else
   {
-    updatePerspCameraPT (myCamera->OrientationMatrixF(),
+    updatePerspCameraPT (myEffectiveCamera->OrientationMatrixF(),
                          aCntxProjectionState.Current(),
                          theProjection,
                          aViewPrjMat,
@@ -3049,7 +3049,7 @@ Standard_Boolean OpenGl_View::runPathtrace (const Standard_Integer              
   if (myRaytraceParameters.AdaptiveScreenSampling)
   {
   #if !defined(GL_ES_VERSION_2_0)
-    if (myAccumFrames == 0 || (myAccumFrames == 1 && myCamera->IsStereo()))
+    if (myAccumFrames == 0 || (myAccumFrames == 1 && myEffectiveCamera->IsStereo()))
     {
       theGlContext->core44->glClearTexImage (myRaytraceOutputTexture[aFBOIdx]->TextureId(), 0, GL_RED, GL_FLOAT, NULL);
     }
@@ -3075,7 +3075,7 @@ Standard_Boolean OpenGl_View::runPathtrace (const Standard_Integer              
   glDisable (GL_DEPTH_TEST);
 
   if (myRaytraceParameters.AdaptiveScreenSampling
-   && ((myAccumFrames > 0 && !myCamera->IsStereo()) || myAccumFrames > 1))
+   && ((myAccumFrames > 0 && !myEffectiveCamera->IsStereo()) || myAccumFrames > 1))
   {
     glViewport (0,
                 0,
@@ -3087,7 +3087,7 @@ Standard_Boolean OpenGl_View::runPathtrace (const Standard_Integer              
   theGlContext->core20fwd->glDrawArrays (GL_TRIANGLES, 0, 6);
 
   if (myRaytraceParameters.AdaptiveScreenSampling
-   && ((myAccumFrames > 0 && !myCamera->IsStereo()) || myAccumFrames > 1))
+   && ((myAccumFrames > 0 && !myEffectiveCamera->IsStereo()) || myAccumFrames > 1))
   {
     glViewport (0,
                 0,
@@ -3183,7 +3183,7 @@ Standard_Boolean OpenGl_View::raytrace (const Standard_Integer        theSizeX,
   OpenGl_Mat4 aLightSourceMatrix;
 
   // Get inversed model-view matrix for transforming lights
-  myCamera->OrientationMatrixF().Inverted (aLightSourceMatrix);
+  myEffectiveCamera->OrientationMatrixF().Inverted (aLightSourceMatrix);
 
   if (!updateRaytraceLightSources (aLightSourceMatrix, theGlContext))
   {

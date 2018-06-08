@@ -121,7 +121,7 @@ void OpenGl_FrameStatsPrs::Render (const Handle(OpenGl_Workspace)& theWorkspace)
   OpenGl_Mat4& aWorldView = aCtx->WorldViewState.ChangeCurrent();
   if (!myTrsfPers.IsNull())
   {
-    myTrsfPers->Apply (theWorkspace->View()->Camera(),
+    myTrsfPers->Apply (aCtx->Camera(),
                       aCtx->ProjectionState.Current(), aWorldView,
                       aCtx->VirtualViewport()[2], aCtx->VirtualViewport()[3]);
   }

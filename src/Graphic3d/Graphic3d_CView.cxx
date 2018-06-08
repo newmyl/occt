@@ -35,6 +35,8 @@ namespace
 Graphic3d_CView::Graphic3d_CView (const Handle(Graphic3d_StructureManager)& theMgr)
 : myStructureManager       (theMgr),
   myHiddenObjects          (new Graphic3d_NMapOfTransient()),
+  myCameraBase             (new Graphic3d_Camera()),
+  myEffectiveCamera        (new Graphic3d_Camera()),
   myIsInComputedMode       (Standard_False),
   myIsActive               (Standard_False),
   myIsRemoved              (Standard_False),

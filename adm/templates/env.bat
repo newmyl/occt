@@ -24,6 +24,7 @@ set "HAVE_GLES2=false"
 set "HAVE_D3D=false"
 set "HAVE_ZLIB=false"
 set "HAVE_LIBLZMA=false"
+set "HAVE_OPENVR=false"
 set "CSF_OPT_INC="
 set "CSF_OPT_LIB32="
 set "CSF_OPT_LIB64="
@@ -162,6 +163,7 @@ if ["%HAVE_GLES2%"]     == ["true"] set "PRODUCTS_DEFINES=%PRODUCTS_DEFINES% -DH
 if ["%HAVE_D3D%"]       == ["true"] set "PRODUCTS_DEFINES=%PRODUCTS_DEFINES% -DHAVE_D3D"       & set "CSF_DEFINES=HAVE_D3D;%CSF_DEFINES%"
 if ["%HAVE_ZLIB%"]      == ["true"] set "PRODUCTS_DEFINES=%PRODUCTS_DEFINES% -DHAVE_ZLIB"      & set "CSF_DEFINES=HAVE_ZLIB;%CSF_DEFINES%"
 if ["%HAVE_LIBLZMA%"]   == ["true"] set "PRODUCTS_DEFINES=%PRODUCTS_DEFINES% -DHAVE_LIBLZMA"   & set "CSF_DEFINES=HAVE_LIBLZMA;%CSF_DEFINES%"
+if ["%HAVE_OPENVR%"]    == ["true"] set "PRODUCTS_DEFINES=%PRODUCTS_DEFINES% -DHAVE_OPENVR"    & set "CSF_DEFINES=HAVE_OPENVR;%CSF_DEFINES%"
 
 rem Eliminate VS warning
 if ["%CSF_DEFINES%"]  == [""] set "CSF_DEFINES=;"

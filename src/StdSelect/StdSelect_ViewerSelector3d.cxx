@@ -124,7 +124,7 @@ void StdSelect_ViewerSelector3d::Pick (const Standard_Integer theXPix,
     myToUpdateTolerance = Standard_False;
   }
 
-  mySelectingVolumeMgr.SetCamera (theView->Camera());
+  mySelectingVolumeMgr.SetCamera (theView->EffectiveCamera());
   mySelectingVolumeMgr.SetActiveSelectionType (SelectMgr_SelectingVolumeManager::Point);
   Standard_Integer aWidth = 0, aHeight = 0;
   theView->Window()->Size (aWidth, aHeight);
@@ -148,7 +148,7 @@ void StdSelect_ViewerSelector3d::Pick (const Standard_Integer theXPMin,
                                        const Handle(V3d_View)& theView)
 {
   updateZLayers (theView);
-  mySelectingVolumeMgr.SetCamera (theView->Camera());
+  mySelectingVolumeMgr.SetCamera (theView->EffectiveCamera());
   mySelectingVolumeMgr.SetActiveSelectionType (SelectMgr_SelectingVolumeManager::Box);
   Standard_Integer aWidth = 0, aHeight = 0;
   theView->Window()->Size (aWidth, aHeight);
@@ -171,7 +171,7 @@ void StdSelect_ViewerSelector3d::Pick (const TColgp_Array1OfPnt2d& thePolyline,
                                        const Handle(V3d_View)& theView)
 {
   updateZLayers (theView);
-  mySelectingVolumeMgr.SetCamera (theView->Camera());
+  mySelectingVolumeMgr.SetCamera (theView->EffectiveCamera());
   mySelectingVolumeMgr.SetActiveSelectionType (SelectMgr_SelectingVolumeManager::Polyline);
   Standard_Integer aWidth = 0, aHeight = 0;
   theView->Window()->Size (aWidth, aHeight);

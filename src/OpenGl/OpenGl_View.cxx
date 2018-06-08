@@ -38,6 +38,10 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(OpenGl_View,Graphic3d_CView)
 
+#ifdef HAVE_OPENVR
+  #include <openvr.h>
+#endif
+
 // =======================================================================
 // function : Constructor
 // purpose  :
@@ -53,7 +57,6 @@ OpenGl_View::OpenGl_View (const Handle(Graphic3d_StructureManager)& theMgr,
   myCulling        (Standard_True),
   myBackfacing     (Graphic3d_TOBM_AUTOMATIC),
   myBgColor        (Quantity_NOC_BLACK),
-  myCamera         (new Graphic3d_Camera()),
   myToShowGradTrihedron  (false),
   myZLayers        (Structure_MAX_PRIORITY - Structure_MIN_PRIORITY + 1),
   myStateCounter         (theCounter),
@@ -63,6 +66,12 @@ OpenGl_View::OpenGl_View (const Handle(Graphic3d_StructureManager)& theMgr,
   myFboColorFormat       (GL_RGBA8),
   myFboDepthFormat       (GL_DEPTH24_STENCIL8),
   myToFlipOutput         (Standard_False),
+  //
+  myVrHmd (NULL),
+  myVrTrackedPoses (NULL),
+  myVrRendSizeX (0),
+  myVrRendSizeY (0),
+  //
   myFrameCounter         (0),
   myHasFboBlit           (Standard_True),
   myToDisableOIT         (Standard_False),
@@ -111,6 +120,10 @@ OpenGl_View::OpenGl_View (const Handle(Graphic3d_StructureManager)& theMgr,
   myRaytraceFBO1[1]          = new OpenGl_FrameBuffer();
   myRaytraceFBO2[0]          = new OpenGl_FrameBuffer();
   myRaytraceFBO2[1]          = new OpenGl_FrameBuffer();
+
+#ifdef HAVE_OPENVR
+  myVrTrackedPoses = new vr::TrackedDevicePose_t[vr::k_unMaxTrackedDeviceCount];
+#endif
 }
 
 // =======================================================================
@@ -123,6 +136,10 @@ OpenGl_View::~OpenGl_View()
   OpenGl_Element::Destroy (NULL, myBgGradientArray);
   OpenGl_Element::Destroy (NULL, myBgTextureArray);
   OpenGl_Element::Destroy (NULL, myTextureParams);
+
+#ifdef HAVE_OPENVR
+  delete[] myVrTrackedPoses;
+#endif
 }
 
 // =======================================================================
@@ -171,6 +188,8 @@ void OpenGl_View::ReleaseGlResources (const Handle(OpenGl_Context)& theCtx)
   myFullScreenQuadFlip       .Release (theCtx.operator->());
 
   releaseRaytraceResources (theCtx);
+
+  releaseOpenVR();
 }
 
 // =======================================================================
@@ -188,15 +207,6 @@ void OpenGl_View::Remove()
   myWindow.Nullify();
 
   Graphic3d_CView::Remove();
-}
-
-// =======================================================================
-// function : SetTextureEnv
-// purpose  :
-// =======================================================================
-void OpenGl_View::SetCamera(const Handle(Graphic3d_Camera)& theCamera)
-{
-  myCamera = theCamera;
 }
 
 // =======================================================================

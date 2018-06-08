@@ -8826,9 +8826,7 @@ static int VAutoZFit (Draw_Interpretor& theDi, Standard_Integer theArgsNb, const
   }
 
   aCurrentView->SetAutoZFitMode (isOn, aScale);
-  aCurrentView->AutoZFit();
   aCurrentView->Redraw();
-
   return 0;
 }
 
@@ -9040,9 +9038,7 @@ static int VCamera (Draw_Interpretor& theDI,
     }
   }
 
-  aView->AutoZFit();
   aView->Redraw();
-
   return 0;
 }
 
@@ -9090,6 +9086,11 @@ inline Standard_Boolean parseStereoMode (Standard_CString      theArg,
         || aFlag == "softpageflip")
   {
     theMode = Graphic3d_StereoMode_SoftPageFlip;
+  }
+  else if (aFlag == "openvr"
+        || aFlag == "vr")
+  {
+    theMode = Graphic3d_StereoMode_OpenVR;
   }
   else
   {
@@ -9166,6 +9167,7 @@ static int VStereo (Draw_Interpretor& theDI,
         case Graphic3d_StereoMode_SideBySide       : aMode = "sideBySide";       break;
         case Graphic3d_StereoMode_OverUnder        : aMode = "overUnder";        break;
         case Graphic3d_StereoMode_SoftPageFlip     : aMode = "softpageflip";     break;
+        case Graphic3d_StereoMode_OpenVR           : aMode = "openVR";           break;
         case Graphic3d_StereoMode_Anaglyph  :
           aMode = "anaglyph";
           switch (aView->RenderingParams().AnaglyphFilter)
@@ -9295,6 +9297,17 @@ static int VStereo (Draw_Interpretor& theDI,
       {
         ViewerTest_myDefaultCaps.contextStereo = Standard_True;
       }
+    }
+    else if (aFlag == "-mirror"
+          || aFlag == "-mirrorcomposer")
+    {
+      Standard_Boolean toEnable = Standard_True;
+      if (++anArgIter < theArgNb
+      && !ViewerTest::ParseOnOff (theArgVec[anArgIter], toEnable))
+      {
+        --anArgIter;
+      }
+      aParams->ToMirrorComposer = toEnable;
     }
     else
     {
@@ -12115,8 +12128,10 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
     __FILE__, VVbo, group);
   theCommands.Add ("vstereo",
             "vstereo [0|1] [-mode Mode] [-reverse {0|1}]"
-    "\n\t\t:         [-anaglyph Filter]"
-    "\n\t\t: Control stereo output mode. Available modes for -mode:"
+    "\n\t\t:         [-anaglyph Filter] [-mirrorComposer]"
+    "\n\t\t: Control stereo output mode."
+    "\n\t\t: When -mirrorComposer is specified, rendered frame will be mirrored in window (debug)."
+    "\n\t\t: Available modes for -mode:"
     "\n\t\t:  quadBuffer        - OpenGL QuadBuffer stereo,"
     "\n\t\t:                     requires driver support."
     "\n\t\t:                     Should be called BEFORE vinit!"
@@ -12126,6 +12141,7 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
     "\n\t\t:  chessBoard       - chess-board output"
     "\n\t\t:  sideBySide       - horizontal pair"
     "\n\t\t:  overUnder        - vertical   pair"
+    "\n\t\t:  openVR           - OpenVR (HMD)"
     "\n\t\t: Available Anaglyph filters for -anaglyph:"
     "\n\t\t:  redCyan, redCyanSimple, yellowBlue, yellowBlueSimple,"
     "\n\t\t:  greenMagentaSimple",

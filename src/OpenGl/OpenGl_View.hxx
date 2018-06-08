@@ -62,13 +62,23 @@ class OpenGl_RaytraceMaterial;
 class OpenGl_TriangleSet;
 class OpenGl_Workspace;
 class OpenGl_View;
-DEFINE_STANDARD_HANDLE(OpenGl_View,Graphic3d_CView)
+
+namespace vr
+{
+  class IVRSystem;
+  struct TrackedDevicePose_t;
+}
 
 //! Implementation of OpenGl view.
 class OpenGl_View : public Graphic3d_CView
 {
-
+  DEFINE_STANDARD_RTTIEXT(OpenGl_View, Graphic3d_CView)
+  friend class OpenGl_GraphicDriver;
+  friend class OpenGl_Workspace;
+  friend class OpenGl_LayerList;
+  friend class OpenGl_FrameStats;
 public:
+  DEFINE_STANDARD_ALLOC
 
   //! Constructor.
   Standard_EXPORT OpenGl_View (const Handle(Graphic3d_StructureManager)& theMgr,
@@ -114,6 +124,9 @@ public:
 
   //! Handle changing size of the rendering window.
   Standard_EXPORT virtual void Resized() Standard_OVERRIDE;
+
+  //! Process input.
+  Standard_EXPORT virtual void ProcessInput() Standard_OVERRIDE;
 
   //! Redraw content of the view.
   Standard_EXPORT virtual void Redraw() Standard_OVERRIDE;
@@ -253,17 +266,11 @@ public:
   //! Sets backfacing model for the view.
   virtual void SetBackfacingModel (const Graphic3d_TypeOfBackfacingModel theModel) Standard_OVERRIDE { myBackfacing = theModel; }
 
-  //! Returns camera object of the view.
-  virtual const Handle(Graphic3d_Camera)& Camera() const Standard_OVERRIDE { return myCamera; }
-
   //! Returns local camera origin currently set for rendering, might be modified during rendering.
   const gp_XYZ& LocalOrigin() const { return myLocalOrigin; }
 
   //! Setup local camera origin currently set for rendering.
   Standard_EXPORT void SetLocalOrigin (const gp_XYZ& theOrigin);
-
-  //! Sets camera used by the view.
-  Standard_EXPORT virtual void SetCamera (const Handle(Graphic3d_Camera)& theCamera) Standard_OVERRIDE;
 
   //! Returns list of lights of the view.
   virtual const Handle(Graphic3d_LightSet)& Lights() const Standard_OVERRIDE { return myLights; }
@@ -431,6 +438,15 @@ private:
 
 private:
 
+  //! Release OpenVR context.
+  void releaseOpenVR();
+
+  //! Initialize OpenVR context.
+  bool initOpenVR();
+
+  //! Receive OpenVR events.
+  void processOpenVrEvents();
+
   //! Copy content of Back buffer to the Front buffer.
   bool copyBackToFront();
 
@@ -461,7 +477,6 @@ protected:
   Graphic3d_TypeOfBackfacingModel myBackfacing;
   Quantity_ColorRGBA              myBgColor;
   Handle(Graphic3d_SequenceOfHClipPlane) myClipPlanes;
-  Handle(Graphic3d_Camera)        myCamera;
   gp_XYZ                          myLocalOrigin;
   Handle(OpenGl_FrameBuffer)      myFBO;
   Standard_Boolean                myToShowGradTrihedron;
@@ -510,6 +525,14 @@ protected: //! @name Rendering properties
   OpenGl_VertexBuffer        myFullScreenQuad;        //!< Vertices for full-screen quad rendering.
   OpenGl_VertexBuffer        myFullScreenQuadFlip;
   Standard_Boolean           myToFlipOutput;          //!< Flag to draw result image upside-down
+  //
+  vr::IVRSystem*             myVrHmd;                 //!< OpenVR session object
+  vr::TrackedDevicePose_t*   myVrTrackedPoses;        //!< array of tracked devices poses
+  TCollection_AsciiString    myAboutVrDevice;         //!< device description
+  gp_Trsf                    myVrHeadOrient;          //!< HMD (head) orientation
+  Standard_Integer           myVrRendSizeX;           //!< FBO width  for rendering into VR (can be greater then actual HMD resolution to compensate distortion)
+  Standard_Integer           myVrRendSizeY;           //!< FBO height for rendering into VR
+  //
   unsigned int               myFrameCounter;          //!< redraw counter, for debugging
   Standard_Boolean           myHasFboBlit;            //!< disable FBOs on failure
   Standard_Boolean           myToDisableOIT;          //!< disable OIT on failure
@@ -1069,15 +1092,8 @@ protected: //! @name fields related to ray-tracing
   //! Focal distance of camera on previous frame used for depth-of-field (path tracing)
   float myPrevCameraFocalPlaneDist;
 
-public:
-
-  DEFINE_STANDARD_ALLOC
-  DEFINE_STANDARD_RTTIEXT(OpenGl_View,Graphic3d_CView) // Type definition
-
-  friend class OpenGl_GraphicDriver;
-  friend class OpenGl_Workspace;
-  friend class OpenGl_LayerList;
-  friend class OpenGl_FrameStats;
 };
+
+DEFINE_STANDARD_HANDLE(OpenGl_View, Graphic3d_CView)
 
 #endif // _OpenGl_View_Header

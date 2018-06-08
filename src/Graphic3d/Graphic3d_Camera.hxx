@@ -38,6 +38,19 @@ class Graphic3d_WorldViewProjState;
 //! and orientation properties of 3D view.
 class Graphic3d_Camera : public Standard_Transient
 {
+public:
+  //! Structure defining frustum boundaries.
+  template<typename Elem_t>
+  struct FrustumLRBT
+  {
+    Elem_t Left;
+    Elem_t Right;
+    Elem_t Bottom;
+    Elem_t Top;
+
+    FrustumLRBT() : Left (0), Right (0), Bottom (0), Top (0) {}
+  };
+
 private:
 
   //! Template container for cached matrices or Real/ShortReal types.
@@ -534,6 +547,26 @@ public:
   //! The matrix will be updated on request.
   Standard_EXPORT void InvalidateOrientation();
 
+public:
+
+  void ResetCustomFrustum()
+  {
+    if (myIsCustomFrustom)
+    {
+      myIsCustomFrustom = Standard_False;
+      InvalidateProjection();
+    }
+  }
+
+  void SetCustomFrustum (const FrustumLRBT<Standard_Real>& theFrustumL,
+                         const FrustumLRBT<Standard_Real>& theFrustumR)
+  {
+    myCustomFrustumL = theFrustumL;
+    myCustomFrustumR = theFrustumR;
+    myIsCustomFrustom = Standard_True;
+    InvalidateProjection();
+  }
+
 //! @name Managing projection and orientation cache
 private:
 
@@ -551,68 +584,44 @@ private:
 
 private:
 
-  //! Compose orthographic projection matrix for
-  //! the passed camera volume mapping.
-  //! @param theLeft [in] the left mapping (clipping) coordinate.
-  //! @param theRight [in] the right mapping (clipping) coordinate.
-  //! @param theBottom [in] the bottom mapping (clipping) coordinate.
-  //! @param theTop [in] the top mapping (clipping) coordinate.
-  //! @param theNear [in] the near mapping (clipping) coordinate.
-  //! @param theFar [in] the far mapping (clipping) coordinate.
-  //! @param theOutMx [out] the projection matrix.
+  //! Compose orthographic projection matrix for the passed camera volume mapping.
+  //! @param theOutMx [out] the projection matrix
+  //! @param theLRBT [in] the left/right/bottom/top mapping (clipping) coordinates
+  //! @param theNear [in] the near mapping (clipping) coordinate
+  //! @param theFar [in] the far mapping (clipping) coordinate
   template <typename Elem_t>
-  static void 
-    OrthoProj (const Elem_t              theLeft,
-               const Elem_t              theRight,
-               const Elem_t              theBottom,
-               const Elem_t              theTop,
-               const Elem_t              theNear,
-               const Elem_t              theFar,
-               NCollection_Mat4<Elem_t>& theOutMx);
+  static void orthoProj (NCollection_Mat4<Elem_t>& theOutMx,
+                         const FrustumLRBT<Elem_t>& theLRBT,
+                         const Elem_t theNear,
+                         const Elem_t theFar);
 
-  //! Compose perspective projection matrix for
-  //! the passed camera volume mapping.
-  //! @param theLeft [in] the left mapping (clipping) coordinate.
-  //! @param theRight [in] the right mapping (clipping) coordinate.
-  //! @param theBottom [in] the bottom mapping (clipping) coordinate.
-  //! @param theTop [in] the top mapping (clipping) coordinate.
-  //! @param theNear [in] the near mapping (clipping) coordinate.
-  //! @param theFar [in] the far mapping (clipping) coordinate.
-  //! @param theOutMx [out] the projection matrix.
+  //! Compose perspective projection matrix for the passed camera volume mapping.
+  //! @param theOutMx [out] the projection matrix
+  //! @param theLRBT [in] the left/right/bottom/top mapping (clipping) coordinates
+  //! @param theNear [in] the near mapping (clipping) coordinate
+  //! @param theFar [in] the far mapping (clipping) coordinate
   template <typename Elem_t>
-  static void
-    PerspectiveProj (const Elem_t              theLeft,
-                     const Elem_t              theRight,
-                     const Elem_t              theBottom,
-                     const Elem_t              theTop,
-                     const Elem_t              theNear,
-                     const Elem_t              theFar,
-                     NCollection_Mat4<Elem_t>& theOutMx);
+  static void perspectiveProj (NCollection_Mat4<Elem_t>& theOutMx,
+                               const FrustumLRBT<Elem_t>& theLRBT,
+                               const Elem_t theNear,
+                               const Elem_t theFar);
 
   //! Compose projection matrix for L/R stereo eyes.
-  //! @param theLeft [in] the left mapping (clipping) coordinate.
-  //! @param theRight [in] the right mapping (clipping) coordinate.
-  //! @param theBottom [in] the bottom mapping (clipping) coordinate.
-  //! @param theTop [in] the top mapping (clipping) coordinate.
-  //! @param theNear [in] the near mapping (clipping) coordinate.
-  //! @param theFar [in] the far mapping (clipping) coordinate.
-  //! @param theIOD [in] the Intraocular distance.
-  //! @param theZFocus [in] the z coordinate of off-axis
-  //! projection plane with zero parallax.
-  //! @param theIsLeft [in] boolean flag to choose between L/R eyes.
-  //! @param theOutMx [out] the projection matrix.
+  //! @param theOutMx [out] the projection matrix
+  //! @param theLRBT [in] the left/right/bottom/top mapping (clipping) coordinates
+  //! @param theNear [in] the near mapping (clipping) coordinate
+  //! @param theFar [in] the far mapping (clipping) coordinate
+  //! @param theIOD [in] the Intraocular distance
+  //! @param theZFocus [in] the z coordinate of off-axis projection plane with zero parallax
+  //! @param theIsLeft [in] boolean flag to choose between L/R eyes
   template <typename Elem_t>
-  static void
-    StereoEyeProj (const Elem_t              theLeft,
-                   const Elem_t              theRight,
-                   const Elem_t              theBottom,
-                   const Elem_t              theTop,
-                   const Elem_t              theNear,
-                   const Elem_t              theFar,
-                   const Elem_t              theIOD,
-                   const Elem_t              theZFocus,
-                   const Standard_Boolean    theIsLeft,
-                   NCollection_Mat4<Elem_t>& theOutMx);
+  static void stereoEyeProj (NCollection_Mat4<Elem_t>& theOutMx,
+                             const FrustumLRBT<Elem_t>& theLRBT,
+                             const Elem_t theNear,
+                             const Elem_t theFar,
+                             const Elem_t theIOD,
+                             const Elem_t theZFocus,
+                             const Standard_Boolean theIsLeft);
 
   //! Construct "look at" orientation transformation.
   //! Reference point differs for perspective and ortho modes 
@@ -653,6 +662,11 @@ private:
   IODType       myIODType; //!< Intraocular distance definition type.
 
   Graphic3d_CameraTile myTile;//!< Tile defining sub-area for drawing
+
+  FrustumLRBT<Standard_Real> myCustomFrustumL;
+  FrustumLRBT<Standard_Real> myCustomFrustumR;
+  Standard_Boolean myIsCustomFrustom;
+  ///
 
   mutable TransformMatrices<Standard_Real>      myMatricesD;
   mutable TransformMatrices<Standard_ShortReal> myMatricesF;

@@ -91,7 +91,8 @@ Graphic3d_Camera::Graphic3d_Camera()
   myZFocus (1.0),
   myZFocusType (FocusType_Relative),
   myIOD (0.05),
-  myIODType (IODType_Relative)
+  myIODType (IODType_Relative),
+  myIsCustomFrustom (Standard_False)
 {
   myWorldViewProjState.Initialize ((Standard_Size)Standard_Atomic_Increment (&THE_STATE_COUNTER),
                                    (Standard_Size)Standard_Atomic_Increment (&THE_STATE_COUNTER),
@@ -103,6 +104,18 @@ Graphic3d_Camera::Graphic3d_Camera()
 // purpose  :
 // =======================================================================
 Graphic3d_Camera::Graphic3d_Camera (const Handle(Graphic3d_Camera)& theOther)
+: myProjType (Projection_Orthographic),
+  myFOVy (45.0),
+  myFOVyTan (Tan (DTR_HALF * 45.0)),
+  myZNear (DEFAULT_ZNEAR),
+  myZFar (DEFAULT_ZFAR),
+  myAspect (1.0),
+  myScale (1000.0),
+  myZFocus (1.0),
+  myZFocusType (FocusType_Relative),
+  myIOD (0.05),
+  myIODType (IODType_Relative),
+  myIsCustomFrustom (Standard_False)
 {
   myWorldViewProjState.Initialize (this);
 
@@ -838,10 +851,11 @@ Graphic3d_Camera::TransformMatrices<Elem_t>&
   }
 
   // sets right of frustum based on aspect ratio
-  Elem_t aLeft   = -aDXHalf;
-  Elem_t aRight  =  aDXHalf;
-  Elem_t aBot    = -aDYHalf;
-  Elem_t aTop    =  aDYHalf;
+  FrustumLRBT<Elem_t> anLRBT;
+  anLRBT.Left   = -aDXHalf;
+  anLRBT.Right  =  aDXHalf;
+  anLRBT.Bottom = -aDYHalf;
+  anLRBT.Top    =  aDYHalf;
 
   Elem_t aIOD  = myIODType == IODType_Relative 
     ? static_cast<Elem_t> (myIOD * Distance())
@@ -856,53 +870,96 @@ Graphic3d_Camera::TransformMatrices<Elem_t>&
     const Elem_t aDXFull = Elem_t(2) * aDXHalf;
     const Elem_t aDYFull = Elem_t(2) * aDYHalf;
     const Graphic3d_Vec2i anOffset = myTile.OffsetLowerLeft();
-    aLeft  = -aDXHalf + aDXFull * static_cast<Elem_t> (anOffset.x())                       / static_cast<Elem_t> (myTile.TotalSize.x());
-    aRight = -aDXHalf + aDXFull * static_cast<Elem_t> (anOffset.x() + myTile.TileSize.x()) / static_cast<Elem_t> (myTile.TotalSize.x());
-    aBot   = -aDYHalf + aDYFull * static_cast<Elem_t> (anOffset.y())                       / static_cast<Elem_t> (myTile.TotalSize.y());
-    aTop   = -aDYHalf + aDYFull * static_cast<Elem_t> (anOffset.y() + myTile.TileSize.y()) / static_cast<Elem_t> (myTile.TotalSize.y());
+    anLRBT.Left   = -aDXHalf + aDXFull * static_cast<Elem_t> (anOffset.x())                       / static_cast<Elem_t> (myTile.TotalSize.x());
+    anLRBT.Right  = -aDXHalf + aDXFull * static_cast<Elem_t> (anOffset.x() + myTile.TileSize.x()) / static_cast<Elem_t> (myTile.TotalSize.x());
+    anLRBT.Bottom = -aDYHalf + aDYFull * static_cast<Elem_t> (anOffset.y())                       / static_cast<Elem_t> (myTile.TotalSize.y());
+    anLRBT.Top    = -aDYHalf + aDYFull * static_cast<Elem_t> (anOffset.y() + myTile.TileSize.y()) / static_cast<Elem_t> (myTile.TotalSize.y());
   }
 
   switch (myProjType)
   {
-    case Projection_Orthographic :
-      OrthoProj (aLeft, aRight, aBot, aTop, aZNear, aZFar, theMatrices.MProjection);
-      break;
-
-    case Projection_Perspective :
-      PerspectiveProj (aLeft, aRight, aBot, aTop, aZNear, aZFar, theMatrices.MProjection);
-      break;
-
-    case Projection_MonoLeftEye :
+    case Projection_Orthographic:
     {
-      StereoEyeProj (aLeft, aRight, aBot, aTop,
-                     aZNear, aZFar, aIOD, aFocus,
-                     Standard_True, theMatrices.MProjection);
+      orthoProj (theMatrices.MProjection, anLRBT, aZNear, aZFar);
+      break;
+    }
+    case Projection_Perspective:
+    {
+      perspectiveProj (theMatrices.MProjection, anLRBT, aZNear, aZFar);
+      break;
+    }
+    case Projection_MonoLeftEye:
+    {
+      if (myIsCustomFrustom)
+      {
+        anLRBT.Left   = static_cast<Elem_t> (myCustomFrustumL.Left);
+        anLRBT.Right  = static_cast<Elem_t> (myCustomFrustumL.Right);
+        anLRBT.Bottom = static_cast<Elem_t> (myCustomFrustumL.Bottom);
+        anLRBT.Top    = static_cast<Elem_t> (myCustomFrustumL.Top);
+        perspectiveProj (theMatrices.MProjection, anLRBT, aZNear, aZFar);
+      }
+      else
+      {
+        stereoEyeProj (theMatrices.MProjection,
+                       anLRBT, aZNear, aZFar, aIOD, aFocus,
+                       Standard_True);
+      }
       theMatrices.LProjection = theMatrices.MProjection;
       break;
     }
-
-    case Projection_MonoRightEye :
+    case Projection_MonoRightEye:
     {
-      StereoEyeProj (aLeft, aRight, aBot, aTop,
-                     aZNear, aZFar, aIOD, aFocus,
-                     Standard_False, theMatrices.MProjection);
+      if (myIsCustomFrustom)
+      {
+        anLRBT.Left   = static_cast<Elem_t> (myCustomFrustumR.Left);
+        anLRBT.Right  = static_cast<Elem_t> (myCustomFrustumR.Right);
+        anLRBT.Bottom = static_cast<Elem_t> (myCustomFrustumR.Bottom);
+        anLRBT.Top    = static_cast<Elem_t> (myCustomFrustumR.Top);
+        perspectiveProj (theMatrices.MProjection, anLRBT, aZNear, aZFar);
+      }
+      else
+      {
+        stereoEyeProj (theMatrices.MProjection,
+                       anLRBT, aZNear, aZFar, aIOD, aFocus,
+                       Standard_False);
+      }
       theMatrices.RProjection = theMatrices.MProjection;
       break;
     }
-
-    case Projection_Stereo :
+    case Projection_Stereo:
     {
-      PerspectiveProj (aLeft, aRight, aBot, aTop, aZNear, aZFar, theMatrices.MProjection);
+      perspectiveProj (theMatrices.MProjection, anLRBT, aZNear, aZFar);
+      if (myIsCustomFrustom)
+      {
+        anLRBT.Left   = static_cast<Elem_t> (myCustomFrustumL.Left) * aZNear;
+        anLRBT.Right  = static_cast<Elem_t> (myCustomFrustumL.Right) * aZNear;
+        anLRBT.Bottom = static_cast<Elem_t> (myCustomFrustumL.Bottom) * aZNear;
+        anLRBT.Top    = static_cast<Elem_t> (myCustomFrustumL.Top) * aZNear;
+        perspectiveProj (theMatrices.LProjection, anLRBT, aZNear, aZFar);
+if (aIOD != Elem_t (0.0))
+{
+  theMatrices.LProjection.Translate (NCollection_Vec3<Elem_t> (Elem_t (0.5) * aIOD, Elem_t (0.0), Elem_t (0.0)));
+}
 
-      StereoEyeProj (aLeft, aRight, aBot, aTop,
-                     aZNear, aZFar, aIOD, aFocus,
-                     Standard_True,
-                     theMatrices.LProjection);
-
-      StereoEyeProj (aLeft, aRight, aBot, aTop,
-                     aZNear, aZFar, aIOD, aFocus,
-                     Standard_False,
-                     theMatrices.RProjection);
+        anLRBT.Left   = static_cast<Elem_t> (myCustomFrustumR.Left) * aZNear;
+        anLRBT.Right  = static_cast<Elem_t> (myCustomFrustumR.Right) * aZNear;
+        anLRBT.Bottom = static_cast<Elem_t> (myCustomFrustumR.Bottom) * aZNear;
+        anLRBT.Top    = static_cast<Elem_t> (myCustomFrustumR.Top) * aZNear;
+        perspectiveProj (theMatrices.RProjection, anLRBT, aZNear, aZFar);
+if (aIOD != Elem_t (0.0))
+{
+  theMatrices.LProjection.Translate (NCollection_Vec3<Elem_t> (Elem_t (-0.5) * aIOD, Elem_t (0.0), Elem_t (0.0)));
+}
+      }
+      else
+      {
+        stereoEyeProj (theMatrices.LProjection,
+                       anLRBT, aZNear, aZFar, aIOD, aFocus,
+                       Standard_True);
+        stereoEyeProj (theMatrices.RProjection,
+                       anLRBT, aZNear, aZFar, aIOD, aFocus,
+                       Standard_False);
+      }
       break;
     }
   }
@@ -969,29 +1026,26 @@ void Graphic3d_Camera::InvalidateOrientation()
 }
 
 // =======================================================================
-// function : OrthoProj
+// function : orthoProj
 // purpose  :
 // =======================================================================
 template <typename Elem_t>
-void Graphic3d_Camera::OrthoProj (const Elem_t theLeft,
-                                  const Elem_t theRight,
-                                  const Elem_t theBottom,
-                                  const Elem_t theTop,
+void Graphic3d_Camera::orthoProj (NCollection_Mat4<Elem_t>& theOutMx,
+                                  const FrustumLRBT<Elem_t>& theLRBT,
                                   const Elem_t theNear,
-                                  const Elem_t theFar,
-                                  NCollection_Mat4<Elem_t>& theOutMx)
+                                  const Elem_t theFar)
 {
   // row 0
-  theOutMx.ChangeValue (0, 0) = Elem_t (2.0) / (theRight - theLeft);
+  theOutMx.ChangeValue (0, 0) = Elem_t (2.0) / (theLRBT.Right - theLRBT.Left);
   theOutMx.ChangeValue (0, 1) = Elem_t (0.0);
   theOutMx.ChangeValue (0, 2) = Elem_t (0.0);
-  theOutMx.ChangeValue (0, 3) = - (theRight + theLeft) / (theRight - theLeft);
+  theOutMx.ChangeValue (0, 3) = - (theLRBT.Right + theLRBT.Left) / (theLRBT.Right - theLRBT.Left);
 
   // row 1
   theOutMx.ChangeValue (1, 0) = Elem_t (0.0);
-  theOutMx.ChangeValue (1, 1) = Elem_t (2.0) / (theTop - theBottom);
+  theOutMx.ChangeValue (1, 1) = Elem_t (2.0) / (theLRBT.Top - theLRBT.Bottom);
   theOutMx.ChangeValue (1, 2) = Elem_t (0.0);
-  theOutMx.ChangeValue (1, 3) = - (theTop + theBottom) / (theTop - theBottom);
+  theOutMx.ChangeValue (1, 3) = - (theLRBT.Top + theLRBT.Bottom) / (theLRBT.Top - theLRBT.Bottom);
 
   // row 2
   theOutMx.ChangeValue (2, 0) = Elem_t (0.0);
@@ -1011,29 +1065,26 @@ void Graphic3d_Camera::OrthoProj (const Elem_t theLeft,
 // purpose  :
 // =======================================================================
 template <typename Elem_t>
-void Graphic3d_Camera::PerspectiveProj (const Elem_t theLeft,
-                                        const Elem_t theRight,
-                                        const Elem_t theBottom,
-                                        const Elem_t theTop,
+void Graphic3d_Camera::perspectiveProj (NCollection_Mat4<Elem_t>& theOutMx,
+                                        const FrustumLRBT<Elem_t>& theLRBT,
                                         const Elem_t theNear,
-                                        const Elem_t theFar,
-                                        NCollection_Mat4<Elem_t>& theOutMx)
+                                        const Elem_t theFar)
 {
   // column 0
-  theOutMx.ChangeValue (0, 0) = (Elem_t (2.0) * theNear) / (theRight - theLeft);
+  theOutMx.ChangeValue (0, 0) = (Elem_t (2.0) * theNear) / (theLRBT.Right - theLRBT.Left);
   theOutMx.ChangeValue (1, 0) = Elem_t (0.0);
   theOutMx.ChangeValue (2, 0) = Elem_t (0.0);
   theOutMx.ChangeValue (3, 0) = Elem_t (0.0);
 
   // column 1
   theOutMx.ChangeValue (0, 1) = Elem_t (0.0);
-  theOutMx.ChangeValue (1, 1) = (Elem_t (2.0) * theNear) / (theTop - theBottom);
+  theOutMx.ChangeValue (1, 1) = (Elem_t (2.0) * theNear) / (theLRBT.Top - theLRBT.Bottom);
   theOutMx.ChangeValue (2, 1) = Elem_t (0.0);
   theOutMx.ChangeValue (3, 1) = Elem_t (0.0);
 
   // column 2
-  theOutMx.ChangeValue (0, 2) = (theRight + theLeft) / (theRight - theLeft);
-  theOutMx.ChangeValue (1, 2) = (theTop + theBottom) / (theTop - theBottom);
+  theOutMx.ChangeValue (0, 2) = (theLRBT.Right + theLRBT.Left) / (theLRBT.Right - theLRBT.Left);
+  theOutMx.ChangeValue (1, 2) = (theLRBT.Top + theLRBT.Bottom) / (theLRBT.Top - theLRBT.Bottom);
   theOutMx.ChangeValue (2, 2) = -(theFar + theNear) / (theFar - theNear);
   theOutMx.ChangeValue (3, 2) = Elem_t (-1.0);
 
@@ -1049,25 +1100,22 @@ void Graphic3d_Camera::PerspectiveProj (const Elem_t theLeft,
 // purpose  :
 // =======================================================================
 template <typename Elem_t>
-void Graphic3d_Camera::StereoEyeProj (const Elem_t theLeft,
-                                      const Elem_t theRight,
-                                      const Elem_t theBottom,
-                                      const Elem_t theTop,
+void Graphic3d_Camera::stereoEyeProj (NCollection_Mat4<Elem_t>& theOutMx,
+                                      const FrustumLRBT<Elem_t>& theLRBT,
                                       const Elem_t theNear,
                                       const Elem_t theFar,
                                       const Elem_t theIOD,
                                       const Elem_t theZFocus,
-                                      const Standard_Boolean theIsLeft,
-                                      NCollection_Mat4<Elem_t>& theOutMx)
+                                      const Standard_Boolean theIsLeft)
 {
   Elem_t aDx = theIsLeft ? Elem_t (0.5) * theIOD : Elem_t (-0.5) * theIOD;
   Elem_t aDXStereoShift = aDx * theNear / theZFocus;
 
   // construct eye projection matrix
-  PerspectiveProj (theLeft  + aDXStereoShift,
-                   theRight + aDXStereoShift,
-                   theBottom, theTop, theNear, theFar,
-                   theOutMx);
+  FrustumLRBT<Elem_t> aLRBT = theLRBT;
+  aLRBT.Left  = theLRBT.Left  + aDXStereoShift;
+  aLRBT.Right = theLRBT.Right + aDXStereoShift;
+  perspectiveProj (theOutMx, aLRBT, theNear, theFar);
 
   if (theIOD != Elem_t (0.0))
   {

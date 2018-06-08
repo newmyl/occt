@@ -18,6 +18,7 @@
 
 #include <OpenGl_GlCore11.hxx>
 
+#include <gp_Quaternion.hxx>
 #include <Graphic3d_GraphicDriver.hxx>
 #include <Graphic3d_StructureManager.hxx>
 #include <Graphic3d_TextureParams.hxx>
@@ -25,6 +26,9 @@
 #include <Graphic3d_TransformUtils.hxx>
 #include <Image_AlienPixMap.hxx>
 
+#include <Message.hxx>
+#include <Message_Messenger.hxx>
+#include <NCollection_LocalArray.hxx>
 #include <NCollection_Mat4.hxx>
 
 #include <OpenGl_AspectLine.hxx>
@@ -39,6 +43,10 @@
 #include <OpenGl_ShaderProgram.hxx>
 #include <OpenGl_Structure.hxx>
 #include <OpenGl_ArbFBO.hxx>
+
+#ifdef HAVE_OPENVR
+  #include <openvr.h>
+#endif
 
 namespace
 {
@@ -66,6 +74,77 @@ namespace
   {
     return checkWasFailedFbo (theFboToCheck, theFboRef->GetVPSizeX(), theFboRef->GetVPSizeY(), theFboRef->NbSamples());
   }
+
+#ifdef HAVE_OPENVR
+  //! Retrieve string property from OpenVR.
+  static TCollection_AsciiString getVrTrackedDeviceString (vr::IVRSystem* theHmd,
+                                                           vr::TrackedDeviceIndex_t theDevice,
+                                                           vr::TrackedDeviceProperty theProperty,
+                                                           vr::TrackedPropertyError* theError = NULL)
+  {
+    const uint32_t aBuffLen = theHmd->GetStringTrackedDeviceProperty(theDevice, theProperty, NULL, 0, theError);
+    if (aBuffLen == 0)
+    {
+      return TCollection_AsciiString();
+    }
+
+    NCollection_LocalArray<char> aBuffer (aBuffLen + 1);
+    theHmd->GetStringTrackedDeviceProperty (theDevice, theProperty, aBuffer, aBuffLen, theError);
+    aBuffer[aBuffLen] = '\0';
+    const TCollection_AsciiString aResult (aBuffer);
+    return aResult;
+  }
+
+  //! Print OpenVR compositor error.
+  static TCollection_AsciiString getVRCompositorError (vr::EVRCompositorError theVRError)
+  {
+    switch (theVRError)
+    {
+      case vr::VRCompositorError_None:
+        return "None";
+      case vr::VRCompositorError_RequestFailed:
+        return "Compositor Error: Request Failed";
+      case vr::VRCompositorError_IncompatibleVersion:
+        return "Compositor Error: Incompatible Version";
+      case vr::VRCompositorError_DoNotHaveFocus:
+        return "Compositor Error: Do not have focus";
+      case vr::VRCompositorError_InvalidTexture:
+        return "Compositor Error: Invalid Texture";
+      case vr::VRCompositorError_IsNotSceneApplication:
+        return "Compositor Error: Is not scene application";
+      case vr::VRCompositorError_TextureIsOnWrongDevice:
+        return "Compositor Error: Texture is on wrong device";
+      case vr::VRCompositorError_TextureUsesUnsupportedFormat:
+        return "Compositor Error: Texture uses unsupported format";
+      case vr::VRCompositorError_SharedTexturesNotSupported:
+        return "Compositor Error: Shared textures not supported";
+      case vr::VRCompositorError_IndexOutOfRange:
+        return "Compositor Error: Index out of range";
+      case vr::VRCompositorError_AlreadySubmitted:
+        return "Compositor Error: Already submitted";
+    }
+    return TCollection_AsciiString ("Compositor Error: UNKNOWN #") + int(theVRError);
+  }
+
+  //! Define transformation based on OpenVR transformation matrix
+  //! and camera definition as reference coordinate system.
+  static gp_Trsf trsfVr2Occ (const Graphic3d_Camera&  theCamera,
+                             const vr::HmdMatrix34_t& theTrsf)
+  {
+    gp_Trsf aTrsfVr;
+    aTrsfVr.SetValues (theTrsf.m[0][0], theTrsf.m[0][1], theTrsf.m[0][2], theTrsf.m[0][3],
+                       theTrsf.m[1][0], theTrsf.m[1][1], theTrsf.m[1][2], theTrsf.m[1][3],
+                       theTrsf.m[2][0], theTrsf.m[2][1], theTrsf.m[2][2], theTrsf.m[2][3]);
+
+    gp_Trsf aTrsfVr2Occ, aTrsfOcc2Vr;
+    const gp_Dir aBaseDX = gp_Vec (theCamera.Direction()) ^ gp_Vec (theCamera.OrthogonalizedUp());
+    aTrsfOcc2Vr.SetTransformation (gp_Ax3 (gp::Origin(), theCamera.Direction(), aBaseDX),
+                                   gp_Ax3 (gp::Origin(), -gp::DZ(), gp::DX()));
+    aTrsfVr2Occ = aTrsfOcc2Vr.Inverted();
+
+    return aTrsfOcc2Vr * aTrsfVr * aTrsfVr2Occ;
+  }
+#endif
 }
 
 //=======================================================================
@@ -137,6 +216,221 @@ void OpenGl_View::drawBackground (const Handle(OpenGl_Workspace)& theWorkspace)
   }
 }
 
+// =======================================================================
+// function : releaseOpenVR
+// purpose  :
+// =======================================================================
+void OpenGl_View::releaseOpenVR()
+{
+  myAboutVrDevice.Clear();
+#ifdef HAVE_OPENVR
+  if (myVrHmd != NULL)
+  {
+    vr::VR_Shutdown();
+    myVrHmd = NULL;
+  }
+#endif
+}
+
+// =======================================================================
+// function : initOpenVR
+// purpose  :
+// =======================================================================
+bool OpenGl_View::initOpenVR()
+{
+  if (myVrHmd != NULL)
+  {
+    return true;
+  }
+
+#ifdef HAVE_OPENVR
+  vr::EVRInitError aVrError = vr::VRInitError_None;
+  myVrHmd = vr::VR_Init (&aVrError, vr::VRApplication_Scene);
+  if (aVrError != vr::VRInitError_None)
+  {
+    myVrHmd = NULL;
+    Message::DefaultMessenger()->Send (TCollection_AsciiString ("OpenVR, Unable to init VR runtime: ") + vr::VR_GetVRInitErrorAsEnglishDescription (aVrError),
+                                       Message_Fail);
+    releaseOpenVR();
+    return false;
+  }
+
+  /*vr::IVRRenderModels* aRenderModels = (vr::IVRRenderModels* )vr::VR_GetGenericInterface (vr::IVRRenderModels_Version, &aVrError);
+  if (aRenderModels == NULL)
+  {
+    Message::DefaultMessenger()->Send (TCollection_AsciiString ("Unable to get render model interface: ") + vr::VR_GetVRInitErrorAsEnglishDescription (aVrError),
+                                       Message_Fail);;
+  }*/
+
+  const TCollection_AsciiString aVrManuf   = getVrTrackedDeviceString (myVrHmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_ManufacturerName_String);
+  const TCollection_AsciiString aVrDriver  = getVrTrackedDeviceString (myVrHmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_TrackingSystemName_String);
+  const TCollection_AsciiString aVrDisplay = getVrTrackedDeviceString (myVrHmd, vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_SerialNumber_String);
+
+  {
+    uint32_t aRenderSizeX = 0;
+    uint32_t aRenderSizeY = 0;
+    myVrHmd->GetRecommendedRenderTargetSize (&aRenderSizeX, &aRenderSizeY);
+    myVrRendSizeX = int(aRenderSizeX);
+    myVrRendSizeY = int(aRenderSizeY);
+    if (myVrRendSizeX <= 0
+     || myVrRendSizeY <= 0)
+    {
+      releaseOpenVR();
+      return false;
+    }
+  }
+  myAboutVrDevice = aVrManuf + " " + aVrDriver + "\n"
+                  + aVrDisplay + " [" + myVrRendSizeX + "x" + myVrRendSizeY + "]";
+#endif
+  return myVrHmd != NULL;
+}
+
+// =======================================================================
+// function : processOpenVrEvents
+// purpose  :
+// =======================================================================
+void OpenGl_View::processOpenVrEvents()
+{
+  if (myVrHmd == NULL)
+  {
+    return;
+  }
+
+#ifdef HAVE_OPENVR
+  // process OpenVR events
+  for (vr::VREvent_t aVREvent; myVrHmd->PollNextEvent(&aVREvent, sizeof(aVREvent));)
+  {
+    switch (aVREvent.eventType)
+    {
+      case vr::VREvent_TrackedDeviceActivated:
+      {
+        Message::DefaultMessenger()->Send (TCollection_AsciiString ("OpenVR, Device ") + (int )aVREvent.trackedDeviceIndex + " attached", Message_Trace);
+        break;
+      }
+      case vr::VREvent_TrackedDeviceDeactivated:
+      {
+        Message::DefaultMessenger()->Send (TCollection_AsciiString ("OpenVR, Device ") + (int )aVREvent.trackedDeviceIndex + " detached", Message_Trace);
+        break;
+      }
+      case vr::VREvent_TrackedDeviceUpdated:
+      {
+        Message::DefaultMessenger()->Send (TCollection_AsciiString ("OpenVR, Device ") + (int )aVREvent.trackedDeviceIndex + " updated", Message_Trace);
+        break;
+      }
+    }
+  }
+
+  // process OpenVR controller state
+  for (vr::TrackedDeviceIndex_t aDevIter = 0; aDevIter < vr::k_unMaxTrackedDeviceCount; ++aDevIter)
+  {
+    vr::VRControllerState_t aCtrlState;
+    if (myVrHmd->GetControllerState (aDevIter, &aCtrlState, sizeof(aCtrlState)))
+    {
+      // aCtrlState.ulButtonPressed == 0;
+    }
+  }
+#endif
+}
+
+//=======================================================================
+//function : ProcessInput
+//purpose  :
+//=======================================================================
+void OpenGl_View::ProcessInput()
+{
+double aZNearOld = myEffectiveCamera->ZNear(); ///
+double aZFarOld = myEffectiveCamera->ZFar(); ///
+  myEffectiveCamera->Copy (myCameraBase);
+  if (myVrHmd == NULL)
+  {
+    return;
+  }
+  processOpenVrEvents();
+
+#ifdef HAVE_OPENVR
+  const vr::EVRCompositorError aVRError = vr::VRCompositor()->WaitGetPoses (myVrTrackedPoses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+  if (aVRError != vr::VRCompositorError_None)
+  {
+    Message::DefaultMessenger()->Send (getVRCompositorError (aVRError), Message_Trace);
+  }
+
+  if (myVrTrackedPoses[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+  {
+    myVrHeadOrient = trsfVr2Occ (*myCameraBase, myVrTrackedPoses[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
+  }
+#endif
+  Graphic3d_Camera::FrustumLRBT<float> aFrustL, aFrustR;
+  myVrHmd->GetProjectionRaw (vr::Eye_Left,  &aFrustL.Left, &aFrustL.Right, &aFrustL.Top, &aFrustL.Bottom);
+  myVrHmd->GetProjectionRaw (vr::Eye_Right, &aFrustR.Left, &aFrustR.Right, &aFrustR.Top, &aFrustR.Bottom);
+
+  vr::HmdMatrix34_t aLeftToHead  = myVrHmd->GetEyeToHeadTransform (vr::Eye_Left);
+  vr::HmdMatrix34_t aRightToHead = myVrHmd->GetEyeToHeadTransform (vr::Eye_Right);
+
+  vr::HmdMatrix44_t aMatL = myVrHmd->GetProjectionMatrix (vr::Eye_Left,  aZNearOld, aZFarOld);
+  vr::HmdMatrix44_t aMatR = myVrHmd->GetProjectionMatrix (vr::Eye_Right, aZNearOld, aZFarOld);
+
+Graphic3d_Vec2d aTanHalfFov (Graphic3d_Vec4(-aFrustL.Left, aFrustL.Right,  -aFrustR.Left, aFrustR.Right).maxComp(),
+                             Graphic3d_Vec4(-aFrustL.Top,  aFrustL.Bottom, -aFrustR.Top,  aFrustR.Bottom).maxComp());
+Standard_Real anAspect = aTanHalfFov.x() / aTanHalfFov.y();
+double anIod = aRightToHead.m[0][3] - aLeftToHead.m[0][3];
+double aFieldOfView = 2.0 * ATan(aTanHalfFov.y()) * 180.0 / M_PI;
+///double aZFocus = anIod * myEffectiveCamera->ZNear() / (aFrustL.Left - aFrustL.Right);
+///double aZFocus = anIod / (aFrustL.Left - aFrustL.Right);
+double aZFocus = -anIod / (aFrustL.Left - aTanHalfFov.y());
+
+/*std::cerr << " L: " << aLeftToHead.m[0][0] << " " << aLeftToHead.m[0][1] << " " << aLeftToHead.m[0][2] << " " << aLeftToHead.m[0][3] << "\n"
+          << "    " << aLeftToHead.m[1][0] << " " << aLeftToHead.m[1][1] << " " << aLeftToHead.m[1][2] << " " << aLeftToHead.m[1][3] << "\n"
+          << "    " << aLeftToHead.m[2][0] << " " << aLeftToHead.m[2][1] << " " << aLeftToHead.m[2][2] << " " << aLeftToHead.m[2][3] << "\n"; ///
+std::cerr << " R: " << aRightToHead.m[0][0] << " " << aRightToHead.m[0][1] << " " << aRightToHead.m[0][2] << " " << aRightToHead.m[0][3] << "\n"
+          << "    " << aRightToHead.m[1][0] << " " << aRightToHead.m[1][1] << " " << aRightToHead.m[1][2] << " " << aRightToHead.m[1][3] << "\n"
+          << "    " << aRightToHead.m[2][0] << " " << aRightToHead.m[2][1] << " " << aRightToHead.m[2][2] << " " << aRightToHead.m[2][3] << "\n"; ///
+          */
+
+///std::cerr << " Mat: " << aMatL.m[0][3] << " " << aMatL.m[1][3] << " " << aMatL.m[2][3] << " " << aMatL.m[3][3] << "\n"; ///
+
+
+/*std::cerr << " FOV: " << aFieldOfView << "; "
+        << "Aspect: " << anAspect << " (" << (static_cast<Standard_Real> (myVrRendSizeX) / static_cast<Standard_Real> (myVrRendSizeY)) << "); "
+        << "Iod: " << anIod << "; "
+        << "ZFocus: " << aZFocus << "; "
+        << "L2H: " << aLeftToHead.m[0][3]  << " " << aLeftToHead.m[1][3]  << " " << aLeftToHead.m[2][3] << "; "
+        << "R2H: " << aRightToHead.m[0][3] << " " << aRightToHead.m[1][3] << " " << aRightToHead.m[2][3] << "; "
+        <<"\n";*/
+
+  myEffectiveCamera->SetAspect (anAspect);
+  myEffectiveCamera->SetFOVy (aFieldOfView);
+
+gp_Dir anUpNew  = myCameraBase->OrthogonalizedUp().Transformed (myVrHeadOrient);
+gp_Dir aDirNew  = myCameraBase->Direction().Transformed (myVrHeadOrient);
+gp_Pnt anEyeNew = myCameraBase->Eye().XYZ() + myVrHeadOrient.TranslationPart();
+
+myEffectiveCamera->SetUp (anUpNew);
+myEffectiveCamera->SetEye (anEyeNew);
+///myEffectiveCamera->SetCenter (myEffectiveCamera->Eye().XYZ() + aDirNew.XYZ() * 1.0); ///
+myEffectiveCamera->SetCenter (myEffectiveCamera->Eye().XYZ() + aDirNew.XYZ() * myCameraBase->Distance()); ///
+
+/*std::cerr << " EyeOld: " << myCameraBase->Eye().X() << " " << myCameraBase->Eye().Y() << " " << myCameraBase->Eye().Z() << "\n"
+          << " EyeNew: " << anEyeNew.X() << " " << anEyeNew.Y() << " " << anEyeNew.Z() << "\n"
+          << " Trs:    " << myVrHeadOrient.TranslationPart().X() << " " << myVrHeadOrient.TranslationPart().Y() << " " << myVrHeadOrient.TranslationPart().Z() << "\n";*/
+
+  //myEffectiveCamera->SetCenter (myEffectiveCamera->Eye().Translated (myEffectiveCamera->Direction().XYZ() * 1.0));
+  myEffectiveCamera->SetIOD (Graphic3d_Camera::IODType_Absolute, anIod);
+  //myEffectiveCamera->SetZFocus (Graphic3d_Camera::FocusType_Absolute, aZFocus);
+
+  Graphic3d_Camera::FrustumLRBT<Standard_Real> aFrustL2, aFrustR2;
+  aFrustL2.Left   = aFrustL.Left;
+  aFrustL2.Right  = aFrustL.Right;
+  aFrustL2.Bottom = aFrustL.Bottom;
+  aFrustL2.Top    = aFrustL.Top;
+  aFrustR2.Left   = aFrustR.Left;
+  aFrustR2.Right  = aFrustR.Right;
+  aFrustR2.Bottom = aFrustR.Bottom;
+  aFrustR2.Top    = aFrustR.Top;
+  std::swap (aFrustL2.Top, aFrustL2.Bottom);
+  std::swap (aFrustR2.Top, aFrustR2.Bottom);
+myEffectiveCamera->SetCustomFrustum (aFrustL2, aFrustR2); ///
+}
+
 //=======================================================================
 //function : Redraw
 //purpose  :
@@ -160,11 +454,9 @@ void OpenGl_View::Redraw()
     return;
   }
 
-  myWindow->SetSwapInterval();
-
   ++myFrameCounter;
   const Graphic3d_StereoMode   aStereoMode  = myRenderParams.StereoMode;
-  Graphic3d_Camera::Projection aProjectType = myCamera->ProjectionType();
+  Graphic3d_Camera::Projection aProjectType = myEffectiveCamera->ProjectionType();
   Handle(OpenGl_Context)       aCtx         = myWorkspace->GetGlContext();
   aCtx->FrameStats()->FrameStart (myWorkspace);
 
@@ -175,12 +467,34 @@ void OpenGl_View::Redraw()
   aCtx->FetchState();
 
   OpenGl_FrameBuffer* aFrameBuffer = myFBO.operator->();
+  if (aStereoMode != Graphic3d_StereoMode_OpenVR
+  ||  aProjectType != Graphic3d_Camera::Projection_Stereo
+  ||  aFrameBuffer != NULL
+  || !initOpenVR())
+  {
+    releaseOpenVR();
+  }
+
+  // implicitly disable VSync when using HMD composer (can be mirrored in window for debugging)
+  myWindow->SetSwapInterval (myVrHmd != NULL);
   bool toSwap = aCtx->IsRender()
             && !aCtx->caps->buffersNoSwap
-            &&  aFrameBuffer == NULL;
+            &&  aFrameBuffer == NULL
+            &&  (myVrHmd == NULL || myRenderParams.ToMirrorComposer);
 
-  Standard_Integer aSizeX = aFrameBuffer != NULL ? aFrameBuffer->GetVPSizeX() : myWindow->Width();
-  Standard_Integer aSizeY = aFrameBuffer != NULL ? aFrameBuffer->GetVPSizeY() : myWindow->Height();
+  Standard_Integer aSizeX = myWindow->Width();
+  Standard_Integer aSizeY = myWindow->Height();
+  if (aFrameBuffer != NULL)
+  {
+    aSizeX = aFrameBuffer->GetVPSizeX();
+    aSizeY = aFrameBuffer->GetVPSizeY();
+  }
+  else if (myVrHmd != NULL)
+  {
+    aSizeX = myVrRendSizeX;
+    aSizeY = myVrRendSizeY;
+  }
+
   Standard_Integer aRendSizeX = Standard_Integer(myRenderParams.RenderResolutionScale * aSizeX + 0.5f);
   Standard_Integer aRendSizeY = Standard_Integer(myRenderParams.RenderResolutionScale * aSizeY + 0.5f);
 
@@ -198,7 +512,6 @@ void OpenGl_View::Redraw()
 
   const bool toInitImmediateFbo = myTransientDrawToFront
                                && (!aCtx->caps->useSystemBuffer || (toUseOit && HasImmediateStructures()));
-
   if ( aFrameBuffer == NULL
    && !aCtx->DefaultFrameBuffer().IsNull()
    &&  aCtx->DefaultFrameBuffer()->IsValid())
@@ -264,7 +577,8 @@ void OpenGl_View::Redraw()
   }
 
   if (aProjectType == Graphic3d_Camera::Projection_Stereo
-   && myMainSceneFbos[0]->IsValid())
+   && myMainSceneFbos[0]->IsValid()
+   && myVrHmd == NULL) // no frame caching with HMD
   {
     const bool wasFailedMain1 = checkWasFailedFbo (myMainSceneFbos[1], myMainSceneFbos[0]);
     if (!myMainSceneFbos[1]->InitLazy (aCtx, *myMainSceneFbos[0])
@@ -423,7 +737,18 @@ void OpenGl_View::Redraw()
         myImmediateSceneFbosOit[0]->IsValid() ? myImmediateSceneFbosOit[0].operator->() : NULL
     };
 
-    if (!myTransientDrawToFront)
+    if (myVrHmd != NULL)
+    {
+      // use single frame for both views - caching main scene content makes no sense
+      // when head position is expected to be updated each frame redraw with high accuracy
+      aMainFbos[1]    = aMainFbos[0];
+      aMainFbosOit[1] = aMainFbosOit[0];
+      anImmFbos[0]    = aMainFbos[0];
+      anImmFbos[1]    = aMainFbos[1];
+      anImmFbosOit[0] = aMainFbosOit[0];
+      anImmFbosOit[1] = aMainFbosOit[1];
+    }
+    else if (!myTransientDrawToFront)
     {
       anImmFbos   [0] = aMainFbos   [0];
       anImmFbos   [1] = aMainFbos   [1];
@@ -462,6 +787,19 @@ void OpenGl_View::Redraw()
       aCtx->SwapBuffers();
     }
 
+  #ifdef HAVE_OPENVR
+    if (myVrHmd != NULL)
+    {
+      // push Left frame to HMD display composer
+      vr::Texture_t aVRTexture = { (void* )(size_t )aMainFbos[0]->ColorTexture()->TextureId(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+      const vr::EVRCompositorError aVRError = vr::VRCompositor()->Submit (vr::Eye_Left, &aVRTexture);
+      if (aVRError != vr::VRCompositorError_None)
+      {
+        Message::DefaultMessenger()->Send (getVRCompositorError (aVRError), Message_Trace);
+      }
+    }
+  #endif
+
   #if !defined(GL_ES_VERSION_2_0)
     aCtx->SetReadDrawBuffer (aStereoMode == Graphic3d_StereoMode_QuadBuffer ? GL_BACK_RIGHT : GL_BACK);
   #endif
@@ -478,6 +816,27 @@ void OpenGl_View::Redraw()
       toSwap = false;
     }
 
+  #ifdef HAVE_OPENVR
+    if (myVrHmd != NULL)
+    {
+      // push Right frame to HMD display composer
+      {
+        vr::Texture_t aVRTexture = { (void* )(size_t )aMainFbos[1]->ColorTexture()->TextureId(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+        const vr::EVRCompositorError aVRError = vr::VRCompositor()->Submit (vr::Eye_Right, &aVRTexture);
+        if (aVRError != vr::VRCompositorError_None)
+        {
+          Message::DefaultMessenger()->Send (getVRCompositorError (aVRError), Message_Trace);
+        }
+      }
+      ::glFinish();
+
+      if (myRenderParams.ToMirrorComposer)
+      {
+        blitBuffers (aMainFbos[0], aFrameBuffer, myToFlipOutput);
+      }
+    }
+    else
+  #endif
     if (anImmFbos[0] != NULL)
     {
       aCtx->SetResolution (myRenderParams.Resolution, myRenderParams.ResolutionRatio(), 1.0f);
@@ -580,6 +939,8 @@ void OpenGl_View::RedrawImmediate()
   if (!myWorkspace->Activate())
     return;
 
+  // no special handling of HMD display (myVrHmd),
+  // since it will force full Redraw() due to no frame caching (myBackBufferRestored)
   Handle(OpenGl_Context) aCtx = myWorkspace->GetGlContext();
   if (!myTransientDrawToFront
    || !myBackBufferRestored
@@ -590,7 +951,7 @@ void OpenGl_View::RedrawImmediate()
   }
 
   const Graphic3d_StereoMode   aStereoMode  = myRenderParams.StereoMode;
-  Graphic3d_Camera::Projection aProjectType = myCamera->ProjectionType();
+  Graphic3d_Camera::Projection aProjectType = myEffectiveCamera->ProjectionType();
   OpenGl_FrameBuffer*          aFrameBuffer = myFBO.operator->();
   aCtx->FrameStats()->FrameStart (myWorkspace);
 
@@ -795,9 +1156,11 @@ bool OpenGl_View::redrawImmediate (const Graphic3d_Camera::Projection theProject
   Handle(OpenGl_Context) aCtx = myWorkspace->GetGlContext();
   GLboolean toCopyBackToFront = GL_FALSE;
   if (theDrawFbo == theReadFbo
-   && theDrawFbo != NULL)
+   && theDrawFbo != NULL
+   && theDrawFbo->IsValid())
   {
     myBackBufferRestored = Standard_False;
+    theDrawFbo->BindBuffer (aCtx);
   }
   else if (theReadFbo != NULL
         && theReadFbo->IsValid()
@@ -885,7 +1248,7 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
 
   // update states of OpenGl_BVHTreeSelector (frustum culling algorithm);
   // note that we pass here window dimensions ignoring Graphic3d_RenderingParams::RenderResolutionScale
-  myBVHSelector.SetViewVolume (myCamera);
+  myBVHSelector.SetViewVolume (myEffectiveCamera);
   myBVHSelector.SetViewportSize (myWindow->Width(), myWindow->Height(), myRenderParams.ResolutionRatio());
   myBVHSelector.CacheClipPtsProjections();
 
@@ -905,7 +1268,7 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
   }
 
   // Update matrices if camera has changed.
-  Graphic3d_WorldViewProjState aWVPState = myCamera->WorldViewProjState();
+  Graphic3d_WorldViewProjState aWVPState = myEffectiveCamera->WorldViewProjState();
   if (myWorldViewProjState != aWVPState)
   {
     myAccumFrames = 0;
@@ -913,10 +1276,7 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
   }
 
   myLocalOrigin.SetCoord (0.0, 0.0, 0.0);
-  aContext->ProjectionState.SetCurrent (myCamera->ProjectionMatrixF());
-  aContext->WorldViewState .SetCurrent (myCamera->OrientationMatrixF());
-  aContext->ApplyProjectionMatrix();
-  aContext->ApplyWorldViewMatrix();
+  aContext->SetCamera (myEffectiveCamera);
   if (aManager->ModelWorldState().Index() == 0)
   {
     aContext->ShaderManager()->UpdateModelWorldStateTo (OpenGl_Mat4());
@@ -962,7 +1322,7 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
 #if !defined(GL_ES_VERSION_2_0)
   // if the view is scaled normal vectors are scaled to unit
   // length for correct displaying of shaded objects
-  const gp_Pnt anAxialScale = myCamera->AxialScale();
+  const gp_Pnt anAxialScale = aContext->Camera()->AxialScale();
   if (anAxialScale.X() != 1.F ||
       anAxialScale.Y() != 1.F ||
       anAxialScale.Z() != 1.F)
@@ -987,12 +1347,12 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
   // Redraw 3d scene
   if (theProjection == Graphic3d_Camera::Projection_MonoLeftEye)
   {
-    aContext->ProjectionState.SetCurrent (myCamera->ProjectionStereoLeftF());
+    aContext->ProjectionState.SetCurrent (aContext->Camera()->ProjectionStereoLeftF());
     aContext->ApplyProjectionMatrix();
   }
   else if (theProjection == Graphic3d_Camera::Projection_MonoRightEye)
   {
-    aContext->ProjectionState.SetCurrent (myCamera->ProjectionStereoRightF());
+    aContext->ProjectionState.SetCurrent (aContext->Camera()->ProjectionStereoRightF());
     aContext->ApplyProjectionMatrix();
   }
 

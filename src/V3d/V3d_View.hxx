@@ -179,18 +179,14 @@ public:
   Standard_EXPORT void SetAutoZFitMode (const Standard_Boolean theIsOn, const Standard_Real theScaleFactor = 1.0);
 
   //! returns TRUE if automatic z-fit mode is turned on.
-  Standard_EXPORT Standard_Boolean AutoZFitMode() const;
+  Standard_Boolean AutoZFitMode() const { return myAutoZFitIsOn; }
 
   //! returns scale factor parameter of automatic z-fit mode.
-  Standard_EXPORT Standard_Real AutoZFitScaleFactor() const;
-
-  //! If automatic z-range fitting is turned on, adjusts Z-min and Z-max
-  //! projection volume planes with call to ZFitAll.
-  Standard_EXPORT void AutoZFit() const;
+  Standard_Real AutoZFitScaleFactor() const { return myAutoZFitScaleFactor; }
 
   //! Change Z-min and Z-max planes of projection volume to match the
   //! displayed objects.
-  Standard_EXPORT void ZFitAll (const Standard_Real theScaleFactor = 1.0) const;
+  Standard_EXPORT void ZFitAll (const Standard_Real theScaleFactor = 1.0);
 
   //! Defines the background color of the view by the color definition type and the three corresponding values.
   Standard_EXPORT void SetBackgroundColor (const Quantity_TypeOfColor theType,
@@ -871,13 +867,20 @@ public:
   //! Returns the MAX number of clipping planes associated to the view.
   Standard_EXPORT Standard_Integer PlaneLimit() const;
 
+  //! Returns camera base of the view.
+  const Handle(Graphic3d_Camera)& CameraBase() const { return myView->CameraBase(); }
+
   //! Change camera used by view.
-  Standard_EXPORT void SetCamera (const Handle(Graphic3d_Camera)& theCamera);
+  Standard_EXPORT void SetCameraBase (const Handle(Graphic3d_Camera)& theCamera);
+
+  //! Returns effective camera object of the view.
+  const Handle(Graphic3d_Camera)& EffectiveCamera() const { return myView->EffectiveCamera(); }
 
   //! Returns camera object of the view.
-  //! @return: handle to camera object, or NULL if 3D view does not use
-  //! the camera approach.
-  Standard_EXPORT const Handle(Graphic3d_Camera)& Camera() const;
+  const Handle(Graphic3d_Camera)& Camera() const { return CameraBase(); }
+
+  //! Change camera used by view.
+  void SetCamera (const Handle(Graphic3d_Camera)& theCamera) { SetCameraBase (theCamera); }
 
   //! Return default camera.
   const Handle(Graphic3d_Camera)& DefaultCamera() const { return myDefaultCamera; }

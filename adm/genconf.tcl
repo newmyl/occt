@@ -148,6 +148,9 @@ proc wokdep:gui:UpdateList {} {
   if { "$::HAVE_FFMPEG" == "true" } {
     wokdep:SearchFFmpeg  anIncErrs anLib32Errs anLib64Errs anBin32Errs anBin64Errs
   }
+  if { "$::HAVE_OPENVR" == "true" } {
+    wokdep:SearchOpenVR  anIncErrs anLib32Errs anLib64Errs anBin32Errs anBin64Errs
+  }
   if { "$::HAVE_TBB" == "true" } {
     wokdep:SearchTBB     anIncErrs anLib32Errs anLib64Errs anBin32Errs anBin64Errs
   }
@@ -409,6 +412,8 @@ entry         .myFrame.mySrchEntry     -textvariable PRODUCTS_PATH -width 80
 ttk::button   .myFrame.mySrchBrowseBtn -text "Browse" -command wokdep:gui:BrowsePartiesRoot
 checkbutton   .myFrame.myChecks.myFImageCheck   -offvalue "false" -onvalue "true" -variable HAVE_FREEIMAGE -command wokdep:gui:UpdateList
 ttk::label    .myFrame.myChecks.myFImageLbl     -text "Use FreeImage"
+checkbutton   .myFrame.myChecks.myOpenVrCheck   -offvalue "false" -onvalue "true" -variable HAVE_OPENVR    -command wokdep:gui:UpdateList
+ttk::label    .myFrame.myChecks.myOpenVrLbl     -text "Use OpenVR"
 checkbutton   .myFrame.myChecks.myTbbCheck      -offvalue "false" -onvalue "true" -variable HAVE_TBB       -command wokdep:gui:UpdateList
 ttk::label    .myFrame.myChecks.myTbbLbl        -text "Use Intel TBB"
 if { "$::tcl_platform(os)" != "Darwin" } {
@@ -551,6 +556,8 @@ if { "$::tcl_platform(platform)" == "windows" } {
 }
 grid .myFrame.myChecks.myLzmaCheck     -row $aCheckRowIter -column 6 -sticky e
 grid .myFrame.myChecks.myLzmaLbl       -row $aCheckRowIter -column 7 -sticky w
+grid .myFrame.myChecks.myOpenVrCheck   -row $aCheckRowIter -column 8 -sticky e
+grid .myFrame.myChecks.myOpenVrLbl     -row $aCheckRowIter -column 9 -sticky w
 grid .myFrame.myChecks.myJDKCheck      -row $aCheckRowIter -column 10 -sticky e
 grid .myFrame.myChecks.myJDKLbl        -row $aCheckRowIter -column 11 -sticky w
 

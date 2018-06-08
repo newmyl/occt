@@ -90,10 +90,10 @@ void AIS_AnimationObject::invalidateViewer()
     const Bnd_Box aGraphicBox = aView->View()->MinMaxValues (Standard_True);
     Standard_Real aZNear = 0.0;
     Standard_Real aZFar  = 0.0;
-    if (aView->Camera()->ZFitAll (aDefViewIter.Value()->AutoZFitScaleFactor(), aMinMaxBox, aGraphicBox, aZNear, aZFar))
+    if (aView->EffectiveCamera()->ZFitAll (aDefViewIter.Value()->AutoZFitScaleFactor(), aMinMaxBox, aGraphicBox, aZNear, aZFar))
     {
-      if (aZNear < aView->Camera()->ZNear()
-       || aZFar  > aView->Camera()->ZFar())
+      if (aZNear < aView->EffectiveCamera()->ZNear()
+       || aZFar  > aView->EffectiveCamera()->ZFar())
       {
         aDefViewIter.Value()->Invalidate();
       }

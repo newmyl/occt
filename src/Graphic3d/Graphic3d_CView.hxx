@@ -211,6 +211,9 @@ private:
 
 public:
 
+  //! Process input.
+  virtual void ProcessInput() = 0;
+
   //! Redraw content of the view.
   virtual void Redraw() = 0;
 
@@ -393,11 +396,26 @@ public:
   //! Sets backfacing model for the view.
   virtual void SetBackfacingModel (const Graphic3d_TypeOfBackfacingModel theModel) = 0;
 
-  //! Returns camera object of the view.
-  virtual const Handle(Graphic3d_Camera)& Camera() const = 0;
+  //! Returns basic camera definition of the view.
+  //! ::EffectiveCamera() is managed by renderer and updated within ::ProcessInput() following tracked position changes,
+  //! while ::CameraBase() is managed directly by application.
+  const Handle(Graphic3d_Camera)& CameraBase() const { return myCameraBase; }
 
-  //! Sets camera used by the view.
-  virtual void SetCamera (const Handle(Graphic3d_Camera)& theCamera) = 0;
+  //! Sets basic camera definition of the view.
+  void SetCameraBase (const Handle(Graphic3d_Camera)& theCamera) { myCameraBase = theCamera; }
+
+  //! Returns camera definition used for rendering view.
+  //! In most cases this will be exactly the same object returned by CameraBase(),
+  //! with an exception when tracked head position (e.g. HMD in use) is defined relative to basic camera definition.
+  //! ::EffectiveCamera() is managed by renderer and updated within ::ProcessInput() following tracked position changes,
+  //! while ::CameraBase() is managed directly by application.
+  const Handle(Graphic3d_Camera)& EffectiveCamera() const { return myEffectiveCamera; }
+
+  //! Alias for ::CameraBase().
+  const Handle(Graphic3d_Camera)& Camera() const { return CameraBase(); }
+
+  //! Alias for ::SetCameraBase().
+  void SetCamera (const Handle(Graphic3d_Camera)& theCamera) { SetCameraBase (theCamera); }
 
   //! Returns list of lights of the view.
   virtual const Handle(Graphic3d_LightSet)& Lights() const = 0;
@@ -453,6 +471,8 @@ protected:
   Graphic3d_SequenceOfStructure myStructsComputed;
   Graphic3d_MapOfStructure myStructsDisplayed;
   Handle(Graphic3d_NMapOfTransient) myHiddenObjects;
+  Handle(Graphic3d_Camera) myCameraBase;
+  Handle(Graphic3d_Camera) myEffectiveCamera;
   Standard_Boolean myIsInComputedMode;
   Standard_Boolean myIsActive;
   Standard_Boolean myIsRemoved;

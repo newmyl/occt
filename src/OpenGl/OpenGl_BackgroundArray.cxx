@@ -385,10 +385,10 @@ void OpenGl_BackgroundArray::Render (const Handle(OpenGl_Workspace)& theWorkspac
   const Handle(OpenGl_Context)& aCtx = theWorkspace->GetGlContext();
   Standard_Integer aViewSizeX = aCtx->Viewport()[2];
   Standard_Integer aViewSizeY = aCtx->Viewport()[3];
-  if (theWorkspace->View()->Camera()->Tile().IsValid())
+  if (aCtx->Camera()->Tile().IsValid())
   {
-    aViewSizeX = theWorkspace->View()->Camera()->Tile().TotalSize.x();
-    aViewSizeY = theWorkspace->View()->Camera()->Tile().TotalSize.y();
+    aViewSizeX = aCtx->Camera()->Tile().TotalSize.x();
+    aViewSizeY = aCtx->Camera()->Tile().TotalSize.y();
   }
   if (myToUpdate
    || myViewWidth  != aViewSizeX
@@ -401,7 +401,7 @@ void OpenGl_BackgroundArray::Render (const Handle(OpenGl_Workspace)& theWorkspac
 
   OpenGl_Mat4 aProjection = aCtx->ProjectionState.Current();
   OpenGl_Mat4 aWorldView  = aCtx->WorldViewState.Current();
-  myTrsfPers.Apply (theWorkspace->View()->Camera(), aProjection, aWorldView,
+  myTrsfPers.Apply (aCtx->Camera(), aProjection, aWorldView,
                     aCtx->Viewport()[2], aCtx->Viewport()[3]);
 
   aCtx->ProjectionState.Push();

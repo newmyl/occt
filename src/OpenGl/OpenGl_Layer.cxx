@@ -694,7 +694,7 @@ void OpenGl_Layer::Render (const Handle(OpenGl_Workspace)&   theWorkspace,
     aManager->UpdateLightSourceStateTo (myLayerSettings.Lights());
   }
 
-  const Handle(Graphic3d_Camera)& aWorldCamera = theWorkspace->View()->Camera();
+  const Handle(Graphic3d_Camera)& aWorldCamera = aCtx->Camera();
   if (hasLocalCS)
   {
     // Apply local camera transformation.
