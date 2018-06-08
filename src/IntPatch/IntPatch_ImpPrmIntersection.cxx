@@ -469,7 +469,7 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
 {
   Standard_Boolean reversed, procf, procl, dofirst, dolast;
   Standard_Integer indfirst = 0, indlast = 0, ind2, NbSegm;
-  Standard_Integer NbPointIns, NbPointRst, Nblines, Nbpts, NbPointDep;
+  Standard_Integer NbPointIns, NbPointsTang, NbPointRst, Nblines, Nbpts, NbPointDep;
   Standard_Real U1,V1,U2,V2,paramf,paraml,currentparam;
 
   IntPatch_TheSegmentOfTheSOnBounds thesegm;
@@ -584,6 +584,7 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
   //
   IntSurf_SequenceOfPathPoint seqpdep;
   IntSurf_SequenceOfInteriorPoint seqpins;
+  IntSurf_SequenceOfInteriorPoint seqptang;
   //
   NbPointRst = solrst.NbPoints();
   TColStd_Array1OfInteger Destination(1,NbPointRst+1); Destination.Init(0);
@@ -655,6 +656,9 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
     for (Standard_Integer i=1; i <= NbPointIns; i++) {
       seqpins.Append(solins.Value(i));
     }
+    NbPointsTang = solins.NbTangentPoints();
+    for (Standard_Integer i = 1; i <= NbPointsTang; i++)
+      seqptang.Append(solins.TangentPoint(i));
   }
   //
   NbPointDep=seqpdep.Length();
@@ -662,10 +666,10 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
   if (NbPointDep || NbPointIns) {
     IntPatch_TheIWalking iwalk(TolTang,Fleche,Pas);
     if (!reversed) {
-      iwalk.Perform(seqpdep,seqpins,Func,Surf2);
+      iwalk.Perform(seqpdep,seqpins,seqptang,Func,Surf2);
     }
     else {
-      iwalk.Perform(seqpdep,seqpins,Func,Surf1,Standard_True);
+      iwalk.Perform(seqpdep,seqpins,seqptang,Func,Surf1,Standard_True);
     }
     if(!iwalk.IsDone()) {
       return;
@@ -830,6 +834,7 @@ void IntPatch_ImpPrmIntersection::Perform (const Handle(Adaptor3d_HSurface)& Sur
         }
         // <-A
         wline = new IntPatch_WLine(thelin,Standard_False,trans1,trans2);
+        wline->EnablePurging(iwline->IsPurgingAllowed());
 
 #ifdef INTPATCH_IMPPRMINTERSECTION_DEBUG
         wline->Dump(0);

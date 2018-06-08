@@ -31,6 +31,7 @@
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <Standard_Integer.hxx>
 #include <math_Vector.hxx>
+#include <IntSurf_Quadric.hxx>
 class Adaptor3d_HSurface;
 class StdFail_UndefinedDerivative;
 class gp_Pnt;
@@ -92,10 +93,20 @@ public:
   
   Standard_EXPORT Standard_Boolean IsTangent();
   
+      Standard_Boolean IsTangentSmooth() ;
+  
     const gp_Vec& Direction3d();
   
     const gp_Dir2d& Direction2d();
   
+      Standard_Boolean DerivativesAndNormalOnPSurf (gp_Vec& D1U, gp_Vec& D1V, gp_Vec& Normal, gp_Vec& D2U, gp_Vec& D2V, gp_Vec& D2UV) ;
+  
+      Standard_Boolean DerivativesAndNormalOnISurf (gp_Vec& D1U, gp_Vec& D1V, gp_Vec& Normal, gp_Vec& D2U, gp_Vec& D2V, gp_Vec& D2UV)  const;
+  
+      Standard_Real SquareTangentError()  const;
+  
+    const IntSurf_Quadric& ISurface() const;
+
     Contap_TFunction FunctionType() const;
   
     const gp_Pnt& Eye() const;
