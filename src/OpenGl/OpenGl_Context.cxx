@@ -3456,7 +3456,10 @@ void OpenGl_Context::PushOrthoScale (const Handle(OpenGl_Workspace)& theWorkspac
 {
   if (!myActiveProgram.IsNull() && !theWorkspace.IsNull())
   {
-    Standard_ShortReal aScale = (Standard_ShortReal)theWorkspace->View()->Camera()->Scale();
+    Handle(Graphic3d_Camera) aCamera = theWorkspace->View()->Camera();
+    Standard_ShortReal aScale = 0.0;
+    if( aCamera->IsOrthographic() )
+      aScale = (Standard_ShortReal)aCamera->Scale();
     myActiveProgram->SetUniform(this, myActiveProgram->GetStateLocation(OpenGl_OCCT_ORTHO_SCALE), aScale);
   }
 }

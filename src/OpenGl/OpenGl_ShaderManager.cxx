@@ -1635,16 +1635,17 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       EOL"  {"
       EOL"    if (occIsSilhouettePass > 0.1)"
       EOL"    {"
-      EOL"      vec4 pos = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
-      EOL"      delta = occNormal.xyz * aShift * pos.w;"
+      EOL"      vec4 proj_vertex = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vertex;"
+      EOL"      delta = occNormal.xyz * aShift/2 * proj_vertex.w;"
       EOL"    }"
       EOL"  }"
       EOL"  "
       EOL"  vertex += vec4(delta, 0.0);"
+      EOL"  vertex[3] = 1.0;"
       ;
 
     aSrcVertEndMain +=
-      EOL"gl_Position += vec4(pdelta.xy, 0.0, 0.0);"
+      EOL"gl_Position += vec4(2*pdelta.xy, 0.0, 0.0);"
       ;
 
     aSrcFragExtraOut +=
