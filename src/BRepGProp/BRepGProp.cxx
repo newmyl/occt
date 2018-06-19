@@ -168,7 +168,10 @@ static Standard_Real surfaceProperties(const TopoDS_Shape& S, GProp_GProps& Prop
     else
     {
       BF.Load(F);
-      Standard_Boolean IsNatRestr = (F.NbChildren() == 0);
+      //Standard_Boolean IsNatRestr = (F.NbChildren() == 0);
+      TopoDS_Iterator aWIter(F);
+      Standard_Boolean IsNatRestr = !aWIter.More();
+
       if (!IsNatRestr) BD.Init(F);
       if (Eps < 1.0) {
         G.Perform(BF, BD, Eps);
@@ -282,7 +285,10 @@ static Standard_Real volumeProperties(const TopoDS_Shape& S, GProp_GProps& Props
       else
       {
         BF.Load(F);
-        Standard_Boolean IsNatRestr = (F.NbChildren () == 0);
+        //Standard_Boolean IsNatRestr = (F.NbChildren () == 0);
+        TopoDS_Iterator aWIter(F);
+        Standard_Boolean IsNatRestr = !aWIter.More();
+
         if (!IsNatRestr) BD.Init(F);
         if (Eps < 1.0) {
           G.Perform(BF, BD, Eps);
