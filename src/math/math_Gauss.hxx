@@ -32,7 +32,7 @@ class math_NotSquare;
 class Standard_DimensionError;
 class StdFail_NotDone;
 class math_Matrix;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 
 
 
@@ -59,7 +59,7 @@ public:
   //! Exception NotSquare is raised if A is not a square matrix.
   Standard_EXPORT math_Gauss(const math_Matrix& A, 
                              const Standard_Real MinPivot = 1.0e-20, 
-                             const Handle(Message_ProgressIndicator) & aProgress = Handle(Message_ProgressIndicator)());
+                             Message_ProgressScope* aProgress = 0L);
   
   //! Returns true if the computations are successful, otherwise returns false
     Standard_Boolean IsDone() const;

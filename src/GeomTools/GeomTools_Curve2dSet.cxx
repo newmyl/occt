@@ -33,8 +33,7 @@
 #include <gp_Hypr2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Parab2d.hxx>
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_OutOfRange.hxx>
@@ -503,8 +502,8 @@ void  GeomTools_Curve2dSet::Write(Standard_OStream& OS)const
   Standard_Integer i, nbsurf = myMap.Extent();
   OS << "Curve2ds "<< nbsurf << "\n";
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "2D Curves", 0, nbsurf, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "2D Curves", 0, nbsurf, 1);
   for (i = 1; i <= nbsurf && PS.More(); i++, PS.Next()) {
     PrintCurve2d(Handle(Geom2d_Curve)::DownCast(myMap(i)),OS,Standard_True);
   }
@@ -852,8 +851,8 @@ void  GeomTools_Curve2dSet::Read(Standard_IStream& IS)
   Standard_Integer i, nbcurve;
   IS >> nbcurve;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "2D Curves", 0, nbcurve, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "2D Curves", 0, nbcurve, 1);
   for (i = 1; i <= nbcurve && PS.More(); i++, PS.Next()) {
     Handle(Geom2d_Curve) C = GeomTools_Curve2dSet::ReadCurve2d (IS);
     myMap.Add(C);
@@ -865,7 +864,7 @@ void  GeomTools_Curve2dSet::Read(Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-Handle(Message_ProgressIndicator) GeomTools_Curve2dSet::GetProgress() const
+Message_ProgressScope* GeomTools_Curve2dSet::GetProgress() const
 {
   return myProgress;
 }
@@ -875,7 +874,7 @@ Handle(Message_ProgressIndicator) GeomTools_Curve2dSet::GetProgress() const
 //purpose  : 
 //=======================================================================
 
-void GeomTools_Curve2dSet::SetProgress(const Handle(Message_ProgressIndicator)& PR)
+void GeomTools_Curve2dSet::SetProgress(Message_ProgressScope* PR)
 {
   myProgress = PR;
 }

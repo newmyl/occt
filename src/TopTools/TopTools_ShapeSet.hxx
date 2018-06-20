@@ -27,7 +27,7 @@
 #include <Standard_OStream.hxx>
 #include <Standard_IStream.hxx>
 #include <TopAbs_ShapeEnum.hxx>
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class TopoDS_Shape;
 class TopTools_LocationSet;
 class TCollection_AsciiString;
@@ -177,9 +177,9 @@ public:
   //! Returns number of shapes read from file.
   Standard_EXPORT Standard_Integer NbShapes() const;
   
-  Standard_EXPORT void SetProgress (const Handle(Message_ProgressIndicator)& PR);
+  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
   
-  Standard_EXPORT Handle(Message_ProgressIndicator) GetProgress() const;
+  Standard_EXPORT Message_ProgressScope* GetProgress() const;
 
 
 
@@ -201,7 +201,7 @@ private:
   TopTools_IndexedMapOfShape myShapes;
   TopTools_LocationSet myLocations;
   Standard_Integer myFormatNb;
-  Handle(Message_ProgressIndicator) myProgress;
+  Message_ProgressScope* myProgress;
 
 
 };

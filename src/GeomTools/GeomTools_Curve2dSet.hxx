@@ -26,7 +26,7 @@
 #include <Standard_OStream.hxx>
 #include <Standard_IStream.hxx>
 #include <Standard_Boolean.hxx>
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class Standard_OutOfRange;
 class Geom2d_Curve;
 
@@ -75,9 +75,9 @@ public:
   //! method (compact = True).
   Standard_EXPORT static Handle(Geom2d_Curve) ReadCurve2d (Standard_IStream& IS);
   
-  Standard_EXPORT void SetProgress (const Handle(Message_ProgressIndicator)& PR);
+  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
   
-  Standard_EXPORT Handle(Message_ProgressIndicator) GetProgress() const;
+  Standard_EXPORT Message_ProgressScope* GetProgress() const;
 
 
 
@@ -93,7 +93,7 @@ private:
 
 
   TColStd_IndexedMapOfTransient myMap;
-  Handle(Message_ProgressIndicator) myProgress;
+  Message_ProgressScope* myProgress;
 
 
 };

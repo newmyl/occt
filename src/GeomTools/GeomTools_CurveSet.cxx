@@ -33,8 +33,7 @@
 #include <gp_Hypr.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Parab.hxx>
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_OutOfRange.hxx>
@@ -520,8 +519,8 @@ void  GeomTools_CurveSet::Write(Standard_OStream& OS)const
   Standard_Integer i, nbcurve = myMap.Extent();
   OS << "Curves "<< nbcurve << "\n";
     //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "3D Curves", 0, nbcurve, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "3D Curves", 0, nbcurve, 1);
   for (i = 1; i <= nbcurve && PS.More(); i++, PS.Next()) {
     PrintCurve(Handle(Geom_Curve)::DownCast(myMap(i)),OS,Standard_True);
   }
@@ -873,8 +872,8 @@ void  GeomTools_CurveSet::Read(Standard_IStream& IS)
   Standard_Integer i, nbcurve;
   IS >> nbcurve;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "3D Curves", 0, nbcurve, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "3D Curves", 0, nbcurve, 1);
   for (i = 1; i <= nbcurve && PS.More(); i++, PS.Next()) {
     Handle(Geom_Curve) C = GeomTools_CurveSet::ReadCurve (IS);
     myMap.Add(C);
@@ -886,7 +885,7 @@ void  GeomTools_CurveSet::Read(Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-Handle(Message_ProgressIndicator) GeomTools_CurveSet::GetProgress() const
+Message_ProgressScope* GeomTools_CurveSet::GetProgress() const
 {
   return myProgress;
 }
@@ -896,7 +895,7 @@ Handle(Message_ProgressIndicator) GeomTools_CurveSet::GetProgress() const
 //purpose  : 
 //=======================================================================
 
-void GeomTools_CurveSet::SetProgress(const Handle(Message_ProgressIndicator)& PR)
+void GeomTools_CurveSet::SetProgress(Message_ProgressScope* PR)
 {
   myProgress = PR;
 }

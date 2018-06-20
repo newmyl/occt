@@ -36,7 +36,7 @@
 #include <Geom_Surface.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Vec2d.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 #include <OSD_OpenFile.hxx>
 #include <Poly_PolygonOnTriangulation.hxx>
 #include <Poly_Triangulation.hxx>
@@ -687,7 +687,7 @@ void  BRepTools::Dump(const TopoDS_Shape& Sh, Standard_OStream& S)
 //=======================================================================
 
 void  BRepTools::Write(const TopoDS_Shape& Sh, Standard_OStream& S,
-                       const Handle(Message_ProgressIndicator)& PR)
+                       Message_ProgressScope* PR)
 {
   BRepTools_ShapeSet SS;
   SS.SetProgress(PR);
@@ -705,7 +705,7 @@ void  BRepTools::Write(const TopoDS_Shape& Sh, Standard_OStream& S,
 void  BRepTools::Read(TopoDS_Shape& Sh, 
                       istream& S, 
                       const BRep_Builder& B,
-                      const Handle(Message_ProgressIndicator)& PR)
+                      Message_ProgressScope* PR)
 {
   BRepTools_ShapeSet SS(B);
   SS.SetProgress(PR);
@@ -720,7 +720,7 @@ void  BRepTools::Read(TopoDS_Shape& Sh,
 
 Standard_Boolean  BRepTools::Write(const TopoDS_Shape& Sh, 
                                    const Standard_CString File,
-                                   const Handle(Message_ProgressIndicator)& PR)
+                                   Message_ProgressScope* PR)
 {
   ofstream os;
   OSD_OpenStream(os, File, ios::out);
@@ -758,7 +758,7 @@ Standard_Boolean  BRepTools::Write(const TopoDS_Shape& Sh,
 Standard_Boolean BRepTools::Read(TopoDS_Shape& Sh, 
                                  const Standard_CString File,
                                  const BRep_Builder& B,
-                                 const Handle(Message_ProgressIndicator)& PR)
+                                 Message_ProgressScope* PR)
 {
   filebuf fic;
   istream in(&fic);

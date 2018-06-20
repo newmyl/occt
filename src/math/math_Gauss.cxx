@@ -29,7 +29,7 @@
 
 math_Gauss::math_Gauss(const math_Matrix& A, 
                        const Standard_Real MinPivot, 
-                       const Handle(Message_ProgressIndicator) & aProgress) 
+                       Message_ProgressScope* aProgress) 
                            : LU   (1, A.RowNumber(), 1, A.ColNumber()),
                              Index(1, A.RowNumber()) {
 

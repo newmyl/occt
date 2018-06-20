@@ -39,8 +39,7 @@
 #include <BRepTools.hxx>
 #include <BRepTools_ShapeSet.hxx>
 #include <GeomTools.hxx>
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Poly.hxx>
 #include <Poly_Polygon2D.hxx>
 #include <Poly_Polygon3D.hxx>
@@ -253,58 +252,44 @@ void  BRepTools_ShapeSet::WriteGeometry(Standard_OStream& OS)
   myCurves.SetProgress(GetProgress());
   mySurfaces.SetProgress(GetProgress());
 
-  if ( !GetProgress().IsNull()) {
-    if(GetProgress()->UserBreak() ) return;
-    GetProgress()->NewScope ( 15, "2D Curves" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(20);
   }
   myCurves2d.Write(OS);
   
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 15, "3D Curves" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(20);
   }
   myCurves.Write(OS);
   
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-  
-    GetProgress()->NewScope ( 10, "3D Polygons" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(10);
   }
   WritePolygon3D(OS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
 
-    GetProgress()->NewScope ( 10, "Polygons On Triangulation" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(10);
   }
   WritePolygonOnTriangulation(OS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 10, "Surfaces" );
+
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(20);
   }
   mySurfaces.Write(OS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 15, "Triangulations" );
+
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(20);
   }
   WriteTriangulation(OS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-  }
+
+  if (GetProgress() && GetProgress()->UserBreak())
+    return;
 }
 
 
@@ -320,58 +305,44 @@ void  BRepTools_ShapeSet::ReadGeometry(Standard_IStream& IS)
   myCurves.SetProgress(GetProgress());
   mySurfaces.SetProgress(GetProgress());
 
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->NewScope ( 15, "2D Curves" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(15);
   }
   myCurves2d.Read(IS);
 
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 15, "3D Curves" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(15);
   }
   myCurves.Read(IS);
 
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 10, "3D Polygons" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(10);
   }
   ReadPolygon3D(IS);
-  if ( !GetProgress().IsNull() ) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
 
-    GetProgress()->NewScope ( 10, "Polygons On Triangulation" );
+  if (GetProgress() ) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(10);
   }
   ReadPolygonOnTriangulation(IS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-    
-    GetProgress()->NewScope ( 10, "Surfaces" );
+
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(10);
   }
   mySurfaces.Read(IS);
-  if ( !GetProgress().IsNull() ) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
 
-    GetProgress()->NewScope ( 15, "Triangulations" );
+  if (GetProgress()) {
+    if (GetProgress()->UserBreak()) return;
+    GetProgress()->SetStep(15);
   }
   ReadTriangulation(IS);
-  if ( !GetProgress().IsNull()) {
-    if( GetProgress()->UserBreak() ) return;
-    GetProgress()->EndScope();
-    GetProgress()->Show();
-  }
+
+  if (GetProgress() && GetProgress()->UserBreak())
+    return;
 }
 
 //=======================================================================
@@ -1237,8 +1208,7 @@ void BRepTools_ShapeSet::WritePolygonOnTriangulation(Standard_OStream&      OS,
 {
   Standard_Integer i, j, nbpOntri = myNodes.Extent();
 
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Polygons On Triangulation", 0, nbpOntri, 1);
+  Message_ProgressScope PS(GetProgress(), "Polygons On Triangulation", 0, nbpOntri, 1);
   if (Compact)
     OS << "PolygonOnTriangulations " << nbpOntri << "\n";
   else {
@@ -1309,8 +1279,7 @@ void BRepTools_ShapeSet::ReadPolygonOnTriangulation(Standard_IStream& IS)
   Handle(Poly_PolygonOnTriangulation) Poly;
   IS >> nbpol;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Polygons On Triangulation", 0, nbpol, 1);
+  Message_ProgressScope PS(GetProgress(), "Polygons On Triangulation", 0, nbpol, 1);
   for (i=1; i<=nbpol&& PS.More(); i++, PS.Next()) {
     IS >> nbnodes;
     TColStd_Array1OfInteger Nodes(1, nbnodes);
@@ -1356,8 +1325,7 @@ void BRepTools_ShapeSet::WritePolygon3D(Standard_OStream&      OS,
 {
   Standard_Integer i, j, nbpol = myPolygons3D.Extent();
   
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "3D Poligons", 0, nbpol, 1);
+  Message_ProgressScope PS(GetProgress(), "3D Polygons", 0, nbpol, 1);
 
   if (Compact)
     OS << "Polygon3D " << nbpol << "\n";
@@ -1441,8 +1409,7 @@ void BRepTools_ShapeSet::ReadPolygon3D(Standard_IStream& IS)
   Handle(Poly_Polygon3D) P;
   IS >> nbpol;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "3D Polygons", 0, nbpol, 1);
+  Message_ProgressScope PS(GetProgress(), "3D Polygons", 0, nbpol, 1);
   for (i=1; i<=nbpol && PS.More(); i++, PS.Next()) {
     IS >> nbnodes;
     IS >> hasparameters;
@@ -1480,8 +1447,7 @@ void BRepTools_ShapeSet::WriteTriangulation(Standard_OStream&      OS,
   Standard_Integer i, j, nbNodes, nbtri = myTriangulations.Extent();
   Standard_Integer nbTriangles = 0, n1, n2, n3;
   
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Triangulations", 0, nbtri, 1);
+  Message_ProgressScope PS(GetProgress(), "Triangulations", 0, nbtri, 1);
 
   if (Compact)
     OS << "Triangulations " << nbtri << "\n";
@@ -1594,8 +1560,7 @@ void BRepTools_ShapeSet::ReadTriangulation(Standard_IStream& IS)
 
   IS >> nbtri;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Triangulations", 0, nbtri, 1);
+  Message_ProgressScope PS(GetProgress(), "Triangulations", 0, nbtri, 1);
   for (i=1; i<=nbtri && PS.More();i++, PS.Next()) {
 
     IS >> nbNodes >> nbTriangles >> hasUV;

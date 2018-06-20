@@ -25,7 +25,7 @@
 #include <Standard_Integer.hxx>
 #include <Standard_OStream.hxx>
 #include <Standard_IStream.hxx>
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class Standard_OutOfRange;
 class TopLoc_Location;
 
@@ -72,9 +72,9 @@ public:
   //! is first cleared.
   Standard_EXPORT void Read (Standard_IStream& IS);
   
-  Standard_EXPORT void SetProgress (const Handle(Message_ProgressIndicator)& PR);
+  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
   
-  Standard_EXPORT Handle(Message_ProgressIndicator) GetProgress() const;
+  Standard_EXPORT Message_ProgressScope* GetProgress() const;
 
 
 
@@ -90,7 +90,7 @@ private:
 
 
   TopLoc_IndexedMapOfLocation myMap;
-  Handle(Message_ProgressIndicator) myProgress;
+  Message_ProgressScope* myProgress;
 
 
 };

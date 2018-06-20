@@ -36,8 +36,7 @@
 #include <gp_Pln.hxx>
 #include <gp_Sphere.hxx>
 #include <gp_Torus.hxx>
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_OutOfRange.hxx>
@@ -640,8 +639,8 @@ void  GeomTools_SurfaceSet::Write(Standard_OStream& OS)const
   Standard_Integer i, nbsurf = myMap.Extent();
   OS << "Surfaces "<< nbsurf << "\n";
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Surfaces", 0, nbsurf, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "Surfaces", 0, nbsurf, 1);
   for (i = 1; i <= nbsurf && PS.More(); i++, PS.Next()) {
     PrintSurface(Handle(Geom_Surface)::DownCast(myMap(i)),OS,Standard_True);
   }
@@ -1064,8 +1063,8 @@ void  GeomTools_SurfaceSet::Read(Standard_IStream& IS)
   Standard_Integer i, nbsurf;
   IS >> nbsurf;
   //OCC19559
-  Handle(Message_ProgressIndicator) progress = GetProgress();
-  Message_ProgressSentry PS(progress, "Surfaces", 0, nbsurf, 1);
+  Message_ProgressScope* progress = GetProgress();
+  Message_ProgressScope PS(progress, "Surfaces", 0, nbsurf, 1);
   for (i = 1; i <= nbsurf && PS.More(); i++, PS.Next()) {
     Handle(Geom_Surface) S = GeomTools_SurfaceSet::ReadSurface (IS);
     myMap.Add(S);
@@ -1077,7 +1076,7 @@ void  GeomTools_SurfaceSet::Read(Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-Handle(Message_ProgressIndicator) GeomTools_SurfaceSet::GetProgress() const
+Message_ProgressScope* GeomTools_SurfaceSet::GetProgress() const
 {
   return myProgress;
 }
@@ -1087,7 +1086,7 @@ Handle(Message_ProgressIndicator) GeomTools_SurfaceSet::GetProgress() const
 //purpose  : 
 //=======================================================================
 
-void GeomTools_SurfaceSet::SetProgress(const Handle(Message_ProgressIndicator)& PR)
+void GeomTools_SurfaceSet::SetProgress(Message_ProgressScope* PR)
 {
   myProgress = PR;
 }

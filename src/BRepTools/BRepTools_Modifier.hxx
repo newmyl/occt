@@ -29,7 +29,6 @@
 #include <TopoDS_Vertex.hxx>
 #include <Standard_Boolean.hxx>
 
-#include <Message_ProgressIndicator.hxx>
 #include <NCollection_DataMap.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopTools_ShapeMapHasher.hxx>
@@ -39,7 +38,7 @@ class Standard_NullObject;
 class Standard_NoSuchObject;
 class TopoDS_Shape;
 class BRepTools_Modification;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class Geom_Curve;
 class Geom_Surface;
 
@@ -64,7 +63,8 @@ public:
   Standard_EXPORT void Init (const TopoDS_Shape& S);
   
   //! Performs the modifications described by <M>.
-  Standard_EXPORT void Perform (const Handle(BRepTools_Modification)& M, const Handle(Message_ProgressIndicator)& aProgress = NULL);
+  Standard_EXPORT void Perform (const Handle(BRepTools_Modification)& M,
+                                Message_ProgressScope* aProgress = NULL);
   
   //! Returns Standard_True if the modification has
   //! been computed successfully.
@@ -109,7 +109,7 @@ private:
   Standard_EXPORT Standard_Boolean Rebuild (const TopoDS_Shape& S,
                                             const Handle(BRepTools_Modification)& M,
                                             Standard_Boolean& theNewGeom,
-                                            const Handle(Message_ProgressIndicator)& aProgress = NULL);
+                                            Message_ProgressScope* aProgress = NULL);
 
   Standard_EXPORT void CreateNewVertices(
     const TopTools_IndexedDataMapOfShapeListOfShape& theMVE, 
