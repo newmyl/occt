@@ -16,8 +16,10 @@
 #ifndef _RWStl_Reader_HeaderFile
 #define _RWStl_Reader_HeaderFile
 
-#include <Message_ProgressIndicator.hxx>
+#include <Standard_IStream.hxx>
 #include <gp_XYZ.hxx>
+
+class Message_ProgressScope;
 
 //! An abstract class implementing procedure to read STL file.
 //!
@@ -39,7 +41,7 @@ public:
   //! Format is recognized automatically by analysis of the file header.
   //! Returns true if success, false on error or user break.
   Standard_EXPORT Standard_Boolean Read (const char* theFile,
-                                         const Handle(Message_ProgressIndicator)& theProgress);
+                                         Message_ProgressScope* theProgress);
 
   //! Guess whether the stream is an Ascii STL file, by analysis of the first bytes (~200).
   //! The function attempts to put back the read symbols to the stream which thus must support ungetc().
@@ -51,7 +53,7 @@ public:
   //! Stops after reading the number of triangles recorded in the file header.
   //! Returns true if success, false on error or user break.
   Standard_EXPORT Standard_Boolean ReadBinary (Standard_IStream& theStream,
-                                               const Handle(Message_ProgressIndicator)& theProgress);
+                                               Message_ProgressScope* theProgress);
 
   //! Reads data from the stream assumed to contain Ascii STL data.
   //! The stream can be opened either in binary or in Ascii mode.
@@ -62,7 +64,7 @@ public:
   //! Returns true if success, false on error or user break.
   Standard_EXPORT Standard_Boolean ReadAscii (Standard_IStream& theStream,
                                               const std::streampos theUntilPos,
-                                              const Handle(Message_ProgressIndicator)& theProgress);
+                                              Message_ProgressScope* theProgress);
 
 public:
 

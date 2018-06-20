@@ -22,6 +22,7 @@
 #include <IGESGraph_DefinitionLevel.hxx>
 #include <IGESSolid_Face.hxx>
 #include <IGESBasic_Name.hxx>
+#include <Message_ProgressScope.hxx>
 #include <NCollection_DataMap.hxx>
 #include <Standard_Transient.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -142,7 +143,8 @@ IGESCAFControl_Writer::IGESCAFControl_Writer (const Handle(XSControl_WorkSession
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean IGESCAFControl_Writer::Transfer (const Handle(TDocStd_Document) &doc)
+Standard_Boolean IGESCAFControl_Writer::Transfer (const Handle(TDocStd_Document) &doc,
+                                                  Message_ProgressScope* theProgr)
 {  
   // translate free top-level shapes of the DECAF document
   Handle(XCAFDoc_ShapeTool) STool = XCAFDoc_DocumentTool::ShapeTool( doc->Main() );
@@ -150,7 +152,7 @@ Standard_Boolean IGESCAFControl_Writer::Transfer (const Handle(TDocStd_Document)
 
   TDF_LabelSequence labels;
   STool->GetFreeShapes ( labels );
-  return Transfer (labels);
+  return Transfer (labels, theProgr);
 }  
 
 //=======================================================================
@@ -158,11 +160,12 @@ Standard_Boolean IGESCAFControl_Writer::Transfer (const Handle(TDocStd_Document)
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_Label& label)
+Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_Label& label,
+                                                  Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence labels;
   labels.Append( label );
-  return Transfer( labels );
+  return Transfer( labels, theProgr );
 }
 
 //=======================================================================
@@ -170,13 +173,15 @@ Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_Label& label)
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_LabelSequence& labels)
+Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_LabelSequence& labels,
+                                                  Message_ProgressScope* theProgr)
 {  
   if ( labels.Length() <=0 ) return Standard_False;
-  for ( Standard_Integer i=1; i <= labels.Length(); i++ ) {
+  Message_ProgressScope aPS(theProgr, "Labels", 0, labels.Length());
+  for ( Standard_Integer i=1; i <= labels.Length() && aPS.More(); i++, aPS.Next() ) {
     TopoDS_Shape shape = XCAFDoc_ShapeTool::GetShape ( labels.Value(i) );
     if ( ! shape.IsNull() ) 
-      AddShape ( shape );
+      AddShape ( shape, &aPS );
 //      IGESControl_Writer::Transfer ( shape );
   }
   
@@ -205,9 +210,10 @@ Standard_Boolean IGESCAFControl_Writer::Transfer (const TDF_LabelSequence& label
 //=======================================================================
 
 Standard_Boolean IGESCAFControl_Writer::Perform (const Handle(TDocStd_Document) &doc,
-						 const Standard_CString filename)
+                                                 const Standard_CString filename,
+                                                 Message_ProgressScope* theProgr)
 {
-  if ( ! Transfer ( doc ) ) return Standard_False;
+  if ( ! Transfer ( doc, theProgr ) ) return Standard_False;
   return Write ( filename ) == IFSelect_RetDone;
 }
   
@@ -217,9 +223,10 @@ Standard_Boolean IGESCAFControl_Writer::Perform (const Handle(TDocStd_Document) 
 //=======================================================================
 
 Standard_Boolean IGESCAFControl_Writer::Perform (const Handle(TDocStd_Document) &doc,
-						 const TCollection_AsciiString &filename)
+                                                 const TCollection_AsciiString &filename,
+                                                 Message_ProgressScope* theProgr)
 {
-  if ( ! Transfer ( doc ) ) return Standard_False;
+  if ( ! Transfer ( doc, theProgr ) ) return Standard_False;
   return Write ( filename.ToCString() ) == IFSelect_RetDone;
 }
   

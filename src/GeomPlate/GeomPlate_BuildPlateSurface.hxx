@@ -46,7 +46,7 @@ class gp_Pnt;
 class Geom2d_Curve;
 class Adaptor3d_HCurve;
 class Adaptor2d_HCurve2d;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 
 
 
@@ -131,7 +131,7 @@ public:
   //! Exceptions
   //! Standard_RangeError if the value of the constraint is
   //! null or if plate is not done.
-  Standard_EXPORT void Perform(const Handle(Message_ProgressIndicator) & aProgress = Handle(Message_ProgressIndicator)());
+  Standard_EXPORT void Perform(Message_ProgressScope* theProgr = NULL);
   
   //! returns the CurveConstraints of order order
   Standard_EXPORT Handle(GeomPlate_CurveConstraint) CurveConstraint (const Standard_Integer order) const;
@@ -218,7 +218,7 @@ private:
   
   Standard_EXPORT Handle(Adaptor2d_HCurve2d) ProjectedCurve (Handle(Adaptor3d_HCurve)& Curv);
   
-  Standard_EXPORT void ComputeSurfInit(const Handle(Message_ProgressIndicator) & aProgress);
+  Standard_EXPORT void ComputeSurfInit(Message_ProgressScope* theProgr);
   
   Standard_EXPORT void Intersect (Handle(GeomPlate_HArray1OfSequenceOfReal)& PntInter, Handle(GeomPlate_HArray1OfSequenceOfReal)& PntG1G1);
   

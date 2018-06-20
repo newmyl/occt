@@ -22,6 +22,7 @@
 #include <Interface_IntVal.hxx>
 #include <Interface_Macros.hxx>
 #include <Message_Messenger.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
@@ -400,14 +401,15 @@ Handle(Standard_Transient)  XSControl_WorkSession::Result
 //purpose  : 
 //=======================================================================
 
-Standard_Integer XSControl_WorkSession::TransferReadOne (const Handle(Standard_Transient)& ent)
+Standard_Integer XSControl_WorkSession::TransferReadOne (const Handle(Standard_Transient)& ent,
+                                                         Message_ProgressScope* theProgr)
 {
   Handle(Interface_InterfaceModel) model = Model();
-  if (ent == model) return TransferReadRoots();
+  if (ent == model) return TransferReadRoots(theProgr);
 
   Handle(TColStd_HSequenceOfTransient) list = GiveList(ent);
-  if (list->Length() == 1) return myTransferReader->TransferOne(list->Value(1));
-  else return myTransferReader->TransferList (list);
+  if (list->Length() == 1) return myTransferReader->TransferOne(list->Value(1), theProgr);
+  else return myTransferReader->TransferList (list, theProgr);
 }
 
 
@@ -416,9 +418,9 @@ Standard_Integer XSControl_WorkSession::TransferReadOne (const Handle(Standard_T
 //purpose  : 
 //=======================================================================
 
-Standard_Integer XSControl_WorkSession::TransferReadRoots ()
+Standard_Integer XSControl_WorkSession::TransferReadRoots (Message_ProgressScope* theProgr)
 {
-  return myTransferReader->TransferRoots(Graph());
+  return myTransferReader->TransferRoots(Graph(), theProgr);
 }
 
 
@@ -453,7 +455,9 @@ Handle(Interface_InterfaceModel) XSControl_WorkSession::NewModel ()
 //purpose  : 
 //=======================================================================
 
-IFSelect_ReturnStatus XSControl_WorkSession::TransferWriteShape (const TopoDS_Shape& shape, const Standard_Boolean compgraph)
+IFSelect_ReturnStatus XSControl_WorkSession::TransferWriteShape (const TopoDS_Shape& shape,
+                                                                 Message_ProgressScope* theProgr,
+                                                                 const Standard_Boolean compgraph)
 {
   IFSelect_ReturnStatus  status;
   if (myController.IsNull()) return IFSelect_RetError;
@@ -463,7 +467,9 @@ IFSelect_ReturnStatus XSControl_WorkSession::TransferWriteShape (const TopoDS_Sh
     return IFSelect_RetVoid;
   }
 
-  status = myTransferWriter->TransferWriteShape (model,shape);
+  status = myTransferWriter->TransferWriteShape (model,shape, theProgr);
+  if (theProgr && !theProgr->More())
+    return IFSelect_RetStop;
   //  qui s occupe de tout, try/catch inclus
 
   //skl insert param compgraph for XDE writing 10.12.2003

@@ -28,6 +28,7 @@ class TopoDS_Face;
 class Transfer_FinderProcess;
 class TopoDS_Shell;
 class TopoDS_Solid;
+class Message_ProgressScope;
 
 
 //! This class implements the mapping between classes
@@ -41,11 +42,17 @@ public:
   DEFINE_STANDARD_ALLOC
 
   
-  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Face& F, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Face& F,
+                                                          const Handle(Transfer_FinderProcess)& FP,
+                                                          Message_ProgressScope* theProgr);
   
-  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Shell& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Shell& S,
+                                                          const Handle(Transfer_FinderProcess)& FP,
+                                                          Message_ProgressScope* theProgr);
   
-  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Solid& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeShellBasedSurfaceModel(const TopoDS_Solid& S,
+                                                          const Handle(Transfer_FinderProcess)& FP,
+                                                          Message_ProgressScope* theProgr);
   
   Standard_EXPORT const Handle(StepShape_ShellBasedSurfaceModel)& Value() const;
 

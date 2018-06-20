@@ -30,7 +30,7 @@ class Transfer_TransientProcess;
 class TopoDS_Shape;
 class IGESData_IGESEntity;
 class Message_Msg;
-
+class Message_ProgressScope;
 
 //! Provides methods to transfer CurveAndSurface from IGES to CASCADE.
 class IGESToBRep_CurveAndSurface 
@@ -146,12 +146,14 @@ public:
   //! Returns the result of the transfert of any IGES Curve
   //! or Surface Entity.  If  the transfer has  failed,  this
   //! member return a NullEntity.
-  Standard_EXPORT TopoDS_Shape TransferCurveAndSurface (const Handle(IGESData_IGESEntity)& start);
+  Standard_EXPORT TopoDS_Shape TransferCurveAndSurface (const Handle(IGESData_IGESEntity)& start,
+                                                        Message_ProgressScope* theProgr);
   
   //! Returns the result of the transfert the geometry of
   //! any IGESEntity.  If  the transfer has  failed,  this
   //! member return a NullEntity.
-  Standard_EXPORT TopoDS_Shape TransferGeometry (const Handle(IGESData_IGESEntity)& start);
+  Standard_EXPORT TopoDS_Shape TransferGeometry (const Handle(IGESData_IGESEntity)& start,
+                                                 Message_ProgressScope* theProgr);
   
   //! Records a new Fail message
     void SendFail (const Handle(IGESData_IGESEntity)& start, const Message_Msg& amsg);

@@ -41,9 +41,10 @@ public:
   
   Standard_EXPORT StepToTopoDS_TranslateShell();
   
-  Standard_EXPORT StepToTopoDS_TranslateShell(const Handle(StepShape_ConnectedFaceSet)& CFS, StepToTopoDS_Tool& T, StepToTopoDS_NMTool& NMTool);
-  
-  Standard_EXPORT void Init (const Handle(StepShape_ConnectedFaceSet)& CFS, StepToTopoDS_Tool& T, StepToTopoDS_NMTool& NMTool);
+  Standard_EXPORT void Init (const Handle(StepShape_ConnectedFaceSet)& CFS,
+                             StepToTopoDS_Tool& T,
+                             StepToTopoDS_NMTool& NMTool,
+                             Message_ProgressScope* theProgr);
   
   Standard_EXPORT const TopoDS_Shape& Value() const;
   

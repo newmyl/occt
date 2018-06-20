@@ -41,13 +41,11 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 
-#include <Message_ProgressIndicator.hxx>
-
 class BRepTools_ReShape;
 class Standard_OutOfRange;
 class Standard_NoSuchObject;
 class TopoDS_Shape;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class TopoDS_Edge;
 class TopoDS_Face;
 class Geom_Surface;
@@ -106,7 +104,7 @@ public:
   
   //! Computing
   //! thePI - progress indicator of algorithm
-  Standard_EXPORT void Perform (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT void Perform (Message_ProgressScope* thePI = 0L);
   
   //! Gives the sewed shape
   //! a null shape if nothing constructed
@@ -249,9 +247,9 @@ protected:
   
   //! Performs cutting of sections
   //! thePI - progress indicator of processing
-  Standard_EXPORT void Cutting (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT void Cutting (Message_ProgressScope* thePI = 0L);
   
-  Standard_EXPORT void Merging (const Standard_Boolean passage, const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT void Merging (const Standard_Boolean passage, Message_ProgressScope* thePI = 0L);
   
   Standard_EXPORT Standard_Boolean IsMergedClosed (const TopoDS_Edge& Edge1, const TopoDS_Edge& Edge2, const TopoDS_Face& fase) const;
   
@@ -262,10 +260,10 @@ protected:
   //! Merged nearest edges.
   Standard_EXPORT Standard_Boolean MergedNearestEdges (const TopoDS_Shape& edge, TopTools_SequenceOfShape& SeqMergedEdge, TColStd_SequenceOfBoolean& SeqMergedOri);
   
-  Standard_EXPORT void EdgeProcessing (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT void EdgeProcessing (Message_ProgressScope* thePI = 0L);
 
   //! Recompute regularity on merged edges
-  Standard_EXPORT void EdgeRegularity (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT void EdgeRegularity (Message_ProgressScope* thePI = 0L);
   
   Standard_EXPORT void CreateOutputInformations();
   
@@ -278,7 +276,7 @@ protected:
 
   //! This method is called from Perform only
   //! thePI - progress indicator of processing
-  Standard_EXPORT virtual void FaceAnalysis (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT virtual void FaceAnalysis (Message_ProgressScope* thePI = 0L);
   
 
   //! This method is called from Perform only
@@ -287,7 +285,7 @@ protected:
 
   //! This method is called from Perform only
   //! thePI - progress indicator of processing
-  Standard_EXPORT virtual void VerticesAssembling (const Handle(Message_ProgressIndicator)& thePI = 0);
+  Standard_EXPORT virtual void VerticesAssembling (Message_ProgressScope* thePI = 0L);
   
 
   //! This method is called from Perform only

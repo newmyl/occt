@@ -2874,7 +2874,7 @@ static Standard_Integer OCC29531(Draw_Interpretor&, Standard_Integer, const char
 
   STEPCAFControl_Reader Reader;
   Reader.ReadFile(theArgV[1]);
-  Reader.Transfer(aDoc);
+  Reader.Transfer(aDoc, NULL);
   TDF_Label aShL, aDL;
   TDF_Tool::Label(aDoc->GetData(), "0:1:1:2:672", aShL);
   TDF_Tool::Label(aDoc->GetData(), "0:1:4:10", aDL);

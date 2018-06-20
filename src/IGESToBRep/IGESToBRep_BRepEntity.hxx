@@ -37,6 +37,7 @@ class gp_Trsf2d;
 class IGESSolid_Face;
 class IGESSolid_Shell;
 class IGESSolid_ManifoldSolid;
+class Message_ProgressScope;
 
 
 //! Provides methods to transfer BRep entities
@@ -63,7 +64,8 @@ public:
   Standard_EXPORT IGESToBRep_BRepEntity(const Standard_Real eps, const Standard_Real epsGeom, const Standard_Real epsCoeff, const Standard_Boolean mode, const Standard_Boolean modeapprox, const Standard_Boolean optimized);
   
   //! Transfer the BRepEntity" : Face, Shell or ManifoldSolid.
-  Standard_EXPORT TopoDS_Shape TransferBRepEntity (const Handle(IGESData_IGESEntity)& start);
+  Standard_EXPORT TopoDS_Shape TransferBRepEntity (const Handle(IGESData_IGESEntity)& start,
+                                                   Message_ProgressScope* theProgr);
   
   //! Transfer the entity number "index" of the VertexList "start"
   Standard_EXPORT TopoDS_Vertex TransferVertex (const Handle(IGESSolid_VertexList)& start, const Standard_Integer index);
@@ -78,10 +80,12 @@ public:
   Standard_EXPORT TopoDS_Shape TransferFace (const Handle(IGESSolid_Face)& start);
   
   //! Transfer the Shell Entity
-  Standard_EXPORT TopoDS_Shape TransferShell (const Handle(IGESSolid_Shell)& start);
+  Standard_EXPORT TopoDS_Shape TransferShell (const Handle(IGESSolid_Shell)& start,
+                                              Message_ProgressScope* theProgr);
   
   //! Transfer the ManifoldSolid Entity
-  Standard_EXPORT TopoDS_Shape TransferManifoldSolid (const Handle(IGESSolid_ManifoldSolid)& start);
+  Standard_EXPORT TopoDS_Shape TransferManifoldSolid (const Handle(IGESSolid_ManifoldSolid)& start,
+                                                      Message_ProgressScope* theProgr);
 
 
 

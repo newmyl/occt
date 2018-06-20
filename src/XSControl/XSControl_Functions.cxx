@@ -364,12 +364,12 @@ static IFSelect_ReturnStatus XSControl_tread(const Handle(IFSelect_SessionPilot)
     Handle(Standard_Transient) sel = pilot->Session()->NamedItem("xst-model-roots");
     if (sel.IsNull()) { sout<<"Select Roots absent"<<endl; return IFSelect_RetError; }
     Handle(TColStd_HSequenceOfTransient) list = pilot->Session()->GiveList(sel);
-    sout<<" Transferring all roots i.e. : "<<TR->TransferList(list)<<endl;
+    sout<<" Transferring all roots i.e. : "<<TR->TransferList(list, NULL)<<endl;
   } else {
     Handle(TColStd_HSequenceOfTransient) list =
       IFSelect_Functions::GiveList(pilot->Session(),pilot->CommandPart(1));
     sout<<" Transfer of "<<list->Length()<<" entities"<<endl;
-    Standard_Integer nb = TR->TransferList(list);
+    Standard_Integer nb = TR->TransferList(list, NULL);
     sout<<" Gives "<<nb<<" results"<<endl;
   }
   return IFSelect_RetDone;

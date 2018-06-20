@@ -14,7 +14,7 @@
 
 #include <Interface_InterfaceModel.hxx>
 #include <Interface_Macros.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 #include <STEPControl_ActorWrite.hxx>
 #include <STEPControl_Controller.hxx>
 #include <STEPControl_Writer.hxx>
@@ -121,7 +121,9 @@ void STEPControl_Writer::UnsetTolerance ()
 //=======================================================================
 
 IFSelect_ReturnStatus STEPControl_Writer::Transfer
-  (const TopoDS_Shape& sh, const STEPControl_StepModelType mode,
+  (const TopoDS_Shape& sh,
+   Message_ProgressScope* theProgr,
+   const STEPControl_StepModelType mode,
    const Standard_Boolean compgraph) 
 {
   Standard_Integer mws = -1;
@@ -136,16 +138,7 @@ IFSelect_ReturnStatus STEPControl_Writer::Transfer
   if (mws < 0) return IFSelect_RetError;    // cas non reconnu
   thesession->TransferWriter()->SetTransferMode (mws);
 
-  // for progress indicator.
-  Handle(Message_ProgressIndicator) progress = WS()->TransferWriter()->FinderProcess()->GetProgress();
-  if ( ! progress.IsNull() ) {
-    Standard_Integer nbfaces=0;
-    for( TopExp_Explorer exp(sh, TopAbs_FACE); exp.More(); exp.Next())  nbfaces++;
-    progress->SetScale ( "Face", 0, nbfaces, 1 );
-    progress->Show();
-  }
-
-  return thesession->TransferWriteShape(sh,compgraph);
+  return thesession->TransferWriteShape(sh, theProgr, compgraph);
 }
 
 

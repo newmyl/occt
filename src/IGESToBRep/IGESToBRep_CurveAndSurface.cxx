@@ -39,7 +39,7 @@
 #include <Interface_Static.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Precision.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
@@ -206,7 +206,8 @@ void IGESToBRep_CurveAndSurface::SetModel(const Handle(IGESData_IGESModel)& mode
 //=======================================================================
 
 TopoDS_Shape IGESToBRep_CurveAndSurface::TransferCurveAndSurface
-       (const Handle(IGESData_IGESEntity)& start)
+       (const Handle(IGESData_IGESEntity)& start,
+        Message_ProgressScope* theProgr)
 {
   TopoDS_Shape res;
   if (start.IsNull()) {
@@ -227,7 +228,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferCurveAndSurface
   }
   else if (IGESToBRep::IsBRepEntity(start)) {
     IGESToBRep_BRepEntity TS(*this);
-    res = TS.TransferBRepEntity(start);
+    res = TS.TransferBRepEntity(start, theProgr);
   }
   else {
     Message_Msg msg1015("IGES_1015");
@@ -259,7 +260,8 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferCurveAndSurface
 //=======================================================================
 
 TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
-                               (const Handle(IGESData_IGESEntity)& start)
+                               (const Handle(IGESData_IGESEntity)& start,
+                                Message_ProgressScope* theProgr)
 {
   // Declaration of messages// 
   // DCE 22/12/98
@@ -291,7 +293,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       return res;
     try {
       OCC_CATCH_SIGNALS
-        res = TransferCurveAndSurface(start);
+        res = TransferCurveAndSurface(start, theProgr);
     }
     catch(Standard_Failure) {
       Message_Msg msg1015("IGES_1015");
@@ -323,7 +325,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       else {
 	try {
 	  OCC_CATCH_SIGNALS
-	  res = TransferGeometry(stsub);
+	  res = TransferGeometry(stsub, theProgr);
 	}
 	catch(Standard_Failure) {
 	  res.Nullify();
@@ -347,7 +349,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       SendFail( st308, msg210);
       return res;
     }
-    Message_ProgressSentry PS ( myTP->GetProgress(), "Subfigure item", 0, st308->NbEntities(), 1 );
+    Message_ProgressScope PS ( theProgr, "Subfigure item", 0, st308->NbEntities(), 1 );
     for (Standard_Integer i=1; i <= st308->NbEntities() && PS.More(); i++, PS.Next()) {
       TopoDS_Shape item;
       if (st308->AssociatedEntity(i).IsNull()) {
@@ -366,7 +368,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       else {
 	try {      
 	  OCC_CATCH_SIGNALS
-	  item = TransferGeometry(st308->AssociatedEntity(i));
+	  item = TransferGeometry(st308->AssociatedEntity(i), &PS);
 	}
 	catch(Standard_Failure) {
 	  item.Nullify();
@@ -400,7 +402,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       SendFail(st402f1, msg202);
       return res;
     }
-    Message_ProgressSentry PS ( myTP->GetProgress(), "Group item", 0, st402f1->NbEntities(), 1 );
+    Message_ProgressScope PS ( theProgr, "Group item", 0, st402f1->NbEntities(), 1 );
     Standard_Boolean ProblemInGroup = Standard_False;
     for (Standard_Integer i=1; i <= st402f1->NbEntities() && PS.More(); i++, PS.Next()) {
       TopoDS_Shape item;
@@ -420,7 +422,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       else {
 	try {
 	  OCC_CATCH_SIGNALS
-	  item = TransferGeometry(st402f1->Entity(i));
+	  item = TransferGeometry(st402f1->Entity(i), &PS);
 	}
 	catch(Standard_Failure) {
 	  item.Nullify();
@@ -463,7 +465,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       SendFail(st402f7, msg202); 
       return res;
     }
-    Message_ProgressSentry PS ( myTP->GetProgress(), "Group item", 0, st402f7->NbEntities(), 1 );
+    Message_ProgressScope PS ( theProgr, "Group item", 0, st402f7->NbEntities(), 1 );
     Standard_Boolean ProblemInGroup = Standard_False;
     for (Standard_Integer i=1; i <= st402f7->NbEntities() && PS.More(); i++, PS.Next()) {
       TopoDS_Shape item;
@@ -483,7 +485,7 @@ TopoDS_Shape IGESToBRep_CurveAndSurface::TransferGeometry
       else {
 	try {
 	  OCC_CATCH_SIGNALS
-	  item = TransferGeometry(st402f7->Entity(i));
+	  item = TransferGeometry(st402f7->Entity(i), &PS);
 	}
 	catch(Standard_Failure) {
 	  item.Nullify();

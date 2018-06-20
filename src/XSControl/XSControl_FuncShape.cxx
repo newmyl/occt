@@ -624,7 +624,7 @@ static IFSelect_ReturnStatus XSControl_trimport
   TR->BeginTransfer();
 
   //  Transferring
-  Standard_Integer nbt = TR->TransferList(list);
+  Standard_Integer nbt = TR->TransferList(list, NULL);
   sout<<"Nb Entities Selected : "<<nbl<<" have given "<<nbt<<" results"<<endl;
 
   //  Filling VARS. one compound (trimpcomp) or one shape per ent (trimport)
@@ -683,7 +683,7 @@ static IFSelect_ReturnStatus XSControl_twrite
     TopoDS_Shape Shape = XSControl::Vars(pilot)->GetShape(ai);
     if (Shape.IsNull()) { sout<<"pas un nom de shape draw:"<<arg1<<endl; continue; }
     sout<<"Pour Shape : "<<ai;
-    Standard_Integer stat = TW->TransferWriteShape (XSControl::Session(pilot)->Model(),Shape);
+    Standard_Integer stat = TW->TransferWriteShape (XSControl::Session(pilot)->Model(),Shape, NULL);
     sout<<" Transfer Write Status = "<<stat<<endl;
   }
   pilot->Session()->ComputeGraph();

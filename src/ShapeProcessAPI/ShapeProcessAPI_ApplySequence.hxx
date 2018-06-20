@@ -28,7 +28,7 @@
 #include <TopAbs_ShapeEnum.hxx>
 class ShapeProcess_ShapeContext;
 class TopoDS_Shape;
-
+class Message_ProgressScope;
 
 //! Applies one of the sequence read from resource file.
 class ShapeProcessAPI_ApplySequence 
@@ -50,7 +50,10 @@ public:
   //! If <fillmap> is True adds history "shape-shape" into myMap
   //! for shape and its subshapes until level <until> (included).
   //! If <until> is TopAbs_SHAPE,  all the subshapes are considered.
-  Standard_EXPORT TopoDS_Shape PrepareShape (const TopoDS_Shape& shape, const Standard_Boolean fillmap = Standard_False, const TopAbs_ShapeEnum until = TopAbs_SHAPE);
+  Standard_EXPORT TopoDS_Shape PrepareShape (const TopoDS_Shape& shape,
+                                             const Standard_Boolean fillmap = Standard_False,
+                                             const TopAbs_ShapeEnum until = TopAbs_SHAPE, 
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Clears myMap with accumulated history.
   Standard_EXPORT void ClearMap();

@@ -27,6 +27,7 @@ class StdFail_NotDone;
 class TopoDS_Shell;
 class Transfer_FinderProcess;
 class TopoDS_Solid;
+class Message_ProgressScope;
 
 
 //! This class implements the mapping between classes
@@ -41,9 +42,13 @@ public:
   DEFINE_STANDARD_ALLOC
 
   
-  Standard_EXPORT TopoDSToStep_MakeFacetedBrep(const TopoDS_Shell& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeFacetedBrep(const TopoDS_Shell& S,
+                                               const Handle(Transfer_FinderProcess)& FP,
+                                               Message_ProgressScope* theProgr);
   
-  Standard_EXPORT TopoDSToStep_MakeFacetedBrep(const TopoDS_Solid& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeFacetedBrep(const TopoDS_Solid& S,
+                                               const Handle(Transfer_FinderProcess)& FP,
+                                               Message_ProgressScope* theProgr);
   
   Standard_EXPORT const Handle(StepShape_FacetedBrep)& Value() const;
 

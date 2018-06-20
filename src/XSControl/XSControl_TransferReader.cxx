@@ -29,6 +29,7 @@
 #include <Interface_SignLabel.hxx>
 #include <Interface_Static.hxx>
 #include <Message_Messenger.hxx>
+#include <Message_ProgressScope.hxx>
 #include <ShapeFix.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
@@ -779,7 +780,9 @@ Standard_Boolean XSControl_TransferReader::Recognize
 //=======================================================================
 
 Standard_Integer XSControl_TransferReader::TransferOne
-  (const Handle(Standard_Transient)& ent, const Standard_Boolean rec)
+  (const Handle(Standard_Transient)& ent, 
+   Message_ProgressScope* theProgr,
+   const Standard_Boolean rec)
 {
   if (myActor.IsNull() || myModel.IsNull()) return 0;
 
@@ -812,7 +815,9 @@ Standard_Integer XSControl_TransferReader::TransferOne
   //  seule difference entre TransferRoots et TransferOne
   Standard_Integer res = 0;
   Handle(Standard_Transient) obj = ent;
-  TP.Transfer (obj);
+  TP.Transfer (obj, theProgr);
+  if (theProgr && !theProgr->More())
+    return res;
   myTP->SetRoot (obj);
 
   //  Resultat ...
@@ -833,7 +838,9 @@ Standard_Integer XSControl_TransferReader::TransferOne
 //=======================================================================
 
 Standard_Integer XSControl_TransferReader::TransferList
-  (const Handle(TColStd_HSequenceOfTransient)& list, const Standard_Boolean rec)
+  (const Handle(TColStd_HSequenceOfTransient)& list,
+   Message_ProgressScope* theProgr,
+   const Standard_Boolean rec)
 {
   if (myActor.IsNull() || myModel.IsNull()) return 0;
 
@@ -866,10 +873,10 @@ Standard_Integer XSControl_TransferReader::TransferList
   Standard_Integer res = 0;
   nb = list->Length();
   Handle(Standard_Transient) obj;
-
-  for (i = 1; i <= nb; i ++) {
+  Message_ProgressScope aPS(theProgr, NULL, 0, nb);
+  for (i = 1; i <= nb && aPS.More(); i++, aPS.Next()) {
     obj = list->Value(i);
-    TP.Transfer (obj);
+    TP.Transfer (obj, &aPS);
     myTP->SetRoot (obj);
 
     //  Resultat ...
@@ -892,7 +899,8 @@ Standard_Integer XSControl_TransferReader::TransferList
 //purpose  : 
 //=======================================================================
 
-Standard_Integer XSControl_TransferReader::TransferRoots(const Interface_Graph& G)
+Standard_Integer XSControl_TransferReader::TransferRoots(const Interface_Graph& G,
+                                                         Message_ProgressScope* theProgr)
 {
   if (myModel != G.Model()) return -1;
   if (!BeginTransfer()) return -1;
@@ -918,7 +926,9 @@ Standard_Integer XSControl_TransferReader::TransferRoots(const Interface_Graph& 
     sout<<"\n*******************************************************************\n";
   }
 
-  TP.TransferRoots (G);
+  TP.TransferRoots (G, theProgr);
+  if (theProgr && !theProgr->More())
+    return -1;
 
   //  Les entites transferees sont notees "asmain"
   Standard_Integer i,n = myTP->NbMapped();

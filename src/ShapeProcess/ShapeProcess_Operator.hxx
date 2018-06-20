@@ -22,7 +22,7 @@
 #include <Standard_Transient.hxx>
 #include <Standard_Boolean.hxx>
 class ShapeProcess_Context;
-
+class Message_ProgressScope;
 
 class ShapeProcess_Operator;
 DEFINE_STANDARD_HANDLE(ShapeProcess_Operator, Standard_Transient)
@@ -37,7 +37,9 @@ public:
   
   //! Performs operation and eventually records
   //! changes in the context
-  Standard_EXPORT virtual Standard_Boolean Perform (const Handle(ShapeProcess_Context)& context) = 0;
+  Standard_EXPORT virtual Standard_Boolean Perform
+                   (const Handle(ShapeProcess_Context)& context,
+                    Message_ProgressScope* theProgr) = 0;
 
 
 

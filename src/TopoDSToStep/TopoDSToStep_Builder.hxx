@@ -28,6 +28,7 @@ class StdFail_NotDone;
 class TopoDS_Shape;
 class TopoDSToStep_Tool;
 class Transfer_FinderProcess;
+class Message_ProgressScope;
 
 
 //! This builder Class provides services to build
@@ -41,9 +42,15 @@ public:
   
   Standard_EXPORT TopoDSToStep_Builder();
   
-  Standard_EXPORT TopoDSToStep_Builder(const TopoDS_Shape& S, TopoDSToStep_Tool& T, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_Builder(const TopoDS_Shape& S,
+                                       TopoDSToStep_Tool& T,
+                                       const Handle(Transfer_FinderProcess)& FP,
+                                       Message_ProgressScope* theProgr);
   
-  Standard_EXPORT void Init (const TopoDS_Shape& S, TopoDSToStep_Tool& T, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT void Init (const TopoDS_Shape& S,
+                             TopoDSToStep_Tool& T,
+                             const Handle(Transfer_FinderProcess)& FP,
+                             Message_ProgressScope* theProgr);
   
   Standard_EXPORT TopoDSToStep_BuilderError Error() const;
   

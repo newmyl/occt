@@ -260,7 +260,7 @@ static int BUC60610(Draw_Interpretor& di, Standard_Integer argc, const char ** a
   IGESToBRep_Reader IR;
   IR.LoadFile (argv[1]);
   IR.Clear();
-  IR.TransferRoots();
+  IR.TransferRoots(NULL);
   TopoDS_Shape aTopShape = IR.OneShape();
   TopExp_Explorer ex(aTopShape, TopAbs_EDGE);
   Standard_Integer i=0;
@@ -1274,7 +1274,7 @@ static Standard_Integer OCC24 (Draw_Interpretor& di, Standard_Integer argc, cons
     ShapeProcess_OperLibrary::Init();
     Handle(ShapeProcess_ShapeContext) aShapeContext = new ShapeProcess_ShapeContext (aSubShapes, aResourceFile);
     aShapeContext->SetDetalisation (TopAbs_EDGE);
-    ShapeProcess::Perform (aShapeContext, aSequenceName);
+    ShapeProcess::Perform (aShapeContext, aSequenceName, NULL);
 
     // 4. Rebuild initil shape in accordance with performed operation
     Handle(ShapeBuild_ReShape) aReshape = new ShapeBuild_ReShape;
@@ -2556,7 +2556,7 @@ static Standard_Integer OCC7141 (Draw_Interpretor& di, Standard_Integer argc, co
   }
   try {
     OCC_CATCH_SIGNALS
-    if( writer.Transfer(document, mode)) {
+    if( writer.Transfer(document, NULL, mode)) {
     	writer.Write(aFilePath.ToCString());
     }
   }
@@ -3124,7 +3124,7 @@ static Standard_Integer OCC15755 (Draw_Interpretor& di, Standard_Integer argc, c
   IGESControl_Reader aReader;
   aReader.ReadFile(argv[1]);
   aReader.SetReadVisible(Standard_True);
-  aReader.TransferRoots();
+  aReader.TransferRoots(NULL);
 
   Handle(IGESData_IGESModel) model = aReader.IGESModel();
   if (model.IsNull()) {
@@ -4457,7 +4457,7 @@ static Standard_Integer OCC12584 (Draw_Interpretor& di, Standard_Integer argc, c
 #include <XSControl_WorkSession.hxx>
 #include <Transfer_TransientProcess.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <XSControl_TransferReader.hxx>
 
 #include <Geom_Plane.hxx>
@@ -4776,11 +4776,11 @@ Standard_Integer OCC28478 (Draw_Interpretor& di, Standard_Integer argc, const ch
   aProgress->SetTextMode (Standard_True);
 
   // Outer cycle
-  Message_ProgressSentry anOuter (aProgress, "Outer", 0, nbOuter, 1);
+  Message_ProgressScope anOuter (aProgress->GetRootScope(), "Outer", 0, nbOuter, 1);
   for (int i = 0; i < nbOuter && anOuter.More(); i++, anOuter.Next())
   {
     // Inner cycle
-    Message_ProgressSentry anInner (aProgress, "Inner", 0, nbInner, 1);
+    Message_ProgressScope anInner (&anOuter, "Inner", 0, nbInner, 1);
     for (int j = 0; j < nbInner && anInner.More(); j++, anInner.Next())
     {
       // Cycle body

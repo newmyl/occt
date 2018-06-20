@@ -42,7 +42,7 @@ class Interface_InterfaceModel;
 class Transfer_FinderProcess;
 class TopoDS_Shape;
 class Interface_CheckIterator;
-
+class Message_ProgressScope;
 
 class XSControl_Controller;
 DEFINE_STANDARD_HANDLE(XSControl_Controller, Standard_Transient)
@@ -157,7 +157,12 @@ class XSControl_Controller : public Standard_Transient
   //! 0  OK ,  1 No Result ,  2 Fail (e.g. exception raised)
   //! -1 bad conditions ,  -2 bad model or null model
   //! For type of object not recognized : should return 1
-  Standard_EXPORT virtual IFSelect_ReturnStatus TransferWriteTransient (const Handle(Standard_Transient)& obj, const Handle(Transfer_FinderProcess)& FP, const Handle(Interface_InterfaceModel)& model, const Standard_Integer modetrans = 0) const;
+  Standard_EXPORT virtual IFSelect_ReturnStatus TransferWriteTransient 
+                   (const Handle(Standard_Transient)& obj,
+                    const Handle(Transfer_FinderProcess)& FP,
+                    const Handle(Interface_InterfaceModel)& model,
+                    Message_ProgressScope* theProgr,
+                    const Standard_Integer modetrans = 0) const;
   
   //! Tells if a shape is valid for a transfer to a model
   //! Asks the ActorWrite (through a ShapeMapper)
@@ -169,7 +174,12 @@ class XSControl_Controller : public Standard_Transient
   //! Returned value is a status, as follows :
   //! Done  OK ,  Void : No Result ,  Fail : Fail (e.g. exception)
   //! Error : bad conditions , bad model or null model
-  Standard_EXPORT virtual IFSelect_ReturnStatus TransferWriteShape (const TopoDS_Shape& shape, const Handle(Transfer_FinderProcess)& FP, const Handle(Interface_InterfaceModel)& model, const Standard_Integer modetrans = 0) const;
+  Standard_EXPORT virtual IFSelect_ReturnStatus TransferWriteShape
+                   (const TopoDS_Shape& shape,
+                    const Handle(Transfer_FinderProcess)& FP,
+                    const Handle(Interface_InterfaceModel)& model,
+                    Message_ProgressScope* theProgr,
+                    const Standard_Integer modetrans = 0) const;
   
   //! Records a Session Item, to be added for customisation of the Work Session.
   //! It must have a specific name.

@@ -72,7 +72,7 @@
 #include <TColgp_SequenceOfVec.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 
 #include <stdio.h>
 // pour la verif G2
@@ -456,7 +456,7 @@ void GeomPlate_BuildPlateSurface::
 //fonction : Perform
 // Calcul la surface de remplissage avec les contraintes chargees
 //---------------------------------------------------------
-void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator) & aProgress)
+void GeomPlate_BuildPlateSurface::Perform(Message_ProgressScope* theProgr)
 { 
 #ifdef OCCT_DEBUG
   // Chronmetrage
@@ -488,29 +488,37 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
   //======================================================================   
   // Surface Initiale
   //======================================================================
+  Message_ProgressScope aPS(theProgr, NULL, 0, 100, 1, Standard_True);
   if (!mySurfInitIsGive)
-    ComputeSurfInit(aProgress);
+  {
+    aPS.SetStep(10);
+    ComputeSurfInit(&aPS);
+    if (aPS.UserBreak())
+      return;
+    aPS.Next();
+    aPS.SetStep(90);
+  }
 
   else {
-   if (NTLinCont>=2)
-	{ // Tableau des permutations pour conserver l'ordre initial voir TrierTab
-	  myInitOrder = new TColStd_HArray1OfInteger(1,NTLinCont);
-	  for (Standard_Integer l=1;l<=NTLinCont;l++)
-	    myInitOrder->SetValue(l,l);
-	  if (!CourbeJointive(myTol3d)) 
-	    {//    throw Standard_Failure("Curves are not joined");
+    if (NTLinCont >= 2)
+    { // Tableau des permutations pour conserver l'ordre initial voir TrierTab
+      myInitOrder = new TColStd_HArray1OfInteger(1, NTLinCont);
+      for (Standard_Integer l = 1; l <= NTLinCont; l++)
+        myInitOrder->SetValue(l, l);
+      if (!CourbeJointive(myTol3d))
+      {//    throw Standard_Failure("Curves are not joined");
 #ifdef OCCT_DEBUG
-	      cout<<"WARNING : Courbes non jointives a "<<myTol3d<<" pres"<<endl;
+        cout << "WARNING : Courbes non jointives a " << myTol3d << " pres" << endl;
 #endif	  
-	    }
-	  TrierTab(myInitOrder); // Reordonne le tableau des permutations
-	}
-   else if(NTLinCont > 0)//Patch
-     {
-       mySense = new TColStd_HArray1OfInteger( 1, NTLinCont, 0 );
-       myInitOrder = new TColStd_HArray1OfInteger( 1, NTLinCont, 1 );
-     }
- }
+      }
+      TrierTab(myInitOrder); // Reordonne le tableau des permutations
+    }
+    else if (NTLinCont > 0)//Patch
+    {
+      mySense = new TColStd_HArray1OfInteger(1, NTLinCont, 0);
+      myInitOrder = new TColStd_HArray1OfInteger(1, NTLinCont, 1);
+    }
+  }
 
   if (mySurfInit.IsNull())
   {
@@ -660,9 +668,9 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
 	  //Resolution de la surface
 	  //====================================================================
 
-	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), aProgress);
+	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), &aPS);
 
-	  if (!aProgress.IsNull() && aProgress->UserBreak())
+	  if (aPS.UserBreak())
 	  {
 	    return;
 	  }
@@ -699,9 +707,9 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
 	  //====================================================================
 	  //Resolution de la surface
 	  //====================================================================
-	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), aProgress);
+	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), &aPS);
 
-	  if (!aProgress.IsNull() && aProgress->UserBreak())
+	  if (aPS.UserBreak())
 	  {
 	    return;
 	  }
@@ -722,6 +730,7 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
           Standard_Real di,an,cu;
           VerifPoints(di,an,cu);
 	}
+      aPS.Next();
     } while (!Fini); // Fin boucle pour meilleur surface
 #ifdef OCCT_DEBUG
   if (NTLinCont != 0)
@@ -1367,7 +1376,7 @@ Standard_Boolean GeomPlate_BuildPlateSurface::
 // il y a des contraintes ponctuelles
 //-------------------------------------------------------------------------
 
-void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Handle(Message_ProgressIndicator) & aProgress)
+void GeomPlate_BuildPlateSurface::ComputeSurfInit(Message_ProgressScope* theProgr)
 {
   Standard_Integer nopt=2, popt=2, Np=1;
   Standard_Boolean isHalfSpace = Standard_True;
@@ -1732,8 +1741,8 @@ void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Handle(Message_ProgressI
       //====================================================================
       //Resolution de la surface
       //====================================================================
-      myPlate.SolveTI(2, ComputeAnisotropie(), aProgress);
-      if (!aProgress.IsNull() && aProgress->UserBreak())
+      myPlate.SolveTI(2, ComputeAnisotropie(), theProgr);
+      if (theProgr && theProgr->UserBreak())
       {
           return;
       }

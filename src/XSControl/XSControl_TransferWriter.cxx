@@ -87,7 +87,8 @@ Standard_Boolean XSControl_TransferWriter::RecognizeTransient (const Handle(Stan
 
 IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteTransient
   (const Handle(Interface_InterfaceModel)& model,
-   const Handle(Standard_Transient)& obj)
+   const Handle(Standard_Transient)& obj,
+   Message_ProgressScope* theProgr)
 {
   IFSelect_ReturnStatus status = IFSelect_RetVoid;
   if (myController.IsNull()) return IFSelect_RetError;
@@ -104,7 +105,7 @@ IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteTransient
     sout << "******        Transferring Transient, CDL Type = ";
     sout<<obj->DynamicType()->Name()<<"   ******"<<endl;
     status = myController->TransferWriteTransient
-      (obj,myTransferWriter,model,myTransferMode);
+      (obj,myTransferWriter,model, theProgr, myTransferMode);
   }
   catch(Standard_Failure const& anException) {
     sout<<"****  ****  TransferWriteShape, EXCEPTION : ";
@@ -134,7 +135,8 @@ Standard_Boolean XSControl_TransferWriter::RecognizeShape (const TopoDS_Shape& s
 
 IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteShape
   (const Handle(Interface_InterfaceModel)& model,
-   const TopoDS_Shape& shape)
+   const TopoDS_Shape& shape,
+   Message_ProgressScope* theProgr)
 {
   IFSelect_ReturnStatus status = IFSelect_RetVoid;
   if (myController.IsNull()) return IFSelect_RetError;
@@ -152,7 +154,7 @@ IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteShape
     sout << "******        Transferring Shape, ShapeType = " << shape.ShapeType();
     sout<<"                      ******"<<endl;
     status = myController->TransferWriteShape
-      (shape,myTransferWriter,model,myTransferMode);
+      (shape,myTransferWriter,model, theProgr, myTransferMode);
   }
   catch(Standard_Failure const& anException) {
     sout<<"****  ****  TransferWriteShape, EXCEPTION : "; 

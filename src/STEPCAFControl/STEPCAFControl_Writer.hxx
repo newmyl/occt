@@ -86,16 +86,26 @@ public:
   //! mode (with external refs), and string pointed by <multi>
   //! gives prefix for names of extern files (can be empty string)
   //! Returns True if translation is OK
-  Standard_EXPORT Standard_Boolean Transfer (const Handle(TDocStd_Document)& doc, const STEPControl_StepModelType mode = STEPControl_AsIs, const Standard_CString multi = 0);
+  Standard_EXPORT Standard_Boolean Transfer (const Handle(TDocStd_Document)& doc,
+                                             Message_ProgressScope* theProgr,
+                                             const STEPControl_StepModelType mode = STEPControl_AsIs,
+                                             const Standard_CString multi = 0);
   
   //! Method to transfer part of the document specified by label
-  Standard_EXPORT Standard_Boolean Transfer (const TDF_Label& L, const STEPControl_StepModelType mode = STEPControl_AsIs, const Standard_CString multi = 0 );
+  Standard_EXPORT Standard_Boolean Transfer (const TDF_Label& L,
+                                             Message_ProgressScope* theProgr,
+                                             const STEPControl_StepModelType mode = STEPControl_AsIs,
+                                             const Standard_CString multi = 0 );
 
-  Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc, const TCollection_AsciiString& filename);
+  Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc,
+                                            const TCollection_AsciiString& filename,
+                                            Message_ProgressScope* theProgr);
   
   //! Transfers a document and writes it to a STEP file
   //! Returns True if translation is OK
-  Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc, const Standard_CString filename);
+  Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc,
+                                            const Standard_CString filename,
+                                            Message_ProgressScope* theProgr);
   
   //! Returns data on external files
   //! Returns Null handle if no external files are read
@@ -155,12 +165,20 @@ public:
 
 protected:
   //! Mehod to writing sequence of root assemblies or part of the file specified by use by one label 
-  Standard_EXPORT Standard_Boolean Transfer (const TDF_LabelSequence& L, const STEPControl_StepModelType mode = STEPControl_AsIs, const Standard_CString multi = 0);
+  Standard_EXPORT Standard_Boolean Transfer (const TDF_LabelSequence& L,
+                                             Message_ProgressScope* theProgr,
+                                             const STEPControl_StepModelType mode = STEPControl_AsIs,
+                                             const Standard_CString multi = 0);
   
   //! Transfers labels to a STEP model
   //! Returns True if translation is OK
   //! isExternFile setting from TransferExternFiles method
-  Standard_EXPORT Standard_Boolean Transfer (STEPControl_Writer& wr, const TDF_LabelSequence& labels, const STEPControl_StepModelType mode = STEPControl_AsIs, const Standard_CString multi = 0, const Standard_Boolean isExternFile = Standard_False) ;
+  Standard_EXPORT Standard_Boolean Transfer (STEPControl_Writer& wr,
+                                             const TDF_LabelSequence& labels,
+                                             Message_ProgressScope* theProgr,
+                                             const STEPControl_StepModelType mode = STEPControl_AsIs,
+                                             const Standard_CString multi = 0,
+                                             const Standard_Boolean isExternFile = Standard_False) ;
   
   //! Parses assembly structure of label L, writes all the simple
   //! shapes each to its own file named by name of its label plus
@@ -168,7 +186,11 @@ protected:
   //! Returns shape representing that assembly structure
   //! in the form of nested empty compounds (and a sequence of
   //! labels which are newly written nodes of this assembly)
-  Standard_EXPORT TopoDS_Shape TransferExternFiles (const TDF_Label& L, const STEPControl_StepModelType mode, TDF_LabelSequence& Lseq, const Standard_CString prefix = "");
+  Standard_EXPORT TopoDS_Shape TransferExternFiles (const TDF_Label& L,
+                                                    Message_ProgressScope* theProgr,
+                                                    const STEPControl_StepModelType mode,
+                                                    TDF_LabelSequence& Lseq,
+                                                    const Standard_CString prefix = "");
   
   //! Write external references to STEP
   Standard_EXPORT Standard_Boolean WriteExternRefs (const Handle(XSControl_WorkSession)& WS, const TDF_LabelSequence& labels) const;

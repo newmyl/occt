@@ -232,7 +232,7 @@ static Standard_Integer ReadIges (Draw_Interpretor& di, Standard_Integer argc, c
     Draw::Set(argv[1],DD);       
 //     di << "Document saved with name " << argv[1];
   }
-  if ( ! reader.Transfer ( doc ) ) {
+  if ( ! reader.Transfer ( doc, NULL ) ) {
     di << "Cannot read any relevant data from the IGES file\n";
     return 1;
   }
@@ -280,7 +280,7 @@ static Standard_Integer WriteIges (Draw_Interpretor& di, Standard_Integer argc, 
       case 'l' : writer.SetLayerMode (mode); break;
       }
   }
-  writer.Transfer ( Doc );
+  writer.Transfer ( Doc, NULL );
 
   di << "Writig IGES model to file " << argv[2] << "\n";
   if ( writer.Write ( argv[2] ) ) di<<" Write OK\n";
@@ -342,7 +342,7 @@ static Standard_Integer ReadStep (Draw_Interpretor& di, Standard_Integer argc, c
     Draw::Set(argv[1],DD);       
 //     di << "Document saved with name " << argv[1];
   }
-  if ( ! reader.Transfer ( doc ) ) {
+  if ( ! reader.Transfer ( doc, NULL ) ) {
     di << "Cannot read any relevant data from the STEP file\n";
     return 1;
   }
@@ -437,7 +437,7 @@ static Standard_Integer WriteStep (Draw_Interpretor& di, Standard_Integer argc, 
   if( !label.IsNull())
   {  
     di << "Translating label "<< argv[k]<<" of document " << argv[1] << " to STEP\n";
-    if(!writer.Transfer ( label, mode, multifile )) 
+    if(!writer.Transfer ( label, NULL, mode, multifile )) 
     {
       di << "The label of document cannot be translated or gives no result\n";
       return 1;
@@ -447,7 +447,7 @@ static Standard_Integer WriteStep (Draw_Interpretor& di, Standard_Integer argc, 
   else
   {
     di << "Translating document " << argv[1] << " to STEP\n";
-    if ( ! writer.Transfer ( Doc, mode, multifile ) ) {
+    if ( ! writer.Transfer ( Doc, NULL, mode, multifile ) ) {
       di << "The document cannot be translated or gives no result\n";
     }
   }

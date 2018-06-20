@@ -31,7 +31,7 @@ class Standard_Transient;
 class Interface_Protocol;
 class Interface_Graph;
 class Interface_EntityIterator;
-
+class Message_ProgressScope;
 
 //! A TransferOutput is a Tool which manages the transfer of
 //! entities created by an Interface, stored in an InterfaceModel,
@@ -67,22 +67,25 @@ public:
   
   //! Transfer checks that all taken Entities come from the same
   //! Model, then calls Transfer from TransientProcess
-  Standard_EXPORT void Transfer (const Handle(Standard_Transient)& obj);
+  Standard_EXPORT void Transfer (const Handle(Standard_Transient)& obj,
+                                 Message_ProgressScope* theProgr);
   
   //! Runs transfer on the roots of the Interface Model
   //! The Roots are computed with a ShareFlags created from a
   //! Protocol given as Argument
-  Standard_EXPORT void TransferRoots (const Handle(Interface_Protocol)& protocol);
+  Standard_EXPORT void TransferRoots (const Handle(Interface_Protocol)& protocol,
+                                      Message_ProgressScope* theProgr);
   
   //! Runs transfer on the roots defined by a Graph of dependences
   //! (which detains also a Model and its Entities)
   //! Roots are computed with a ShareFlags created from the Graph
-  Standard_EXPORT void TransferRoots (const Interface_Graph& G);
+  Standard_EXPORT void TransferRoots (const Interface_Graph& G,
+                                      Message_ProgressScope* theProgr);
   
   //! Runs transfer on the roots of the Interface Model
   //! Remark : the Roots are computed with a ShareFlags created
   //! from the Active Protocol
-  Standard_EXPORT void TransferRoots();
+  Standard_EXPORT void TransferRoots(Message_ProgressScope* theProgr);
   
   //! Returns the list of Starting Entities with these criteria :
   //! - <normal> False, gives the entities bound with ABNORMAL STATUS

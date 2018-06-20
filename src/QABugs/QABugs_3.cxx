@@ -1218,7 +1218,7 @@ static Standard_Integer BUC60951_(Draw_Interpretor& di, Standard_Integer argc, c
 //  IGESControlStd_Reader reader;
   IGESControl_Reader reader;
   reader.ReadFile(a[1]);
-  reader.TransferRoots();
+  reader.TransferRoots(NULL);
   TopoDS_Shape shape = reader.OneShape();
   printf("\n iges1 shape type = %d", shape.ShapeType() );
   TopTools_IndexedMapOfShape list;

@@ -32,7 +32,7 @@ class Transfer_ProcessForTransient;
 class Transfer_IteratorOfProcessForTransient;
 class Transfer_Binder;
 class Transfer_SimpleBinderOfTransient;
-
+class Message_ProgressScope;
 
 class Transfer_ActorOfProcessForTransient;
 DEFINE_STANDARD_HANDLE(Transfer_ActorOfProcessForTransient, Standard_Transient)
@@ -64,7 +64,10 @@ public:
   //! (Default defined as doing nothing; should be deffered)
   //! "mutable" allows the Actor to record intermediate
   //! information, in addition to those of TransferProcess
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring (const Handle(Standard_Transient)& start, const Handle(Transfer_ProcessForTransient)& TP);
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_ProcessForTransient)& TP,
+                    Message_ProgressScope* theProgr);
   
   //! Prepares and Returns a Binder for a Transient Result
   //! Returns a Null Handle if <res> is itself Null

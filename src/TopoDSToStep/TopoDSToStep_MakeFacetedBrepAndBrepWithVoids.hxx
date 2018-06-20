@@ -26,7 +26,7 @@ class StepShape_FacetedBrepAndBrepWithVoids;
 class StdFail_NotDone;
 class TopoDS_Solid;
 class Transfer_FinderProcess;
-
+class Message_ProgressScope;
 
 //! This class implements the mapping between classes
 //! Solid from TopoDS and FacetedBrepAndBrepWithVoids from
@@ -40,7 +40,9 @@ public:
   DEFINE_STANDARD_ALLOC
 
   
-  Standard_EXPORT TopoDSToStep_MakeFacetedBrepAndBrepWithVoids(const TopoDS_Solid& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeFacetedBrepAndBrepWithVoids(const TopoDS_Solid& S,
+                                                               const Handle(Transfer_FinderProcess)& FP,
+                                                               Message_ProgressScope* theProgr);
   
   Standard_EXPORT const Handle(StepShape_FacetedBrepAndBrepWithVoids)& Value() const;
 
