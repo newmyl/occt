@@ -29,6 +29,7 @@ class Transfer_FinderProcess;
 class IGESData_IGESEntity;
 class TopoDS_Shape;
 class Standard_Transient;
+class Message_ProgressScope;
 
 
 //! provides methods to transfer BRep entity from CASCADE to IGES.
@@ -64,7 +65,9 @@ public:
   
   //! Returns the result of the transfert of any Shape
   //! If  the transfer has  failed, this member return a NullEntity.
-  Standard_EXPORT virtual Handle(IGESData_IGESEntity) TransferShape (const TopoDS_Shape& start);
+  Standard_EXPORT virtual Handle(IGESData_IGESEntity) TransferShape
+                   (const TopoDS_Shape& start,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Records a new Fail message
   Standard_EXPORT void AddFail (const TopoDS_Shape& start, const Standard_CString amess);

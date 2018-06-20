@@ -26,23 +26,26 @@ Transfer_ActorOfTransientProcess::Transfer_ActorOfTransientProcess ()    {  }
 
 Handle(Transfer_Binder)  Transfer_ActorOfTransientProcess::Transfer
   (const Handle(Standard_Transient)& start,
-   const Handle(Transfer_TransientProcess)& TP)
+   const Handle(Transfer_TransientProcess)& TP,
+   Message_ProgressScope* theProgr)
 {
-  Handle(Standard_Transient) res = TransferTransient (start,TP);
+  Handle(Standard_Transient) res = TransferTransient (start,TP, theProgr);
   if (res.IsNull()) return NullResult();
   return TransientResult (res);
 }
 
 Handle(Transfer_Binder)  Transfer_ActorOfTransientProcess::Transferring
   (const Handle(Standard_Transient)& ent,
-   const Handle(Transfer_ProcessForTransient)& TP)
+   const Handle(Transfer_ProcessForTransient)& TP,
+   Message_ProgressScope* theProgr)
 {
-  return Transfer(ent,Handle(Transfer_TransientProcess)::DownCast(TP));
+  return Transfer(ent,Handle(Transfer_TransientProcess)::DownCast(TP), theProgr);
 }
 
 Handle(Standard_Transient)  Transfer_ActorOfTransientProcess::TransferTransient
   (const Handle(Standard_Transient)& /*ent*/,
-   const Handle(Transfer_TransientProcess)& /*TP*/)
+   const Handle(Transfer_TransientProcess)& /*TP*/,
+   Message_ProgressScope* )
 {
   Handle(Standard_Transient) nulres;
   return nulres;

@@ -24,6 +24,7 @@
 #include <BRepToIGES_BREntity.hxx>
 class BRepToIGES_BREntity;
 class IGESData_IGESEntity;
+class Message_ProgressScope;
 class TopoDS_Shape;
 class TopoDS_Shell;
 class TopoDS_Face;
@@ -48,15 +49,18 @@ public:
   //! Transfert an Shape entity from TopoDS to IGES
   //! This entity must be a Face or a Shell.
   //! If this Entity could not be converted, this member returns a NullEntity.
-  Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shape& start);
+  Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shape& start,
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert an Shell entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
-  Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shell& start);
+  Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shell& start,
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Face entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
-  Standard_EXPORT Handle(IGESData_IGESEntity) TransferFace (const TopoDS_Face& start);
+  Standard_EXPORT Handle(IGESData_IGESEntity) TransferFace (const TopoDS_Face& start,
+                                                            Message_ProgressScope* theProgr = 0L);
 
 
 

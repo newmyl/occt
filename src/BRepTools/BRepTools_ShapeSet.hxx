@@ -65,10 +65,12 @@ public:
   
   //! Writes the geometry of  me  on the stream <OS> in a
   //! format that can be read back by Read.
-  Standard_EXPORT virtual void WriteGeometry (Standard_OStream& OS) Standard_OVERRIDE;
+  Standard_EXPORT virtual void WriteGeometry (Standard_OStream& OS,
+                                              Message_ProgressScope* thePS = 0L) Standard_OVERRIDE;
   
   //! Reads the geometry of me from the  stream  <IS>.
-  Standard_EXPORT virtual void ReadGeometry (Standard_IStream& IS) Standard_OVERRIDE;
+  Standard_EXPORT virtual void ReadGeometry (Standard_IStream& IS,
+                                             Message_ProgressScope* thePS = 0L) Standard_OVERRIDE;
   
   //! Dumps the geometry of <S> on the stream <OS>.
   Standard_EXPORT virtual void DumpGeometry (const TopoDS_Shape& S, Standard_OStream& OS) const Standard_OVERRIDE;
@@ -90,12 +92,15 @@ public:
   
   //! Reads the 3d polygons  of me
   //! from the  stream  <IS>.
-  Standard_EXPORT void ReadPolygon3D (Standard_IStream& IS);
+  Standard_EXPORT void ReadPolygon3D (Standard_IStream& IS,
+                                      Message_ProgressScope* thePS = 0L);
   
   //! Writes the 3d polygons
   //! on the stream <OS> in a format that can
   //! be read back by Read.
-  Standard_EXPORT void WritePolygon3D (Standard_OStream& OS, const Standard_Boolean Compact = Standard_True) const;
+  Standard_EXPORT void WritePolygon3D (Standard_OStream& OS,
+                                       const Standard_Boolean Compact = Standard_True,
+                                       Message_ProgressScope* thePS = 0L) const;
   
   //! Dumps the 3d polygons
   //! on the stream <OS>.
@@ -103,12 +108,15 @@ public:
   
   //! Reads the triangulation of me
   //! from the  stream  <IS>.
-  Standard_EXPORT void ReadTriangulation (Standard_IStream& IS);
+  Standard_EXPORT void ReadTriangulation (Standard_IStream& IS,
+                                          Message_ProgressScope* thePS = 0L);
   
   //! Writes the triangulation
   //! on the stream <OS> in a format that can
   //! be read back by Read.
-  Standard_EXPORT void WriteTriangulation (Standard_OStream& OS, const Standard_Boolean Compact = Standard_True) const;
+  Standard_EXPORT void WriteTriangulation (Standard_OStream& OS,
+                                           const Standard_Boolean Compact = Standard_True,
+                                           Message_ProgressScope* thePS = 0L) const;
   
   //! Dumps the triangulation
   //! on the stream <OS>.
@@ -116,12 +124,15 @@ public:
   
   //! Reads the polygons on triangulation of me
   //! from the  stream  <IS>.
-  Standard_EXPORT void ReadPolygonOnTriangulation (Standard_IStream& IS);
+  Standard_EXPORT void ReadPolygonOnTriangulation (Standard_IStream& IS,
+                                                   Message_ProgressScope* thePS = 0L);
   
   //! Writes the polygons on triangulation
   //! on the stream <OS> in a format that can
   //! be read back by Read.
-  Standard_EXPORT void WritePolygonOnTriangulation (Standard_OStream& OS, const Standard_Boolean Compact = Standard_True) const;
+  Standard_EXPORT void WritePolygonOnTriangulation (Standard_OStream& OS,
+                                                    const Standard_Boolean Compact = Standard_True,
+                                                    Message_ProgressScope* thePS = 0L) const;
   
   //! Dumps the polygons on triangulation
   //! on the stream <OS>.

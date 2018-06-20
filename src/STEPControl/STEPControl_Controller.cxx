@@ -291,7 +291,8 @@ IFSelect_ReturnStatus  STEPControl_Controller::TransferWriteShape
   (const TopoDS_Shape& shape,
    const Handle(Transfer_FinderProcess)& FP,
    const Handle(Interface_InterfaceModel)& model,
-   const Standard_Integer modeshape) const
+   const Standard_Integer modeshape,
+   Message_ProgressScope* theProgr) const
 {
   if (modeshape < 0 || modeshape > 4) return IFSelect_RetError;
   Handle(STEPControl_ActorWrite) ActWrite =
@@ -300,7 +301,7 @@ IFSelect_ReturnStatus  STEPControl_Controller::TransferWriteShape
   if (!ActWrite.IsNull()) 
     ActWrite->SetGroupMode (Interface_Static::IVal("write.step.assembly"));
 
-  return XSControl_Controller::TransferWriteShape (shape,FP,model,modeshape);
+  return XSControl_Controller::TransferWriteShape(shape, FP, model, modeshape, theProgr);
 }
 
 Standard_Boolean STEPControl_Controller::Init ()

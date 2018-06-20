@@ -16,10 +16,11 @@
 #ifndef _RWStl_HeaderFile
 #define _RWStl_HeaderFile
 
-#include <Message_ProgressIndicator.hxx>
 #include <OSD_Path.hxx>
 #include <Poly_Triangulation.hxx>
 #include <Standard_Macro.hxx>
+
+class Message_ProgressScope;
 
 //! This class provides methods to read and write triangulation from / to the STL files.
 class RWStl
@@ -31,46 +32,46 @@ public:
   //! Returns false if the cannot be opened;
   Standard_EXPORT static Standard_Boolean WriteBinary (const Handle(Poly_Triangulation)& theMesh,
                                                        const OSD_Path& thePath,
-                                                       const Handle(Message_ProgressIndicator)& theProgInd = Handle(Message_ProgressIndicator)());
+                                                       Message_ProgressScope* theProgr = 0L);
   
   //! write the meshing in a file following the
   //! Ascii  format of an STL file.
   //! Returns false if the cannot be opened;
   Standard_EXPORT static Standard_Boolean WriteAscii (const Handle(Poly_Triangulation)& theMesh,
                                                       const OSD_Path& thePath,
-                                                      const Handle(Message_ProgressIndicator)& theProgInd = Handle(Message_ProgressIndicator)());
+                                                      Message_ProgressScope* theProgr = 0L);
   
   //! Read specified STL file and returns its content as triangulation.
   //! In case of error, returns Null handle.
   Standard_EXPORT static Handle(Poly_Triangulation) ReadFile (const OSD_Path& theFile,
-                                                              const Handle(Message_ProgressIndicator)& aProgInd = Handle(Message_ProgressIndicator)());
+                                                              Message_ProgressScope* aProgInd = 0L);
 
   //! Read specified STL file and returns its content as triangulation.
   //! In case of error, returns Null handle.
   Standard_EXPORT static Handle(Poly_Triangulation) ReadFile (const Standard_CString theFile,
-                                                              const Handle(Message_ProgressIndicator)& aProgInd = Handle(Message_ProgressIndicator)());
+                                                              Message_ProgressScope* aProgInd = 0L);
 
   //! Read triangulation from a binary STL file
   //! In case of error, returns Null handle.
   Standard_EXPORT static Handle(Poly_Triangulation) ReadBinary (const OSD_Path& thePath,
-                                                                const Handle(Message_ProgressIndicator)& theProgInd = Handle(Message_ProgressIndicator)());
+                                                                Message_ProgressScope* theProgr = 0L);
   
   //! Read triangulation from an Ascii STL file
   //! In case of error, returns Null handle.
   Standard_EXPORT static Handle(Poly_Triangulation) ReadAscii (const OSD_Path& thePath,
-                                                               const Handle(Message_ProgressIndicator)& theProgInd = Handle(Message_ProgressIndicator)());
+                                                               Message_ProgressScope* theProgr = 0L);
 
 private:
 
   //! Write ASCII version.
   static Standard_Boolean writeASCII (const Handle(Poly_Triangulation)& theMesh,
                                       FILE *theFile,
-                                      const Handle(Message_ProgressIndicator)& theProgInd);
+                                      Message_ProgressScope* theProgr);
 
   //! Write binary version.
   static Standard_Boolean writeBinary (const Handle(Poly_Triangulation)& theMesh,
                                        FILE *theFile,
-                                       const Handle(Message_ProgressIndicator)& theProgInd);
+                                       Message_ProgressScope* theProgr);
 };
 
 #endif

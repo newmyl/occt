@@ -47,11 +47,20 @@ public:
   //! Returns the Transfer Mode, modifiable
   Standard_EXPORT Standard_Integer& ModeTrans();
   
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring (const Handle(Transfer_Finder)& start, const Handle(Transfer_ProcessForFinder)& TP) Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
+                   (const Handle(Transfer_Finder)& start,
+                    const Handle(Transfer_ProcessForFinder)& TP,
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer (const Handle(Transfer_Finder)& start, const Handle(Transfer_FinderProcess)& TP);
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
+                   (const Handle(Transfer_Finder)& start,
+                    const Handle(Transfer_FinderProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L);
   
-  Standard_EXPORT virtual Handle(Standard_Transient) TransferTransient (const Handle(Standard_Transient)& start, const Handle(Transfer_FinderProcess)& TP);
+  Standard_EXPORT virtual Handle(Standard_Transient) TransferTransient
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_FinderProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L);
 
 
 

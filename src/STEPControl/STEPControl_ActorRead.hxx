@@ -45,6 +45,7 @@ class StepRepr_MappedItem;
 class StepShape_FaceSurface;
 class TopoDS_Shell;
 class TopoDS_Compound;
+class Message_ProgressScope;
 
 
 class STEPControl_ActorRead;
@@ -65,9 +66,16 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean Recognize (const Handle(Standard_Transient)& start) Standard_OVERRIDE;
   
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer (const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP) Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
-  Standard_EXPORT Handle(Transfer_Binder) TransferShape (const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP, const Standard_Boolean isManifold = Standard_True);
+  Standard_EXPORT Handle(Transfer_Binder) TransferShape
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    const Standard_Boolean isManifold = Standard_True,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! set units and tolerances context by given ShapeRepresentation
   Standard_EXPORT void PrepareUnits (const Handle(StepRepr_Representation)& rep, const Handle(Transfer_TransientProcess)& TP);
@@ -95,31 +103,61 @@ protected:
 
   
   //! Transfers product definition entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepBasic_ProductDefinition)& PD, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepBasic_ProductDefinition)& PD,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Transfers next assembly usage occurence entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepRepr_NextAssemblyUsageOccurrence)& NAUO, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepRepr_NextAssemblyUsageOccurrence)& NAUO,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Transfers shape representation entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepShape_ShapeRepresentation)& sr, const Handle(Transfer_TransientProcess)& TP, Standard_Boolean& isBound);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepShape_ShapeRepresentation)& sr,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Standard_Boolean& isBound,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Transfers context dependent shape representation entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepShape_ContextDependentShapeRepresentation)& CDSR, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepShape_ContextDependentShapeRepresentation)& CDSR,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Transfers  shape representation relationship entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepRepr_ShapeRepresentationRelationship)& und, const Handle(Transfer_TransientProcess)& TP, const Standard_Integer nbrep = 0);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepRepr_ShapeRepresentationRelationship)& und,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    const Standard_Integer nbrep = 0,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Transfers  geometric representation item entity such as ManifoldSolidBRep ,...etc
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepGeom_GeometricRepresentationItem)& git, const Handle(Transfer_TransientProcess)& TP, const Standard_Boolean isManifold);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepGeom_GeometricRepresentationItem)& git,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    const Standard_Boolean isManifold,
+                    Message_ProgressScope* theProgr);
   
   //! Transfers  mapped item
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepRepr_MappedItem)& mapit, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepRepr_MappedItem)& mapit,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr);
   
   //! Transfers  FaceSurface entity
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity (const Handle(StepShape_FaceSurface)& fs, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) TransferEntity
+                   (const Handle(StepShape_FaceSurface)& fs,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr);
   
   //! Tranlates file by old way when CDSR are roots . Acts only if "read.step.product_mode" is equal Off.
-  Standard_EXPORT Handle(TransferBRep_ShapeBinder) OldWay (const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT Handle(TransferBRep_ShapeBinder) OldWay
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr);
 
 
 

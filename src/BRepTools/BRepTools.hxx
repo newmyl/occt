@@ -28,8 +28,6 @@
 #include <Standard_IStream.hxx>
 #include <Standard_CString.hxx>
 
-#include <Message_ProgressIndicator.hxx>
-
 class TopoDS_Face;
 class TopoDS_Wire;
 class TopoDS_Edge;
@@ -40,7 +38,7 @@ class TopoDS_Solid;
 class TopoDS_CompSolid;
 class TopoDS_Compound;
 class TopoDS_Shape;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class BRep_Builder;
 class BRepTools_WireExplorer;
 class BRepTools_Modification;
@@ -197,18 +195,23 @@ public:
   Standard_EXPORT static void Dump (const TopoDS_Shape& Sh, Standard_OStream& S);
   
   //! Writes <Sh> on <S> in an ASCII format.
-  Standard_EXPORT static void Write (const TopoDS_Shape& Sh, Standard_OStream& S, const Handle(Message_ProgressIndicator)& PR = NULL);
+  Standard_EXPORT static void Write (const TopoDS_Shape& Sh, Standard_OStream& S,
+                                     Message_ProgressScope* PR = NULL);
   
   //! Reads a Shape  from <S> in  returns it in  <Sh>.
   //! <B> is used to build the shape.
-  Standard_EXPORT static void Read (TopoDS_Shape& Sh, Standard_IStream& S, const BRep_Builder& B, const Handle(Message_ProgressIndicator)& PR = NULL);
+  Standard_EXPORT static void Read (TopoDS_Shape& Sh, Standard_IStream& S, const BRep_Builder& B,
+                                    Message_ProgressScope* PR = NULL);
   
   //! Writes <Sh> in <File>.
-  Standard_EXPORT static Standard_Boolean Write (const TopoDS_Shape& Sh, const Standard_CString File, const Handle(Message_ProgressIndicator)& PR = NULL);
+  Standard_EXPORT static Standard_Boolean Write (const TopoDS_Shape& Sh, const Standard_CString File,
+                                                 Message_ProgressScope* PR = NULL);
   
   //! Reads a Shape  from <File>,  returns it in  <Sh>.
   //! <B> is used to build the shape.
-  Standard_EXPORT static Standard_Boolean Read (TopoDS_Shape& Sh, const Standard_CString File, const BRep_Builder& B, const Handle(Message_ProgressIndicator)& PR = NULL);
+  Standard_EXPORT static Standard_Boolean Read (TopoDS_Shape& Sh, const Standard_CString File,
+                                                const BRep_Builder& B,
+                                                Message_ProgressScope* PR = NULL);
 
   //! Evals real tolerance of edge  <theE>.
   //! <theC3d>, <theC2d>, <theS>, <theF>, <theL> are

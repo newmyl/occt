@@ -32,7 +32,7 @@
 #include <Geom_Surface.hxx>
 #include <Interface_Static.hxx>
 #include <Message_Messenger.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Precision.hxx>
 #include <ShapeFix_ShapeTolerance.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -110,74 +110,14 @@ StepToTopoDS_Builder::StepToTopoDS_Builder()
 }
 
 // ============================================================================
-// Method  : StepToTopoDS_Builder::StepToTopoDS_Builder
-// Purpose : Constructor with a ManifoldSolidBrep
-// ============================================================================
-
-StepToTopoDS_Builder::StepToTopoDS_Builder
-(const Handle(StepShape_ManifoldSolidBrep)& aManifoldSolid, 
- const Handle(Transfer_TransientProcess)& TP)
-{
-  Init(aManifoldSolid, TP);
-}
-
-// ============================================================================
-// Method  : StepToTopoDS_Builder::StepToTopoDS_Builder
-// Purpose : Constructor woth a BrepWithVoids
-// ============================================================================
-
-StepToTopoDS_Builder::StepToTopoDS_Builder
-(const Handle(StepShape_BrepWithVoids)& aBRepWithVoids,
- const Handle(Transfer_TransientProcess)& TP)
-{
-  Init(aBRepWithVoids, TP);
-}
-
-// ============================================================================
-// Method  : StepToTopoDS_Builder::StepToTopoDS_Builder
-// Purpose : Constructor with a FacetedBrep
-// ============================================================================
-
-StepToTopoDS_Builder::StepToTopoDS_Builder
-(const Handle(StepShape_FacetedBrep)& aFB,
- const Handle(Transfer_TransientProcess)& TP)
-{
-  Init(aFB, TP);
-}
-
-// ============================================================================
-// Method  : StepToTopoDS_Builder::StepToTopoDS_Builder
-// Purpose : Constructor with a FacetedBrepAndBrepWithVoids
-// ============================================================================
-
-StepToTopoDS_Builder::StepToTopoDS_Builder
-(const Handle(StepShape_FacetedBrepAndBrepWithVoids)& aFBABWV,
- const Handle(Transfer_TransientProcess)& TP)
-{
-  Init(aFBABWV, TP);
-}
-
-// ============================================================================
-// Method  : StepToTopoDS_Builder::StepToTopoDS_Builder
-// Purpose : Constructor with a ShellBasedSurfaceModel
-// ============================================================================
-
-StepToTopoDS_Builder::StepToTopoDS_Builder
-(const Handle(StepShape_ShellBasedSurfaceModel)& aSBSM,
- const Handle(Transfer_TransientProcess)& TP,
- StepToTopoDS_NMTool& NMTool)
-{
-  Init(aSBSM, TP, NMTool);
-}
-
-// ============================================================================
 // Method  : Init
 // Purpose : Init with a ManifoldSolidBrep
 // ============================================================================
 
 void StepToTopoDS_Builder::Init
 (const Handle(StepShape_ManifoldSolidBrep)& aManifoldSolid,
- const Handle(Transfer_TransientProcess)& TP)
+ const Handle(Transfer_TransientProcess)& TP,
+ Message_ProgressScope* theProgr)
 {
   Handle(Message_Messenger) sout = TP->Messenger();
   // Initialisation of the Tool
@@ -197,7 +137,7 @@ void StepToTopoDS_Builder::Init
   myTranShell.SetMaxTol(MaxTol());
   // Non-manifold topology is not referenced by ManifoldSolidBrep (ssv; 14.11.2010)
   StepToTopoDS_NMTool dummyNMTool;
-  myTranShell.Init(aShell, myTool, dummyNMTool);
+  myTranShell.Init(aShell, myTool, dummyNMTool, theProgr);
 
   if (myTranShell.IsDone()) {
     TopoDS_Shape Sh = myTranShell.Value();
@@ -244,7 +184,8 @@ void StepToTopoDS_Builder::Init
 
 void StepToTopoDS_Builder::Init
 (const Handle(StepShape_BrepWithVoids)& aBRepWithVoids,
- const Handle(Transfer_TransientProcess)& TP)
+ const Handle(Transfer_TransientProcess)& TP,
+ Message_ProgressScope* theProgr)
 {
   Handle(Message_Messenger) sout = TP->Messenger();
  // Initialisation of the Tool
@@ -262,7 +203,7 @@ void StepToTopoDS_Builder::Init
   BRep_Builder B;
   B.MakeSolid(S);
   
-  Message_ProgressSentry PS ( TP->GetProgress(), "Shell", 0, Nb+1, 1 );
+  Message_ProgressScope PS ( theProgr, "Shell", 0, Nb+1, 1 );
 
   StepToTopoDS_TranslateShell myTranShell;
 
@@ -273,7 +214,7 @@ void StepToTopoDS_Builder::Init
   aCShell = Handle(StepShape_ClosedShell)::DownCast(aBRepWithVoids->Outer());
   // Non-manifold topology is not referenced by BrepWithVoids (ssv; 14.11.2010)
   StepToTopoDS_NMTool dummyNMTool;
-  myTranShell.Init(aCShell, myTool, dummyNMTool);
+  myTranShell.Init(aCShell, myTool, dummyNMTool, theProgr);
   
   PS.Next();
 
@@ -299,7 +240,7 @@ void StepToTopoDS_Builder::Init
   for (Standard_Integer i=1; i<=Nb && PS.More(); i++, PS.Next()) {
 
     aCShell = aBRepWithVoids->VoidsValue(i);
-    myTranShell.Init(aCShell, myTool, dummyNMTool);
+    myTranShell.Init(aCShell, myTool, dummyNMTool, &PS);
     if (myTranShell.IsDone()) {
       Sh = myTranShell.Value();
       Sh.Closed(Standard_True);
@@ -345,7 +286,8 @@ void StepToTopoDS_Builder::Init
 // ============================================================================
 
 void StepToTopoDS_Builder::Init(const Handle(StepShape_FacetedBrep)& aFB,
-			       const Handle(Transfer_TransientProcess)& TP)
+                                const Handle(Transfer_TransientProcess)& TP,
+                                Message_ProgressScope* theProgr)
 {
   // Initialisation of the Tool
 
@@ -365,7 +307,7 @@ void StepToTopoDS_Builder::Init(const Handle(StepShape_FacetedBrep)& aFB,
   myTranShell.SetMaxTol(MaxTol());  
   // Non-manifold topology is not referenced by FacetedBrep (ss; 14.11.2010)
   StepToTopoDS_NMTool dummyNMTool;
-  myTranShell.Init(aCShell, myTool, dummyNMTool);
+  myTranShell.Init(aCShell, myTool, dummyNMTool, theProgr);
 
   if (myTranShell.IsDone()) {
     Sh = myTranShell.Value();
@@ -396,7 +338,8 @@ void StepToTopoDS_Builder::Init(const Handle(StepShape_FacetedBrep)& aFB,
 
 void StepToTopoDS_Builder::Init
 (const Handle(StepShape_FacetedBrepAndBrepWithVoids)& aFBABWV,
- const Handle(Transfer_TransientProcess)& TP)
+ const Handle(Transfer_TransientProcess)& TP,
+ Message_ProgressScope* theProgr)
 {
   // Initialisation of the Tool
 
@@ -411,12 +354,15 @@ void StepToTopoDS_Builder::Init
   aCShell = Handle(StepShape_ClosedShell)::DownCast(aFBABWV->Outer());
   TopoDS_Shape Sh;
 
+  Message_ProgressScope aPSRoot(theProgr, NULL, 0, 2);
+
   StepToTopoDS_TranslateShell myTranShell;
   myTranShell.SetPrecision(Precision()); //gka
   myTranShell.SetMaxTol(MaxTol());
   // Non-manifold topology is not referenced by FacetedBrepAndBrepWithVoids (ss; 14.11.2010)
   StepToTopoDS_NMTool dummyNMTool;
-  myTranShell.Init(aCShell, myTool, dummyNMTool);
+  myTranShell.Init(aCShell, myTool, dummyNMTool, &aPSRoot);
+  aPSRoot.Next();
 
   if (myTranShell.IsDone()) {
     Sh = myTranShell.Value();
@@ -428,9 +374,10 @@ void StepToTopoDS_Builder::Init
     B.Add(S,Sh);
     Standard_Integer Nb, i;
     Nb = aFBABWV->NbVoids();
-    for ( i=1; i<=Nb; i++ ) {
+    Message_ProgressScope aPS(&aPSRoot, NULL, 0, Nb);
+    for ( i=1; i<=Nb && aPS.More(); i++, aPS.Next() ) {
       aCShell = aFBABWV->VoidsValue(i);
-      myTranShell.Init(aCShell, myTool, dummyNMTool);
+      myTranShell.Init(aCShell, myTool, dummyNMTool, &aPS);
       if (myTranShell.IsDone()) {
         Sh = myTranShell.Value();
         Sh.Closed(Standard_True);
@@ -462,7 +409,8 @@ void StepToTopoDS_Builder::Init
 void StepToTopoDS_Builder::Init
 (const Handle(StepShape_ShellBasedSurfaceModel)& aSBSM,
  const Handle(Transfer_TransientProcess)& TP,
- StepToTopoDS_NMTool& NMTool)
+ StepToTopoDS_NMTool& NMTool,
+ Message_ProgressScope* theProgr)
 {
   Handle(Message_Messenger) sout = TP->Messenger();
   // Initialisation of the Tool
@@ -489,13 +437,13 @@ void StepToTopoDS_Builder::Init
   myTranShell.SetPrecision(Precision());
   myTranShell.SetMaxTol(MaxTol());
 
-  Message_ProgressSentry PS ( TP->GetProgress(), "Shell", 0, Nb, 1 );
+  Message_ProgressScope PS ( theProgr, "Shell", 0, Nb, 1 );
   for (Standard_Integer i = 1; i <= Nb && PS.More(); i++, PS.Next()) {
     aShell = aSBSM->SbsmBoundaryValue(i);
     aOpenShell = aShell.OpenShell();
     aClosedShell = aShell.ClosedShell();
     if (!aOpenShell.IsNull()) {
-      myTranShell.Init(aOpenShell, myTool, NMTool);
+      myTranShell.Init(aOpenShell, myTool, NMTool, &PS);
       if (myTranShell.IsDone()) {
         Shl = TopoDS::Shell(myTranShell.Value());
         Shl.Closed(Standard_False);
@@ -507,7 +455,7 @@ void StepToTopoDS_Builder::Init
       }
     }
     else if (!aClosedShell.IsNull()) {
-      myTranShell.Init(aClosedShell, myTool, NMTool);
+      myTranShell.Init(aClosedShell, myTool, NMTool, &PS);
       if (myTranShell.IsDone()) {
         Shl = TopoDS::Shell(myTranShell.Value());
         Shl.Closed(Standard_True);
@@ -709,7 +657,8 @@ void StepToTopoDS_Builder::Init
 (const Handle(StepShape_GeometricSet)& GCS,
  const Handle(Transfer_TransientProcess)& TP,
  const Handle(Transfer_ActorOfTransientProcess)& RA,
- const Standard_Boolean isManifold)
+ const Standard_Boolean isManifold,
+ Message_ProgressScope* theProgr)
 {
   // Start Mapping
   TopoDS_Compound S;
@@ -720,7 +669,8 @@ void StepToTopoDS_Builder::Init
   Standard_Real preci = Precision();   //gka
   Standard_Real maxtol = MaxTol();
   Standard_Integer nbElem = GCS->NbElements();
-  for (i = 1; i <= nbElem ; i++) {
+  Message_ProgressScope aPS(theProgr, NULL, 0, nbElem);
+  for (i = 1; i <= nbElem && aPS.More(); i++, aPS.Next()) {
     StepShape_GeometricSetSelect aGSS = GCS->ElementsValue(i);
     Handle(Standard_Transient) ent = aGSS.Value();
 
@@ -833,7 +783,7 @@ void StepToTopoDS_Builder::Init
         Handle(STEPControl_ActorRead) anActor = Handle(STEPControl_ActorRead)::DownCast(RA);
         Handle(Transfer_Binder) binder;
         if( !anActor.IsNull())
-          binder = anActor->TransferShape(GRI, TP, isManifold);
+          binder = anActor->TransferShape(GRI, TP, isManifold, &aPS);
         if (!binder.IsNull())
         {
           res = TransferBRep::ShapeResult(binder);

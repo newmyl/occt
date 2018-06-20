@@ -18,7 +18,7 @@
 #include <gp_XY.hxx>
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <NCollection_DataMap.hxx>
 #include <NCollection_IncAllocator.hxx>
 #include <FSD_BinaryFile.hxx>
@@ -122,7 +122,7 @@ namespace
 //==============================================================================
 
 Standard_Boolean RWStl_Reader::Read (const char* theFile,
-                                     const Handle(Message_ProgressIndicator)& theProgress)
+                                     Message_ProgressScope* theProgress)
 {
   std::filebuf aBuf;
   OSD_OpenStream (aBuf, theFile, std::ios::in | std::ios::binary);
@@ -258,7 +258,7 @@ static bool ReadVertex (const char* theStr, double& theX, double& theY, double& 
 //==============================================================================
 Standard_Boolean RWStl_Reader::ReadAscii (Standard_IStream& theStream,
                                           const std::streampos theUntilPos,
-                                          const Handle(Message_ProgressIndicator)& theProgress)
+                                          Message_ProgressScope* theProgress)
 {
   // use method seekpos() to get true 64-bit offset to enable
   // handling of large files (VS 2010 64-bit)
@@ -282,17 +282,17 @@ Standard_Boolean RWStl_Reader::ReadAscii (Standard_IStream& theStream,
   // report progress every 1 MiB of read data
   const int aStepB = 1024 * 1024;
   const Standard_Integer aNbSteps = 1 + Standard_Integer((GETPOS(theUntilPos) - aStartPos) / aStepB);
-  Message_ProgressSentry aPSentry (theProgress, "Reading text STL file", 0, aNbSteps, 1);
+  Message_ProgressScope aPS (theProgress, "Reading text STL file", 0, aNbSteps, 1);
 
   int64_t aProgressPos = aStartPos + aStepB;
   const int64_t LINELEN = 1024;
   int aNbLine = 1;
   char aLine1[LINELEN], aLine2[LINELEN], aLine3[LINELEN];
-  while (aPSentry.More())
+  while (aPS.More())
   {
     if (GETPOS(theStream.tellg()) > aProgressPos)
     {
-      aPSentry.Next();
+      aPS.Next();
       aProgressPos += aStepB;
     }
 
@@ -356,7 +356,7 @@ Standard_Boolean RWStl_Reader::ReadAscii (Standard_IStream& theStream,
     aNbLine += 2;
   }
 
-  return aPSentry.More();
+  return aPS.More();
 }
 
 //==============================================================================
@@ -365,7 +365,7 @@ Standard_Boolean RWStl_Reader::ReadAscii (Standard_IStream& theStream,
 //==============================================================================
 
 Standard_Boolean RWStl_Reader::ReadBinary (Standard_IStream& theStream,
-                                           const Handle(Message_ProgressIndicator)& theProgress)
+                                           Message_ProgressScope* theProgress)
 {
 /*
   // the size of the file (minus the header size)
@@ -394,7 +394,7 @@ Standard_Boolean RWStl_Reader::ReadBinary (Standard_IStream& theStream,
 
   // don't trust the number of triangles which is coded in the file
   // sometimes it is wrong, and with this technique we don't need to swap endians for integer
-  Message_ProgressSentry  aPSentry (theProgress, "Reading binary STL file", 0, aNbFacets, 1);
+  Message_ProgressScope  aPS (theProgress, "Reading binary STL file", 0, aNbFacets, 1);
   Standard_Integer        aNbRead = 0;
 
   // allocate buffer for 80 triangles
@@ -406,8 +406,8 @@ Standard_Boolean RWStl_Reader::ReadBinary (Standard_IStream& theStream,
   const size_t aFaceDataLen = aVec3Size * 4 + 2;
   const char*  aBufferPtr   = aBuffer;
   Standard_Integer aNbFacesInBuffer = 0;
-  for (Standard_Integer aNbFacetRead = 0; aNbFacetRead < aNbFacets && aPSentry.More();
-       ++aNbFacetRead, ++aNbRead, --aNbFacesInBuffer, aBufferPtr += aFaceDataLen, aPSentry.Next())
+  for (Standard_Integer aNbFacetRead = 0; aNbFacetRead < aNbFacets && aPS.More();
+       ++aNbFacetRead, ++aNbRead, --aNbFacesInBuffer, aBufferPtr += aFaceDataLen, aPS.Next())
   {
     // read more data
     if (aNbFacesInBuffer <= 0)
@@ -438,5 +438,5 @@ Standard_Boolean RWStl_Reader::ReadBinary (Standard_IStream& theStream,
     }
   }
 
-  return true;
+  return aPS.More();
 }

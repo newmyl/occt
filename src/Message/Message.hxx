@@ -32,8 +32,6 @@ class Message_Algorithm;
 class Message_Printer;
 class Message_PrinterOStream;
 class Message_ProgressIndicator;
-class Message_ProgressScale;
-class Message_ProgressSentry;
 
 
 //! Defines
@@ -80,8 +78,6 @@ friend class Message_Algorithm;
 friend class Message_Printer;
 friend class Message_PrinterOStream;
 friend class Message_ProgressIndicator;
-friend class Message_ProgressScale;
-friend class Message_ProgressSentry;
 
 };
 

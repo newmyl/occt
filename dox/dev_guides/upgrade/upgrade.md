@@ -1608,3 +1608,6 @@ so that related methods have been removed from AIS_InteractiveContext interface:
 
 A set of deprecated methods previously related to Local Context and now redirecting to other methods has been preserved to simplify porting; they will be removed in next release.
 
+@subsection upgrade_740_ProgressIndicator Change of Message_ProgressIndicator
+
+The progress indication mechanism has been revised on the subject of using it in multi-threaded programs. Now, the class Message_ProgressIndicator does not contain the scales of nested progress. There is no more method NewScope(). An instance of the new class Message_ProgressScope should be created and passed everywhere instead of Message_ProgressIndicator instance. Please read documentation of the class Message_ProgressScope to learn more about usage of this mechanism.

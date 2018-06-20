@@ -75,7 +75,10 @@ public:
   //! Specific action : it calls the method Transfer from CopyTool
   //! i.e. the general service Copy, then returns the Binder
   //! produced by the TransientProcess
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer (const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP) Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
 
 
 

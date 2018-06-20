@@ -27,7 +27,7 @@
 class XSAlgo_ToolContainer;
 class TopoDS_Shape;
 class Standard_Transient;
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class TopoDS_Edge;
 class TopoDS_Face;
 class Transfer_TransientProcess;
@@ -66,7 +66,7 @@ public:
   Standard_EXPORT virtual TopoDS_Shape ProcessShape (
       const TopoDS_Shape& shape, const Standard_Real Prec, const Standard_Real MaxTol,
       const Standard_CString rscfile, const Standard_CString seq, Handle(Standard_Transient)& info,
-      const Handle(Message_ProgressIndicator)& progress = 0,
+      Message_ProgressScope* progress = 0,
       const Standard_Boolean NonManifold = Standard_False) const;
   
   //! Checks quality of pcurve of the edge on the given face,

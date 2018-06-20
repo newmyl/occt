@@ -29,6 +29,7 @@ class ShapeProcess_ShapeContext;
 class ShapeProcess_Operator;
 class ShapeProcess_UOperator;
 class ShapeProcess_OperLibrary;
+class Message_ProgressScope;
 
 //! Shape Processing module
 //! allows to define and apply general Shape Processing as a
@@ -52,7 +53,10 @@ public:
   //! Performs a specified sequence of operators on Context
   //! Resource file and other data should be already loaded
   //! to Context (including description of sequence seq)
-  Standard_EXPORT static Standard_Boolean Perform (const Handle(ShapeProcess_Context)& context, const Standard_CString seq);
+  Standard_EXPORT static Standard_Boolean Perform 
+                   (const Handle(ShapeProcess_Context)& context,
+                    const Standard_CString seq,
+                    Message_ProgressScope* theProgr = 0L);
 
 
 

@@ -26,6 +26,7 @@ class StepShape_BrepWithVoids;
 class StdFail_NotDone;
 class TopoDS_Solid;
 class Transfer_FinderProcess;
+class Message_ProgressScope;
 
 
 //! This class implements the mapping between classes
@@ -40,7 +41,9 @@ public:
   DEFINE_STANDARD_ALLOC
 
   
-  Standard_EXPORT TopoDSToStep_MakeBrepWithVoids(const TopoDS_Solid& S, const Handle(Transfer_FinderProcess)& FP);
+  Standard_EXPORT TopoDSToStep_MakeBrepWithVoids(const TopoDS_Solid& S,
+                                                 const Handle(Transfer_FinderProcess)& FP,
+                                                 Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT const Handle(StepShape_BrepWithVoids)& Value() const;
 

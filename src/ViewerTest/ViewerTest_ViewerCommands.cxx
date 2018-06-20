@@ -47,7 +47,7 @@
 #include <V3d_DirectionalLight.hxx>
 #include <V3d_PositionalLight.hxx>
 #include <V3d_SpotLight.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <NCollection_DoubleMap.hxx>
 #include <NCollection_List.hxx>
 #include <NCollection_Vector.hxx>
@@ -7732,9 +7732,10 @@ static Standard_Integer VAnimation (Draw_Interpretor& theDI,
     // Manage frame-rated animation here
     Standard_Real aPts = aPlayStartTime;
     int64_t aNbFrames = 0;
-    Message_ProgressSentry aPSentry (aProgress, "Video recording, sec", 0, Max (1, Standard_Integer(aPlayDuration / aPlaySpeed)), 1);
+    Message_ProgressScope* aRootPS = aProgress.IsNull() ? 0L : aProgress->GetRootScope();
+    Message_ProgressScope aPS(aRootPS, "Video recording, sec", 0, Max(1, Standard_Integer(aPlayDuration / aPlaySpeed)), 1);
     Standard_Integer aSecondsProgress = 0;
-    for (; aPts <= anUpperPts && aPSentry.More();)
+    for (; aPts <= anUpperPts && aPS.More();)
     {
       const Standard_Real aRecPts = aPlaySpeed * ((Standard_Real(aRecParams.FpsDen) / Standard_Real(aRecParams.FpsNum)) * Standard_Real(aNbFrames));
       aPts = aPlayStartTime + aRecPts;
@@ -7770,7 +7771,7 @@ static Standard_Integer VAnimation (Draw_Interpretor& theDI,
 
       while (aSecondsProgress < Standard_Integer(aRecPts / aPlaySpeed))
       {
-        aPSentry.Next();
+        aPS.Next();
         ++aSecondsProgress;
       }
     }

@@ -683,7 +683,7 @@ static IFSelect_ReturnStatus XSControl_twrite
     TopoDS_Shape Shape = XSControl::Vars(pilot)->GetShape(ai);
     if (Shape.IsNull()) { sout<<"pas un nom de shape draw:"<<arg1<<endl; continue; }
     sout<<"Pour Shape : "<<ai;
-    Standard_Integer stat = TW->TransferWriteShape (XSControl::Session(pilot)->Model(),Shape);
+    Standard_Integer stat = TW->TransferWriteShape (XSControl::Session(pilot)->Model(),Shape, NULL);
     sout<<" Transfer Write Status = "<<stat<<endl;
   }
   pilot->Session()->ComputeGraph();

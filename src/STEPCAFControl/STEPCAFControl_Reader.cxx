@@ -23,6 +23,7 @@
 #include <StepData_StepModel.hxx>
 #include <HeaderSection_FileSchema.hxx>
 #include <Interface_Static.hxx>
+#include <Message_ProgressScope.hxx>
 #include <NCollection_DataMap.hxx>
 #include <OSD_Path.hxx>
 #include <Quantity_Color.hxx>
@@ -388,10 +389,11 @@ Standard_Integer STEPCAFControl_Reader::NbRootsForTransfer ()
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Reader::TransferOneRoot (const Standard_Integer num,
-						         Handle(TDocStd_Document) &doc) 
+                                                         Handle(TDocStd_Document) &doc,
+                                                         Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence Lseq;
-  return Transfer ( myReader, num, doc, Lseq );
+  return Transfer ( myReader, num, doc, Lseq, Standard_False, theProgr );
 }
 
 
@@ -400,10 +402,11 @@ Standard_Boolean STEPCAFControl_Reader::TransferOneRoot (const Standard_Integer 
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean STEPCAFControl_Reader::Transfer (Handle(TDocStd_Document) &doc)
+Standard_Boolean STEPCAFControl_Reader::Transfer (Handle(TDocStd_Document) &doc,
+                                                  Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence Lseq;
-  return Transfer ( myReader, 0, doc, Lseq );
+  return Transfer ( myReader, 0, doc, Lseq, Standard_False, theProgr );
 }
 
 
@@ -413,10 +416,11 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (Handle(TDocStd_Document) &doc)
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Reader::Perform (const Standard_CString filename,
-						 Handle(TDocStd_Document) &doc)
+                                                 Handle(TDocStd_Document) &doc,
+                                                 Message_ProgressScope* theProgr)
 {
   if ( ReadFile ( filename ) != IFSelect_RetDone ) return Standard_False;
-  return Transfer ( doc );
+  return Transfer ( doc, theProgr );
 }
   
 
@@ -426,10 +430,11 @@ Standard_Boolean STEPCAFControl_Reader::Perform (const Standard_CString filename
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Reader::Perform (const TCollection_AsciiString &filename,
-						 Handle(TDocStd_Document) &doc)
+                                                 Handle(TDocStd_Document) &doc,
+                                                 Message_ProgressScope* theProgr)
 {
   if ( ReadFile ( filename.ToCString() ) != IFSelect_RetDone ) return Standard_False;
-  return Transfer ( doc );
+  return Transfer ( doc, theProgr );
 }
   
 
@@ -505,10 +510,11 @@ static void FillShapesMap (const TopoDS_Shape &S, TopTools_MapOfShape &map)
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
-						  const Standard_Integer nroot,
-						  Handle(TDocStd_Document) &doc,
-						  TDF_LabelSequence &Lseq,
-						  const Standard_Boolean asOne)
+                                                  const Standard_Integer nroot,
+                                                  Handle(TDocStd_Document) &doc,
+                                                  TDF_LabelSequence &Lseq,
+                                                  const Standard_Boolean asOne,
+                                                  Message_ProgressScope* theProgr)
 {
   reader.ClearShapes();
   Standard_Integer i;
@@ -516,13 +522,22 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
   // Read all shapes
   Standard_Integer num = reader.NbRootsForTransfer();
   if ( num <=0 ) return Standard_False;
+
+  Message_ProgressScope aPSRoot(theProgr, NULL, 0, 2);
+
   if ( nroot ) {
     if ( nroot > num ) return Standard_False;
-    reader.TransferOneRoot ( nroot );
+    reader.TransferOneRoot(nroot, &aPSRoot);
   }
   else {
-    for ( i=1; i <= num; i++ ) reader.TransferOneRoot ( i );
+    Message_ProgressScope aPS(&aPSRoot, NULL, 0, num);
+    for ( i=1; i <= num && aPS.More(); i++, aPS.Next() )
+      reader.TransferOneRoot(i, &aPS);
   }
+  aPSRoot.Next();
+  if (aPSRoot.UserBreak())
+    return Standard_False;
+
   num = reader.NbShapes();
   if ( num <=0 ) return Standard_False;
 
@@ -585,7 +600,8 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
   // and fill map SDR -> extern file
   STEPConstruct_ExternRefs ExtRefs ( reader.WS() );
   ExtRefs.LoadExternRefs();
-  for ( i=1; i <= ExtRefs.NbExternRefs(); i++ ) {
+  Message_ProgressScope aPSE(&aPSRoot, NULL, 0, ExtRefs.NbExternRefs());
+  for ( i=1; i <= ExtRefs.NbExternRefs() && aPSE.More(); i++, aPSE.Next() ) {
     // check extern ref format
     Handle(TCollection_HAsciiString) format = ExtRefs.Format(i);
     if ( ! format.IsNull() ) {
@@ -640,7 +656,7 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
     
     // read extern file (or use existing data) and record its data
     Handle(STEPCAFControl_ExternFile) EF = 
-      ReadExternFile ( filename, fullname.ToCString(), doc );
+      ReadExternFile ( filename, fullname.ToCString(), doc, &aPSE );
     PDFileMap.Bind ( PD, EF );
   }
   
@@ -803,8 +819,9 @@ TDF_Label STEPCAFControl_Reader::AddShape (const TopoDS_Shape &S,
 //=======================================================================
 
 Handle(STEPCAFControl_ExternFile) STEPCAFControl_Reader::ReadExternFile (const Standard_CString file, 
-									 const Standard_CString fullname, 
-									 Handle(TDocStd_Document)& doc) 
+                                                                         const Standard_CString fullname,
+                                                                         Handle(TDocStd_Document)& doc,
+                                                                         Message_ProgressScope* theProgr)
 {
   // if the file is already read, associate it with SDR
   if ( myFiles.IsBound ( file ) ) {
@@ -831,7 +848,7 @@ Handle(STEPCAFControl_ExternFile) STEPCAFControl_Reader::ReadExternFile (const S
   // transfer in single-result mode
   if ( EF->GetLoadStatus() == IFSelect_RetDone ) {
     TDF_LabelSequence labels;
-    EF->SetTransferStatus ( Transfer ( sr, 0, doc, labels, Standard_True ) );
+    EF->SetTransferStatus ( Transfer ( sr, 0, doc, labels, Standard_False, theProgr ) );
     if ( labels.Length() >0 ) EF->SetLabel ( labels.Value(1) );
   }
   
@@ -1843,7 +1860,7 @@ Standard_Boolean readPMIPresentation(const Handle(Standard_Transient)& thePresen
       anAnnotationShape = STEPConstruct::FindShape(aTP, aCurveItem);
       if (anAnnotationShape.IsNull())
       {
-        Handle(Transfer_Binder) binder = theTR->Actor()->Transfer(aCurveItem, aTP);
+        Handle(Transfer_Binder) binder = theTR->Actor()->Transfer(aCurveItem, aTP, NULL);
         if (!binder.IsNull() && binder->HasResult()) {
           anAnnotationShape = TransferBRep::ShapeResult(aTP, binder);
         }

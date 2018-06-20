@@ -33,7 +33,7 @@ class Transfer_IteratorOfProcessForFinder;
 class Transfer_Binder;
 class Transfer_SimpleBinderOfTransient;
 class Standard_Transient;
-
+class Message_ProgressScope;
 
 class Transfer_ActorOfProcessForFinder;
 DEFINE_STANDARD_HANDLE(Transfer_ActorOfProcessForFinder, Standard_Transient)
@@ -65,7 +65,10 @@ public:
   //! (Default defined as doing nothing; should be deffered)
   //! "mutable" allows the Actor to record intermediate
   //! information, in addition to those of TransferProcess
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring (const Handle(Transfer_Finder)& start, const Handle(Transfer_ProcessForFinder)& TP);
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
+                   (const Handle(Transfer_Finder)& start,
+                    const Handle(Transfer_ProcessForFinder)& TP,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Prepares and Returns a Binder for a Transient Result
   //! Returns a Null Handle if <res> is itself Null

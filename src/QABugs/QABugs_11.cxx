@@ -55,6 +55,8 @@
 #include <OSD_Exception_ACCESS_VIOLATION.hxx>
 #include <OSD_Exception_STACK_OVERFLOW.hxx>
 #include <OSD.hxx>
+#include <OSD_Parallel.hxx>
+#include <OSD_Timer.hxx>
 #include <STEPCAFControl_Writer.hxx>
 #include <STEPControl_StepModelType.hxx>
 #include <Interface_Static.hxx>
@@ -4457,7 +4459,7 @@ static Standard_Integer OCC12584 (Draw_Interpretor& di, Standard_Integer argc, c
 #include <XSControl_WorkSession.hxx>
 #include <Transfer_TransientProcess.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <XSControl_TransferReader.hxx>
 
 #include <Geom_Plane.hxx>
@@ -4771,22 +4773,112 @@ Standard_Integer OCC28478 (Draw_Interpretor& di, Standard_Integer argc, const ch
   Standard_Integer nbOuter = (argc > 1 ? Draw::Atoi(argv[1]) : 3);
   Standard_Integer nbInner = (argc > 2 ? Draw::Atoi(argv[2]) : 2);
 
-  // test behavior of progress indicator when using nested scopes with names set by Sentry objects
+  // test behavior of progress indicator when using nested scopes with names
   Handle(Draw_ProgressIndicator) aProgress = new Draw_ProgressIndicator (di, 1);
   aProgress->SetTextMode (Standard_True);
 
   // Outer cycle
-  Message_ProgressSentry anOuter (aProgress, "Outer", 0, nbOuter, 1);
+  Message_ProgressScope anOuter (aProgress->GetRootScope(), "Outer", 0, nbOuter, 1);
   for (int i = 0; i < nbOuter && anOuter.More(); i++, anOuter.Next())
   {
     // Inner cycle
-    Message_ProgressSentry anInner (aProgress, "Inner", 0, nbInner, 1);
+    Message_ProgressScope anInner (&anOuter, "Inner", 0, nbInner, 1);
     for (int j = 0; j < nbInner && anInner.More(); j++, anInner.Next())
     {
       // Cycle body
     }
   }
 
+  return 0;
+}
+
+namespace
+{
+  struct Task
+  {
+    Message_ProgressScope Progr;
+    math_Matrix Mat1, Mat2, Mat3;
+
+    Task(int theSize)
+      : Progr((Message_ProgressScope*)NULL, NULL, 0, 1, 1),
+      Mat1(1, theSize, 1, theSize, 0.12345), Mat2(1, theSize, 1, theSize, 12345),
+      Mat3(1, theSize, 1, theSize)
+    {}
+  };
+  struct Functor
+  {
+    void operator()(Task& theTask) const
+    {
+      if (theTask.Progr.More())
+      {
+        if (theTask.Mat1.RowNumber() > 1)
+          theTask.Mat3 = theTask.Mat1 * theTask.Mat2;
+        theTask.Progr.Next();
+      }
+    }
+  };
+}
+
+Standard_Integer OCC25748(Draw_Interpretor& di, Standard_Integer argc, const char ** argv)
+{
+  // test behavior of progress indicator in multi-threaded execution
+  Standard_Integer nIter = 1000;
+  Standard_Integer aMatSize = 1;
+  Standard_Boolean isProgress = false;
+  Standard_Boolean isParallel = false;
+
+  for (int i = 1; i < argc; i++)
+  {
+    if (strcmp(argv[i], "-niter") == 0)
+      nIter = Draw::Atoi(argv[++i]);
+    else if (strcmp(argv[i], "-matsize") == 0)
+      aMatSize = Draw::Atoi(argv[++i]);
+    else if (strcmp(argv[i], "-progr") == 0)
+      isProgress = true;
+    else if (strcmp(argv[i], "-parallel") == 0)
+      isParallel = true;
+    else
+    {
+      di.PrintHelp("OCC25748");
+      return 1;
+    }
+  }
+
+  Handle(Draw_ProgressIndicator) aProgress;
+  Message_ProgressScope* aRootPS = 0L;
+  if (isProgress)
+  {
+    aProgress = new Draw_ProgressIndicator(di, 1);
+    aProgress->SetConsoleMode(Standard_True);
+    aRootPS = aProgress->GetRootScope();
+  }
+  Message_ProgressScope aPS(aRootPS, "Parallel data processing", 0, nIter, 1);
+
+  std::vector<Task> aTasks(nIter, Task(aMatSize));
+  if (isProgress)
+  {
+    for (int i = 0; i < nIter; i++)
+    {
+      Message_ProgressScope aPS1(&aPS, NULL, 0, 1, 1);
+      aTasks[i].Progr.Move(aPS1);
+    }
+  }
+  OSD_Timer aTimer;
+  aTimer.Start();
+
+  OSD_Parallel::ForEach(aTasks.begin(), aTasks.end(), Functor(), !isParallel);
+
+  aTimer.Stop();
+
+  TCollection_AsciiString aText(nIter);
+  aText += (isParallel ? " parallel" : " sequential");
+  if (aMatSize > 1)
+    aText = aText + " calculations on matrices " + aMatSize + "x" + aMatSize;
+  else
+    aText += " empty tasks";
+  if (isProgress)
+    aText += " with progress";
+  di << "COUNTER " << aText << ": " << aTimer.ElapsedTime();
   return 0;
 }
 
@@ -4895,5 +4987,7 @@ void QABugs::Commands_11(Draw_Interpretor& theCommands) {
   theCommands.Add("CR23403", "CR23403 string", __FILE__, CR23403, group);
   theCommands.Add("OCC23429", "OCC23429 res shape tool [appr]", __FILE__, OCC23429, group);
   theCommands.Add("OCC28478", "OCC28478 [nb_outer=3 [nb_inner=2]: test progress indicator on nested cycles", __FILE__, OCC28478, group);
+  theCommands.Add("OCC25748", "OCC25748 [-niter] [-matsize] [-progr] [-parallel]\n"
+                  "\t\ttest progress indicator in parallel execution", __FILE__, OCC25748, group);
   return;
 }

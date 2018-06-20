@@ -56,7 +56,7 @@ Transfer_TransferDispatch::Transfer_TransferDispatch
    Handle(Standard_Transient)& entto,
    const Standard_Boolean mapped, const Standard_Boolean errstat)
 {
-  Handle(Transfer_Binder) result = TransientProcess()->Transferring(entfrom);
+  Handle(Transfer_Binder) result = TransientProcess()->Transferring(entfrom, NULL);
   if (result.IsNull())
     return Interface_CopyTool::Copy(entfrom,entto,mapped,errstat);
 

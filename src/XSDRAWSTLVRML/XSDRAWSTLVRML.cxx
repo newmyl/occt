@@ -145,7 +145,7 @@ static Standard_Integer readstl(Draw_Interpretor& theDI,
   {
     // Read STL file to the triangulation.
     Handle(Draw_ProgressIndicator) aProgress = new Draw_ProgressIndicator (theDI, 1);
-    Handle(Poly_Triangulation) aTriangulation = RWStl::ReadFile (aFilePath.ToCString(), aProgress);
+    Handle(Poly_Triangulation) aTriangulation = RWStl::ReadFile (aFilePath.ToCString(), aProgress->GetRootScope());
 
     TopoDS_Face aFace;
     BRep_Builder aB;
@@ -309,7 +309,7 @@ static Standard_Integer createmesh
   // Progress indicator
   OSD_Path aFile( argv[2] );
   Handle(Draw_ProgressIndicator) aProgress = new Draw_ProgressIndicator (di, 1);
-  Handle(Poly_Triangulation) aSTLMesh = RWStl::ReadFile (aFile, aProgress);
+  Handle(Poly_Triangulation) aSTLMesh = RWStl::ReadFile (aFile, aProgress->GetRootScope());
 
   di << "Reading OK...\n";
   Handle( XSDRAWSTLVRML_DataSource ) aDS = new XSDRAWSTLVRML_DataSource( aSTLMesh );

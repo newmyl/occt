@@ -25,6 +25,7 @@
 #include <Transfer_TransferFailure.hxx>
 #include <Transfer_TransferOutput.hxx>
 #include <Transfer_TransientProcess.hxx>
+#include <Message_ProgressScope.hxx>
 
 Transfer_TransferOutput::Transfer_TransferOutput (const Handle(Transfer_ActorOfTransientProcess)& actor,
 						  const Handle(Interface_InterfaceModel)& amodel)
@@ -54,7 +55,8 @@ Handle(Interface_InterfaceModel)  Transfer_TransferOutput::Model () const
 Handle(Transfer_TransientProcess)  Transfer_TransferOutput::TransientProcess () const
 {  return theproc;  }
 
-void  Transfer_TransferOutput::Transfer (const Handle(Standard_Transient)& obj)
+void  Transfer_TransferOutput::Transfer (const Handle(Standard_Transient)& obj,
+                                         Message_ProgressScope* theProgr)
 {
   if (themodel->Number(obj) == 0) throw Transfer_TransferFailure("TransferOutput : Transfer, entities do not come from same initial model");
 //  Standard_Integer scope = 0;
@@ -63,7 +65,7 @@ void  Transfer_TransferOutput::Transfer (const Handle(Standard_Transient)& obj)
   //:1 modified by ABV 5 Nov 97
   //:1  if (!theproc->Transfer(obj)) return;    // auparavant, traitement Undefined
 //  Standard_Boolean ok = 
-  theproc->Transfer ( obj );  
+  theproc->Transfer ( obj, theProgr );  
 //  if (scope > 0) theproc->EndScope (scope);
 //  if ( ! ok ) return;                               
 
@@ -81,34 +83,38 @@ void  Transfer_TransferOutput::Transfer (const Handle(Standard_Transient)& obj)
 //   Pour transferer tout simplement toutes les racines d'un modele d'interface
 //   Chacune est notee "Root" dans le Process final
 
-void Transfer_TransferOutput::TransferRoots ()
-{  TransferRoots(Interface_Protocol::Active());  }
+void Transfer_TransferOutput::TransferRoots (Message_ProgressScope* theProgr)
+{  TransferRoots(Interface_Protocol::Active(), theProgr);  }
 
-void Transfer_TransferOutput::TransferRoots (const Handle(Interface_Protocol)& protocol)
+void Transfer_TransferOutput::TransferRoots (const Handle(Interface_Protocol)& protocol,
+                                             Message_ProgressScope* theProgr)
 {
   theproc->SetRootManagement (Standard_False);
   Interface_ShareFlags tool(themodel,protocol);
   Interface_EntityIterator list = tool.RootEntities();
-  for (list.Start(); list.More(); list.Next()) {
+  Message_ProgressScope aPS(theProgr, NULL, 0, list.NbEntities());
+  for (list.Start(); list.More() && aPS.More(); list.Next(), aPS.Next()) {
     Handle(Standard_Transient) ent = list.Value();
 //    Standard_Integer scope = 0;
 //    if (thescope) scope = theproc->NewScope (ent);
-    if (theproc->Transfer(ent)) theproc->SetRoot(ent);
+    if (theproc->Transfer(ent, &aPS)) theproc->SetRoot(ent);
 //    if (scope > 0) theproc->EndScope (scope);
   }
 }
 
-void Transfer_TransferOutput::TransferRoots (const Interface_Graph& G)
+void Transfer_TransferOutput::TransferRoots (const Interface_Graph& G,
+                                             Message_ProgressScope* theProgr)
 {
   theproc->SetRootManagement (Standard_False);
   Interface_ShareFlags tool(G);
   theproc->SetModel (G.Model());
   Interface_EntityIterator list = tool.RootEntities();
-  for (list.Start(); list.More(); list.Next()) {
+  Message_ProgressScope aPS(theProgr, NULL, 0, list.NbEntities());
+  for (list.Start(); list.More() && aPS.More(); list.Next(), aPS.Next()) {
     Handle(Standard_Transient) ent = list.Value();
 //    Standard_Integer scope = 0;
 //    if (thescope) scope = theproc->NewScope (ent);
-    if (theproc->Transfer(ent)) theproc->SetRoot(ent);
+    if (theproc->Transfer(ent, &aPS)) theproc->SetRoot(ent);
 //    if (scope > 0) theproc->EndScope (scope);
   }
 }

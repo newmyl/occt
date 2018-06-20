@@ -20,7 +20,7 @@
 
 #include <NCollection_BaseAllocator.hxx>
 
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 
 //! The class provides the following options for the algorithms in Boolean Component:
 //! - *Memory allocation tool* - tool for memory allocations;
@@ -156,7 +156,7 @@ public:
   //!@name Progress indicator
 
   //! Set the Progress Indicator object.
-  Standard_EXPORT void SetProgressIndicator(const Handle(Message_ProgressIndicator)& theObj);
+  Standard_EXPORT void SetProgressIndicator(Message_ProgressScope* theObj);
 
 public:
   //!@name Usage of Oriented Bounding boxes
@@ -185,7 +185,7 @@ protected:
   Handle(Message_Report) myReport;
   Standard_Boolean myRunParallel;
   Standard_Real myFuzzyValue;
-  Handle(Message_ProgressIndicator) myProgressIndicator;
+  Message_ProgressScope* myProgressIndicator;
   Standard_Boolean myUseOBB;
 
 };

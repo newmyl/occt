@@ -28,7 +28,7 @@
 class XSControl_WorkSession;
 class Interface_InterfaceModel;
 class TopoDS_Shape;
-
+class Message_ProgressScope;
 
 //! This class gives a simple way to create then write a
 //! Model compliant to a given norm, from a Shape
@@ -68,7 +68,9 @@ public:
   Standard_EXPORT Handle(Interface_InterfaceModel) Model (const Standard_Boolean newone = Standard_False);
   
   //! Transfers a Shape according to the mode
-  Standard_EXPORT IFSelect_ReturnStatus TransferShape (const TopoDS_Shape& sh, const Standard_Integer mode = 0);
+  Standard_EXPORT IFSelect_ReturnStatus TransferShape (const TopoDS_Shape& sh,
+                                                       const Standard_Integer mode = 0,
+                                                       Message_ProgressScope* theProgr = 0L);
   
   //! Writes the produced model
   Standard_EXPORT IFSelect_ReturnStatus WriteFile (const Standard_CString filename);

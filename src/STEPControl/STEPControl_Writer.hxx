@@ -83,7 +83,11 @@ public:
   //! shell_based_surface_model entity.
   //! - STEPControlStd_GeometricCurveSet translates a shape into a STEP
   //! geometric_curve_set entity.
-  Standard_EXPORT IFSelect_ReturnStatus Transfer (const TopoDS_Shape& sh, const STEPControl_StepModelType mode, const Standard_Boolean compgraph = Standard_True);
+  Standard_EXPORT IFSelect_ReturnStatus Transfer
+                   (const TopoDS_Shape& sh,
+                    const STEPControl_StepModelType mode,
+                    const Standard_Boolean compgraph = Standard_True,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Writes a STEP model in the file identified by filename.
   Standard_EXPORT IFSelect_ReturnStatus Write (const Standard_CString filename);

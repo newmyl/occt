@@ -26,6 +26,7 @@
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
 #include <Message.hxx>
+#include <Message_ProgressScope.hxx>
 
 #include <Transfer_VoidBinder.hxx>
 #include <Transfer_SimpleBinderOfTransient.hxx>
@@ -989,7 +990,8 @@ Standard_Boolean  Transfer_TransferProcess::Recognize(const TheStart& start) con
 //purpose  : 
 //=======================================================================
 
-Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& start)
+Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& start,
+                                                               Message_ProgressScope* theProgr)
 {
   //   Map deja alimentee ?
   Handle(Transfer_Binder) former = FindAndMask(start);
@@ -1058,7 +1060,7 @@ Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& s
     Standard_Integer oldlev = thelevel;
     try {
       OCC_CATCH_SIGNALS
-      binder = TransferProduct(start);
+      binder = TransferProduct(start, theProgr);
     }
 
     //    ...  Exceptions a Rattraper : elles ne se ressemblent pas toutes ... !
@@ -1101,7 +1103,10 @@ Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& s
   }
 
 //   Transfert non protege (ainsi, dbx a la main en cas de plantage par Raise)
-  else  binder = TransferProduct(start);
+  else  binder = TransferProduct(start, theProgr);
+
+  if (theProgr && !theProgr->More())
+    return Handle(Transfer_Binder)();
 
 //  ....                Conclusion : Noter dans la Map                ....
 
@@ -1143,7 +1148,8 @@ Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& s
 //  ##    ##        TransferProduct : Action proprement dite        ##    ##
 
     Handle(Transfer_Binder) Transfer_TransferProcess::TransferProduct
-  (const TheStart& start)
+  (const TheStart& start,
+   Message_ProgressScope* theProgr)
 {
   thelevel ++;             // si decremente et == 0, transfert racine
   Handle(Transfer_Binder) binder;
@@ -1151,11 +1157,14 @@ Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& s
 
 //   On balaie les Next jusqu a avoir un Resultat
   while (!actor.IsNull()) {
-    if (actor->Recognize (start)) binder = actor->Transferring(start,this);
+    if (actor->Recognize (start)) binder = actor->Transferring(start,this, theProgr);
     else binder.Nullify();
     if (!binder.IsNull()) break;
     actor = actor->Next();
   }
+  if (theProgr && !theProgr->More())
+    return Handle(Transfer_Binder)();
+  
   if (binder.IsNull()) {
 //    if (thetrace) {
 //      themessenger << "Transfer has produced no Result" <<endl;
@@ -1178,9 +1187,10 @@ Handle(Transfer_Binder) Transfer_TransferProcess::Transferring(const TheStart& s
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean  Transfer_TransferProcess::Transfer(const TheStart& start)
+Standard_Boolean  Transfer_TransferProcess::Transfer(const TheStart& start,
+                                                     Message_ProgressScope* theProgr)
 {
-  Handle(Transfer_Binder) binder = Transferring(start);
+  Handle(Transfer_Binder) binder = Transferring(start, theProgr);
   return (!binder.IsNull());
 }
 
@@ -1537,23 +1547,3 @@ Standard_Integer  Transfer_TransferProcess::CheckNum(const TheStart& ) const
   return 0;
 }
 
-
-//=======================================================================
-//function : SetProgress
-//purpose  : Sets Progress indicator
-//=======================================================================
-
-void Transfer_TransferProcess::SetProgress(const Handle(Message_ProgressIndicator)& theProgress)
-{
-  myProgress = theProgress;
-}
-
-//=======================================================================
-//function : GetProgress
-//purpose  : Returns Progress indicator
-//=======================================================================
-
-Handle(Message_ProgressIndicator) Transfer_TransferProcess::GetProgress() const
-{
-  return myProgress;
-}

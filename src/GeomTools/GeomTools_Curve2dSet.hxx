@@ -26,7 +26,7 @@
 #include <Standard_OStream.hxx>
 #include <Standard_IStream.hxx>
 #include <Standard_Boolean.hxx>
-class Message_ProgressIndicator;
+class Message_ProgressScope;
 class Standard_OutOfRange;
 class Geom2d_Curve;
 
@@ -60,11 +60,11 @@ public:
   
   //! Writes the content of  me  on the stream <OS> in a
   //! format that can be read back by Read.
-  Standard_EXPORT void Write (Standard_OStream& OS) const;
+  Standard_EXPORT void Write (Standard_OStream& OS, Message_ProgressScope* thePS = 0L) const;
   
   //! Reads the content of me from the  stream  <IS>. me
   //! is first cleared.
-  Standard_EXPORT void Read (Standard_IStream& IS);
+  Standard_EXPORT void Read (Standard_IStream& IS, Message_ProgressScope* thePS = 0L);
   
   //! Dumps the curve on the stream,  if compact is True
   //! use the compact format that can be read back.
@@ -74,34 +74,11 @@ public:
   //! assumed   to have  been  written  with  the Print
   //! method (compact = True).
   Standard_EXPORT static Handle(Geom2d_Curve) ReadCurve2d (Standard_IStream& IS);
-  
-  Standard_EXPORT void SetProgress (const Handle(Message_ProgressIndicator)& PR);
-  
-  Standard_EXPORT Handle(Message_ProgressIndicator) GetProgress() const;
-
-
-
-
-protected:
-
-
-
-
 
 private:
 
-
-
   TColStd_IndexedMapOfTransient myMap;
-  Handle(Message_ProgressIndicator) myProgress;
-
 
 };
-
-
-
-
-
-
 
 #endif // _GeomTools_Curve2dSet_HeaderFile

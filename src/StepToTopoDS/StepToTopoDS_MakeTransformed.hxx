@@ -30,7 +30,7 @@ class gp_Trsf;
 class TopoDS_Shape;
 class StepRepr_MappedItem;
 class Transfer_TransientProcess;
-
+class Message_ProgressScope;
 
 //! Produces instances by Transformation of a basic item
 class StepToTopoDS_MakeTransformed  : public StepToTopoDS_Root
@@ -68,7 +68,9 @@ public:
   //! Hence, the transformation from MappingOrigin and MappingTarget
   //! is computed, the MappedRepr. is converted to a Shape, then
   //! transformed as an instance of this Shape
-  Standard_EXPORT TopoDS_Shape TranslateMappedItem (const Handle(StepRepr_MappedItem)& mapit, const Handle(Transfer_TransientProcess)& TP);
+  Standard_EXPORT TopoDS_Shape TranslateMappedItem (const Handle(StepRepr_MappedItem)& mapit,
+                                                    const Handle(Transfer_TransientProcess)& TP,
+                                                    Message_ProgressScope* theProgr = 0L);
 
 
 

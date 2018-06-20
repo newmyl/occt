@@ -15,8 +15,9 @@
 
 #include <BOPAlgo_Options.hxx>
 #include <Message_MsgFile.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 #include <NCollection_BaseAllocator.hxx>
+#include <TCollection_AsciiString.hxx>
 #include <Precision.hxx>
 #include <Standard_NotImplemented.hxx>
 #include <Standard_ProgramError.hxx>
@@ -51,6 +52,7 @@ BOPAlgo_Options::BOPAlgo_Options()
   myReport(new Message_Report),
   myRunParallel(myGlobalRunParallel),
   myFuzzyValue(Precision::Confusion()),
+  myProgressIndicator(0L),
   myUseOBB(Standard_False)
 {
   BOPAlgo_LoadMessages();
@@ -67,6 +69,7 @@ BOPAlgo_Options::BOPAlgo_Options
   myReport(new Message_Report),
   myRunParallel(myGlobalRunParallel),
   myFuzzyValue(Precision::Confusion()),
+  myProgressIndicator(0L),
   myUseOBB(Standard_False)
 {
   BOPAlgo_LoadMessages();
@@ -132,19 +135,18 @@ void BOPAlgo_Options::SetFuzzyValue(const Standard_Real theFuzz)
 //purpose  : 
 //=======================================================================
 void BOPAlgo_Options::SetProgressIndicator
-  (const Handle(Message_ProgressIndicator)& theObj)
+  (Message_ProgressScope* theObj)
 {
-  if (!theObj.IsNull()) {
-    myProgressIndicator = theObj;
-  }
+  myProgressIndicator = theObj;
 }
+
 //=======================================================================
 //function : UserBreak
 //purpose  : 
 //=======================================================================
 void BOPAlgo_Options::UserBreak() const
 {
-  if (myProgressIndicator.IsNull()) {
+  if (!myProgressIndicator) {
     return;
   }
   if (myProgressIndicator->UserBreak()) {

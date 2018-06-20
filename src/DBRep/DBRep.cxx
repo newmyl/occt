@@ -1336,6 +1336,7 @@ static Standard_Integer XProgress (Draw_Interpretor& di, Standard_Integer argc, 
     if ( argv[i][0] == '-' ) turn = Standard_False;
     else if ( argv[i][0] != '+' ) continue;
     if ( argv[i][1] == 't' ) Draw_ProgressIndicator::DefaultTextMode() = turn;
+    else if (argv[i][1] == 'c') Draw_ProgressIndicator::DefaultConsoleMode() = turn;
     else if ( argv[i][1] == 'g' ) Draw_ProgressIndicator::DefaultGraphMode() = turn;
     else if ( ! strcmp ( argv[i], "-stop" ) && i+1 < argc ) {
       Standard_Address aPtr = 0;
@@ -1350,7 +1351,14 @@ static Standard_Integer XProgress (Draw_Interpretor& di, Standard_Integer argc, 
   } else {
     di<<"OFF";
   }
-  di<<", graphical mode is ";
+  di<<", console mode is ";
+  if (Draw_ProgressIndicator::DefaultConsoleMode()) {
+    di << "ON";
+  }
+  else {
+    di << "OFF";
+  }
+  di << ", graphical mode is ";
   if ( Draw_ProgressIndicator::DefaultGraphMode() ) {
     di<<"ON";
   } else {
@@ -1462,7 +1470,9 @@ void  DBRep::BasicCommands(Draw_Interpretor& theCommands)
 		  __FILE__,purgemmgt,g);
   
   // Add command for DRAW-specific ProgressIndicator
-  theCommands.Add ( "XProgress","XProgress [+|-t] [+|-g]: switch on/off textual and graphical mode of Progress Indicator",XProgress,"DE: General");
+  theCommands.Add ( "XProgress","XProgress [+|-t] [+|-c] [+|-g] [-stop address]\n"
+                    "\t\tSwitch on/off textual, console and graphical mode of Progress Indicator\n"
+                    "\t\tOr stop progress indicator with the given address",XProgress,"DE: General");
 
   theCommands.Add("binsave", "binsave shape filename\n"
                   "\t\tsave the shape in the binary format file",
@@ -1528,10 +1538,10 @@ static void ssave(const Handle(Draw_Drawable3D)&d, ostream& OS)
     N = Handle(DBRep_DrawableShape)::DownCast(d);
   BRep_Builder B;
   BRepTools_ShapeSet S(B);
-  if(!Draw::GetProgressBar().IsNull())
-    S.SetProgress(Draw::GetProgressBar());
+  Message_ProgressScope* aPS = !Draw::GetProgressBar().IsNull() 
+                               ? Draw::GetProgressBar()->GetRootScope() : 0L;
   S.Add(N->Shape());
-  S.Write(OS);
+  S.Write(OS, aPS);
   if(!Draw::GetProgressBar().IsNull() && Draw::GetProgressBar()->UserBreak())
     return;
   S.Write(N->Shape(),OS);
@@ -1541,9 +1551,9 @@ static Handle(Draw_Drawable3D) srestore (istream& IS)
 {
   BRep_Builder B;
   BRepTools_ShapeSet S(B);
-  if(!Draw::GetProgressBar().IsNull())
-    S.SetProgress(Draw::GetProgressBar());
-  S.Read(IS);
+  Message_ProgressScope* aPS = !Draw::GetProgressBar().IsNull()
+    ? Draw::GetProgressBar()->GetRootScope() : 0L;
+  S.Read(IS, aPS);
   Handle(DBRep_DrawableShape) N;
   if(!Draw::GetProgressBar().IsNull() && Draw::GetProgressBar()->UserBreak())
     return N;

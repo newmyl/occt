@@ -16,6 +16,7 @@
 #include <NCollection_DataMap.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
+#include <Message_ProgressScope.hxx>
 #include <ShapeProcess.hxx>
 #include <ShapeProcess_Context.hxx>
 #include <ShapeProcess_Operator.hxx>
@@ -67,7 +68,8 @@ Standard_Boolean ShapeProcess::FindOperator (const Standard_CString name,
 //=======================================================================
 
 Standard_Boolean ShapeProcess::Perform (const Handle(ShapeProcess_Context)& context,
-                                        const Standard_CString seq)
+                                        const Standard_CString seq,
+                                        Message_ProgressScope* theProgr)
 {
   context->SetScope ( seq );
   
@@ -107,7 +109,9 @@ Standard_Boolean ShapeProcess::Perform (const Handle(ShapeProcess_Context)& cont
 
   // iterate on operators in the sequence
   Standard_Boolean isDone = Standard_False;
-  for (i=1; i<=sequenceOfOperators.Length(); i++) {
+  Message_ProgressScope aPS(theProgr, NULL, 0, sequenceOfOperators.Length());
+  for (i = 1; i<=sequenceOfOperators.Length() && aPS.More(); i++, aPS.Next())
+  {
     oper = sequenceOfOperators.Value(i);
     
     if ( context->TraceLevel() >=2 ) {
@@ -128,7 +132,7 @@ Standard_Boolean ShapeProcess::Perform (const Handle(ShapeProcess_Context)& cont
     context->SetScope ( oper.ToCString() );
     try {
       OCC_CATCH_SIGNALS
-      if ( op->Perform(context) )
+      if ( op->Perform(context, &aPS) )
         isDone = Standard_True;
     }
     catch (Standard_Failure const& anException) {

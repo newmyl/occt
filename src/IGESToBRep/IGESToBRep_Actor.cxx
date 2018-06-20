@@ -22,7 +22,7 @@
 #include <Interface_InterfaceModel.hxx>
 #include <Interface_Macros.hxx>
 #include <Interface_Static.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <ShapeExtend_Explorer.hxx>
 #include <ShapeFix_ShapeTolerance.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -141,7 +141,8 @@ static void TrimTolerances (const TopoDS_Shape& shape,
 //purpose  : 
 //=======================================================================
 Handle(Transfer_Binder) IGESToBRep_Actor::Transfer
-(const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP)
+(const Handle(Standard_Transient)& start, const Handle(Transfer_TransientProcess)& TP,
+ Message_ProgressScope* theProgr)
 {
   DeclareAndCast(IGESData_IGESModel,mymodel,themodel);
   DeclareAndCast(IGESData_IGESEntity,ent,start);
@@ -162,7 +163,7 @@ Handle(Transfer_Binder) IGESToBRep_Actor::Transfer
       (typnum == 408) || (typnum == 308)) {
 
     // Start progress scope (no need to check if progress exists -- it is safe)
-    Message_ProgressSentry aPSentry(TP->GetProgress(), "Transfer stage", 0, 2, 1);
+    Message_ProgressScope aPS(theProgr, "Transfer stage", 0, 2, 1);
 
     XSAlgo::AlgoContainer()->PrepareForTransfer();
     IGESToBRep_CurveAndSurface CAS;
@@ -189,7 +190,7 @@ Handle(Transfer_Binder) IGESToBRep_Actor::Transfer
     {
       try {
         OCC_CATCH_SIGNALS
-	shape = CAS.TransferGeometry(ent);
+	shape = CAS.TransferGeometry(ent, &aPS);
       }
       catch(Standard_Failure) {
 	shape.Nullify();
@@ -197,14 +198,14 @@ Handle(Transfer_Binder) IGESToBRep_Actor::Transfer
     }
 
     // Switch to fix stage.
-    aPSentry.Next();
+    aPS.Next();
     
     // fixing shape
     Handle(Standard_Transient) info;
     shape = XSAlgo::AlgoContainer()->ProcessShape( shape, theeps, CAS.GetMaxTol(), 
                                                    "read.iges.resource.name", 
                                                    "read.iges.sequence", info,
-                                                   TP->GetProgress() );
+                                                   &aPS );
     XSAlgo::AlgoContainer()->MergeTransferInfo(TP, info, nbTPitems);
   }
 

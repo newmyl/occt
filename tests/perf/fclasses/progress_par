@@ -1,0 +1,15 @@
+puts "# ========"
+puts "# 0025748: Parallel version of progress indicator"
+puts "# ========"
+puts ""
+
+pload QAcommands
+
+OCC25748 -niter 2000000
+OCC25748 -niter 2000000 -progr
+OCC25748 -niter 2000000 -parallel
+OCC25748 -niter 2000000 -parallel -progr
+OCC25748 -niter 1000000 -matsize 10
+OCC25748 -niter 1000000 -matsize 10 -progr
+OCC25748 -niter 1000000 -matsize 10 -parallel
+OCC25748 -niter 1000000 -matsize 10 -parallel -progr
