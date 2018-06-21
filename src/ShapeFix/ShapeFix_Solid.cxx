@@ -20,8 +20,7 @@
 #include <Geom_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <Message_Msg.hxx>
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Precision.hxx>
 #include <ShapeAnalysis.hxx>
 #include <ShapeAnalysis_Curve.hxx>
@@ -386,7 +385,7 @@ static Standard_Boolean CreateSolids(const TopoDS_Shape theShape,TopTools_Indexe
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean ShapeFix_Solid::Perform(const Handle(Message_ProgressIndicator)& theProgress) 
+Standard_Boolean ShapeFix_Solid::Perform(Message_ProgressScope* theProgress) 
 {
 
   Standard_Boolean status = Standard_False;
@@ -403,12 +402,12 @@ Standard_Boolean ShapeFix_Solid::Perform(const Handle(Message_ProgressIndicator)
     aNbShells++;
 
   // Start progress scope (no need to check if progress exists -- it is safe)
-  Message_ProgressSentry aPSentry(theProgress, "Fixing solid stage", 0, 2, 1);
+  Message_ProgressScope aPSentry(theProgress, "Fixing solid stage", 0, 2, 1);
 
   if ( NeedFix(myFixShellMode) )
   {
     // Start progress scope (no need to check if progress exists -- it is safe)
-    Message_ProgressSentry aPSentryFixShell(theProgress, "Fixing shell", 0, aNbShells, 1);
+    Message_ProgressScope aPSentryFixShell(&aPSentry, "Fixing shell", 0, aNbShells, 1);
 
     // Fix shell by shell using ShapeFix_Shell tool
     for ( TopExp_Explorer aExpSh(S, TopAbs_SHELL); aExpSh.More() && aPSentryFixShell.More(); aExpSh.Next(), aPSentryFixShell.Next() )
@@ -416,7 +415,7 @@ Standard_Boolean ShapeFix_Solid::Perform(const Handle(Message_ProgressIndicator)
       TopoDS_Shape sh = aExpSh.Current();
 
       myFixShell->Init( TopoDS::Shell(sh) );
-      if ( myFixShell->Perform(theProgress) )
+      if ( myFixShell->Perform(&aPSentryFixShell) )
       {
         status = Standard_True;
         myStatus |= ShapeExtend::EncodeStatus ( ShapeExtend_DONE1 );
@@ -432,9 +431,6 @@ Standard_Boolean ShapeFix_Solid::Perform(const Handle(Message_ProgressIndicator)
   {
     NbShells = aNbShells;
   }
-
-  // Switch to the second stage
-  aPSentry.Next();
 
   if (!NeedFix(myFixShellOrientationMode))
   {
@@ -511,7 +507,7 @@ Standard_Boolean ShapeFix_Solid::Perform(const Handle(Message_ProgressIndicator)
         BRep_Builder aB;
         TopoDS_Compound aComp;
         aB.MakeCompound(aComp);
-        Message_ProgressSentry aPSentryCreatingSolid(theProgress, "Creating solid",
+        Message_ProgressScope aPSentryCreatingSolid(&aPSentry, "Creating solid",
                                         0, aMapSolids.Extent(), 1);
         for(Standard_Integer i =1; (i <= aMapSolids.Extent()) && (aPSentryCreatingSolid.More());
             i++, aPSentryCreatingSolid.Next())

@@ -690,9 +690,8 @@ void  BRepTools::Write(const TopoDS_Shape& Sh, Standard_OStream& S,
                        Message_ProgressScope* PR)
 {
   BRepTools_ShapeSet SS;
-  SS.SetProgress(PR);
   SS.Add(Sh);
-  SS.Write(S);
+  SS.Write(S, PR);
   SS.Write(Sh,S);
 }
 
@@ -708,8 +707,7 @@ void  BRepTools::Read(TopoDS_Shape& Sh,
                       Message_ProgressScope* PR)
 {
   BRepTools_ShapeSet SS(B);
-  SS.SetProgress(PR);
-  SS.Read(S);
+  SS.Read(S, PR);
   SS.Read(Sh,S);
 }
 
@@ -732,11 +730,10 @@ Standard_Boolean  BRepTools::Write(const TopoDS_Shape& Sh,
     return isGood;
   
   BRepTools_ShapeSet SS;
-  SS.SetProgress(PR);
   SS.Add(Sh);
   
   os << "DBRep_DrawableShape\n";  // for easy Draw read
-  SS.Write(os);
+  SS.Write(os, PR);
   isGood = os.good();
   if(isGood )
     SS.Write(Sh,os);
@@ -766,8 +763,7 @@ Standard_Boolean BRepTools::Read(TopoDS_Shape& Sh,
   if(!fic.is_open()) return Standard_False;
   
   BRepTools_ShapeSet SS(B);
-  SS.SetProgress(PR);
-  SS.Read(in);
+  SS.Read(in, PR);
   if(!SS.NbShapes()) return Standard_False;
   SS.Read(Sh,in);
   return Standard_True;

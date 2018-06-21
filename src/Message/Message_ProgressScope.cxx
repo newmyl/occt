@@ -21,14 +21,13 @@
 //purpose  : 
 //=======================================================================
 
-Message_ProgressScope::Message_ProgressScope(const Handle(Message_ProgressIndicator)& theProgress,
+Message_ProgressScope::Message_ProgressScope(Message_ProgressIndicator* theProgress,
                                              Standard_CString theName,
                                              Standard_Real theMin, Standard_Real theMax,
                                              Standard_Real theStep, Standard_Boolean isInfinite)
   : myProgress(theProgress), myParent(0),
     myStart(0.), myEnd(1.),
-    myMin(theMin), myMax(theMax),
-    myStep(theStep), myPosition(theMin),
+    myMax(theMax), myStep(theStep), myPosition(theMin),
     myName(theName), myNbChild(0),
     myIsInfinite(isInfinite)
 {}
@@ -43,14 +42,12 @@ Message_ProgressScope::Message_ProgressScope(Message_ProgressScope* theParent,
                                              Standard_Real theMin, Standard_Real theMax,
                                              Standard_Real theStep, Standard_Boolean isInfinite)
   : myProgress(theParent ? theParent->myProgress : 0L), myParent(theParent),
-    myMin(theMin), myMax(theMax),
-    myStep(theStep), myPosition(theMin),
+    myMax(theMax), myStep(theStep), myPosition(theMin),
     myName(theName), myNbChild(0),
     myIsInfinite(isInfinite)
 {
-  if (myProgress.IsNull())
-    return;
-  myParent->addScope(this);
+  if (myProgress)
+    myParent->addScope(this);
 }
 
 //=======================================================================
@@ -60,11 +57,10 @@ Message_ProgressScope::Message_ProgressScope(Message_ProgressScope* theParent,
 
 void Message_ProgressScope::SetScale(double theMin, double theMax, double theStep, bool isInfinite)
 {
-  myMin = theMin;
-  myMax = theMax;
+  myMax = theMax - theMin;
   myStep = theStep;
   myIsInfinite = isInfinite;
-  myPosition = myMin;
+  myPosition = 0.;
 }
 
 //=======================================================================
@@ -74,7 +70,7 @@ void Message_ProgressScope::SetScale(double theMin, double theMax, double theSte
 
 void Message_ProgressScope::Close()
 {
-  if (myProgress.IsNull())
+  if (!myProgress)
     return;
 
   // advance to the end of the scope
@@ -83,7 +79,7 @@ void Message_ProgressScope::Close()
 
   if (myParent)
     myParent->removeScope();
-  myProgress.Nullify();
+  myProgress = 0L;
 
   Standard_ProgramError_Raise_if(myNbChild,
     "Some child sub-scopes remained while parent is being closed");
@@ -96,7 +92,7 @@ void Message_ProgressScope::Close()
 
 Standard_Boolean Message_ProgressScope::UserBreak() const
 {
-  return !myProgress.IsNull() && myProgress->UserBreak();
+  return myProgress && myProgress->UserBreak();
 }
 
 //=======================================================================
@@ -106,7 +102,7 @@ Standard_Boolean Message_ProgressScope::UserBreak() const
 
 void Message_ProgressScope::Next(Standard_Real theStep)
 {
-  if (myProgress.IsNull())
+  if (!myProgress)
     return;
 
   if (theStep > 0.)
@@ -128,7 +124,7 @@ void Message_ProgressScope::addScope(Message_ProgressScope* theChild)
 {
   // reserve space on the scale for the new child
   Standard_Real aPrevPos = myPosition;
-  myPosition += myStep;
+  myPosition = Min(myPosition + myStep, myMax);
 
   // compute child range on total progress scale
   theChild->myStart = localToGlobal(aPrevPos, Standard_False);
@@ -146,7 +142,7 @@ void Message_ProgressScope::addScope(Message_ProgressScope* theChild)
 void Message_ProgressScope::SetName(Standard_CString theName)
 {
   myName = theName;
-  if (!myProgress.IsNull())
+  if (myProgress)
     myProgress->Increment(0, this); // just to redisplay
 }
 
@@ -158,15 +154,15 @@ void Message_ProgressScope::SetName(Standard_CString theName)
 Standard_Real Message_ProgressScope::localToGlobal(const Standard_Real theVal,
                                                    const Standard_Boolean isInf) const
 {
-  if (theVal <= myMin)
+  if (theVal <= 0.)
     return myStart;
   if (myMax - theVal < RealSmall())
     return myEnd;
 
   if (!isInf)
-    return myStart + (myEnd - myStart) * (theVal - myMin) / (myMax - myMin);
+    return myStart + (myEnd - myStart) * theVal / myMax;
 
-  double x = (theVal - myMin) / (myMax - myMin);
+  double x = theVal / myMax;
   //      return myStart + ( myEnd - myStart ) * ( 1. - std::exp ( -x ) ); // exponent
   return myStart + (myEnd - myStart) * (1. - 1. / x);          // hyperbola
 }

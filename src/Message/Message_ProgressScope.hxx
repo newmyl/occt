@@ -53,13 +53,14 @@ class Message_ProgressIndicator;
 //! Note that all methods accepting pointers will safely accept null;
 //! in this case no progress indication will be done.
 //!
-//! Example of usage in nested process:
+//! Example of typical usage in nested process:
 //!
 //! @code{.cpp}
 //!   Handle(Draw_ProgressIndicator) aProgress = ...;
+//!   Message_ProgressScope* aRoot = aProgress->GetRootScope();
 //!
 //!   // Outer cycle
-//!   Message_ProgressScope anOuter (aProgress, "Outer", 0, nbOuter, 1);
+//!   Message_ProgressScope anOuter (aRoot, "Outer", 0, nbOuter, 1);
 //!   for (Standard_Integer i = 0; i < nbOuter && anOuter.More(); i++, anOuter.Next())
 //!   {
 //!     // Inner cycle
@@ -74,14 +75,9 @@ class Message_ProgressScope
 {
 public: //! @name Preparation methods
 
-  //! Creates a top-level scope and selects parameters of the top-level scale.
-  Standard_EXPORT Message_ProgressScope(const Handle(Message_ProgressIndicator)& theProgress,
-                                        Standard_CString theName,
-                                        Standard_Real theMin = 0, Standard_Real theMax = 100,
-                                        Standard_Real theStep = 1, Standard_Boolean isInfinite = false);
-
   //! Creates a sub-scope covering current step of the parent scope, 
-  //! and selects parameters of the current scale.
+  //! and selects parameters of the current scale. The top most scope 
+  //! must be got using the method GetRoopScope() of Message_ProgressIndicator.
   Standard_EXPORT Message_ProgressScope(Message_ProgressScope* theParent,
                                         Standard_CString theName,
                                         Standard_Real theMin = 0, Standard_Real theMax = 100,
@@ -140,6 +136,36 @@ public: //! @name Auxiliary methods to use in ProgressIndicator
     return myParent;
   }
 
+  //! Returns the maximal value of progress in this scope
+  Standard_Real GetMax() const
+  {
+    return myMax;
+  }
+
+  //! Returns the current value of progress in this scope
+  Standard_Real GetValue() const
+  {
+    return myPosition;
+  }
+
+  //! Returns the infinite flag
+  Standard_Boolean IsInfinite() const
+  {
+    return myIsInfinite;
+  }
+
+  //! Get start position of this scope on total progress scale
+  Standard_Real GetStart() const
+  {
+    return myStart;
+  }
+
+  //! Get end position of this scope on total progress scale
+  Standard_Real GetEnd() const
+  {
+    return myEnd;
+  }
+
 public: //! @name Destrucion, allocation
 
   //! Destructor - closes the scope and adds its scale to the total progress
@@ -154,6 +180,12 @@ public: //! @name Destrucion, allocation
   DEFINE_STANDARD_ALLOC
 
 protected: //! @name Internal methods
+  
+  //! Creates a top-level scope and selects parameters of the top-level scale.
+  Standard_EXPORT Message_ProgressScope(Message_ProgressIndicator* theProgress,
+                                        Standard_CString theName,
+                                        Standard_Real theMin = 0, Standard_Real theMax = 100,
+                                        Standard_Real theStep = 1, Standard_Boolean isInfinite = false);
 
   //! Adds the child scope, reserving in the scale the space for it
   //! corresponding to the current step
@@ -170,14 +202,13 @@ protected: //! @name Internal methods
 
 private:
 
-  Handle(Message_ProgressIndicator) myProgress; //!< Handle of progress indicator instance
+  Message_ProgressIndicator* myProgress; //!< Handle of progress indicator instance
   Message_ProgressScope* myParent;  //!< Pointer to parent scope
 
   Standard_Real      myStart;       //!< Start position of this scope on total progress scale
   Standard_Real      myEnd;         //!< End position of this scope on total progress scale
 
-  Standard_Real      myMin;         //!< Start of logical range of this scope
-  Standard_Real      myMax;         //!< End of logical range of this scope
+  Standard_Real      myMax;         //!< Maximal value of progress in this scope
   Standard_Real      myStep;        //!< Default step 
   Standard_Real      myPosition;    //!< Current position (reserved by sub-scopes
                                     //!  or advanced directly)
@@ -186,6 +217,7 @@ private:
   Standard_Integer   myNbChild;     //!< Number of children - used to control code consistency
   Standard_Boolean   myIsInfinite;  //!< Option to advance by hyperbolic law
 
+  friend class Message_ProgressIndicator;
 };
 
 #endif // _Message_ProgressScope_HeaderFile

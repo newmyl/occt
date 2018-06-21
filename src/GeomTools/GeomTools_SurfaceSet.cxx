@@ -632,15 +632,13 @@ void  GeomTools_SurfaceSet::Dump(Standard_OStream& OS)const
 //purpose  : 
 //=======================================================================
 
-void  GeomTools_SurfaceSet::Write(Standard_OStream& OS)const 
+void  GeomTools_SurfaceSet::Write(Standard_OStream& OS, Message_ProgressScope* thePS)const
 {
   std::streamsize  prec = OS.precision(17);
 
   Standard_Integer i, nbsurf = myMap.Extent();
   OS << "Surfaces "<< nbsurf << "\n";
-  //OCC19559
-  Message_ProgressScope* progress = GetProgress();
-  Message_ProgressScope PS(progress, "Surfaces", 0, nbsurf, 1);
+  Message_ProgressScope PS(thePS, "Surfaces", 0, nbsurf, 1);
   for (i = 1; i <= nbsurf && PS.More(); i++, PS.Next()) {
     PrintSurface(Handle(Geom_Surface)::DownCast(myMap(i)),OS,Standard_True);
   }
@@ -1051,7 +1049,7 @@ Handle(Geom_Surface) GeomTools_SurfaceSet::ReadSurface(Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-void  GeomTools_SurfaceSet::Read(Standard_IStream& IS)
+void  GeomTools_SurfaceSet::Read(Standard_IStream& IS, Message_ProgressScope* thePS)
 {
   char buffer[255];
   IS >> buffer;
@@ -1062,34 +1060,9 @@ void  GeomTools_SurfaceSet::Read(Standard_IStream& IS)
 
   Standard_Integer i, nbsurf;
   IS >> nbsurf;
-  //OCC19559
-  Message_ProgressScope* progress = GetProgress();
-  Message_ProgressScope PS(progress, "Surfaces", 0, nbsurf, 1);
+  Message_ProgressScope PS(thePS, "Surfaces", 0, nbsurf, 1);
   for (i = 1; i <= nbsurf && PS.More(); i++, PS.Next()) {
     Handle(Geom_Surface) S = GeomTools_SurfaceSet::ReadSurface (IS);
     myMap.Add(S);
   }
 }
-
-//=======================================================================
-//function : GetProgress
-//purpose  : 
-//=======================================================================
-
-Message_ProgressScope* GeomTools_SurfaceSet::GetProgress() const
-{
-  return myProgress;
-}
-
-//=======================================================================
-//function : SetProgress
-//purpose  : 
-//=======================================================================
-
-void GeomTools_SurfaceSet::SetProgress(Message_ProgressScope* PR)
-{
-  myProgress = PR;
-}
-
-
-

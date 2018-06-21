@@ -13,8 +13,32 @@
 
 
 #include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Message_ProgressIndicator,Standard_Transient)
+
+//=======================================================================
+//function : Message_ProgressIndicator
+//purpose  : 
+//=======================================================================
+
+Message_ProgressIndicator::Message_ProgressIndicator()
+  : myPosition(0.),
+    myRootScope(new Message_ProgressScope(this, 0L, 0., 1., 1.))
+{
+}
+
+//=======================================================================
+//function : ~Message_ProgressIndicator
+//purpose  : 
+//=======================================================================
+
+Message_ProgressIndicator::~Message_ProgressIndicator()
+{
+  // Avoid calling of Increment() from myRootScope->Close()
+  myRootScope->myProgress = 0L;
+  delete myRootScope;
+}
 
 //=======================================================================
 //function : Increment

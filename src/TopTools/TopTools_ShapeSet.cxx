@@ -442,7 +442,7 @@ void  TopTools_ShapeSet::Dump(Standard_OStream& OS)const
 //purpose  : 
 //=======================================================================
 
-void  TopTools_ShapeSet::Write(Standard_OStream& OS)
+void  TopTools_ShapeSet::Write(Standard_OStream& OS, Message_ProgressScope* thePS)
 {
   // always use C locale for writing shapes
   std::locale anOldLocale = OS.imbue (std::locale::classic());
@@ -460,15 +460,11 @@ void  TopTools_ShapeSet::Write(Standard_OStream& OS)
   // write the locations
   //-----------------------------------------
 
-  if (myProgress)
-  {
-    myProgress->SetScale(0, 100, 1);
-    myProgress->SetStep(10);
-  }
-  myLocations.SetProgress(myProgress);
-  myLocations.Write(OS);
+  Message_ProgressScope aProgress(thePS, "Writing", 0, 100, 1);
+  aProgress.SetStep(10);
+  myLocations.Write(OS, &aProgress);
 
-  if (myProgress && myProgress->UserBreak()) {
+  if (aProgress.UserBreak()) {
     OS << "Interrupted by the user\n";
     OS.imbue (anOldLocale);
     return;
@@ -478,18 +474,10 @@ void  TopTools_ShapeSet::Write(Standard_OStream& OS)
   // write the geometry
   //-----------------------------------------
 
-  if (myProgress)
-    myProgress->SetStep(75);
-  {
-    Message_ProgressScope aGeomProgress(myProgress, "Geometry");
-    myProgress = &aGeomProgress;
+  aProgress.SetStep(75);
+  WriteGeometry(OS, &aProgress);
 
-    WriteGeometry(OS);
-
-    myProgress = aGeomProgress.GetParent();
-  }
-
-  if (myProgress && myProgress->UserBreak()) {
+  if (aProgress.UserBreak()) {
     OS << "Interrupted by the user\n";
     OS.imbue(anOldLocale);
     return;
@@ -504,10 +492,8 @@ void  TopTools_ShapeSet::Write(Standard_OStream& OS)
   OS << "\nTShapes " << nbShapes << "\n";
 
   // subshapes are written first
-  //OCC19559
-  if (myProgress)
-    myProgress->SetStep(15);
-  Message_ProgressScope PS(myProgress, "Shapes", 0, nbShapes, 1);
+  aProgress.SetStep(15);
+  Message_ProgressScope PS(&aProgress, "Shapes", 0, nbShapes, 1);
   for (i = 1; i <= nbShapes && PS.More(); i++, PS.Next()) {
     const TopoDS_Shape& S = myShapes(i);
     
@@ -550,8 +536,8 @@ void  TopTools_ShapeSet::Write(Standard_OStream& OS)
   OS.precision(prec);
   OS.imbue (anOldLocale);
 
-  if (myProgress && myProgress->UserBreak())
-      OS << "Interrupted by the user\n";
+  if (aProgress.UserBreak())
+    OS << "Interrupted by the user\n";
 }
 
 //=======================================================================
@@ -599,7 +585,7 @@ static TopAbs_ShapeEnum ReadShapeEnum(Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-void  TopTools_ShapeSet::Read(Standard_IStream& IS)
+void  TopTools_ShapeSet::Read(Standard_IStream& IS, Message_ProgressScope* thePS)
 {
   // always use C locale for reading shapes
   std::locale anOldLocale = IS.imbue (std::locale::classic());
@@ -635,15 +621,11 @@ void  TopTools_ShapeSet::Read(Standard_IStream& IS)
   // read the locations
   //-----------------------------------------
 
-  if (myProgress)
-  {
-    myProgress->SetScale(0, 100, 1);
-    myProgress->SetStep(10);
-  }
-  myLocations.SetProgress(myProgress);
-  myLocations.Read(IS);
+  Message_ProgressScope aProgress(thePS, "Reading", 0, 100, 1);
+  aProgress.SetStep(10);
+  myLocations.Read(IS, &aProgress);
 
-  if (myProgress && myProgress->UserBreak()) {
+  if (aProgress.UserBreak()) {
     cout << "Interrupted by the user"<<endl;
     // on remet le LC_NUMERIC a la precedente valeur
     IS.imbue (anOldLocale);
@@ -653,18 +635,10 @@ void  TopTools_ShapeSet::Read(Standard_IStream& IS)
   //-----------------------------------------
   // read the geometry
   //-----------------------------------------
-  if (myProgress) 
-    myProgress->SetStep(75);
-  {
-    Message_ProgressScope aGeomProgress(myProgress, "Geometry");
-    myProgress = &aGeomProgress;
+  aProgress.SetStep(75);
+  ReadGeometry(IS, &aProgress);
 
-    ReadGeometry(IS);
-
-    myProgress = aGeomProgress.GetParent();
-  }
-
-  if (myProgress && myProgress->UserBreak()) {
+  if (aProgress.UserBreak()) {
     cout << "Interrupted by the user"<<endl;
     IS.imbue(anOldLocale);
     return;
@@ -687,9 +661,8 @@ void  TopTools_ShapeSet::Read(Standard_IStream& IS)
   IS >> nbShapes;
 
   //OCC19559
-  if (myProgress) 
-    myProgress->SetStep(15);
-  Message_ProgressScope PS(myProgress, "Shapes", 0, nbShapes, 1);
+  aProgress.SetStep(15);
+  Message_ProgressScope PS(&aProgress, "Shapes", 0, nbShapes, 1);
   for (i = 1; i <= nbShapes && PS.More(); i++, PS.Next() ) {
     TopoDS_Shape S;
     
@@ -733,7 +706,7 @@ void  TopTools_ShapeSet::Read(Standard_IStream& IS)
   // on remet le LC_NUMERIC a la precedente valeur
   IS.imbue (anOldLocale);
 
-  if (myProgress && myProgress->UserBreak())
+  if (aProgress.UserBreak())
     cout << "Interrupted by the user" << endl;
 }
 
@@ -851,7 +824,7 @@ void  TopTools_ShapeSet::DumpGeometry(Standard_OStream&) const
 //purpose  : 
 //=======================================================================
 
-void  TopTools_ShapeSet::WriteGeometry(Standard_OStream&) 
+void  TopTools_ShapeSet::WriteGeometry(Standard_OStream&, Message_ProgressScope*)
 {
 }
 
@@ -861,7 +834,7 @@ void  TopTools_ShapeSet::WriteGeometry(Standard_OStream&)
 //purpose  : 
 //=======================================================================
 
-void  TopTools_ShapeSet::ReadGeometry(Standard_IStream&)
+void  TopTools_ShapeSet::ReadGeometry(Standard_IStream&, Message_ProgressScope*)
 {
 }
 
@@ -933,25 +906,3 @@ Standard_Integer  TopTools_ShapeSet::NbShapes() const
 {
   return myShapes.Extent();
 }
-
-//=======================================================================
-//function : GetProgress
-//purpose  : 
-//=======================================================================
-
-Message_ProgressScope* TopTools_ShapeSet::GetProgress() const
-{
-  return myProgress;
-}
-
-//=======================================================================
-//function : SetProgress
-//purpose  : 
-//=======================================================================
-
-void TopTools_ShapeSet::SetProgress(Message_ProgressScope* PR)
-{
-  myProgress = PR;
-}
-
-

@@ -28,14 +28,12 @@ DEFINE_STANDARD_HANDLE(Message_ProgressIndicator, Standard_Transient)
 //! This includes progress indication and user break mechanisms.
 //!
 //! The progress indicator controls the progress scale with range from 0 to 1.
-//! The caller has to divide its work on primary operations. Each iteration 
-//! is assigned a sub-range. On the operation completion the caller calls the 
-//! method Increment() to tell the indicator about the progress. The method
-//! increment calls the method Show() to provide the user with update.
 //! 
 //! The recommended way of using progress indicator in the algorithm
-//! is to use the class Message_ProgressSentry that provides iterator-like
+//! is to use the class Message_ProgressScope that provides iterator-like
 //! interface for incrementing progress and opening nested scopes.
+//! The root scope is constructed and stored by the progress indicator itself
+//! and is returned by the method GetRootScope.
 //!
 //! The progress indicator supports concurrent processing and 
 //! can be used in multithreaded applications.
@@ -50,8 +48,13 @@ DEFINE_STANDARD_HANDLE(Message_ProgressIndicator, Standard_Transient)
 
 class Message_ProgressIndicator : public Standard_Transient
 {
-
 public:
+
+  //! Returns the root scope that allows starting using this indicator.
+  Message_ProgressScope* GetRootScope() const
+  {
+    return myRootScope;
+  }
 
   //! Resets the indicator to the initial state.
   //! The default implementation just nullifies position.
@@ -72,11 +75,11 @@ public:
   //! Flag isForce is intended for forcing update in case if it is
   //! optimized; all internal calls from ProgressIndicator are
   //! done with this flag equal to False.
-  //! The parameter theName is (if it is not null) the title of the on-going operation.
+  //! The parameter theScope points to context of the on-going operation.
   virtual Standard_Boolean Show (const Standard_Boolean isForce = Standard_True,
                                  const Message_ProgressScope* theScope = 0L) = 0;
   
-  //! Returns total progress position ranged from 0. to 1.
+  //! Returns total progress position ranged from 0 to 1
   Standard_Real GetPosition() const
   {
     return myPosition;
@@ -84,10 +87,13 @@ public:
 
   DEFINE_STANDARD_RTTIEXT(Message_ProgressIndicator,Standard_Transient)
 
+  //! Destructor
+  Standard_EXPORT ~Message_ProgressIndicator();
+
 protected:
   
   //! Constructor
-  Message_ProgressIndicator() : myPosition(0.) {}
+  Standard_EXPORT Message_ProgressIndicator();
 
   //! Increment the progress value by the specified step.
   //! The parameter theScope is the pointer to the calling 
@@ -97,8 +103,9 @@ protected:
 
 private:
 
-  Standard_Real myPosition;
-  Standard_Mutex myMutex;
+  Standard_Real myPosition;            //!< Total progress position ranged from 0 to 1
+  Standard_Mutex myMutex;              //!< Protection of myPosition from concurrent increment
+  Message_ProgressScope* myRootScope;  //!< The root progress scope
 
   friend class Message_ProgressScope;
 };

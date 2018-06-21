@@ -72,7 +72,7 @@
 #include <TColgp_SequenceOfVec.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 
 #include <stdio.h>
 // pour la verif G2
@@ -456,7 +456,7 @@ void GeomPlate_BuildPlateSurface::
 //fonction : Perform
 // Calcul la surface de remplissage avec les contraintes chargees
 //---------------------------------------------------------
-void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator) & aProgress)
+void GeomPlate_BuildPlateSurface::Perform(Message_ProgressScope* aProgress)
 { 
 #ifdef OCCT_DEBUG
   // Chronmetrage
@@ -662,7 +662,7 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
 
 	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), aProgress);
 
-	  if (!aProgress.IsNull() && aProgress->UserBreak())
+	  if (aProgress && aProgress->UserBreak())
 	  {
 	    return;
 	  }
@@ -701,7 +701,7 @@ void GeomPlate_BuildPlateSurface::Perform(const Handle(Message_ProgressIndicator
 	  //====================================================================
 	  myPlate.SolveTI(myDegree, ComputeAnisotropie(), aProgress);
 
-	  if (!aProgress.IsNull() && aProgress->UserBreak())
+	  if (aProgress && aProgress->UserBreak())
 	  {
 	    return;
 	  }
@@ -1367,7 +1367,7 @@ Standard_Boolean GeomPlate_BuildPlateSurface::
 // il y a des contraintes ponctuelles
 //-------------------------------------------------------------------------
 
-void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Handle(Message_ProgressIndicator) & aProgress)
+void GeomPlate_BuildPlateSurface::ComputeSurfInit(Message_ProgressScope* aProgress)
 {
   Standard_Integer nopt=2, popt=2, Np=1;
   Standard_Boolean isHalfSpace = Standard_True;
@@ -1733,7 +1733,7 @@ void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Handle(Message_ProgressI
       //Resolution de la surface
       //====================================================================
       myPlate.SolveTI(2, ComputeAnisotropie(), aProgress);
-      if (!aProgress.IsNull() && aProgress->UserBreak())
+      if (aProgress && aProgress->UserBreak())
       {
           return;
       }

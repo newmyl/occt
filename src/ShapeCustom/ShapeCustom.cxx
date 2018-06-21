@@ -35,8 +35,7 @@
 #include <ShapeBuild_ReShape.hxx>
 #include <Standard_ErrorHandler.hxx>
 
-#include <Message_ProgressIndicator.hxx>
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 
 //=======================================================================
 //function : ApplyModifier
@@ -47,7 +46,7 @@ TopoDS_Shape ShapeCustom::ApplyModifier (const TopoDS_Shape &S,
                                          const Handle(BRepTools_Modification) &M,
                                          TopTools_DataMapOfShapeShape &context,
                                          BRepTools_Modifier& MD,
-                                         const Handle(Message_ProgressIndicator) & aProgress,
+                                         Message_ProgressScope* aProgress,
                                          const Handle(ShapeBuild_ReShape) & aReShape)
 {
   // protect against INTERNAL/EXTERNAL shapes
@@ -61,7 +60,7 @@ TopoDS_Shape ShapeCustom::ApplyModifier (const TopoDS_Shape &S,
     B.MakeCompound ( C );
 
     Standard_Integer aShapeCount = SF.NbChildren();
-    Message_ProgressSentry aPSentry(aProgress, "Applying Modifier For Solids", 0, aShapeCount, 1);
+    Message_ProgressScope aPSentry(aProgress, "Applying Modifier For Solids", 0, aShapeCount, 1);
     for ( TopoDS_Iterator it(SF); it.More() && aPSentry.More(); it.Next(), aPSentry.Next() ) {
       TopoDS_Shape shape = it.Value();
       TopLoc_Location L = shape.Location(), nullLoc;
@@ -70,7 +69,7 @@ TopoDS_Shape ShapeCustom::ApplyModifier (const TopoDS_Shape &S,
       if ( context.IsBound ( shape ) )
         res = context.Find ( shape ).Oriented ( shape.Orientation() );
       else
-        res = ApplyModifier ( shape, M, context ,MD, aProgress);
+        res = ApplyModifier ( shape, M, context ,MD, &aPSentry);
 
       if ( ! res.IsSame ( shape ) ) {
         context.Bind ( shape, res );
@@ -91,10 +90,10 @@ TopoDS_Shape ShapeCustom::ApplyModifier (const TopoDS_Shape &S,
     return C.Oriented ( S.Orientation() );
   }
 
-  Message_ProgressSentry aPSentry(aProgress, "Modify the Shape", 0, 1, 1);
+  Message_ProgressScope aPSentry(aProgress, "Modify the Shape", 0, 1, 1);
   // Modify the shape
   MD.Init(SF);
-  MD.Perform(M, aProgress);
+  MD.Perform(M, &aPSentry);
   
   if ( !aPSentry.More() || !MD.IsDone() ) return S;
   if ( !aReShape.IsNull() )

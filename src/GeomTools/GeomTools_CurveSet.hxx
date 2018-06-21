@@ -60,11 +60,11 @@ public:
   
   //! Writes the content of  me  on the stream <OS> in a
   //! format that can be read back by Read.
-  Standard_EXPORT void Write (Standard_OStream& OS) const;
+  Standard_EXPORT void Write (Standard_OStream& OS, Message_ProgressScope* thePS = 0L) const;
   
   //! Reads the content of me from the  stream  <IS>. me
   //! is first cleared.
-  Standard_EXPORT void Read (Standard_IStream& IS);
+  Standard_EXPORT void Read (Standard_IStream& IS, Message_ProgressScope* thePS = 0L);
   
   //! Dumps the curve on the stream,  if compact is True
   //! use the compact format that can be read back.
@@ -74,34 +74,11 @@ public:
   //! assumed   to have  been  written  with  the Print
   //! method (compact = True).
   Standard_EXPORT static Handle(Geom_Curve) ReadCurve (Standard_IStream& IS);
-  
-  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
-  
-  Standard_EXPORT Message_ProgressScope* GetProgress() const;
-
-
-
-
-protected:
-
-
-
-
 
 private:
 
-
-
   TColStd_IndexedMapOfTransient myMap;
-  Message_ProgressScope* myProgress;
-
 
 };
-
-
-
-
-
-
 
 #endif // _GeomTools_CurveSet_HeaderFile

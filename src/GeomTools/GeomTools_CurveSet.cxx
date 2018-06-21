@@ -512,15 +512,13 @@ void  GeomTools_CurveSet::Dump(Standard_OStream& OS)const
 //purpose  : 
 //=======================================================================
 
-void  GeomTools_CurveSet::Write(Standard_OStream& OS)const 
+void  GeomTools_CurveSet::Write(Standard_OStream& OS, Message_ProgressScope* thePS)const
 {
   std::streamsize  prec = OS.precision(17);
 
   Standard_Integer i, nbcurve = myMap.Extent();
   OS << "Curves "<< nbcurve << "\n";
-    //OCC19559
-  Message_ProgressScope* progress = GetProgress();
-  Message_ProgressScope PS(progress, "3D Curves", 0, nbcurve, 1);
+  Message_ProgressScope PS(thePS, "3D Curves", 0, nbcurve, 1);
   for (i = 1; i <= nbcurve && PS.More(); i++, PS.Next()) {
     PrintCurve(Handle(Geom_Curve)::DownCast(myMap(i)),OS,Standard_True);
   }
@@ -860,7 +858,7 @@ Handle(Geom_Curve) GeomTools_CurveSet::ReadCurve (Standard_IStream& IS)
 //purpose  : 
 //=======================================================================
 
-void  GeomTools_CurveSet::Read(Standard_IStream& IS)
+void  GeomTools_CurveSet::Read(Standard_IStream& IS, Message_ProgressScope* thePS)
 {
   char buffer[255];
   IS >> buffer;
@@ -871,33 +869,9 @@ void  GeomTools_CurveSet::Read(Standard_IStream& IS)
 
   Standard_Integer i, nbcurve;
   IS >> nbcurve;
-  //OCC19559
-  Message_ProgressScope* progress = GetProgress();
-  Message_ProgressScope PS(progress, "3D Curves", 0, nbcurve, 1);
+  Message_ProgressScope PS(thePS, "3D Curves", 0, nbcurve, 1);
   for (i = 1; i <= nbcurve && PS.More(); i++, PS.Next()) {
     Handle(Geom_Curve) C = GeomTools_CurveSet::ReadCurve (IS);
     myMap.Add(C);
   }
 }
-
-//=======================================================================
-//function : GetProgress
-//purpose  : 
-//=======================================================================
-
-Message_ProgressScope* GeomTools_CurveSet::GetProgress() const
-{
-  return myProgress;
-}
-
-//=======================================================================
-//function : SetProgress
-//purpose  : 
-//=======================================================================
-
-void GeomTools_CurveSet::SetProgress(Message_ProgressScope* PR)
-{
-  myProgress = PR;
-}
-
-

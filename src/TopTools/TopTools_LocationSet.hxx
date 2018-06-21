@@ -66,39 +66,16 @@ public:
   
   //! Writes the content of  me  on the stream <OS> in a
   //! format that can be read back by Read.
-  Standard_EXPORT void Write (Standard_OStream& OS) const;
+  Standard_EXPORT void Write (Standard_OStream& OS, Message_ProgressScope* thePS = 0L) const;
   
   //! Reads the content of me from the  stream  <IS>. me
   //! is first cleared.
-  Standard_EXPORT void Read (Standard_IStream& IS);
-  
-  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
-  
-  Standard_EXPORT Message_ProgressScope* GetProgress() const;
-
-
-
-
-protected:
-
-
-
-
+  Standard_EXPORT void Read (Standard_IStream& IS, Message_ProgressScope* thePS = 0L);
 
 private:
 
-
-
   TopLoc_IndexedMapOfLocation myMap;
-  Message_ProgressScope* myProgress;
-
 
 };
-
-
-
-
-
-
 
 #endif // _TopTools_LocationSet_HeaderFile

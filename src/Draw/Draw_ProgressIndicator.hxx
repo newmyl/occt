@@ -43,12 +43,21 @@ public:
   //! Destructor; calls Reset()
   Standard_EXPORT ~Draw_ProgressIndicator();
   
-  //! Sets text output mode (on/off)
+  //! Sets text output mode (on/off).
+  //! If it is on then progress is shown in the default messenger.
   Standard_EXPORT void SetTextMode (const Standard_Boolean theTextMode);
   
-  //! Gets text output mode (on/off)
+  //! Gets text output mode (on/off). 
   Standard_EXPORT Standard_Boolean GetTextMode() const;
-  
+
+  //! Sets console output mode (on/off).
+  //! If it is on then progress is shown in the standard output.
+  //! This superceeds TextMode.
+  Standard_EXPORT void SetConsoleMode(const Standard_Boolean theMode);
+
+  //! Gets console output mode (on/off)
+  Standard_EXPORT Standard_Boolean GetConsoleMode() const;
+
   //! Sets graphical output mode (on/off)
   Standard_EXPORT void SetGraphMode (const Standard_Boolean theGraphMode);
   
@@ -60,14 +69,19 @@ public:
   Standard_EXPORT virtual void Reset() Standard_OVERRIDE;
   
   //! Defines method Show of Progress Indicator
-  Standard_EXPORT virtual Standard_Boolean Show (const Standard_Boolean force = Standard_True) Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean Show (const Standard_Boolean force = Standard_True,
+                                                 const Message_ProgressScope* theScope = 0L) Standard_OVERRIDE;
   
   //! Redefines method UserBreak of Progress Indicator
   Standard_EXPORT virtual Standard_Boolean UserBreak() Standard_OVERRIDE;
   
+  //! Get/Set default value for text mode
   Standard_EXPORT static Standard_Boolean& DefaultTextMode();
-  
-  //! Get/Set default values for output modes
+
+  //! Get/Set default value for console mode
+  Standard_EXPORT static Standard_Boolean& DefaultConsoleMode();
+
+  //! Get/Set default value for graph mode
   Standard_EXPORT static Standard_Boolean& DefaultGraphMode();
   
   //! Internal method for implementation of UserBreak mechanism;
@@ -78,6 +92,7 @@ public:
 
 private:
   Standard_Boolean myTextMode;
+  Standard_Boolean myConsoleMode;
   Standard_Boolean myGraphMode;
   Standard_Address myDraw;
   Standard_Boolean myShown;

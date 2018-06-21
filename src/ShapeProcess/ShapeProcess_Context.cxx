@@ -16,7 +16,7 @@
 
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Resource_Manager.hxx>
 #include <ShapeProcess_Context.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -408,7 +408,7 @@ Handle(Message_Messenger) ShapeProcess_Context::Messenger () const
 //purpose  : 
 //=======================================================================
 
-void ShapeProcess_Context::SetProgress (const Handle(Message_ProgressIndicator)& progress)
+void ShapeProcess_Context::SetProgress (Message_ProgressScope* progress)
 {
   myProgress = progress;
 }
@@ -418,7 +418,7 @@ void ShapeProcess_Context::SetProgress (const Handle(Message_ProgressIndicator)&
 //purpose  : 
 //=======================================================================
 
-Handle(Message_ProgressIndicator) ShapeProcess_Context::Progress() const
+Message_ProgressScope* ShapeProcess_Context::Progress() const
 {
   return myProgress;
 }

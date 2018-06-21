@@ -171,7 +171,7 @@ void  TopTools_LocationSet::Dump(Standard_OStream& OS) const
 //purpose  : 
 //=======================================================================
 
-void  TopTools_LocationSet::Write(Standard_OStream& OS) const 
+void  TopTools_LocationSet::Write(Standard_OStream& OS, Message_ProgressScope* thePS) const
 {
   
   std::streamsize prec = OS.precision(15);
@@ -180,7 +180,7 @@ void  TopTools_LocationSet::Write(Standard_OStream& OS) const
   OS << "Locations " << nbLoc << "\n";
   
   //OCC19559
-  Message_ProgressScope PS(GetProgress(), "Locations", 0, nbLoc, 1);
+  Message_ProgressScope PS(thePS, "Locations", 0, nbLoc, 1);
   for (i = 1; i <= nbLoc && PS.More(); i++, PS.Next()) {
     TopLoc_Location L = myMap(i);
 
@@ -245,7 +245,7 @@ static void ReadTrsf(gp_Trsf& T,
 //purpose  : 
 //=======================================================================
 
-void  TopTools_LocationSet::Read(Standard_IStream& IS)
+void  TopTools_LocationSet::Read(Standard_IStream& IS, Message_ProgressScope* thePS)
 {
   myMap.Clear();
 
@@ -265,7 +265,7 @@ void  TopTools_LocationSet::Read(Standard_IStream& IS)
   gp_Trsf T;
     
   //OCC19559
-  Message_ProgressScope PS(GetProgress(), "Locations", 0, nbLoc, 1);
+  Message_ProgressScope PS(thePS, "Locations", 0, nbLoc, 1);
   for (i = 1; i <= nbLoc&& PS.More(); i++, PS.Next()) {
     Standard_Integer typLoc;
     IS >> typLoc;
@@ -288,24 +288,4 @@ void  TopTools_LocationSet::Read(Standard_IStream& IS)
     
     if (!L.IsIdentity()) myMap.Add(L);
   }
-}
-
-//=======================================================================
-//function : GetProgress
-//purpose  : 
-//=======================================================================
-
-Message_ProgressScope* TopTools_LocationSet::GetProgress() const
-{
-  return myProgress;
-}
-
-//=======================================================================
-//function : SetProgress
-//purpose  : 
-//=======================================================================
-
-void TopTools_LocationSet::SetProgress(Message_ProgressScope* PR)
-{
-  myProgress = PR;
 }

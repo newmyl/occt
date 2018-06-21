@@ -19,7 +19,7 @@
 #include <BRepTools_Modification.hxx>
 #include <BRepTools_Modifier.hxx>
 #include <Message_MsgFile.hxx>
-#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Precision.hxx>
 #include <ShapeBuild_ReShape.hxx>
 #include <ShapeCustom_BSplineRestriction.hxx>
@@ -764,7 +764,7 @@ static Standard_Boolean fixshape (const Handle(ShapeProcess_Context)& context)
     sfs->Init(ctx->Result());
     sfs->Perform(ctx->Progress());
     sfw->FixTailMode() = 1;
-    if (!ctx->Progress().IsNull() && ctx->Progress()->UserBreak())
+    if (ctx->Progress() && ctx->Progress()->UserBreak())
     {
       return Standard_False;
     }
@@ -780,7 +780,7 @@ static Standard_Boolean fixshape (const Handle(ShapeProcess_Context)& context)
 
   sfs->Init(ctx->Result());
   sfs->Perform(ctx->Progress());
-  if (!ctx->Progress().IsNull() && ctx->Progress()->UserBreak())
+  if (ctx->Progress() && ctx->Progress()->UserBreak())
   {
     return Standard_False;
   }

@@ -109,7 +109,7 @@ public:
   //! Write the type.
   //! calls WriteGeometry(S).
   //! Write the flags, the subshapes.
-  Standard_EXPORT virtual void Write (Standard_OStream& OS);
+  Standard_EXPORT virtual void Write (Standard_OStream& OS, Message_ProgressScope* thePS = 0L);
   
   //! Reads the content of me from the  stream  <IS>. me
   //! is first cleared.
@@ -123,7 +123,7 @@ public:
   //! Reads the type.
   //! calls ReadGeometry(T,S).
   //! Reads the flag, the subshapes.
-  Standard_EXPORT virtual void Read (Standard_IStream& IS);
+  Standard_EXPORT virtual void Read (Standard_IStream& IS, Message_ProgressScope* thePS = 0L);
   
   //! Dumps   on  <OS>    the  shape  <S>.   Dumps   the
   //! orientation, the index of the TShape and the index
@@ -146,10 +146,10 @@ public:
   
   //! Writes the geometry of  me  on the stream <OS> in a
   //! format that can be read back by Read.
-  Standard_EXPORT virtual void WriteGeometry (Standard_OStream& OS);
+  Standard_EXPORT virtual void WriteGeometry (Standard_OStream& OS, Message_ProgressScope* thePS = 0L);
   
   //! Reads the geometry of me from the  stream  <IS>.
-  Standard_EXPORT virtual void ReadGeometry (Standard_IStream& IS);
+  Standard_EXPORT virtual void ReadGeometry (Standard_IStream& IS, Message_ProgressScope* thePS = 0L);
   
   //! Dumps the geometry of <S> on the stream <OS>.
   Standard_EXPORT virtual void DumpGeometry (const TopoDS_Shape& S, Standard_OStream& OS) const;
@@ -176,23 +176,9 @@ public:
   
   //! Returns number of shapes read from file.
   Standard_EXPORT Standard_Integer NbShapes() const;
-  
-  Standard_EXPORT void SetProgress (Message_ProgressScope* PR);
-  
-  Standard_EXPORT Message_ProgressScope* GetProgress() const;
-
-
-
-
-protected:
-
-
-
-
 
 private:
 
-  
   //! Reads  from <IS>  a shape  and  returns  it in  S.
   //! <NbShapes> is the number of tshapes in the set.
   Standard_EXPORT void Read (TopoDS_Shape& S, Standard_IStream& IS, const Standard_Integer NbShapes) const;
@@ -201,15 +187,7 @@ private:
   TopTools_IndexedMapOfShape myShapes;
   TopTools_LocationSet myLocations;
   Standard_Integer myFormatNb;
-  Message_ProgressScope* myProgress;
-
 
 };
-
-
-
-
-
-
 
 #endif // _TopTools_ShapeSet_HeaderFile

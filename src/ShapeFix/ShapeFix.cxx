@@ -67,7 +67,7 @@
 #include <TopTools_IndexedDataMapOfShapeListOfShape.hxx>
 #include <TopExp.hxx>
 
-#include <Message_ProgressSentry.hxx>
+#include <Message_ProgressScope.hxx>
 #include <Message_Msg.hxx>
 #include <ShapeExtend_BasicMsgRegistrator.hxx>
 
@@ -79,7 +79,7 @@
 Standard_Boolean ShapeFix::SameParameter(const TopoDS_Shape& shape,
                                          const Standard_Boolean enforce,
                                          const Standard_Real preci,
-                                         const Handle(Message_ProgressIndicator)& theProgress,
+                                         Message_ProgressScope* theProgress,
                                          const Handle(ShapeExtend_BasicMsgRegistrator)& theMsgReg)
 {
   // Calculate number of edges
@@ -106,11 +106,11 @@ Standard_Boolean ShapeFix::SameParameter(const TopoDS_Shape& shape,
   Message_Msg doneMsg("FixEdge.SameParameter.MSG0");
 
   // Start progress scope (no need to check if progress exists -- it is safe)
-  Message_ProgressSentry aPSentryForSameParam(theProgress, "Fixing same parameter problem", 0, 2, 1);
+  Message_ProgressScope aPSentryForSameParam(theProgress, "Fixing same parameter problem", 0, 2, 1);
 
   {
     // Start progress scope (no need to check if progress exists -- it is safe)
-    Message_ProgressSentry aPSentry(theProgress, "Fixing edge", 0, aNbEdges, 1);
+    Message_ProgressScope aPSentry(&aPSentryForSameParam, "Fixing edge", 0, aNbEdges, 1);
 
     while ( ex.More() )
     {
@@ -170,12 +170,10 @@ Standard_Boolean ShapeFix::SameParameter(const TopoDS_Shape& shape,
     }
 
   }
-  // Switch to "Update tolerances" step
-  aPSentryForSameParam.Next();
 
   {
     // Start progress scope (no need to check if progress exists -- it is safe)
-    Message_ProgressSentry aPSentry(theProgress, "Update tolerances", 0, aNbFaces, 1);
+    Message_ProgressScope aPSentry(&aPSentryForSameParam, "Update tolerances", 0, aNbFaces, 1);
 
     //:i2 abv 21 Aug 98: ProSTEP TR8 Motor.rle face 710:
     // Update tolerance of edges on planes (no pcurves are stored)

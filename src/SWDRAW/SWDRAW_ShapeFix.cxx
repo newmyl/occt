@@ -484,7 +484,7 @@ static Standard_Integer fixshape (Draw_Interpretor& di, Standard_Integer argc, c
   }
 
   Handle(Draw_ProgressIndicator) aProgress = new Draw_ProgressIndicator (di, 1);
-  sfs->Perform (aProgress);
+  sfs->Perform (aProgress->GetRootScope());
   DBRep::Set (res,sfs->Shape());
 
   if ( mess ) 
