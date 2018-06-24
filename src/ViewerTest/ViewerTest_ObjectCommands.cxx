@@ -6249,6 +6249,170 @@ static int VNormals (Draw_Interpretor& theDI,
 }
 
 //=======================================================================
+//function : 
+//=======================================================================
+
+static bool LoadLidarData (const char* theScanFile, const char* thePosFile, std::vector<gp_Pnt>& theResult)
+{
+  FILE* aScanFile = fopen (theScanFile, "rb");
+  if (! aScanFile)
+  {
+    std::cerr << "Error: cannot open " << theScanFile << std::endl;
+    return false;
+  }
+  FILE* aPosFile = fopen (thePosFile, "rb");
+  if (! aPosFile)
+  {
+    fclose (aScanFile);
+    std::cerr << "Error: cannot open " << thePosFile << std::endl;
+    return false;
+  }
+
+  // prepare array of sin & cos values for conversion from polar coordinates 
+  // to cartesian ones; we take X directed along mid-range laser scan
+  const int aNbPointsPerLine = 1081;
+  double aStepDeg = 0.25;
+  double aStartDeg = -90. - 45.;
+  double aSinVal[aNbPointsPerLine], aCosVal[aNbPointsPerLine];
+  for (int i = 0; i < aNbPointsPerLine; i++)
+  {
+    double anAngle = (aStartDeg + i * aStepDeg) * M_PI / 180.;
+    aSinVal[i] = Sin (anAngle);
+    aCosVal[i] = Cos (anAngle);
+  }
+
+  // read both files synchronously
+  for (int nLine = 1; ; nLine++)
+  {
+    char aScanLine[1024 * 100];
+    bool hasScan = (fgets (aScanLine, sizeof(aScanLine), aScanFile) == aScanLine);
+    char aPosLine[1024];
+    bool hasPos = (fgets (aPosLine, sizeof(aPosLine), aPosFile) == aPosLine);
+    if (! hasPos || ! hasScan)
+    {
+      if (hasPos && strlen (aPosLine) > 0)
+        std::cerr << "Warning: Positions file contains more lines than scan file" << std::endl;
+      if (hasScan && strlen (aScanLine) > 0)
+        std::cerr << "Warning: Scan file contains more lines than positions file" << std::endl;
+      break;
+    }
+
+    // parse position line
+    char *aStr = aPosLine, *aNext = 0;
+    double aPosTime = Strtod (aStr, &aNext);
+    if (aNext == aStr)
+    {
+      std::cerr << "Warning: cannot fetch timestamp for position at line " << nLine << std::endl;
+    }
+
+    gp_Trsf aTrsf;
+    double aX = Strtod(aStr = aNext, &aNext);
+    double aY = Strtod(aStr = aNext, &aNext);
+    double aZ = Strtod(aStr = aNext, &aNext);
+    double aA = Strtod(aStr = aNext, &aNext);
+    double aB = Strtod(aStr = aNext, &aNext);
+    double aC = Strtod(aStr = aNext, &aNext);
+    if (aNext == aStr)
+    {
+      std::cerr << "Error: position line " << nLine << " contains less than 7 values, default positiomn will be used" << std::endl;
+    }
+    else {
+      gp_Quaternion aQ;
+//      aQ.SetEulerAngles(gp_Intrinsic_XYZ, aA, aB, aC);
+//      aQ.SetEulerAngles(gp_Intrinsic_ZYX, aA, aB, aC);
+      aQ.SetEulerAngles(gp_Intrinsic_ZYX, aC, aB, aA);
+      aTrsf.SetRotation(aQ);
+      aTrsf.SetTranslationPart(gp_Vec(aX, aY, aZ));
+    }
+
+    // parse scan line
+    aStr = aScanLine;
+    double aScanTime = Strtod (aStr, &aNext);
+    if (aNext == aStr)
+    {
+      std::cerr << "Warning: cannot fetch timestamp for scan line " << nLine << std::endl;
+    }
+    if (aPosTime && aScanTime && Abs (aPosTime - aScanTime) > 0.001)
+    {
+      std::cerr << "Warning: timestamps at scan and position data are differenr at line " << nLine << std::endl;
+      std::cerr << " - position timestamp: " << aPosTime << std::endl;
+      std::cerr << " - scanline timestamp: " << aScanTime << std::endl;
+    }
+
+    for (int i = 0; i < aNbPointsPerLine; i++)
+    {
+      double aDist = Strtod (aStr = aNext, &aNext);
+      if (aNext == aStr)
+      {
+        std::cerr << "Warning: scan line " << nLine << " contains only " << i << " values" << std::endl;
+        break;
+      }
+
+      // skip nans (no value), distances too small (local object on the drone),
+      // and distances greater than maximal valid range of LIDAR
+      if (std::isnan (aDist) || aDist < 0.5 || aDist > 30.)
+        continue;
+
+      // add a point 
+      gp_Pnt aPoint (aDist * aSinVal[i], aDist * aCosVal[i], 0.);
+      theResult.push_back (aPoint.Transformed (aTrsf));
+    }
+    while (IsSpace (*aNext)) aNext++;
+    if (*aNext)
+      std::cerr << "Warning: extra symbols at the end of the scan line " << nLine << std::endl;
+  }
+
+  fclose(aScanFile);
+  fclose(aPosFile);
+  return true;
+}
+
+std::vector<gp_Pnt> aLIDARPoints;
+
+static int LoadLIDAR (Draw_Interpretor& theDI, Standard_Integer  theArgNum, const char** theArgs)
+{
+  aLIDARPoints.clear();
+
+  if (theArgNum < 3)
+  {
+    std::cerr << "Use: " << theArgs[0] << " lidar_data_file positions_file" << std::endl;
+    return 1;
+  }
+
+  if (LoadLidarData (theArgs[1], theArgs[2], aLIDARPoints))
+  {
+    theDI << (int)aLIDARPoints.size() << " points loaded";
+  }
+
+  return 0;
+}
+
+static int SaveLIDAR (Draw_Interpretor& theDI, Standard_Integer  theArgNum, const char** theArgs)
+{
+  if (theArgNum < 2)
+  {
+    std::cerr << "Use: " << theArgs[0] << " ply_data_file " << std::endl;
+    return 1;
+  }
+
+  ofstream aFile (theArgs[1], std::ios_base::out);
+  aFile << "ply\nformat ascii 1.0\n";
+  aFile << "element vertex " << aLIDARPoints.size() << "\n";
+  aFile << "property float x\n";
+  aFile << "property float y\n";
+  aFile << "property float z\n";
+  aFile << "end_header\n";
+  for (unsigned int i = 0; i < aLIDARPoints.size(); i++)
+  {
+    const gp_Pnt& aPnt = aLIDARPoints[i];
+    aFile << aPnt.X() << " " << aPnt.Y() << " " << aPnt.Z() << "\n";
+  }
+  theDI << "Points saved to " << theArgs[1];
+
+  return 0;
+}
+
+//=======================================================================
 //function : ObjectsCommands
 //purpose  :
 //=======================================================================
@@ -6605,4 +6769,7 @@ void ViewerTest::ObjectCommands(Draw_Interpretor& theCommands)
                    "\n\t\t:        [-useMesh] [-oriented {0}1}=0]"
                    "\n\t\t:  Displays/Hides normals calculated on shape geometry or retrieved from triangulation",
                    __FILE__, VNormals, group);
+
+  theCommands.Add ("loadlidar", "loadlidar scan_file positions_file", __FILE__, LoadLIDAR, group);
+  theCommands.Add ("savelidar", "savelidar ply_file", __FILE__, SaveLIDAR, group);
 }
