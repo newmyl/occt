@@ -50,6 +50,8 @@ public:
   Standard_EXPORT static Handle(Poly_Triangulation) ReadFile (const Standard_CString theFile,
                                                               const Handle(Message_ProgressIndicator)& aProgInd = Handle(Message_ProgressIndicator)());
 
+  Standard_EXPORT static void ReadFile(const Standard_CString theFile, NCollection_Sequence<Handle(Poly_Triangulation)>& theTriangList);
+
   //! Read triangulation from a binary STL file
   //! In case of error, returns Null handle.
   Standard_EXPORT static Handle(Poly_Triangulation) ReadBinary (const OSD_Path& thePath,

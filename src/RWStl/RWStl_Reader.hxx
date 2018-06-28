@@ -39,7 +39,8 @@ public:
   //! Format is recognized automatically by analysis of the file header.
   //! Returns true if success, false on error or user break.
   Standard_EXPORT Standard_Boolean Read (const char* theFile,
-                                         const Handle(Message_ProgressIndicator)& theProgress);
+                                         const Handle(Message_ProgressIndicator)& theProgress,
+                                         bool IsMultiSolid = false);
 
   //! Guess whether the stream is an Ascii STL file, by analysis of the first bytes (~200).
   //! The function attempts to put back the read symbols to the stream which thus must support ungetc().
@@ -73,6 +74,8 @@ public:
   //! Callback function to be implemented in descendant.
   //! Should create new triangle built on specified nodes in the target model.
   virtual void AddTriangle (Standard_Integer theN1, Standard_Integer theN2, Standard_Integer theN3) = 0;
+
+  virtual void AddSolid() = 0;
 
 };
 
