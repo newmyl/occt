@@ -97,9 +97,25 @@ namespace
       return aPoly;
     }
 
+    //! Add new solid
+    virtual void AddSolid() Standard_OVERRIDE
+    {
+      Handle(Poly_Triangulation) aCurrentTri = GetTriangulation();
+      myTriangulationList.Append(aCurrentTri);
+      myNodes.Clear();
+      myTriangles.Clear();
+    }
+
+    NCollection_Sequence<Handle(Poly_Triangulation)> GetTriangulationList()
+    {
+      return myTriangulationList;
+    }
+
+
   private:
     NCollection_Vector<gp_XYZ> myNodes;
     NCollection_Vector<Poly_Triangle> myTriangles;
+    NCollection_Sequence<Handle(Poly_Triangulation)> myTriangulationList;
   };
 
 }
@@ -116,6 +132,17 @@ Handle(Poly_Triangulation) RWStl::ReadFile (const Standard_CString theFile,
   // note that returned bool value is ignored intentionally -- even if something went wrong,
   // but some data have been read, we at least will return these data
   return aReader.GetTriangulation();
+}
+
+//=============================================================================
+//function : ReadFile
+//purpose  :
+//=============================================================================
+void RWStl::ReadFile(const Standard_CString theFile, NCollection_Sequence<Handle(Poly_Triangulation)>& theTriangList)
+{
+  Reader aReader;
+  aReader.Read(theFile, Handle(Message_ProgressIndicator)(), true);
+  theTriangList = aReader.GetTriangulationList();
 }
 
 //=============================================================================
