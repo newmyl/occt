@@ -14,8 +14,14 @@
 // commercial license or contractual agreement.
 
 #include <Message_Report.hxx>
+
+#include <Message_AlertExtended.hxx>
+#include <Message_CompositeAlerts.hxx>
 #include <Message_Msg.hxx>
 #include <Message_Messenger.hxx>
+#include <Message_PerfMeter.hxx>
+#include <Message_ReportCallBack.hxx>
+
 #include <NCollection_Map.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Message_Report,Standard_Transient)
@@ -26,7 +32,9 @@ IMPLEMENT_STANDARD_RTTIEXT(Message_Report,Standard_Transient)
 //=======================================================================
 
 Message_Report::Message_Report ()
+: myIsUsePerfMeter (Standard_False), myLimit (-1)
 {
+  SetActive (Standard_True);
 }
 
 //=======================================================================
@@ -36,6 +44,9 @@ Message_Report::Message_Report ()
 
 void Message_Report::AddAlert (Message_Gravity theGravity, const Handle(Message_Alert)& theAlert)
 {
+  if (!IsActive (theGravity))
+    return;
+
   Standard_ASSERT_RETURN (! theAlert.IsNull(), "Attempt to add null alert",);
   Standard_ASSERT_RETURN (theGravity >= 0 && size_t(theGravity) < sizeof(myAlerts)/sizeof(myAlerts[0]), 
                           "Adding alert with gravity not in valid range",);
@@ -58,6 +69,63 @@ void Message_Report::AddAlert (Message_Gravity theGravity, const Handle(Message_
 
   // if not merged, just add to the list
   aList.Append (theAlert);
+
+  if (!myCallBack.IsNull())
+    myCallBack->Update (theAlert);
+}
+
+//=======================================================================
+//function : AddAlert
+//purpose  :
+//=======================================================================
+
+void Message_Report::AddAlert (const Message_Gravity theGravity, const Handle(Message_Alert)& theAlert,
+                               Message_PerfMeter* thePerfMeter, const Handle(Message_Alert)& theParentAlert)
+{
+  if (!IsActive (theGravity))
+    return;
+
+  Standard_ASSERT_RETURN (!theAlert.IsNull(), "Attempt to add null alert",);
+  Standard_ASSERT_RETURN (theGravity >= 0 && size_t(theGravity) < sizeof(myAlerts)/sizeof(myAlerts[0]), 
+                          "Adding alert with gravity not in valid range",);
+
+  Standard_Mutex::Sentry aSentry (myMutex);
+
+  // iterate by already recorded alerts and try to merge new one with one of those
+  Handle(Message_Alert) aParentAlert = theParentAlert;
+  if (aParentAlert.IsNull() && thePerfMeter)
+    aParentAlert = thePerfMeter->GetAlert();
+  if (aParentAlert.IsNull())
+    aParentAlert = getLastAlert(theGravity);
+
+  Handle(Message_AlertExtended) anExtendedAlert = Handle(Message_AlertExtended)::DownCast(aParentAlert);
+  Handle(Message_CompositeAlerts) aCompositeAlert = !anExtendedAlert.IsNull() ? anExtendedAlert->GetCompositeAlerts (Standard_True)
+    : Handle(Message_CompositeAlerts)();
+  Message_ListOfAlert& aList = !aCompositeAlert.IsNull() ? aCompositeAlert->GetAlerts (theGravity) : myAlerts[theGravity];
+
+  if (theAlert->SupportsMerge() && !aList.IsEmpty())
+  {
+    // merge is performed only for alerts of exactly same type and same name
+    const Handle(Standard_Type)& aType = theAlert->DynamicType();
+    for (Message_ListOfAlert::Iterator anIt(aList); anIt.More(); anIt.Next())
+    {
+      // if merged successfully, just return
+      if (aType == anIt.Value()->DynamicType() && theAlert->Merge (anIt.Value()))
+        return;
+    }
+  }
+
+  // if not merged, just add to the list
+  aList.Append (theAlert);
+  // remove alerts under the report only
+  if (theParentAlert.IsNull() && aParentAlert.IsNull() && myLimit > 0 && aList.Extent() >= myLimit)
+    aList.RemoveFirst();
+
+  if (thePerfMeter)
+    thePerfMeter->AddAlert (theAlert);
+
+  if (!myCallBack.IsNull())
+    myCallBack->Update(theAlert);
 }
 
 //=======================================================================
@@ -71,6 +139,64 @@ const Message_ListOfAlert& Message_Report::GetAlerts (Message_Gravity theGravity
   Standard_ASSERT_RETURN (theGravity >= 0 && size_t(theGravity) < sizeof(myAlerts)/sizeof(myAlerts[0]), 
                           "Requesting alerts for gravity not in valid range", anEmptyList);
   return myAlerts[theGravity];
+}
+
+//=======================================================================
+//function : getLastAlert
+//purpose  :
+//=======================================================================
+
+Handle(Message_Alert) Message_Report::getLastAlert (const Message_Gravity theGravity)
+{
+  if (!IsActive (theGravity))
+    return Handle(Message_Alert)();
+
+  const Message_ListOfAlert& anAlerts = GetAlerts (theGravity);
+  if (anAlerts.IsEmpty())
+    return Handle(Message_Alert)();
+
+  Handle(Message_Alert) aLastAlert = anAlerts.Last();
+
+  Handle(Message_AlertExtended) anExtendedAlert = Handle(Message_AlertExtended)::DownCast (aLastAlert);
+  if (anExtendedAlert.IsNull())
+    return aLastAlert;
+  Handle(Message_CompositeAlerts) aCompositeAlert = anExtendedAlert->GetCompositeAlerts (Standard_True);
+  if (aCompositeAlert.IsNull())
+    return aLastAlert;
+
+  Standard_Boolean aHasPerfMeter = anExtendedAlert->GetPerfMeter() != NULL;
+  if (!aHasPerfMeter) // the alert has finished and is not the last alert anymore
+    return Handle(Message_Alert)();
+
+  while (!aCompositeAlert.IsNull() && !aCompositeAlert->GetAlerts (theGravity).IsEmpty())
+  {
+    Handle(Message_Alert) anAlert = aCompositeAlert->GetAlerts (theGravity).Last();
+
+    Handle(Message_AlertExtended) anExtendedAlert = Handle(Message_AlertExtended)::DownCast (anAlert);
+    if (anExtendedAlert.IsNull())
+    {
+      if (!aHasPerfMeter) // if there is a perf meter, use alert of it
+        aLastAlert = anAlert;
+      break;
+    }
+
+    if (!aHasPerfMeter)
+      aHasPerfMeter = anExtendedAlert->GetPerfMeter() != NULL;
+    else if (!anExtendedAlert->GetPerfMeter())
+      break; // last alert is the previous alert where perf meter is not NULL
+
+    aLastAlert = anExtendedAlert;
+    aCompositeAlert = anExtendedAlert->GetCompositeAlerts();
+  }
+
+  // if alert has perf meter, use as the last alert, an alert of the perf meter
+  anExtendedAlert = Handle(Message_AlertExtended)::DownCast (aLastAlert);
+  if (anExtendedAlert.IsNull())
+    return aLastAlert;
+  if (anExtendedAlert->GetPerfMeter())
+    aLastAlert = anExtendedAlert->GetPerfMeter()->GetAlert();
+
+  return aLastAlert;
 }
 
 //=======================================================================
@@ -247,4 +373,23 @@ void Message_Report::Merge (const Handle(Message_Report)& theOther, Message_Grav
   {
     AddAlert (theGravity, anIt.Value());
   }
+}
+
+//=======================================================================
+//function : SetActive
+//purpose  :
+//=======================================================================
+
+void Message_Report::SetActive (const Standard_Boolean theActive, const Standard_Integer theGravity)
+{
+  if (theGravity < 0)
+  {
+    for (int iGravity = Message_Trace; iGravity <= Message_Fail; ++iGravity)
+      SetActive (theActive, iGravity);
+    return;
+  }
+
+  Standard_ASSERT_RETURN (theGravity >= 0 && size_t (theGravity) < sizeof (myAlerts) / sizeof (myAlerts[0]), 
+                          "Set active report with gravity not in valid range", );
+  myIsActive[theGravity] = theActive;
 }

@@ -4,3 +4,5 @@ XmlDrivers_DocumentRetrievalDriver.cxx
 XmlDrivers_DocumentRetrievalDriver.hxx
 XmlDrivers_DocumentStorageDriver.cxx
 XmlDrivers_DocumentStorageDriver.hxx
+XmlDrivers_MessageReportStorage.cxx
+XmlDrivers_MessageReportStorage.hxx

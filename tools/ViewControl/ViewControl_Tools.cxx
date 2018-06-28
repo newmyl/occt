@@ -14,11 +14,14 @@
 // commercial license or contractual agreement. 
 
 #include <inspector/ViewControl_Tools.hxx>
+#include <inspector/ViewControl_TableModel.hxx>
 
 #include <Standard_WarningsDisable.hxx>
 #include <QAction>
+#include <QHeaderView>
 #include <QObject>
 #include <QPalette>
+#include <QTableView>
 #include <QWidget>
 #include <Standard_WarningsRestore.hxx>
 
@@ -42,4 +45,36 @@ void ViewControl_Tools::SetWhiteBackground (QWidget* theControl)
   QPalette aPalette = theControl->palette();
   aPalette.setColor (QPalette::All, QPalette::Foreground, Qt::white);
   theControl->setPalette (aPalette);
+}
+
+// =======================================================================
+// function : SetDefaultHeaderSections
+// purpose :
+// =======================================================================
+void ViewControl_Tools::SetDefaultHeaderSections(QTableView* theTableView, const Qt::Orientation theOrientation)
+{
+  ViewControl_TableModel * aTableModel = dynamic_cast<ViewControl_TableModel*> (theTableView->model());
+  ViewControl_TableModelValues* aModelValues = aTableModel->GetModelValues();
+  if (!aModelValues)
+    return;
+
+  int aSectionSize;
+  if (aModelValues->GetDefaultSectionSize (Qt::Horizontal, aSectionSize) )
+    theTableView->horizontalHeader()->setDefaultSectionSize (aSectionSize);
+  else {
+    bool isStretchLastSection = false;
+    for (int aColumnId = 0, aNbColumns = aTableModel->columnCount(); aColumnId < aNbColumns; aColumnId++)
+    {
+      TreeModel_HeaderSection aSection = aModelValues->GetHeaderItem (theOrientation, aColumnId);
+
+      int aColumnWidth = aSection.GetWidth();
+      if (aColumnWidth > 0)
+        theTableView->setColumnWidth (aColumnId, aColumnWidth);
+      else if (aColumnId == aNbColumns - 1)
+        isStretchLastSection = true;
+      theTableView->setColumnHidden (aColumnId, aSection.IsHidden());
+    }
+    if (isStretchLastSection != theTableView->horizontalHeader()->stretchLastSection())
+      theTableView->horizontalHeader()->setStretchLastSection (isStretchLastSection);
+  }
 }

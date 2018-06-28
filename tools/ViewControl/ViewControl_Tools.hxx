@@ -25,6 +25,7 @@
 
 class QAction;
 class QObject;
+class QTableView;
 class QWidget;
 
 //! \class ViewControl_Tools
@@ -45,6 +46,11 @@ public:
   //! Change palette of the widget to have white foreground
   //! \param theControl a widget to be modified
   Standard_EXPORT static void SetWhiteBackground (QWidget* theControl);
+
+  //! Fills tree view by default sections parameters obtained in view's table model
+  //! \param theTableView table view instance
+  //! \param theOrientation header orientation
+  Standard_EXPORT static void SetDefaultHeaderSections (QTableView* theTableView, const Qt::Orientation theOrientation);
 
 };
 

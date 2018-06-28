@@ -17,6 +17,8 @@
 #ifndef _Message_HeaderFile
 #define _Message_HeaderFile
 
+#include <Message_Gravity.hxx>
+
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -59,6 +61,27 @@ public:
   //! 3. (0,  0,  4.5   ) returns "4.50s"
   Standard_EXPORT static TCollection_AsciiString FillTime (const Standard_Integer Hour, const Standard_Integer Minute, const Standard_Real Second);
 
+  //! Returns the string name for a given gravity.
+  //! @param Gravity gravity type
+  //! @return string identifier from the list Message_Trace, Message_Info, Message_Warning, Message_Alarm and Message_Fail
+  Standard_EXPORT static Standard_CString GravityToString (const Message_Gravity theGravity);
+
+  //! Returns the gravity type from the given string identifier (using case-insensitive comparison).
+  //! @param theGravityString string identifier
+  //! @return gravity or Message_Trace if string identifier is invalid
+  static Message_Gravity GravityFromString (const Standard_CString theGravityString)
+  {
+    Message_Gravity aGravity = Message_Trace;
+    GravityFromString (theGravityString, aGravity);
+    return aGravity;
+  }
+
+  //! Determines the gravity from the given string identifier (using case-insensitive comparison).
+  //! @param theGravityString string identifier
+  //! @param theGravity detected shape type
+  //! @return TRUE if string identifier is known
+  Standard_EXPORT static Standard_Boolean GravityFromString (const Standard_CString theGravityString,
+                                                             Message_Gravity& theGravity);
 
 
 

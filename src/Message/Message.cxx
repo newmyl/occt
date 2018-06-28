@@ -49,3 +49,43 @@ TCollection_AsciiString Message::FillTime (const Standard_Integer hour,
     Sprintf (t, "%.2fs", second);
   return TCollection_AsciiString (t);
 }
+
+namespace
+{
+  static Standard_CString Message_Table_PrintGravityEnum[5] =
+  {
+    "TRACE", "INFO", "WARNING", "ALARM", "FAIL"
+  };
+}
+
+//=======================================================================
+//function : GravityToString
+//purpose  :
+//=======================================================================
+
+Standard_CString Message::GravityToString (const Message_Gravity theGravity)
+{
+  return Message_Table_PrintGravityEnum[theGravity];
+}
+
+//=======================================================================
+//function : GravityFromString
+//purpose  :
+//=======================================================================
+
+Standard_Boolean Message::GravityFromString (const Standard_CString theGravityString,
+                                             Message_Gravity& theGravity)
+{
+  TCollection_AsciiString aName (theGravityString);
+  aName.UpperCase();
+  for (Standard_Integer aGravityIter = 0; aGravityIter <= Message_Fail; ++aGravityIter)
+  {
+    Standard_CString aGravityName = Message_Table_PrintGravityEnum[aGravityIter];
+    if (aName == aGravityName)
+    {
+      theGravity = Message_Gravity (aGravityIter);
+      return Standard_True;
+    }
+  }
+  return Standard_False;
+}

@@ -1,0 +1,6 @@
+MessageView_Communicator.cxx
+MessageView_Communicator.hxx
+MessageView_VisibilityState.cxx
+MessageView_VisibilityState.hxx
+MessageView_Window.cxx
+MessageView_Window.hxx
