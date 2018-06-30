@@ -4,20 +4,15 @@ project(uwp)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCE_FILES
-  App.xaml.cpp
-  MainPage.xaml.cpp
-  pch.cpp
+  App.cpp
   )
 
 set(HEADER_FILES
-  App.xaml.h
-  MainPage.xaml.h
-  pch.h
+  App.h
+  OcctAspectWindow.h
   )
 
 set(XAML_FILES
-  App.xaml
-  MainPage.xaml
   )
 
 set(ASSET_FILES
@@ -28,7 +23,9 @@ set(ASSET_FILES
     Assets/Square44x44Logo.targetsize-24_altform-unplated.png
     Assets/StoreLogo.png
     Assets/Wide310x150Logo.scale-200.png
-    )
+    Assets/OpenSans-Regular.ttf
+    ${CMAKE_SOURCE_DIR}/src/Shaders/Declarations.glsl
+    ${CMAKE_SOURCE_DIR}/src/Shaders/DeclarationsImpl.glsl)
 
 set(CONTENT_FILES
     Package.appxmanifest
@@ -107,6 +104,8 @@ set (uwp_USED_LIBS        TKernel
                           TKXSBase
                           TKSTL
                           TKVRML
+                          TKOpenGl
+                          libEGL
                           )
 
 target_link_libraries (uwp ${uwp_USED_LIBS})
