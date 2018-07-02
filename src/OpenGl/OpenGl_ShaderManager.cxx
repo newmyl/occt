@@ -1616,7 +1616,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       EOL"  vec3 pdelta = vec3(0.0, 0.0, 0.0);"
       EOL"  vec4 proj_normal = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix * vec4(occNormal, 0.0);"
       EOL""
-      EOL"  float aShift = occSilhouetteThickness;"// / 2.0;"
+      EOL"  float aShift = occSilhouetteThickness;"
       EOL"  if (occOrthoScale > 0.0)"
       EOL"  {"
       EOL"    if (abs(proj_normal[2]) < 0.25)"
@@ -1625,10 +1625,8 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       EOL"      if (occIsSilhouettePass < 0.1)"
       EOL"        k = -1.0;"
       EOL"                 "
-      EOL"      //aShift *= occOrthoScale;"
       EOL"      vec3 pn = normalize(vec3(proj_normal.xy, 0.0));"
-      EOL"      //delta = k * occNormal * aShift;"
-      EOL"      pdelta = k * pn * aShift;"
+      EOL"      pdelta = k * pn * aShift / 2;"
       EOL"    }"
       EOL"  }"
       EOL"  else"
@@ -1645,7 +1643,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       ;
 
     aSrcVertEndMain +=
-      EOL"gl_Position += vec4(2*pdelta.xy, 0.0, 0.0);"
+      EOL"gl_Position += vec4(pdelta.xy, 0.0, 0.0);"
       ;
 
     aSrcFragExtraOut +=
