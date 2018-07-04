@@ -1087,7 +1087,7 @@ Standard_Real BRepGProp_Gauss::Compute(BRepGProp_Face&     theSurface,
 //function : Compute
 //purpose  : 
 //=======================================================================
-void BRepGProp_Gauss::Compute(BRepGProp_Face&   theSurface,
+bool BRepGProp_Gauss::Compute(BRepGProp_Face&   theSurface,
                               BRepGProp_Domain& theDomain,
                               const gp_Pnt&     theLocation,
                               Standard_Real&    theOutMass,
@@ -1116,9 +1116,12 @@ void BRepGProp_Gauss::Compute(BRepGProp_Face&   theSurface,
   math::GaussWeights(NbGaussgp_Pnts, GaussSWV);
 
   BRepGProp_Gauss::Inertia anInertia;
-  while (theDomain.More())
+  for (; theDomain.More(); theDomain.Next())
   {
-    theSurface.Load(theDomain.Value());
+    if (!theSurface.Load(theDomain.Value()))
+    {
+      return false;
+    }
 
     Standard_Integer NbCGaussgp_Pnts =
       Min(theSurface.IntegrationOrder(), math::GaussPointsMax());
@@ -1171,18 +1174,17 @@ void BRepGProp_Gauss::Compute(BRepGProp_Face&   theSurface,
 
     multAndRestoreInertia(lr, aCInertia);
     addAndRestoreInertia (aCInertia, anInertia);
-
-    theDomain.Next();
   }
 
   convert(anInertia, theOutGravityCenter, theOutInertia, theOutMass);
+  return true;
 }
 
 //=======================================================================
 //function : Compute
 //purpose  : 
 //=======================================================================
-void BRepGProp_Gauss::Compute(BRepGProp_Face&         theSurface,
+bool BRepGProp_Gauss::Compute(BRepGProp_Face&         theSurface,
                               BRepGProp_Domain&       theDomain,
                               const gp_Pnt&           theLocation,
                               const Standard_Real     theCoeff[],
@@ -1200,9 +1202,12 @@ void BRepGProp_Gauss::Compute(BRepGProp_Face&         theSurface,
   Standard_Real _u2 = u2;  //OCC104
 
   BRepGProp_Gauss::Inertia anInertia;
-  while (theDomain.More())
+  for (; theDomain.More(); theDomain.Next())
   {
-    theSurface.Load(theDomain.Value());
+    if (!theSurface.Load(theDomain.Value()))
+    {
+      return false;
+    }
 
     const Standard_Integer aVNbCGaussgp_Pnts =
       theSurface.VIntegrationOrder();
@@ -1265,11 +1270,10 @@ void BRepGProp_Gauss::Compute(BRepGProp_Face&         theSurface,
 
     multAndRestoreInertia(lr,        aCInertia);
     addAndRestoreInertia (aCInertia, anInertia);
-
-    theDomain.Next();
   }
 
   convert(anInertia, theCoeff, theIsByPoint, theOutGravityCenter, theOutInertia, theOutMass);
+  return true;
 }
 
 //=======================================================================

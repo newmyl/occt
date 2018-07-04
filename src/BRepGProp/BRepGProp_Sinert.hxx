@@ -58,7 +58,7 @@ public:
   
   Standard_EXPORT void Perform (const BRepGProp_Face& S);
   
-  Standard_EXPORT void Perform (BRepGProp_Face& S, BRepGProp_Domain& D);
+  Standard_EXPORT bool Perform (BRepGProp_Face& S, BRepGProp_Domain& D);
   
   Standard_EXPORT Standard_Real Perform (BRepGProp_Face& S, const Standard_Real Eps);
   

@@ -80,6 +80,7 @@ public: //! @name public API
   //! @param theOutMass[out] - mass (volume) of region;
   //! @param theOutGravityCenter[out] - garvity center of region;
   //! @param theOutInertia[out] - matrix of inertia;
+  //! @return FALSE in case if input geometry is invalid for these calculations
   Standard_EXPORT void Compute(
     const BRepGProp_Face&  theSurface,
     const gp_Pnt&          theLocation,
@@ -99,6 +100,7 @@ public: //! @name public API
   //! @param theOutMass[out] - mass (volume) of region;
   //! @param theOutGravityCenter[out] - garvity center of region;
   //! @param theOutInertia[out] - matrix of inertia;
+  //! @return FALSE in case if input geometry is invalid for these calculations
   Standard_EXPORT void Compute(
     const BRepGProp_Face&  theSurface,
     const gp_Pnt&          theLocation,
@@ -120,7 +122,8 @@ public: //! @name public API
   //! @param theOutMass[out] - mass (volume) of region;
   //! @param theOutGravityCenter[out] - garvity center of region;
   //! @param theOutInertia[out] - matrix of inertia;
-  Standard_EXPORT void Compute(
+  //! @return FALSE in case if input geometry is invalid for these calculations
+  Standard_EXPORT bool Compute(
     BRepGProp_Face&        theSurface,
     BRepGProp_Domain&      theDomain,
     const gp_Pnt&          theLocation,
@@ -141,7 +144,8 @@ public: //! @name public API
   //! @param theOutMass[out] - mass (volume) of region;
   //! @param theOutGravityCenter[out] - garvity center of region;
   //! @param theOutInertia[out] - matrix of inertia;
-  Standard_EXPORT void Compute(
+  //! @return FALSE in case if input geometry is invalid for these calculations
+  Standard_EXPORT bool Compute(
     BRepGProp_Face&        theSurface,
     BRepGProp_Domain&      theDomain,
     const gp_Pnt&          theLocation,

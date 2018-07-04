@@ -183,15 +183,15 @@ public:
   
   Standard_EXPORT Standard_Real Perform (BRepGProp_Face& S, const gp_Pln& Pl, const Standard_Real Eps);
   
-  Standard_EXPORT void Perform (BRepGProp_Face& S, BRepGProp_Domain& D);
+  Standard_EXPORT bool Perform (BRepGProp_Face& S, BRepGProp_Domain& D);
   
   Standard_EXPORT Standard_Real Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const Standard_Real Eps);
   
-  Standard_EXPORT void Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pnt& O);
+  Standard_EXPORT bool Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pnt& O);
   
   Standard_EXPORT Standard_Real Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pnt& O, const Standard_Real Eps);
   
-  Standard_EXPORT void Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pln& Pl);
+  Standard_EXPORT bool Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pln& Pl);
   
   Standard_EXPORT Standard_Real Perform (BRepGProp_Face& S, BRepGProp_Domain& D, const gp_Pln& Pl, const Standard_Real Eps);
   

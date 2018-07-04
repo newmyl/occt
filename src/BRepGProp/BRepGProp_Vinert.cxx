@@ -233,14 +233,14 @@ void BRepGProp_Vinert::Perform(const BRepGProp_Face& theSurface)
 //function : Perform
 //purpose  : 
 //=======================================================================
-void BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
+bool BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
                                BRepGProp_Domain& theDomain)
 {
   const Standard_Real aCoeff[] = {0.0, 0.0, 0.0};
   BRepGProp_Gauss     aGauss(BRepGProp_Gauss::Vinert);
 
   myEpsilon = 1.0;
-  aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_True, dim, g, inertia);
+  return aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_True, dim, g, inertia);
 }
 
 //=======================================================================
@@ -301,7 +301,7 @@ void BRepGProp_Vinert::Perform(const BRepGProp_Face& theSurface,
 //function : Perform
 //purpose  : 
 //=======================================================================
-void BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
+bool BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
                                BRepGProp_Domain& theDomain,
                                const gp_Pnt&     theOrigin)
 {
@@ -314,7 +314,7 @@ void BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
   };
 
   myEpsilon = 1.0;
-  aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_True, dim, g, inertia);
+  return aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_True, dim, g, inertia);
 }
 
 //=======================================================================
@@ -378,7 +378,7 @@ void BRepGProp_Vinert::Perform(const BRepGProp_Face& theSurface,
 //function : Perform
 //purpose  : 
 //=======================================================================
-void BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
+bool BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
                                BRepGProp_Domain& theDomain,
                                const gp_Pln&     thePlane)
 {
@@ -395,7 +395,7 @@ void BRepGProp_Vinert::Perform(BRepGProp_Face&   theSurface,
                         - aCoeff[2] * loc.Z();
 
   myEpsilon = 1.0;
-  aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_False, dim, g, inertia);
+  return aGauss.Compute(theSurface, theDomain, loc, aCoeff, Standard_False, dim, g, inertia);
 }
 
 //=======================================================================

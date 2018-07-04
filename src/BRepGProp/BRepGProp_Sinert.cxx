@@ -100,13 +100,13 @@ void BRepGProp_Sinert::Perform(const BRepGProp_Face& theSurface)
 //function : Perform
 //purpose  : 
 //=======================================================================
-void BRepGProp_Sinert::Perform(BRepGProp_Face&   theSurface,
+bool BRepGProp_Sinert::Perform(BRepGProp_Face&   theSurface,
                                BRepGProp_Domain& theDomain)
 {
   myEpsilon = 1.0;
 
   BRepGProp_Gauss aGauss(BRepGProp_Gauss::Sinert);
-  aGauss.Compute(theSurface, theDomain, loc, dim, g, inertia);
+  return aGauss.Compute(theSurface, theDomain, loc, dim, g, inertia);
 }
 
 //=======================================================================
