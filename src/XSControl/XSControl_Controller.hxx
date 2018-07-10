@@ -161,8 +161,8 @@ class XSControl_Controller : public Standard_Transient
                    (const Handle(Standard_Transient)& obj,
                     const Handle(Transfer_FinderProcess)& FP,
                     const Handle(Interface_InterfaceModel)& model,
-                    Message_ProgressScope* theProgr,
-                    const Standard_Integer modetrans = 0) const;
+                    const Standard_Integer modetrans = 0,
+                    Message_ProgressScope* theProgr = 0L) const;
   
   //! Tells if a shape is valid for a transfer to a model
   //! Asks the ActorWrite (through a ShapeMapper)
@@ -178,8 +178,8 @@ class XSControl_Controller : public Standard_Transient
                    (const TopoDS_Shape& shape,
                     const Handle(Transfer_FinderProcess)& FP,
                     const Handle(Interface_InterfaceModel)& model,
-                    Message_ProgressScope* theProgr,
-                    const Standard_Integer modetrans = 0) const;
+                    const Standard_Integer modetrans = 0,
+                     Message_ProgressScope* theProgr = 0L) const;
   
   //! Records a Session Item, to be added for customisation of the Work Session.
   //! It must have a specific name.

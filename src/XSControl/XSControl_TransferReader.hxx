@@ -266,16 +266,16 @@ class XSControl_TransferReader : public Standard_Transient
   //! Returns count of transferred entities, ok or with fails (0/1)
   //! If <rec> is True (D), the result is recorded by RecordResult
   Standard_EXPORT Standard_Integer TransferOne (const Handle(Standard_Transient)& theEnt,
-                                                Message_ProgressScope* theProgr,
-                                                const Standard_Boolean theRec = Standard_True);
+                                                const Standard_Boolean theRec = Standard_True,
+                                                Message_ProgressScope* theProgr = 0L);
   
   //! Commands the transfer on reading for a list of entities to
   //! data for Imagine, using the selected Actor for Read
   //! Returns count of transferred entities, ok or with fails (0/1)
   //! If <rec> is True (D), the results are recorded by RecordResult
   Standard_EXPORT Standard_Integer TransferList (const Handle(TColStd_HSequenceOfTransient)& theList,
-                                                 Message_ProgressScope* theProgr,
-                                                 const Standard_Boolean theRec = Standard_True);
+                                                 const Standard_Boolean theRec = Standard_True,
+                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Transfers the content of the current Interface Model to
   //! data handled by Imagine, starting from its Roots (determined
@@ -283,7 +283,7 @@ class XSControl_TransferReader : public Standard_Transient
   //! Returns the count of performed root transfers (i.e. 0 if none)
   //! or -1 if no actor is defined
   Standard_EXPORT Standard_Integer TransferRoots (const Interface_Graph &theGraph,
-                                                  Message_ProgressScope* theProgr);
+                                                  Message_ProgressScope* theProgr = 0L);
   
   //! Clears the results attached to an entity
   //! if <ents> equates the starting model, clears all results

@@ -313,12 +313,12 @@ public:
   //! Mapping and Roots are managed : nothing is done if a Result is
   //! already Bound, an exception is raised in case of error.
   Standard_EXPORT Handle(Transfer_Binder) Transferring (const Handle(Standard_Transient)& start,
-                                                        Message_ProgressScope* theProgr);
+                                                        Message_ProgressScope* theProgr = 0L);
   
   //! Same as Transferring but does not return the Binder.
   //! Simply returns True in case of success (for user call)
   Standard_EXPORT Standard_Boolean Transfer (const Handle(Standard_Transient)& start,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Allows controls if exceptions will be handled
   //! Transfer Operations
@@ -423,7 +423,7 @@ private:
   //! But keep in mind that a Null Binder can allways be returned
   //! if a Starting Entity has not been recognized at all.
   Standard_EXPORT Handle(Transfer_Binder) TransferProduct (const Handle(Standard_Transient)& start,
-                                                           Message_ProgressScope* theProgr);
+                                                           Message_ProgressScope* theProgr = 0L);
 
   Standard_Boolean theerrh;
   Standard_Integer thetrace;

@@ -39,7 +39,7 @@ public:
   //! changes in the context
   Standard_EXPORT virtual Standard_Boolean Perform
                    (const Handle(ShapeProcess_Context)& context,
-                    Message_ProgressScope* theProgr) = 0;
+                    Message_ProgressScope* theProgr = 0L) = 0;
 
 
 

@@ -61,8 +61,8 @@ public:
                    (const TopoDS_Shape& shape,
                     const Handle(Transfer_FinderProcess)& FP,
                     const Handle(Interface_InterfaceModel)& model,
-                    Message_ProgressScope* theProgr,
-                    const Standard_Integer modetrans = 0) const Standard_OVERRIDE;
+                    const Standard_Integer modetrans = 0,
+                    Message_ProgressScope* theProgr = 0L) const Standard_OVERRIDE;
   
   //! Standard Initialisation. It creates a Controller for STEP
   //! and records it to various names, available to select it later

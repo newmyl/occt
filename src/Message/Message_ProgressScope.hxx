@@ -145,17 +145,43 @@ public: //! @name Preparation methods
                                         Standard_Real theMin = 0, Standard_Real theMax = 100,
                                         Standard_Real theStep = 1, Standard_Boolean isInfinite = false);
 
-#ifndef OCCT_NO_RVALUE_REFERENCE
-  //! Move constructor
-  Standard_EXPORT Message_ProgressScope(Message_ProgressScope&& theOther);
+  //! Copy constructor. It is saved for compatibility with old compilers where
+  //! move semantic is not supported. Then it makes possible to insert an empty scope 
+  //! to a container and then move the real scope to the instance in the container.
+  Standard_EXPORT Message_ProgressScope(const Message_ProgressScope& theOther);
 
-  //! Move assignment
-  Standard_EXPORT Message_ProgressScope& operator=(Message_ProgressScope&& theOther);
+  //! Copy assignment. Avoid using this method if theOther is connected
+  //! to a real indicator. Use Move() instead.
+  Standard_EXPORT Message_ProgressScope& operator=(const Message_ProgressScope& theOther);
+
+#ifndef OCCT_NO_RVALUE_REFERENCE
+
+  //! Move constructor. It makes possible to move a prepared scope to a container.
+  Message_ProgressScope(Message_ProgressScope&& theOther)
+  {
+    Move(theOther);
+  }
+
+  //! Move assignment. It makes possible to move a prepared scope to a container.
+  Message_ProgressScope& operator=(Message_ProgressScope&& theOther)
+  {
+    return Move(theOther);
+  }
 #endif
+
+  //! Move assignment.
+  //! This scope will take responsibility of updating progress indicator from theOther.
+  //! The moved object will forget pointer to the parent and the indicator.
+  //! This is useful when pushing the progress scope into a container.
+  //! If you just make a copy then the indicator will get increments 
+  //! from the destructors twice. Therefore it is needed to Move temporary object to
+  //! the container.
+  Standard_EXPORT Message_ProgressScope& Move(Message_ProgressScope& theOther);
 
   //! Set parameters for the scale of this scope.
   //! Note that this function must be called before advancing the progress in this scope.
-  Standard_EXPORT void SetScale(double theMin, double theMax, double theStep, bool isInfinite = true);
+  Standard_EXPORT void SetScale(Standard_Real theMin, Standard_Real theMax,
+                                Standard_Real theStep, Standard_Boolean isInfinite = false);
 
   //! Sets the name of the scope.
   Standard_EXPORT void SetName(Standard_CString theName);
@@ -269,14 +295,6 @@ protected: //! @name Internal methods
 
   //! Convert value from this scale to global one 
   Standard_Real localToGlobal(const Standard_Real theVal, const Standard_Boolean isInf) const;
-
-private:
-
-  //! Copy constructor
-  Message_ProgressScope(const Message_ProgressScope& theOther);
-
-  //! Assignment
-  Message_ProgressScope& operator=(const Message_ProgressScope& theOther);
 
 private:
 

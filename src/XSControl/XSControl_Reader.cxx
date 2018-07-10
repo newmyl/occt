@@ -211,8 +211,8 @@ Handle(Standard_Transient)  XSControl_Reader::RootForTransfer
 //purpose  : 
 //=======================================================================
 
-Standard_Boolean  XSControl_Reader::TransferOneRoot(Message_ProgressScope* theProgr,
-                                                    const Standard_Integer num)
+Standard_Boolean  XSControl_Reader::TransferOneRoot(const Standard_Integer num,
+                                                    Message_ProgressScope* theProgr)
 {
   return TransferEntity (RootForTransfer (num), theProgr);
 }
@@ -241,7 +241,7 @@ Standard_Boolean  XSControl_Reader::TransferEntity
   if (start.IsNull()) return Standard_False;
   const Handle(XSControl_TransferReader) &TR = thesession->TransferReader();
   TR->BeginTransfer();
-  if (TR->TransferOne (start, theProgr) == 0) return Standard_False;
+  if (TR->TransferOne (start, Standard_True, theProgr) == 0) return Standard_False;
   TopoDS_Shape sh = TR->ShapeResult(start);
   //ShapeExtend_Explorer STU;
   //SMH May 00: allow empty shapes (STEP CAX-IF, external references)
@@ -270,7 +270,7 @@ Standard_Integer  XSControl_Reader::TransferList
   Message_ProgressScope PS(theProgr, NULL, 0, nb, 1);
   for (i = 1; i <= nb && PS.More(); i++, PS.Next()) {
     Handle(Standard_Transient) start = list->Value(i);
-    if (TR->TransferOne (start, &PS) == 0) continue;
+    if (TR->TransferOne (start, Standard_True, &PS) == 0) continue;
     TopoDS_Shape sh = TR->ShapeResult(start);
     if (STU.ShapeType(sh,Standard_True) == TopAbs_SHAPE) continue;  // nulle-vide
     theshapes.Append(sh);
@@ -298,7 +298,7 @@ Standard_Integer  XSControl_Reader::TransferRoots (Message_ProgressScope* thePro
   Message_ProgressScope PS (theProgr, "Root", 0, nb, 1 );
   for (i = 1; i <= nb && PS.More(); i ++,PS.Next()) {
     Handle(Standard_Transient) start = theroots.Value(i);
-    if (TR->TransferOne (start, &PS) == 0) continue;
+    if (TR->TransferOne (start, Standard_True, &PS) == 0) continue;
     TopoDS_Shape sh = TR->ShapeResult(start);
     if (STU.ShapeType(sh,Standard_True) == TopAbs_SHAPE) continue;  // nulle-vide
     theshapes.Append(sh);

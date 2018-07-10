@@ -87,7 +87,7 @@ public:
   //! Translates a Shape to IGES Entities and adds them to the model
   //! Returns True if done, False if Shape not suitable for IGES or null
   Standard_EXPORT Standard_Boolean AddShape (const TopoDS_Shape& sh,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Translates a Geometry (Surface or Curve) to IGES Entities and
   //! adds them to the model

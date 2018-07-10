@@ -39,7 +39,7 @@ static Standard_Integer ApplySequence(Draw_Interpretor& di, Standard_Integer arg
   if (Shape.IsNull()) { di<<"Shape unknown : "<<arg2<<"\n"; return 1 /* Error */; }
   
   ShapeProcessAPI_ApplySequence seq (arg3, arg4);
-  TopoDS_Shape result = seq.PrepareShape(Shape, Standard_True, TopAbs_FACE, NULL);//fill history map for faces and above
+  TopoDS_Shape result = seq.PrepareShape(Shape, Standard_True, TopAbs_FACE);//fill history map for faces and above
   seq.PrintPreparationResult();
   DBRep::Set (arg1,result);
   return 0;

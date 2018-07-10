@@ -123,18 +123,18 @@ public:
   //! The result will be a list of Shapes.
   //! This method calls user redefinable PrepareTransfer
   //! Remark : former result is cleared
-  Standard_EXPORT virtual void TransferRoots(Message_ProgressScope* theProgr);
+  Standard_EXPORT virtual void TransferRoots(Message_ProgressScope* theProgr = 0L);
   
   //! Transfers an Entity given its rank in the Model (Root or not)
   //! Returns True if it is recognized as Geom-Topol.
   //! (But it can have failed : see IsDone)
   Standard_EXPORT virtual Standard_Boolean Transfer (const Standard_Integer num,
-                                                     Message_ProgressScope* theProgr);
+                                                     Message_ProgressScope* theProgr = 0L);
   
   //! Transfers a list of Entities (only the ones also in the Model)
   //! Remark : former result is cleared
   Standard_EXPORT virtual void TransferList (const Handle(TColStd_HSequenceOfTransient)& list,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Returns True if the LAST Transfer/TransferRoots was a success
   Standard_EXPORT Standard_Boolean IsDone() const;

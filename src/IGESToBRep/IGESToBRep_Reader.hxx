@@ -79,14 +79,14 @@ public:
   //! IGES file. Standard_True is the default value and means that only
   //! visible root entities are translated. Standard_False
   //! translates all of the roots (visible and invisible).
-  Standard_EXPORT void TransferRoots (Message_ProgressScope* theProgr,
-                                      const Standard_Boolean onlyvisible = Standard_True);
+  Standard_EXPORT void TransferRoots (const Standard_Boolean onlyvisible = Standard_True,
+                                      Message_ProgressScope* theProgr = 0L);
   
   //! Transfers an Entity given its rank in the Model (Root or not)
   //! Returns True if it is recognized as Geom-Topol.
   //! (But it can have failed : see IsDone)
   Standard_EXPORT Standard_Boolean Transfer (const Standard_Integer num,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Returns True if the LAST Transfer/TransferRoots was a success
   Standard_EXPORT Standard_Boolean IsDone() const;

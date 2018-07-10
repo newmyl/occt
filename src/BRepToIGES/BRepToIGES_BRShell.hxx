@@ -50,17 +50,17 @@ public:
   //! This entity must be a Face or a Shell.
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shape& start,
-                                                             Message_ProgressScope* theProgr);
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert an Shell entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferShell (const TopoDS_Shell& start,
-                                                             Message_ProgressScope* theProgr);
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Face entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferFace (const TopoDS_Face& start,
-                                                            Message_ProgressScope* theProgr);
+                                                            Message_ProgressScope* theProgr = 0L);
 
 
 

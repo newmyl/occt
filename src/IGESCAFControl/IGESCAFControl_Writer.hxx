@@ -70,27 +70,27 @@ public:
   //! Transfers a document to a IGES model
   //! Returns True if translation is OK
   Standard_EXPORT Standard_Boolean Transfer (const Handle(TDocStd_Document)& doc,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
 
   //! Transfers labels to a IGES model
   //! Returns True if translation is OK
   Standard_EXPORT Standard_Boolean Transfer (const TDF_LabelSequence& labels,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
 
   //! Transfers label to a IGES model
   //! Returns True if translation is OK
   Standard_EXPORT Standard_Boolean Transfer (const TDF_Label& label,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
 
   Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc,
                                             const TCollection_AsciiString& filename,
-                                            Message_ProgressScope* theProgr);
+                                            Message_ProgressScope* theProgr = 0L);
   
   //! Transfers a document and writes it to a IGES file
   //! Returns True if translation is OK
   Standard_EXPORT Standard_Boolean Perform (const Handle(TDocStd_Document)& doc,
                                             const Standard_CString filename,
-                                            Message_ProgressScope* theProgr);
+                                            Message_ProgressScope* theProgr = 0L);
   
   //! Set ColorMode for indicate write Colors or not.
   Standard_EXPORT void SetColorMode (const Standard_Boolean colormode);

@@ -105,7 +105,7 @@ IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteTransient
     sout << "******        Transferring Transient, CDL Type = ";
     sout<<obj->DynamicType()->Name()<<"   ******"<<endl;
     status = myController->TransferWriteTransient
-      (obj,myTransferWriter,model, theProgr, myTransferMode);
+      (obj,myTransferWriter,model, myTransferMode, theProgr);
   }
   catch(Standard_Failure const& anException) {
     sout<<"****  ****  TransferWriteShape, EXCEPTION : ";
@@ -154,7 +154,7 @@ IFSelect_ReturnStatus XSControl_TransferWriter::TransferWriteShape
     sout << "******        Transferring Shape, ShapeType = " << shape.ShapeType();
     sout<<"                      ******"<<endl;
     status = myController->TransferWriteShape
-      (shape,myTransferWriter,model, theProgr, myTransferMode);
+      (shape,myTransferWriter,model, myTransferMode, theProgr);
   }
   catch(Standard_Failure const& anException) {
     sout<<"****  ****  TransferWriteShape, EXCEPTION : "; 

@@ -50,22 +50,22 @@ public:
   //! this entity must be a Solid or a CompSolid or a Compound.
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferSolid (const TopoDS_Shape& start,
-                                                             Message_ProgressScope* theProgr);
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Solid entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferSolid (const TopoDS_Solid& start,
-                                                             Message_ProgressScope* theProgr);
+                                                             Message_ProgressScope* theProgr = 0L);
   
   //! Transfert an CompSolid entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferCompSolid (const TopoDS_CompSolid& start,
-                                                                 Message_ProgressScope* theProgr);
+                                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Compound entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferCompound (const TopoDS_Compound& start,
-                                                                Message_ProgressScope* theProgr);
+                                                                Message_ProgressScope* theProgr = 0L);
 
 
 

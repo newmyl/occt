@@ -297,7 +297,7 @@ Handle(Transfer_Binder)  STEPControl_ActorRead::Transfer
     }
   }
   // [END] Get version of preprocessor (to detect I-Deas case) (ssv; 23.11.2010)
-  return TransferShape (start,TP, theProgr);
+  return TransferShape (start,TP, Standard_True, theProgr);
 }
 
 
@@ -629,7 +629,7 @@ static void getSDR(const Handle(StepRepr_ProductDefinitionShape)& PDS,
         Handle(StepRepr_ShapeRepresentationRelationship) SRR =
           Handle(StepRepr_ShapeRepresentationRelationship)::DownCast(anitem);
         Standard_Integer nbrep = ( rep == SRR->Rep1() ? 2 : 1 );
-        binder = TransferEntity(SRR, TP, &aPS1, nbrep);
+        binder = TransferEntity(SRR, TP, nbrep, &aPS1);
         if ( ! binder.IsNull() ) {
           theResult = TransferBRep::ShapeResult (binder);
           Result1 = theResult;
@@ -735,7 +735,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
     if ( theResult.IsNull() && !SRR.IsNull() ) {
       binder = TP->Find(SRR);
       if ( binder.IsNull() ) {
-        binder = TransferEntity(SRR, TP, &aPS);
+        binder = TransferEntity(SRR, TP, 0, &aPS);
         theResult = TransferBRep::ShapeResult (binder);
         if (!theResult.IsNull())
           shbinder = new TransferBRep_ShapeBinder (theResult);
@@ -824,7 +824,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
     Handle(StepRepr_RepresentationItem) anitem = sr->ItemsValue(i);
     Handle(Transfer_Binder) binder;
     if (!TP->IsBound(anitem)) {
-      binder = TransferShape(anitem, TP, &aPS, isManifold);
+      binder = TransferShape(anitem, TP, isManifold, &aPS);
     }
     else {
       isBound = Standard_True;
@@ -987,8 +987,8 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
 Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
                    (const Handle(StepRepr_ShapeRepresentationRelationship)& und,
                     const Handle(Transfer_TransientProcess)& TP,
-                    Message_ProgressScope* theProgr,
-                    const Standard_Integer nbrep)
+                    const Standard_Integer nbrep,
+                    Message_ProgressScope* theProgr)
 {
   //  REPRESENTATION_RELATIONSHIP et la famille
   Handle(TransferBRep_ShapeBinder) shbinder;
@@ -1244,7 +1244,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
       found = Standard_True;
     } 
     else if (start->IsKind(STANDARD_TYPE(StepShape_GeometricSet))) {
-      myShapeBuilder.Init(GetCasted(StepShape_GeometricSet, start), TP, &aPS, this, isManifold);
+      myShapeBuilder.Init(GetCasted(StepShape_GeometricSet, start), TP, this, isManifold, &aPS);
       found = Standard_True;
     }
     else if (start->IsKind(STANDARD_TYPE(StepShape_EdgeBasedWireframeModel))) {
@@ -1438,8 +1438,8 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
 
 Handle(Transfer_Binder) STEPControl_ActorRead::TransferShape(const Handle(Standard_Transient)& start,
                                                              const Handle(Transfer_TransientProcess)& TP,
-                                                             Message_ProgressScope* theProgr,
-                                                             const Standard_Boolean isManifold)
+                                                             const Standard_Boolean isManifold,
+                                                             Message_ProgressScope* theProgr)
 {
   if (start.IsNull()) return NullResult();
   XSAlgo::AlgoContainer()->PrepareForTransfer();
@@ -1498,7 +1498,7 @@ Handle(Transfer_Binder) STEPControl_ActorRead::TransferShape(const Handle(Standa
     //  REPRESENTATION_RELATIONSHIP et la famille
 
     DeclareAndCast(StepRepr_ShapeRepresentationRelationship,und,start);
-    shbinder =  TransferEntity(und,TP, theProgr);
+    shbinder =  TransferEntity(und,TP, 0, theProgr);
   }
 
   else if (start->IsKind (STANDARD_TYPE(StepGeom_GeometricRepresentationItem)) ) {

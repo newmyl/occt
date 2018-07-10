@@ -475,7 +475,7 @@ Handle(Transfer_Binder) STEPControl_ActorWrite::Transfer (const Handle(Transfer_
   Handle(StepShape_ShapeDefinitionRepresentation) sdr = SDRTool.SDRValue();
   // transfer shape
 
-  Handle(Transfer_Binder) resbind = TransferShape (mapper,sdr,FP, theProgr);
+  Handle(Transfer_Binder) resbind = TransferShape (mapper,sdr,FP, 0L, Standard_True, theProgr);
 
 //  Handle(StepShape_ShapeRepresentation) resultat;
 //  FP->GetTypedTransient (resbind,STANDARD_TYPE(StepShape_ShapeRepresentation),resultat);
@@ -613,9 +613,9 @@ Handle(Transfer_Binder) STEPControl_ActorWrite::TransferShape
                    (const Handle(Transfer_Finder)& start,
                     const Handle(StepShape_ShapeDefinitionRepresentation)& SDR0,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr,
                     const Handle(TopTools_HSequenceOfShape)& shapeGroup,
-                    const Standard_Boolean isManifold)
+                    const Standard_Boolean isManifold,
+                    Message_ProgressScope* theProgr)
 {
   STEPControl_StepModelType mymode = Mode();
   Handle(TransferBRep_ShapeMapper) mapper = Handle(TransferBRep_ShapeMapper)::DownCast(start);
@@ -754,7 +754,7 @@ Handle(Transfer_Binder) STEPControl_ActorWrite::TransferShape
       Message_ProgressScope aPS(&aPSRoot, NULL, 0, aNMItemsNb);
       for (Standard_Integer i = 1; i <= aNMItemsNb && aPS.More(); i++, aPS.Next()) {
         Handle(TransferBRep_ShapeMapper) aMapper = TransferBRep::ShapeMapper( FP, RepItemSeq->Value(i) );
-        TransferShape(aMapper, sdr, FP, &aPS, NonManifoldGroup, Standard_False);
+        TransferShape(aMapper, sdr, FP, NonManifoldGroup, Standard_False, &aPS);
       }
 
       // Nothing else needed for pure non-manifold topology, return
@@ -1373,7 +1373,7 @@ Handle(Transfer_Binder) STEPControl_ActorWrite::TransferCompound
     Handle(TransferBRep_ShapeMapper) subs = TransferBRep::ShapeMapper (FP,RepItemSeq->Value(i));
     Handle(StepGeom_Axis2Placement3d) AX1;
     
-    Handle(Transfer_Binder) bnd = TransferSubShape(subs, SDR0, AX1, FP, &aPS, NonManifoldGroup, isManifold);
+    Handle(Transfer_Binder) bnd = TransferSubShape(subs, SDR0, AX1, FP, NonManifoldGroup, isManifold, &aPS);
 
     if (!AX1.IsNull()) ItemSeq->Append (AX1);
     // copy binders so as to have all roots in upper binder, but do not conflict
@@ -1422,9 +1422,9 @@ Handle(Transfer_Binder)  STEPControl_ActorWrite::TransferSubShape
                     const Handle(StepShape_ShapeDefinitionRepresentation)& SDR0,
                     Handle(StepGeom_Axis2Placement3d)& AX1,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr,
                     const Handle(TopTools_HSequenceOfShape)& shapeGroup,
-                    const Standard_Boolean isManifold)
+                    const Standard_Boolean isManifold,
+                    Message_ProgressScope* theProgr)
 {
   Handle(TransferBRep_ShapeMapper) mapper = Handle(TransferBRep_ShapeMapper)::DownCast(start);
   if (mapper.IsNull()) return NullResult();
@@ -1465,7 +1465,7 @@ Handle(Transfer_Binder)  STEPControl_ActorWrite::TransferSubShape
   //:abv 20.05.02: see comment in TransferShape(): added "! iasdr ||"
   Handle(Transfer_Binder) resprod = TransientResult(sdr);  //KA - OCC7141(skl 10.11.2004)
   if ( ! iasdr || resbind.IsNull() ) {
-    resbind = TransferShape(mapper, sdr, FP, theProgr, shapeGroup, isManifold);
+    resbind = TransferShape(mapper, sdr, FP, shapeGroup, isManifold, theProgr);
     Handle(Transfer_Binder) oldbind = FP->Find ( mapper );
     if ( ! oldbind.IsNull() && !resbind.IsNull()) resbind->AddResult ( oldbind );
     FP->Bind (mapper,resbind);

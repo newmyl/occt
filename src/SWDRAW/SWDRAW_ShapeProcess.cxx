@@ -41,7 +41,7 @@ static Standard_Integer ApplySequence(Draw_Interpretor& di,
   if (Shape.IsNull()) { di<<"Shape unknown : "<<arg2<<"\n"; return 1 /* Error */; }
 
   Handle(ShapeProcess_ShapeContext) context = new ShapeProcess_ShapeContext (Shape, arg3);
-  ShapeProcess::Perform ( context, arg4, NULL );
+  ShapeProcess::Perform ( context, arg4 );
   context->PrintStatistics();
   
   TopoDS_Shape result = context->Result();

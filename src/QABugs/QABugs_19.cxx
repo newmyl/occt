@@ -1723,7 +1723,7 @@ static Standard_Integer OCC23951 (Draw_Interpretor& di, Standard_Integer argc, c
 
   STEPControl_StepModelType mode = STEPControl_AsIs;
   STEPCAFControl_Writer writer;
-  if ( ! writer.Transfer (aDoc, NULL, mode ) )
+  if ( ! writer.Transfer (aDoc, mode ) )
   {
     di << "The document cannot be translated or gives no result"  <<  "\n";
     return 1;
@@ -1766,7 +1766,7 @@ static Standard_Integer OCC23950 (Draw_Interpretor& di, Standard_Integer argc, c
 
   STEPControl_StepModelType mode = STEPControl_AsIs;
   STEPCAFControl_Writer writer;
-  if (! writer.Transfer (aDoc, NULL, mode))
+  if (! writer.Transfer (aDoc, mode))
   {
     di << "The document cannot be translated or gives no result\n";
     return 1;

@@ -70,7 +70,7 @@ public:
   //! transformed as an instance of this Shape
   Standard_EXPORT TopoDS_Shape TranslateMappedItem (const Handle(StepRepr_MappedItem)& mapit,
                                                     const Handle(Transfer_TransientProcess)& TP,
-                                                    Message_ProgressScope* theProgr);
+                                                    Message_ProgressScope* theProgr = 0L);
 
 
 

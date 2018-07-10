@@ -51,6 +51,7 @@ class Message_ProgressIndicator : public Standard_Transient
 public:
 
   //! Returns the root scope that allows starting using this indicator.
+  //! This scope has no name and is initialized using SetScale(0,1,1,false).
   Message_ProgressScope* GetRootScope() const
   {
     return myRootScope;

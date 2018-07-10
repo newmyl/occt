@@ -780,9 +780,9 @@ Standard_Boolean XSControl_TransferReader::Recognize
 //=======================================================================
 
 Standard_Integer XSControl_TransferReader::TransferOne
-  (const Handle(Standard_Transient)& ent, 
-   Message_ProgressScope* theProgr,
-   const Standard_Boolean rec)
+  (const Handle(Standard_Transient)& ent,
+   const Standard_Boolean rec,
+   Message_ProgressScope* theProgr)
 {
   if (myActor.IsNull() || myModel.IsNull()) return 0;
 
@@ -839,8 +839,8 @@ Standard_Integer XSControl_TransferReader::TransferOne
 
 Standard_Integer XSControl_TransferReader::TransferList
   (const Handle(TColStd_HSequenceOfTransient)& list,
-   Message_ProgressScope* theProgr,
-   const Standard_Boolean rec)
+   const Standard_Boolean rec,
+   Message_ProgressScope* theProgr)
 {
   if (myActor.IsNull() || myModel.IsNull()) return 0;
 

@@ -147,13 +147,13 @@ public:
   //! or Surface Entity.  If  the transfer has  failed,  this
   //! member return a NullEntity.
   Standard_EXPORT TopoDS_Shape TransferCurveAndSurface (const Handle(IGESData_IGESEntity)& start,
-                                                        Message_ProgressScope* theProgr);
+                                                        Message_ProgressScope* theProgr = 0L);
   
   //! Returns the result of the transfert the geometry of
   //! any IGESEntity.  If  the transfer has  failed,  this
   //! member return a NullEntity.
   Standard_EXPORT TopoDS_Shape TransferGeometry (const Handle(IGESData_IGESEntity)& start,
-                                                 Message_ProgressScope* theProgr);
+                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Records a new Fail message
     void SendFail (const Handle(IGESData_IGESEntity)& start, const Message_Msg& amsg);

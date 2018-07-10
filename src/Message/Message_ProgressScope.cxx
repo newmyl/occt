@@ -51,13 +51,12 @@ Message_ProgressScope::Message_ProgressScope(Message_ProgressScope* theParent,
   SetScale(theMin, theMax, theStep, isInfinite);
 }
 
-#ifndef OCCT_NO_RVALUE_REFERENCE
 //=======================================================================
 //function : Message_ProgressScope
 //purpose  : 
 //=======================================================================
 
-Message_ProgressScope::Message_ProgressScope(Message_ProgressScope&& theOther)
+Message_ProgressScope::Message_ProgressScope(const Message_ProgressScope& theOther)
   : myProgress(theOther.myProgress), myParent(theOther.myParent),
     myStart(theOther.myStart), myEnd(theOther.myEnd),
     myMax(theOther.myMax), myStep(theOther.myStep),
@@ -65,19 +64,14 @@ Message_ProgressScope::Message_ProgressScope(Message_ProgressScope&& theOther)
     myName(theOther.myName), myNbChild(theOther.myNbChild),
     myIsInfinite(theOther.myIsInfinite)
 {
-  if (myParent)
-  {
-    theOther.myParent = 0L;
-    theOther.myProgress = 0L;
-  }
 }
 
 //=======================================================================
-//function : operator=
+//function : Message_ProgressScope
 //purpose  : 
 //=======================================================================
 
-Message_ProgressScope& Message_ProgressScope::operator=(Message_ProgressScope&& theOther)
+Message_ProgressScope& Message_ProgressScope::operator=(const Message_ProgressScope& theOther)
 {
   myProgress = theOther.myProgress;
   myParent = theOther.myParent;
@@ -90,6 +84,19 @@ Message_ProgressScope& Message_ProgressScope::operator=(Message_ProgressScope&& 
   myName = theOther.myName;
   myNbChild = theOther.myNbChild;
   myIsInfinite = theOther.myIsInfinite;
+  return *this;
+}
+
+//=======================================================================
+//function : SetScale
+//purpose  : 
+//=======================================================================
+
+Message_ProgressScope& Message_ProgressScope::Move(Message_ProgressScope& theOther)
+{
+  if (&theOther == this)
+    return *this;
+  *this = theOther;
   if (myParent)
   {
     theOther.myParent = 0L;
@@ -97,14 +104,14 @@ Message_ProgressScope& Message_ProgressScope::operator=(Message_ProgressScope&& 
   }
   return *this;
 }
-#endif
 
 //=======================================================================
 //function : SetScale
 //purpose  : 
 //=======================================================================
 
-void Message_ProgressScope::SetScale(double theMin, double theMax, double theStep, bool isInfinite)
+void Message_ProgressScope::SetScale(Standard_Real theMin, Standard_Real theMax,
+                                     Standard_Real theStep, Standard_Boolean isInfinite)
 {
   myMax = theMax - theMin;
   myStep = theStep;
@@ -180,8 +187,8 @@ void Message_ProgressScope::Next(Standard_Real theStep)
 void Message_ProgressScope::addScope(Message_ProgressScope* theChild)
 {
   // reserve space on the scale for the new child
-  Standard_Real aPrevPos = myPosBySS;
-  myPosBySS = Min(myPosBySS + myStep, myMax);
+  Standard_Real aPrevPos = Max(myPosition, myPosBySS);
+  myPosBySS = Min(aPrevPos + myStep, myMax);
 
   // compute child range on total progress scale
   theChild->myStart = localToGlobal(aPrevPos, Standard_False);

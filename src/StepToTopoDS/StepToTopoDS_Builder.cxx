@@ -656,9 +656,9 @@ static TopoDS_Face TranslateBoundedSurf (const Handle(StepGeom_Surface) &surf,
 void StepToTopoDS_Builder::Init
 (const Handle(StepShape_GeometricSet)& GCS,
  const Handle(Transfer_TransientProcess)& TP,
- Message_ProgressScope* theProgr,
  const Handle(Transfer_ActorOfTransientProcess)& RA,
- const Standard_Boolean isManifold)
+ const Standard_Boolean isManifold,
+ Message_ProgressScope* theProgr)
 {
   // Start Mapping
   TopoDS_Compound S;
@@ -783,7 +783,7 @@ void StepToTopoDS_Builder::Init
         Handle(STEPControl_ActorRead) anActor = Handle(STEPControl_ActorRead)::DownCast(RA);
         Handle(Transfer_Binder) binder;
         if( !anActor.IsNull())
-          binder = anActor->TransferShape(GRI, TP, &aPS, isManifold);
+          binder = anActor->TransferShape(GRI, TP, isManifold, &aPS);
         if (!binder.IsNull())
         {
           res = TransferBRep::ShapeResult(binder);

@@ -69,8 +69,8 @@ public:
   
   //! Transfers a Shape according to the mode
   Standard_EXPORT IFSelect_ReturnStatus TransferShape (const TopoDS_Shape& sh,
-                                                       Message_ProgressScope* theProgr,
-                                                       const Standard_Integer mode = 0);
+                                                       const Standard_Integer mode = 0,
+                                                       Message_ProgressScope* theProgr = 0L);
   
   //! Writes the produced model
   Standard_EXPORT IFSelect_ReturnStatus WriteFile (const Standard_CString filename);

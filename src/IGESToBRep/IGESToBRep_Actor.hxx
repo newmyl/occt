@@ -58,9 +58,10 @@ public:
   
   Standard_EXPORT virtual Standard_Boolean Recognize (const Handle(Standard_Transient)& start) Standard_OVERRIDE;
   
-  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer (const Handle(Standard_Transient)& start,
-                                                            const Handle(Transfer_TransientProcess)& TP,
-                                                            Message_ProgressScope* theProgr) Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
+                   (const Handle(Standard_Transient)& start,
+                    const Handle(Transfer_TransientProcess)& TP,
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
   //! Returns the tolerance which was actually used, either from
   //! the file or from statics

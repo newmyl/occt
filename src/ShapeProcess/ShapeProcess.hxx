@@ -56,7 +56,7 @@ public:
   Standard_EXPORT static Standard_Boolean Perform 
                    (const Handle(ShapeProcess_Context)& context,
                     const Standard_CString seq,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
 
 
 

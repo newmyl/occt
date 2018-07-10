@@ -69,18 +69,18 @@ class IGESCAFControl_Reader  : public IGESControl_Reader
   //! Translates currently loaded IGES file into the document
   //! Returns True if succeeded, and False in case of fail
   Standard_EXPORT Standard_Boolean Transfer (Handle(TDocStd_Document)& theDoc,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   Standard_Boolean Perform (const TCollection_AsciiString& theFileName,
                             Handle(TDocStd_Document)& theDoc,
-                            Message_ProgressScope* theProgr)
+                            Message_ProgressScope* theProgr = 0L)
   { return Perform (theFileName.ToCString(), theDoc, theProgr); }
   
   //! Translate IGES file given by filename into the document
   //! Return True if succeeded, and False in case of fail
   Standard_EXPORT Standard_Boolean Perform (const Standard_CString theFileName,
                                             Handle(TDocStd_Document)& theDoc,
-                                            Message_ProgressScope* theProgr);
+                                            Message_ProgressScope* theProgr = 0L);
   
   //! Set ColorMode for indicate read Colors or not.
   void SetColorMode (const Standard_Boolean theMode)

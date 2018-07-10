@@ -67,7 +67,7 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
                    (const Handle(Standard_Transient)& start,
                     const Handle(Transfer_ProcessForTransient)& TP,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Prepares and Returns a Binder for a Transient Result
   //! Returns a Null Handle if <res> is itself Null

@@ -260,7 +260,7 @@ static int BUC60610(Draw_Interpretor& di, Standard_Integer argc, const char ** a
   IGESToBRep_Reader IR;
   IR.LoadFile (argv[1]);
   IR.Clear();
-  IR.TransferRoots(NULL);
+  IR.TransferRoots();
   TopoDS_Shape aTopShape = IR.OneShape();
   TopExp_Explorer ex(aTopShape, TopAbs_EDGE);
   Standard_Integer i=0;
@@ -1274,7 +1274,7 @@ static Standard_Integer OCC24 (Draw_Interpretor& di, Standard_Integer argc, cons
     ShapeProcess_OperLibrary::Init();
     Handle(ShapeProcess_ShapeContext) aShapeContext = new ShapeProcess_ShapeContext (aSubShapes, aResourceFile);
     aShapeContext->SetDetalisation (TopAbs_EDGE);
-    ShapeProcess::Perform (aShapeContext, aSequenceName, NULL);
+    ShapeProcess::Perform (aShapeContext, aSequenceName);
 
     // 4. Rebuild initil shape in accordance with performed operation
     Handle(ShapeBuild_ReShape) aReshape = new ShapeBuild_ReShape;
@@ -2556,7 +2556,7 @@ static Standard_Integer OCC7141 (Draw_Interpretor& di, Standard_Integer argc, co
   }
   try {
     OCC_CATCH_SIGNALS
-    if( writer.Transfer(document, NULL, mode)) {
+    if( writer.Transfer(document, mode)) {
     	writer.Write(aFilePath.ToCString());
     }
   }
@@ -3124,7 +3124,7 @@ static Standard_Integer OCC15755 (Draw_Interpretor& di, Standard_Integer argc, c
   IGESControl_Reader aReader;
   aReader.ReadFile(argv[1]);
   aReader.SetReadVisible(Standard_True);
-  aReader.TransferRoots(NULL);
+  aReader.TransferRoots();
 
   Handle(IGESData_IGESModel) model = aReader.IGESModel();
   if (model.IsNull()) {

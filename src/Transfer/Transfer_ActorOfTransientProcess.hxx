@@ -42,17 +42,17 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
                          (const Handle(Standard_Transient)& start,
                           const Handle(Transfer_ProcessForTransient)& TP,
-                          Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                          Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
   Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
                          (const Handle(Standard_Transient)& start,
                           const Handle(Transfer_TransientProcess)& TP,
-                          Message_ProgressScope* theProgr);
+                          Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT virtual Handle(Standard_Transient) TransferTransient
                          (const Handle(Standard_Transient)& start,
                           const Handle(Transfer_TransientProcess)& TP,
-                          Message_ProgressScope* theProgr);
+                          Message_ProgressScope* theProgr = 0L);
 
 
 

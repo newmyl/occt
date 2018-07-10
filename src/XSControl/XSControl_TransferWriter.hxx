@@ -103,7 +103,7 @@ class XSControl_TransferWriter : public Standard_Transient
   Standard_EXPORT IFSelect_ReturnStatus TransferWriteTransient
                    (const Handle(Interface_InterfaceModel)& theModel,
                     const Handle(Standard_Transient)& theObj,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Tells if a Shape is valid for a transfer to a model
   //! Asks the Controller (RecognizeWriteShape)
@@ -117,7 +117,7 @@ class XSControl_TransferWriter : public Standard_Transient
   Standard_EXPORT IFSelect_ReturnStatus TransferWriteShape
                    (const Handle(Interface_InterfaceModel)& theModel,
                     const TopoDS_Shape& theShape,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Returns the check-list of last transfer (write), i.e. the
   //! check-list currently recorded in the FinderProcess

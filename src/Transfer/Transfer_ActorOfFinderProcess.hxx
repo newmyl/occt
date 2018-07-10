@@ -50,17 +50,17 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transferring
                    (const Handle(Transfer_Finder)& start,
                     const Handle(Transfer_ProcessForFinder)& TP,
-                    Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
   Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
                    (const Handle(Transfer_Finder)& start,
                     const Handle(Transfer_FinderProcess)& TP,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT virtual Handle(Standard_Transient) TransferTransient
                    (const Handle(Standard_Transient)& start,
                     const Handle(Transfer_FinderProcess)& TP,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
 
 
 

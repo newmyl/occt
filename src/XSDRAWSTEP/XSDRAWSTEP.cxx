@@ -181,7 +181,7 @@ static Standard_Integer stepread (Draw_Interpretor& di, Standard_Integer argc, c
       aPSRoot->SetStep(80);
       progress->Show();
 
-      if (!sr.TransferRoot (aPSRoot, num))
+      if (!sr.TransferRoot (num, aPSRoot))
         di<<"Transfer root n0 "<<num<<" : no result\n";
       else {
         nbs = sr.NbShapes();
@@ -197,7 +197,7 @@ static Standard_Integer stepread (Draw_Interpretor& di, Standard_Integer argc, c
     }
     else if (modepri == 3) {
       cout<<"Entity : "<<flush;  num = XSDRAW::GetEntityNumber();
-      if (!sr.TransferOne (num, NULL))
+      if (!sr.TransferOne (num))
         di<<"Transfer entity n0 "<<num<<" : no result\n";
       else {
         nbs = sr.NbShapes();
@@ -291,7 +291,7 @@ static Standard_Integer testread (Draw_Interpretor& di, Standard_Integer argc, c
     case IFSelect_RetFail  : { di<<"error during read\n";  return 1; }    
     default  :  { di<<"failure\n";   return 1; }                          
   }  
-  Reader.TransferRoots(NULL);
+  Reader.TransferRoots();
   TopoDS_Shape shape = Reader.OneShape();
   DBRep::Set(argv[2],shape); 
   di<<"Count of shapes produced : "<<Reader.NbShapes()<<"\n";
@@ -386,7 +386,7 @@ static Standard_Integer stepwrite (Draw_Interpretor& di, Standard_Integer argc, 
   aPSRoot->SetStep(90);
   progress->Show();
 
-  Standard_Integer stat = sw.Transfer (shape, aPSRoot, mode);
+  Standard_Integer stat = sw.Transfer (shape, mode, Standard_True, aPSRoot);
   if (stat == IFSelect_RetDone)
   {
     di << "Translation: OK\n";
@@ -441,7 +441,7 @@ static Standard_Integer testwrite (Draw_Interpretor& di, Standard_Integer argc, 
   STEPControl_Writer Writer;
   Standard_CString filename = argv[1];
   TopoDS_Shape shape = DBRep::Get(argv[2]); 
-  IFSelect_ReturnStatus stat = Writer.Transfer(shape, NULL, STEPControl_AsIs);
+  IFSelect_ReturnStatus stat = Writer.Transfer(shape, STEPControl_AsIs);
   stat = Writer.Write(filename);
   if(stat != IFSelect_RetDone){
     di<<"Error on writing file\n";                                                               

@@ -408,8 +408,10 @@ Standard_Integer XSControl_WorkSession::TransferReadOne (const Handle(Standard_T
   if (ent == model) return TransferReadRoots(theProgr);
 
   Handle(TColStd_HSequenceOfTransient) list = GiveList(ent);
-  if (list->Length() == 1) return myTransferReader->TransferOne(list->Value(1), theProgr);
-  else return myTransferReader->TransferList (list, theProgr);
+  if (list->Length() == 1)
+    return myTransferReader->TransferOne(list->Value(1), Standard_True, theProgr);
+  else
+    return myTransferReader->TransferList (list, Standard_True, theProgr);
 }
 
 
@@ -456,8 +458,8 @@ Handle(Interface_InterfaceModel) XSControl_WorkSession::NewModel ()
 //=======================================================================
 
 IFSelect_ReturnStatus XSControl_WorkSession::TransferWriteShape (const TopoDS_Shape& shape,
-                                                                 Message_ProgressScope* theProgr,
-                                                                 const Standard_Boolean compgraph)
+                                                                 const Standard_Boolean compgraph,
+                                                                 Message_ProgressScope* theProgr)
 {
   IFSelect_ReturnStatus  status;
   if (myController.IsNull()) return IFSelect_RetError;
@@ -467,7 +469,7 @@ IFSelect_ReturnStatus XSControl_WorkSession::TransferWriteShape (const TopoDS_Sh
     return IFSelect_RetVoid;
   }
 
-  status = myTransferWriter->TransferWriteShape (model,shape, theProgr);
+  status = myTransferWriter->TransferWriteShape(model, shape, theProgr);
   if (theProgr && !theProgr->More())
     return IFSelect_RetStop;
   //  qui s occupe de tout, try/catch inclus

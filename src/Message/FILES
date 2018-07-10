@@ -24,7 +24,6 @@ Message_ProgressIndicator.hxx
 Message_ProgressScope.cxx
 Message_ProgressScope.hxx
 Message_SequenceOfPrinters.hxx
-Message_SequenceOfProgressScale.hxx
 Message_Status.hxx
 Message_StatusType.hxx
 Message_Alert.cxx

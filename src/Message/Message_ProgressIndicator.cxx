@@ -24,8 +24,9 @@ IMPLEMENT_STANDARD_RTTIEXT(Message_ProgressIndicator,Standard_Transient)
 
 Message_ProgressIndicator::Message_ProgressIndicator()
   : myPosition(0.),
-    myRootScope(new Message_ProgressScope(this, 0L, 0., 1., 1.))
+    myRootScope(0L)
 {
+  myRootScope = new Message_ProgressScope(this, 0L, 0., 1., 1.);
 }
 
 //=======================================================================

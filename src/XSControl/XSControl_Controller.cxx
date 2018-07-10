@@ -306,8 +306,8 @@ IFSelect_ReturnStatus XSControl_Controller::TransferWriteTransient
   (const Handle(Standard_Transient)& theObj,
    const Handle(Transfer_FinderProcess)& theFP,
    const Handle(Interface_InterfaceModel)& theModel,
-   Message_ProgressScope* theProgr,
-   const Standard_Integer theModeTrans) const
+   const Standard_Integer theModeTrans,
+   Message_ProgressScope* theProgr) const
 {
   if (theObj.IsNull()) return IFSelect_RetVoid;
   return TransferFinder
@@ -337,8 +337,8 @@ IFSelect_ReturnStatus XSControl_Controller::TransferWriteShape
   (const TopoDS_Shape& shape,
    const Handle(Transfer_FinderProcess)& FP,
    const Handle(Interface_InterfaceModel)& model,
-   Message_ProgressScope* theProgr,
-   const Standard_Integer modetrans) const
+   const Standard_Integer modetrans,
+   Message_ProgressScope* theProgr) const
 {
   if (shape.IsNull()) return IFSelect_RetVoid;
 

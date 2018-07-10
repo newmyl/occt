@@ -49,7 +49,7 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
                    (const Handle(Transfer_Finder)& start,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
 
 
 

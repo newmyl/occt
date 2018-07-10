@@ -68,6 +68,7 @@ BOPAlgo_Options::BOPAlgo_Options
   myReport(new Message_Report),
   myRunParallel(myGlobalRunParallel),
   myFuzzyValue(Precision::Confusion()),
+  myProgressIndicator(0L),
   myUseOBB(Standard_False)
 {
   BOPAlgo_LoadMessages();

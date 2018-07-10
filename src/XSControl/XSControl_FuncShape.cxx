@@ -624,7 +624,7 @@ static IFSelect_ReturnStatus XSControl_trimport
   TR->BeginTransfer();
 
   //  Transferring
-  Standard_Integer nbt = TR->TransferList(list, NULL);
+  Standard_Integer nbt = TR->TransferList(list);
   sout<<"Nb Entities Selected : "<<nbl<<" have given "<<nbt<<" results"<<endl;
 
   //  Filling VARS. one compound (trimpcomp) or one shape per ent (trimport)

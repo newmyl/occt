@@ -54,30 +54,30 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
                    (const Handle(Transfer_Finder)& start,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
   Standard_EXPORT Handle(Transfer_Binder) TransferSubShape
                    (const Handle(Transfer_Finder)& start,
                     const Handle(StepShape_ShapeDefinitionRepresentation)& SDR,
                     Handle(StepGeom_Axis2Placement3d)& AX1, 
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr,
                     const Handle(TopTools_HSequenceOfShape)& shapeGroup = NULL, 
-                    const Standard_Boolean isManifold = Standard_True);
+                    const Standard_Boolean isManifold = Standard_True,
+                    Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT Handle(Transfer_Binder) TransferShape
                    (const Handle(Transfer_Finder)& start,
                     const Handle(StepShape_ShapeDefinitionRepresentation)& SDR,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr,
                     const Handle(TopTools_HSequenceOfShape)& shapeGroup = NULL,
-                    const Standard_Boolean isManifold = Standard_True);
+                    const Standard_Boolean isManifold = Standard_True,
+                    Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT Handle(Transfer_Binder) TransferCompound
                    (const Handle(Transfer_Finder)& start,
                     const Handle(StepShape_ShapeDefinitionRepresentation)& SDR,
                     const Handle(Transfer_FinderProcess)& FP,
-                    Message_ProgressScope* theProgr);
+                    Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void SetMode (const STEPControl_StepModelType M);
   

@@ -344,10 +344,10 @@ Handle(Transfer_ActorOfTransientProcess) IGESControl_Controller::ActorRead (cons
 IFSelect_ReturnStatus IGESControl_Controller::TransferWriteShape (const TopoDS_Shape& shape,
                                                                   const Handle(Transfer_FinderProcess)& FP,
                                                                   const Handle(Interface_InterfaceModel)& model,
-                                                                  Message_ProgressScope* theProgr,
-                                                                  const Standard_Integer modetrans) const
+                                                                  const Standard_Integer modetrans,
+                                                                  Message_ProgressScope* theProgr) const
 {
-  return XSControl_Controller::TransferWriteShape (shape,FP,model,theProgr,modetrans);
+  return XSControl_Controller::TransferWriteShape(shape, FP, model, modetrans, theProgr);
 }
 
 //=======================================================================

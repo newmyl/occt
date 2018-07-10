@@ -85,9 +85,9 @@ public:
   //! geometric_curve_set entity.
   Standard_EXPORT IFSelect_ReturnStatus Transfer
                    (const TopoDS_Shape& sh,
-                    Message_ProgressScope* theProgr,
                     const STEPControl_StepModelType mode,
-                    const Standard_Boolean compgraph = Standard_True);
+                    const Standard_Boolean compgraph = Standard_True,
+                    Message_ProgressScope* theProgr = 0L);
   
   //! Writes a STEP model in the file identified by filename.
   Standard_EXPORT IFSelect_ReturnStatus Write (const Standard_CString filename);

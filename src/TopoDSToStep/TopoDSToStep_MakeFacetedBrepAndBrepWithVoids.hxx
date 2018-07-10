@@ -42,7 +42,7 @@ public:
   
   Standard_EXPORT TopoDSToStep_MakeFacetedBrepAndBrepWithVoids(const TopoDS_Solid& S,
                                                                const Handle(Transfer_FinderProcess)& FP,
-                                                               Message_ProgressScope* theProgr);
+                                                               Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT const Handle(StepShape_FacetedBrepAndBrepWithVoids)& Value() const;
 

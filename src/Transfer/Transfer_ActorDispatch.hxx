@@ -78,7 +78,7 @@ public:
   Standard_EXPORT virtual Handle(Transfer_Binder) Transfer
                    (const Handle(Standard_Transient)& start,
                     const Handle(Transfer_TransientProcess)& TP,
-                    Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
 
 
 

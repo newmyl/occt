@@ -82,7 +82,7 @@ public:
   //! If  the transfer has  failed, this member return a NullEntity.
   Standard_EXPORT virtual Handle(IGESData_IGESEntity) TransferShape
                    (const TopoDS_Shape& start,
-                    Message_ProgressScope* theProgr) Standard_OVERRIDE;
+                    Message_ProgressScope* theProgr = 0L) Standard_OVERRIDE;
   
   //! Transfert an Edge entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
@@ -104,22 +104,22 @@ public:
   //! Transfert an Shell entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESSolid_Shell) TransferShell (const TopoDS_Shell& start,
-                                                         Message_ProgressScope* theProgr);
+                                                         Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Solid entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESSolid_ManifoldSolid) TransferSolid (const TopoDS_Solid& start,
-                                                                 Message_ProgressScope* theProgr);
+                                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Transfert an CompSolid entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferCompSolid (const TopoDS_CompSolid& start,
-                                                                 Message_ProgressScope* theProgr);
+                                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Transfert a Compound entity from TopoDS to IGES
   //! If this Entity could not be converted, this member returns a NullEntity.
   Standard_EXPORT Handle(IGESData_IGESEntity) TransferCompound (const TopoDS_Compound& start,
-                                                                Message_ProgressScope* theProgr);
+                                                                Message_ProgressScope* theProgr = 0L);
 
 
 

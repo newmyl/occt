@@ -52,24 +52,24 @@ public:
   
   Standard_EXPORT void Init (const Handle(StepShape_ManifoldSolidBrep)& S,
                              const Handle(Transfer_TransientProcess)& TP,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const Handle(StepShape_BrepWithVoids)& S,
                              const Handle(Transfer_TransientProcess)& TP,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const Handle(StepShape_FacetedBrep)& S,
                              const Handle(Transfer_TransientProcess)& TP,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const Handle(StepShape_FacetedBrepAndBrepWithVoids)& S,
                              const Handle(Transfer_TransientProcess)& TP,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const Handle(StepShape_ShellBasedSurfaceModel)& S,
                              const Handle(Transfer_TransientProcess)& TP,
                              StepToTopoDS_NMTool& NMTool,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const Handle(StepShape_EdgeBasedWireframeModel)& S,
                              const Handle(Transfer_TransientProcess)& TP);
@@ -79,9 +79,9 @@ public:
   
   Standard_EXPORT void Init (const Handle(StepShape_GeometricSet)& S,
                              const Handle(Transfer_TransientProcess)& TP,
-                             Message_ProgressScope* theProgr,
                              const Handle(Transfer_ActorOfTransientProcess)& RA = NULL,
-                             const Standard_Boolean isManifold = Standard_False);
+                             const Standard_Boolean isManifold = Standard_False,
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT const TopoDS_Shape& Value() const;
   

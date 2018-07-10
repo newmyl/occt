@@ -45,12 +45,12 @@ public:
   Standard_EXPORT TopoDSToStep_Builder(const TopoDS_Shape& S,
                                        TopoDSToStep_Tool& T,
                                        const Handle(Transfer_FinderProcess)& FP,
-                                       Message_ProgressScope* theProgr);
+                                       Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT void Init (const TopoDS_Shape& S,
                              TopoDSToStep_Tool& T,
                              const Handle(Transfer_FinderProcess)& FP,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT TopoDSToStep_BuilderError Error() const;
   

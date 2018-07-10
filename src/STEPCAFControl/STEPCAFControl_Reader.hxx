@@ -93,23 +93,23 @@ public:
   //! Provided for use like single-file reader
   Standard_EXPORT Standard_Boolean TransferOneRoot (const Standard_Integer num,
                                                     Handle(TDocStd_Document)& doc,
-                                                    Message_ProgressScope* theProgr);
+                                                    Message_ProgressScope* theProgr = 0L);
   
   //! Translates currently loaded STEP file into the document
   //! Returns True if succeeded, and False in case of fail
   //! Provided for use like single-file reader
   Standard_EXPORT Standard_Boolean Transfer (Handle(TDocStd_Document)& doc,
-                                             Message_ProgressScope* theProgr);
+                                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT Standard_Boolean Perform (const TCollection_AsciiString& filename,
                                             Handle(TDocStd_Document)& doc,
-                                            Message_ProgressScope* theProgr);
+                                            Message_ProgressScope* theProgr = 0L);
   
   //! Translate STEP file given by filename into the document
   //! Return True if succeeded, and False in case of fail
   Standard_EXPORT Standard_Boolean Perform (const Standard_CString filename,
                                             Handle(TDocStd_Document)& doc,
-                                            Message_ProgressScope* theProgr);
+                                            Message_ProgressScope* theProgr = 0L);
   
   //! Returns data on external files
   //! Returns Null handle if no external files are read
@@ -186,8 +186,8 @@ protected:
                                              const Standard_Integer num,
                                              Handle(TDocStd_Document)& doc,
                                              TDF_LabelSequence& Lseq,
-                                             Message_ProgressScope* theProgr,
-                                             const Standard_Boolean asOne = Standard_False);
+                                             const Standard_Boolean asOne = Standard_False,
+                                             Message_ProgressScope* theProgr = 0L);
   
   //! Add a shape to a document
   //! Depending on a case, this shape can be added as one, or
@@ -200,7 +200,7 @@ protected:
   Standard_EXPORT Handle(STEPCAFControl_ExternFile) ReadExternFile (const Standard_CString file,
                                                                     const Standard_CString fullpath,
                                                                     Handle(TDocStd_Document)& doc,
-                                                                    Message_ProgressScope* theProgr);
+                                                                    Message_ProgressScope* theProgr = 0L);
   
   //! Reads style assignments from STEP model and sets
   //! corresponding color assignments in the DECAF document

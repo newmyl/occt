@@ -153,32 +153,32 @@ public:
   
   //! Translates a root identified by the rank num in the model.
   //! false is returned if no shape is produced.
-  Standard_EXPORT Standard_Boolean TransferOneRoot (Message_ProgressScope* theProgr,
-                                                    const Standard_Integer num = 1);
+  Standard_EXPORT Standard_Boolean TransferOneRoot (const Standard_Integer num = 1,
+                                                    Message_ProgressScope* theProgr = 0L);
   
   //! Translates an IGES or STEP
   //! entity identified by the rank num in the model.
   //! false is returned if no shape is produced.
   Standard_EXPORT Standard_Boolean TransferOne (const Standard_Integer num,
-                                                Message_ProgressScope* theProgr);
+                                                Message_ProgressScope* theProgr = 0L);
   
   //! Translates an IGES or STEP
   //! entity in the model. true is returned if a shape is
   //! produced; otherwise, false is returned.
   Standard_EXPORT Standard_Boolean TransferEntity (const Handle(Standard_Transient)& start,
-                                                   Message_ProgressScope* theProgr);
+                                                   Message_ProgressScope* theProgr = 0L);
   
   //! Translates a list of entities.
   //! Returns the number of IGES or STEP entities that were
   //! successfully translated. The list can be produced with GiveList.
   //! Warning - This function does not clear the existing output shapes.
   Standard_EXPORT Standard_Integer TransferList (const Handle(TColStd_HSequenceOfTransient)& list,
-                                                 Message_ProgressScope* theProgr);
+                                                 Message_ProgressScope* theProgr = 0L);
   
   //! Translates all translatable
   //! roots and returns the number of successful translations.
   //! Warning - This function clears existing output shapes first.
-  Standard_EXPORT Standard_Integer TransferRoots(Message_ProgressScope* theProgr);
+  Standard_EXPORT Standard_Integer TransferRoots(Message_ProgressScope* theProgr = 0L);
   
   //! Clears the list of shapes that
   //! may have accumulated in calls to TransferOne or TransferRoot.C

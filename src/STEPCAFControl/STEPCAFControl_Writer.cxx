@@ -364,16 +364,16 @@ IFSelect_ReturnStatus STEPCAFControl_Writer::Write (const Standard_CString filen
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Writer::Transfer(const Handle(TDocStd_Document) &doc,
-                                                 Message_ProgressScope* theProgr,
                                                  const STEPControl_StepModelType mode,
-                                                 const Standard_CString multi)
+                                                 const Standard_CString multi,
+                                                 Message_ProgressScope* theProgr)
 {
   Handle(XCAFDoc_ShapeTool) STool = XCAFDoc_DocumentTool::ShapeTool( doc->Main() );
   if ( STool.IsNull() ) return Standard_False;
 
   TDF_LabelSequence labels;
   STool->GetFreeShapes ( labels );
-  return Transfer ( myWriter, labels, theProgr, mode, multi );
+  return Transfer(myWriter, labels, mode, multi, Standard_False, theProgr);
 }
 
 
@@ -383,13 +383,13 @@ Standard_Boolean STEPCAFControl_Writer::Transfer(const Handle(TDocStd_Document) 
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Writer::Transfer(const TDF_Label& L,
-                                                 Message_ProgressScope* theProgr,
                                                  const STEPControl_StepModelType mode,
-                                                 const Standard_CString multi)
+                                                 const Standard_CString multi,
+                                                 Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence labels;
   labels.Append ( L );
-  return Transfer ( myWriter, labels, theProgr, mode, multi );
+  return Transfer(myWriter, labels, mode, multi, Standard_False, theProgr);
 }
 
 //=======================================================================
@@ -398,11 +398,11 @@ Standard_Boolean STEPCAFControl_Writer::Transfer(const TDF_Label& L,
 //=======================================================================
 
 Standard_Boolean STEPCAFControl_Writer::Transfer(const TDF_LabelSequence& labels,
-                                                 Message_ProgressScope* theProgr,
                                                  const STEPControl_StepModelType mode,
-                                                 const Standard_CString multi)
+                                                 const Standard_CString multi,
+                                                 Message_ProgressScope* theProgr)
 {
-  return Transfer( myWriter, labels, theProgr, mode, multi );
+  return Transfer(myWriter, labels, mode, multi, Standard_False, theProgr);
 }
 
 //=======================================================================
@@ -414,7 +414,7 @@ Standard_Boolean STEPCAFControl_Writer::Perform (const Handle(TDocStd_Document) 
                                                  const Standard_CString filename,
                                                  Message_ProgressScope* theProgr)
 {
-  if ( ! Transfer ( doc, theProgr ) ) return Standard_False;
+  if (!Transfer(doc, STEPControl_AsIs, 0L, theProgr)) return Standard_False;
   return Write ( filename ) == IFSelect_RetDone;
 }
 
@@ -428,7 +428,7 @@ Standard_Boolean STEPCAFControl_Writer::Perform (const Handle(TDocStd_Document) 
                                                  const TCollection_AsciiString &filename,
                                                  Message_ProgressScope* theProgr)
 {
-  if ( ! Transfer ( doc, theProgr ) ) return Standard_False;
+  if ( ! Transfer ( doc, STEPControl_AsIs, 0L, theProgr ) ) return Standard_False;
   return Write ( filename.ToCString() ) == IFSelect_RetDone;
 }
 
@@ -504,10 +504,10 @@ const STEPControl_Writer &STEPCAFControl_Writer::Writer () const
 
 Standard_Boolean STEPCAFControl_Writer::Transfer (STEPControl_Writer &writer,
                                                   const TDF_LabelSequence &labels,
-                                                  Message_ProgressScope* theProgr,
                                                   const STEPControl_StepModelType mode,
                                                   const Standard_CString multi,
-                                                  const Standard_Boolean isExternFile)
+                                                  const Standard_Boolean isExternFile,
+                                                  Message_ProgressScope* theProgr)
 {
   if ( labels.Length() <=0 ) return Standard_False;
 
@@ -579,13 +579,13 @@ Standard_Boolean STEPCAFControl_Writer::Transfer (STEPControl_Writer &writer,
       if ( XCAFDoc_ShapeTool::IsAssembly ( L ) )
         Actor->RegisterAssembly ( shape );
 
-      writer.Transfer(shape, &aPS, mode, Standard_False);
+      writer.Transfer(shape, mode, Standard_False, &aPS);
       Actor->SetStdMode ( Standard_True ); // restore default behaviour
     }
     else {
       // translate final solids
       Message_ProgressScope aPS1(&aPS, NULL, 0, 2);
-      TopoDS_Shape Sass = TransferExternFiles ( L, &aPS1, mode, sublabels, multi );
+      TopoDS_Shape Sass = TransferExternFiles(L, mode, sublabels, multi, &aPS1);
       aPS1.Next();
       if (aPS1.UserBreak())
         return Standard_False;
@@ -610,7 +610,7 @@ Standard_Boolean STEPCAFControl_Writer::Transfer (STEPControl_Writer &writer,
 */      
       Standard_Integer assemblymode = Interface_Static::IVal ("write.step.assembly");
       Interface_Static::SetCVal ("write.step.assembly", "On");
-      writer.Transfer ( Sass, &aPS1, STEPControl_AsIs );
+      writer.Transfer ( Sass, STEPControl_AsIs, Standard_True, &aPS1);
       Interface_Static::SetIVal ("write.step.assembly", assemblymode);
       Interface_Static::SetIVal ("write.step.schema", ap);
     }
@@ -725,10 +725,10 @@ Standard_Boolean STEPCAFControl_Writer::Transfer (STEPControl_Writer &writer,
 //=======================================================================
 
 TopoDS_Shape STEPCAFControl_Writer::TransferExternFiles (const TDF_Label &L,
-                                                         Message_ProgressScope* theProgr,
                                                          const STEPControl_StepModelType mode,
                                                          TDF_LabelSequence &labels,
-                                                         const Standard_CString prefix)
+                                                         const Standard_CString prefix,
+                                                         Message_ProgressScope* theProgr)
 {
   // if label already translated, just return the shape
   if ( myLabels.IsBound ( L ) ) {
@@ -773,7 +773,7 @@ TopoDS_Shape STEPCAFControl_Writer::TransferExternFiles (const TDF_Label &L,
     Standard_Integer assemblymode = Interface_Static::IVal ("write.step.assembly");
     Interface_Static::SetCVal ("write.step.assembly", "Off");
     const Standard_CString multi = 0;
-    EF->SetTransferStatus ( Transfer ( sw, Lseq, theProgr, mode, multi, Standard_True ) );
+    EF->SetTransferStatus ( Transfer ( sw, Lseq, mode, multi, Standard_True, theProgr) );
     Interface_Static::SetIVal ("write.step.assembly", assemblymode);
     myLabEF.Bind ( L, EF );
     myFiles.Bind ( name->ToCString(), EF );
@@ -802,7 +802,7 @@ TopoDS_Shape STEPCAFControl_Writer::TransferExternFiles (const TDF_Label &L,
     TDF_Label lab = comp(k);
     TDF_Label ref;
     if ( ! XCAFDoc_ShapeTool::GetReferredShape ( lab, ref ) ) continue;
-    TopoDS_Shape Scomp = TransferExternFiles ( ref, &aPS, mode, labels, prefix );
+    TopoDS_Shape Scomp = TransferExternFiles(ref, mode, labels, prefix, &aPS);
     Scomp.Location ( XCAFDoc_ShapeTool::GetLocation ( lab ) );
     B.Add ( C, Scomp );
   }

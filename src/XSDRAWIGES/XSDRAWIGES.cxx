@@ -255,7 +255,7 @@ static Standard_Integer igesbrep (Draw_Interpretor& di, Standard_Integer argc, c
       cout << " give the number of the Entity : " << flush;
       nent = XSDRAW::GetEntityNumber();
 
-      if (!Reader.TransferOne (nent, NULL))
+      if (!Reader.TransferOne (nent))
         di<<"Transfer entity n0 "<<nent<<" : no result\n";
       else {
 	nbs = Reader.NbShapes();
@@ -418,7 +418,7 @@ static Standard_Integer testread (Draw_Interpretor& di, Standard_Integer argc, c
     case IFSelect_RetFail  : { di<<"error during read\n";  return 1; }    
     default  :  { di<<"failure\n";   return 1; }                          
   }       
-  Reader.TransferRoots(NULL);
+  Reader.TransferRoots();
   TopoDS_Shape shape = Reader.OneShape();
   DBRep::Set(argv[2],shape); 
   di<<"Count of shapes produced : "<<Reader.NbShapes()<<"\n";
@@ -509,7 +509,7 @@ static Standard_Integer testwrite (Draw_Interpretor& di, Standard_Integer n, con
   IGESControl_Writer Writer;
   Standard_CString filename = a[1];
   TopoDS_Shape shape = DBRep::Get(a[2]); 
-  Standard_Boolean ok = Writer.AddShape(shape, NULL);
+  Standard_Boolean ok = Writer.AddShape(shape);
   if(!ok){
     di<<"Shape not add\n";
     return 1;
@@ -676,7 +676,7 @@ static Standard_Integer etest(Draw_Interpretor& di, Standard_Integer argc, const
   IGESControl_Reader aReader;
   aReader.ReadFile(a[1]);
   aReader.SetReadVisible(Standard_True);
-  aReader.TransferRoots(NULL);
+  aReader.TransferRoots();
   TopoDS_Shape shape = aReader.OneShape();
   DBRep::Set(a[2],shape);
   return 0;

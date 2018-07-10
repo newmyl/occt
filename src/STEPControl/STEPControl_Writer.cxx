@@ -122,9 +122,9 @@ void STEPControl_Writer::UnsetTolerance ()
 
 IFSelect_ReturnStatus STEPControl_Writer::Transfer
   (const TopoDS_Shape& sh,
-   Message_ProgressScope* theProgr,
    const STEPControl_StepModelType mode,
-   const Standard_Boolean compgraph) 
+   const Standard_Boolean compgraph,
+   Message_ProgressScope* theProgr)
 {
   Standard_Integer mws = -1;
   switch (mode) {
@@ -138,7 +138,7 @@ IFSelect_ReturnStatus STEPControl_Writer::Transfer
   if (mws < 0) return IFSelect_RetError;    // cas non reconnu
   thesession->TransferWriter()->SetTransferMode (mws);
 
-  return thesession->TransferWriteShape(sh, theProgr, compgraph);
+  return thesession->TransferWriteShape(sh, compgraph, theProgr);
 }
 
 

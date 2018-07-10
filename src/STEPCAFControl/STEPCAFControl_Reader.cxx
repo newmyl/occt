@@ -393,7 +393,7 @@ Standard_Boolean STEPCAFControl_Reader::TransferOneRoot (const Standard_Integer 
                                                          Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence Lseq;
-  return Transfer ( myReader, num, doc, Lseq, theProgr );
+  return Transfer ( myReader, num, doc, Lseq, Standard_False, theProgr );
 }
 
 
@@ -406,7 +406,7 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (Handle(TDocStd_Document) &doc,
                                                   Message_ProgressScope* theProgr)
 {
   TDF_LabelSequence Lseq;
-  return Transfer ( myReader, 0, doc, Lseq, theProgr );
+  return Transfer ( myReader, 0, doc, Lseq, Standard_False, theProgr );
 }
 
 
@@ -513,8 +513,8 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
                                                   const Standard_Integer nroot,
                                                   Handle(TDocStd_Document) &doc,
                                                   TDF_LabelSequence &Lseq,
-                                                  Message_ProgressScope* theProgr,
-                                                  const Standard_Boolean asOne)
+                                                  const Standard_Boolean asOne,
+                                                  Message_ProgressScope* theProgr)
 {
   reader.ClearShapes();
   Standard_Integer i;
@@ -527,12 +527,12 @@ Standard_Boolean STEPCAFControl_Reader::Transfer (STEPControl_Reader &reader,
 
   if ( nroot ) {
     if ( nroot > num ) return Standard_False;
-    reader.TransferOneRoot ( &aPSRoot, nroot );
+    reader.TransferOneRoot(nroot, &aPSRoot);
   }
   else {
     Message_ProgressScope aPS(&aPSRoot, NULL, 0, num);
     for ( i=1; i <= num && aPS.More(); i++, aPS.Next() )
-      reader.TransferOneRoot ( &aPS, i );
+      reader.TransferOneRoot(i, &aPS);
   }
   aPSRoot.Next();
   if (aPSRoot.UserBreak())
@@ -848,7 +848,7 @@ Handle(STEPCAFControl_ExternFile) STEPCAFControl_Reader::ReadExternFile (const S
   // transfer in single-result mode
   if ( EF->GetLoadStatus() == IFSelect_RetDone ) {
     TDF_LabelSequence labels;
-    EF->SetTransferStatus ( Transfer ( sr, 0, doc, labels, theProgr, Standard_True ) );
+    EF->SetTransferStatus ( Transfer ( sr, 0, doc, labels, Standard_False, theProgr ) );
     if ( labels.Length() >0 ) EF->SetLabel ( labels.Value(1) );
   }
   

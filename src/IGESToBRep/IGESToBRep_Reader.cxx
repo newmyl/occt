@@ -363,8 +363,8 @@ static void TrimTolerances (const TopoDS_Shape& shape,
 //function : TransferRoots
 //purpose  : Transfers all Roots Entities
 //=======================================================================
-void  IGESToBRep_Reader::TransferRoots (Message_ProgressScope* theProgr,
-                                        const Standard_Boolean onlyvisible)
+void  IGESToBRep_Reader::TransferRoots (const Standard_Boolean onlyvisible,
+                                        Message_ProgressScope* theProgr)
 {
   if (theModel.IsNull() || theProc.IsNull()) return;
 

@@ -44,7 +44,7 @@ public:
   Standard_EXPORT void Init (const Handle(StepShape_ConnectedFaceSet)& CFS,
                              StepToTopoDS_Tool& T,
                              StepToTopoDS_NMTool& NMTool,
-                             Message_ProgressScope* theProgr);
+                             Message_ProgressScope* theProgr = 0L);
   
   Standard_EXPORT const TopoDS_Shape& Value() const;
   
