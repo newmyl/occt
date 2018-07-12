@@ -60,13 +60,14 @@ public:
   //! @param theLinDeflection linear deflection.
   //! @param theAngDeflection angular deflection.
   //! @param theMinPointsNb minimum nuber of points to be produced.
-  Standard_EXPORT BRepMesh_GeomTool(const BRepAdaptor_Curve& theCurve,
-                                    const Standard_Real      theFirstParam,
-                                    const Standard_Real      theLastParam,
-                                    const Standard_Real      theLinDeflection,
-                                    const Standard_Real      theAngDeflection,
-                                    const Standard_Integer   theMinPointsNb = 2,
-                                    const Standard_Real      theMinSize = Precision::Confusion());
+  Standard_EXPORT BRepMesh_GeomTool(
+    const BRepAdaptor_Curve& theCurve,
+    const Standard_Real      theFirstParam,
+    const Standard_Real      theLastParam,
+    const Standard_Real      theLinDeflection,
+    const Standard_Real      theAngDeflection,
+    const Standard_Integer   theMinPointsNb = 2,
+    const Standard_Real      theMinSize = Precision::Confusion());
   
   //! Constructor.
   //! Initiates discretization of geometric curve corresponding 
@@ -79,15 +80,16 @@ public:
   //! @param theLinDeflection linear deflection.
   //! @param theAngDeflection angular deflection.
   //! @param theMinPointsNb minimum nuber of points to be produced.
-  Standard_EXPORT BRepMesh_GeomTool(const Handle(BRepAdaptor_HSurface)& theSurface,
-                                    const GeomAbs_IsoType               theIsoType,
-                                    const Standard_Real                 theParamIso,
-                                    const Standard_Real                 theFirstParam,
-                                    const Standard_Real                 theLastParam,
-                                    const Standard_Real                 theLinDeflection,
-                                    const Standard_Real                 theAngDeflection,
-                                    const Standard_Integer              theMinPointsNb = 2,
-                                    const Standard_Real                 theMinSize = Precision::Confusion());
+  Standard_EXPORT BRepMesh_GeomTool(
+    const Handle(BRepAdaptor_HSurface)& theSurface,
+    const GeomAbs_IsoType               theIsoType,
+    const Standard_Real                 theParamIso,
+    const Standard_Real                 theFirstParam,
+    const Standard_Real                 theLastParam,
+    const Standard_Real                 theLinDeflection,
+    const Standard_Real                 theAngDeflection,
+    const Standard_Integer              theMinPointsNb = 2,
+    const Standard_Real                 theMinSize = Precision::Confusion());
 
   //! Adds point to already calculated points (or replaces existing).
   //! @param thePoint point to be added.
@@ -124,12 +126,16 @@ public:
   
   //! Gets parameters of discretization point with the given index.
   //! @param theIndex index of discretization point.
+  //! @param theSurface surface the curve is lying onto.
   //! @param theParam[out] parameter of the point on the curve.
   //! @param thePoint[out] discretization point.
+  //! @param theUV[out] discretization point in parametric space of the surface.
   //! @return TRUE on success, FALSE elsewhere.
   Standard_EXPORT Standard_Boolean Value(const Standard_Integer              theIndex,
+                                         const Handle(BRepAdaptor_HSurface)& theSurface,
                                          Standard_Real&                      theParam,
-                                         gp_Pnt&                             thePoint) const;
+                                         gp_Pnt&                             thePoint,
+                                         gp_Pnt2d&                           theUV) const;
   
 public: //! @name static API
 
@@ -187,6 +193,22 @@ public: //! @name static API
     const Standard_Boolean isConsiderEndPointTouch,
     const Standard_Boolean isConsiderPointOnSegment,
     gp_Pnt2d&              theIntPnt);
+
+  //! Compute deflection of the given segment.
+  Standard_EXPORT static Standard_Real SquareDeflectionOfSegment(
+    const gp_Pnt& theFirstPoint,
+    const gp_Pnt& theLastPoint,
+    const gp_Pnt& theMidPoint)
+  {
+    // 23.03.2010 skl for OCC21645 - change precision for comparison
+    if (theFirstPoint.SquareDistance(theLastPoint) > Precision::SquareConfusion())
+    {
+      gp_Lin aLin(theFirstPoint, gp_Dir(gp_Vec(theFirstPoint, theLastPoint)));
+      return aLin.SquareDistance(theMidPoint);
+    }
+
+    return theFirstPoint.SquareDistance(theMidPoint);
+  }
 
 private:
 

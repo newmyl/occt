@@ -28,8 +28,8 @@
 #include <BRepMesh_DataStructureOfDelaun.hxx>
 #include <BRepMesh_Delaun.hxx>
 #include <BRepMesh_Edge.hxx>
-#include <BRepMesh_FastDiscret.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
+#include <IMeshTools_Parameters.hxx>
 #include <BRepMesh_Triangle.hxx>
 #include <BRepMesh_Vertex.hxx>
 #include <BRepTest.hxx>
@@ -80,6 +80,8 @@
 #include <TopoDS_Wire.hxx>
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopTools_MapIteratorOfMapOfShape.hxx>
+#include <OSD_Timer.hxx>
+#include <IMeshData_Status.hxx>
 
 #include <stdio.h>
 //epa Memory leaks test
@@ -147,7 +149,6 @@ options:\n\
   Standard_Boolean isInParallel    = Standard_False;
   Standard_Boolean isIntVertices   = Standard_True;
   Standard_Boolean isControlSurDef = Standard_True;
-  Standard_Boolean isAdaptiveMin   = Standard_False;
 
   if (nbarg > 3)
   {
@@ -167,8 +168,6 @@ options:\n\
         isIntVertices = Standard_False;
       else if (aOpt == "-surf_def_off")
         isControlSurDef = Standard_False;
-      else if (aOpt == "-adaptive")
-        isAdaptiveMin   = Standard_True;
       else if (i < nbarg)
       {
         Standard_Real aVal = Draw::Atof(argv[i++]);
@@ -185,7 +184,7 @@ options:\n\
   di << "Incremental Mesh, multi-threading "
      << (isInParallel ? "ON" : "OFF") << "\n";
 
-  BRepMesh_FastDiscret::Parameters aMeshParams;
+  IMeshTools_Parameters aMeshParams;
   aMeshParams.Deflection = aLinDeflection;
   aMeshParams.Angle = aAngDeflection;
   aMeshParams.Relative =  isRelative;
@@ -193,37 +192,56 @@ options:\n\
   aMeshParams.MinSize = aMinSize;
   aMeshParams.InternalVerticesMode = isIntVertices;
   aMeshParams.ControlSurfaceDeflection = isControlSurDef;
-  aMeshParams.AdaptiveMin = isAdaptiveMin;
   
+  OSD_Timer aTimer;
+  aTimer.Start();
   BRepMesh_IncrementalMesh aMesher (aShape, aMeshParams);
+  aTimer.Stop();
+  aTimer.Show();
 
   di << "Meshing statuses: ";
-  Standard_Integer statusFlags = aMesher.GetStatusFlags();
-  if( !statusFlags )
+  const Standard_Integer aStatus = aMesher.GetStatusFlags();
+  if (!aStatus)
   {
     di << "NoError";
   }
   else
   {
     Standard_Integer i;
-    for( i = 0; i < 4; i++ )
+    for (i = 0; i < 8; i++)
     {
-      if( (statusFlags >> i) & (Standard_Integer)1 )
+      Standard_Integer aFlag = aStatus & (1 << i);
+      if (aFlag)
       {
-        switch(i+1)
+        switch ((IMeshData_Status) aFlag)
         {
-          case 1:
-            di << "OpenWire ";
-            break;
-          case 2:
-            di << "SelfIntersectingWire ";
-            break;
-          case 3:
-            di << "Failure ";
-            break;
-          case 4:
-            di << "ReMesh ";
-            break;
+        case IMeshData_OpenWire:
+          di << "OpenWire ";
+          break;
+        case IMeshData_SelfIntersectingWire:
+          di << "SelfIntersectingWire ";
+          break;
+        case IMeshData_Failure:
+          di << "Failure ";
+          break;
+        case IMeshData_ReMesh:
+          di << "ReMesh ";
+          break;
+        case IMeshData_UnorientedWire:
+          di << "UnorientedWire ";
+          break;
+        case IMeshData_TooFewPoints:
+          di << "TooFewPoints ";
+          break;
+        case IMeshData_Outdated:
+          di << "Outdated ";
+          break;
+        case IMeshData_Reused:
+          di << "Reused ";
+          break;
+        case IMeshData_NoError:
+        default:
+          break;
         }
       }
     }
@@ -415,12 +433,10 @@ static Standard_Integer fastdiscret(Draw_Interpretor& di, Standard_Integer nbarg
 
   const Standard_Real d = Draw::Atof(argv[2]);
 
-  Bnd_Box B;
-  BRepBndLib::Add(S,B);
-  BRepMesh_FastDiscret::Parameters aParams;
+  IMeshTools_Parameters aParams;
   aParams.Deflection = d;
   aParams.Angle = 0.5;
-  BRepMesh_FastDiscret MESH(B,aParams);
+  BRepMesh_IncrementalMesh MESH(S,aParams);
 
   //Standard_Integer NbIterations = MESH.NbIterations();
   //if (nbarg > 4) NbIterations = Draw::Atoi(argv[4]);
@@ -438,7 +454,7 @@ static Standard_Integer fastdiscret(Draw_Interpretor& di, Standard_Integer nbarg
   for (ex.Init(S, TopAbs_FACE); ex.More(); ex.Next())
     aBuilder.UpdateFace(TopoDS::Face(ex.Current()),T);
 
-  MESH.Perform(S);
+  MESH.Perform();
 
   TopoDS_Compound aCompGood, aCompFailed, aCompViolating;
 

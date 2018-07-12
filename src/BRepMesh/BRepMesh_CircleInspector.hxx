@@ -16,7 +16,7 @@
 #ifndef BRepMesh_CircleInspector_Header
 #define BRepMesh_CircleInspector_Header
 
-#include <BRepMesh.hxx>
+#include <IMeshData_Types.hxx>
 #include <BRepMesh_Circle.hxx>
 #include <Precision.hxx>
 #include <gp_XY.hxx>
@@ -39,7 +39,7 @@ public:
     const Handle(NCollection_IncAllocator)& theAllocator)
   : myTolerance(theTolerance*theTolerance),
     myResIndices(theAllocator),
-    myCircles(theReservedSize)
+    myCircles(theReservedSize, theAllocator)
   {
   }
 
@@ -53,7 +53,7 @@ public:
   }
 
   //! Resutns vector of registered circles.
-  inline const BRepMesh::VectorOfCircle& Circles() const
+  inline const IMeshData::VectorOfCircle& Circles() const
   {
     return myCircles; 
   }
@@ -75,7 +75,7 @@ public:
   }
 
   //! Returns list of circles shot by the reference point.
-  inline BRepMesh::ListOfInteger& GetShotCircles()
+  inline IMeshData::ListOfInteger& GetShotCircles()
   {
     return myResIndices;
   }
@@ -83,8 +83,23 @@ public:
   //! Performs inspection of a circle with the given index.
   //! @param theTargetIndex index of a circle to be checked.
   //! @return status of the check.
-  Standard_EXPORT NCollection_CellFilter_Action Inspect(
-    const Standard_Integer theTargetIndex);
+  inline NCollection_CellFilter_Action Inspect(
+    const Standard_Integer theTargetIndex)
+  {
+    BRepMesh_Circle& aCircle = myCircles(theTargetIndex);
+    const Standard_Real& aRadius = aCircle.Radius();
+    if (aRadius < 0.)
+      return CellFilter_Purge;
+
+    gp_XY& aLoc = const_cast<gp_XY&>(aCircle.Location());
+
+    const Standard_Real aDX = myPoint.ChangeCoord(1) - aLoc.ChangeCoord(1);
+    const Standard_Real aDY = myPoint.ChangeCoord(2) - aLoc.ChangeCoord(2);
+    if ((aDX * aDX + aDY * aDY) - (aRadius * aRadius) <= myTolerance)
+      myResIndices.Append(theTargetIndex);
+
+    return CellFilter_Keep;
+  }
 
   //! Checks indices for equlity.
   static Standard_Boolean IsEqual(
@@ -95,10 +110,10 @@ public:
   }
 
 private:
-  Standard_Real            myTolerance;
-  BRepMesh::ListOfInteger  myResIndices;
-  BRepMesh::VectorOfCircle myCircles;
-  gp_XY                    myPoint;
+  Standard_Real             myTolerance;
+  IMeshData::ListOfInteger  myResIndices;
+  IMeshData::VectorOfCircle myCircles;
+  gp_XY                     myPoint;
 };
 
 #endif

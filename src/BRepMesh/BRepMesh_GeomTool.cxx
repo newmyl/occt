@@ -76,8 +76,10 @@ BRepMesh_GeomTool::BRepMesh_GeomTool(
 //=======================================================================
 Standard_Boolean BRepMesh_GeomTool::Value(
   const Standard_Integer              theIndex,
+  const Handle(BRepAdaptor_HSurface)& theSurface,
   Standard_Real&                      theParam,
-  gp_Pnt&                             thePoint) const
+  gp_Pnt&                             thePoint,
+  gp_Pnt2d&                           theUV) const
 {
   if (theIndex < 1 || theIndex > NbPoints())
     return Standard_False;
@@ -88,6 +90,14 @@ Standard_Boolean BRepMesh_GeomTool::Value(
   thePoint = myDiscretTool.Value(theIndex);
   theParam = myDiscretTool.Parameter(theIndex);
 
+  const TopoDS_Face& aFace = ((BRepAdaptor_Surface*)&(theSurface->Surface()))->Face();
+
+  Standard_Real aFirst, aLast;
+  Handle(Geom2d_Curve) aCurve = 
+    BRep_Tool::CurveOnSurface(*myEdge, aFace, aFirst, aLast);
+
+  aCurve->D0(theParam, theUV);
+
   return Standard_True;
 }
 
@@ -95,11 +105,12 @@ Standard_Boolean BRepMesh_GeomTool::Value(
 //function : Value
 //purpose  :
 //=======================================================================
-Standard_Boolean BRepMesh_GeomTool::Value(const Standard_Integer theIndex,
-                                          const Standard_Real    theIsoParam,
-                                          Standard_Real&         theParam,
-                                          gp_Pnt&                thePoint,
-                                          gp_Pnt2d&              theUV) const
+Standard_Boolean BRepMesh_GeomTool::Value(
+  const Standard_Integer theIndex,
+  const Standard_Real    theIsoParam,
+  Standard_Real&         theParam,
+  gp_Pnt&                thePoint,
+  gp_Pnt2d&              theUV) const
 {
   if (theIndex < 1 || theIndex > NbPoints())
     return Standard_False;
@@ -286,7 +297,7 @@ BRepMesh_GeomTool::IntFlag BRepMesh_GeomTool::IntSegSeg(
   const Standard_Real aEndPrec = 1 - aPrec;
   for (Standard_Integer i = 0; i < 2; ++i)
   {
-    if( aParam[i] < aPrec || aParam[i] > aEndPrec )
+    if(aParam[i] < aPrec || aParam[i] > aEndPrec )
       return BRepMesh_GeomTool::NoIntersection;
   }
  

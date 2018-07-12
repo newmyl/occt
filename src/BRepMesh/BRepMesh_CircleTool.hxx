@@ -24,7 +24,7 @@
 #include <gp_XYZ.hxx>
 #include <Standard_Integer.hxx>
 #include <Standard_Boolean.hxx>
-#include <BRepMesh.hxx>
+#include <IMeshData_Types.hxx>
 #include <NCollection_Array1.hxx>
 
 class gp_Circ2d;
@@ -125,7 +125,7 @@ public:
 
   //! Select the circles shot by the given point.
   //! @param thePoint bullet point.
-  Standard_EXPORT BRepMesh::ListOfInteger& Select(const gp_XY& thePoint);
+  Standard_EXPORT IMeshData::ListOfInteger& Select(const gp_XY& thePoint);
 
 private:
 
@@ -141,7 +141,7 @@ private:
 
   Standard_Real                     myTolerance;
   Handle(NCollection_IncAllocator)  myAllocator;
-  BRepMesh::CircleCellFilter        myCellFilter;
+  IMeshData::CircleCellFilter       myCellFilter;
   BRepMesh_CircleInspector          mySelector;
   gp_XY                             myFaceMax;
   gp_XY                             myFaceMin;
