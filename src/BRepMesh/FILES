@@ -82,3 +82,17 @@ BRepMesh_VertexInspector.hxx
 BRepMesh_VertexTool.cxx
 BRepMesh_VertexTool.hxx
 BRepMesh_Triangle.hxx
+BRepMesh.hxx
+BRepMesh_EdgeParameterProvider.cxx
+BRepMesh_EdgeTessellator.cxx
+BRepMesh_EdgeTessellator.hxx
+BRepMesh_FaceAttribute.cxx
+BRepMesh_FaceAttribute.hxx
+BRepMesh_FastDiscret.cxx
+BRepMesh_FastDiscret.hxx
+BRepMesh_FastDiscretFace.cxx
+BRepMesh_FastDiscretFace.hxx
+BRepMesh_IEdgeTool.cxx
+BRepMesh_IEdgeTool.hxx
+BRepMesh_PairOfPolygon.hxx
+BRepMesh_Status.hxx
