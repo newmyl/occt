@@ -15,6 +15,7 @@
 #include <Font_BRepFont.hxx>
 
 #include <BRep_Tool.hxx>
+#include <BRepTopAdaptor_FClass2d.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepLib_MakeEdge.hxx>
@@ -34,9 +35,6 @@
 #include <GeomAdaptor_HSurface.hxx>
 #include <GeomLib.hxx>
 #include <gp_Pln.hxx>
-#include <ShapeBuild_ReShape.hxx>
-#include <ShapeFix_Edge.hxx>
-#include <ShapeFix_Wire.hxx>
 #include <TColGeom2d_HSequenceOfBoundedCurve.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_HAsciiString.hxx>
@@ -45,6 +43,9 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
 #include <TopoDS_Vertex.hxx>
+#include <TopTools_DataMapOfShapeInteger.hxx>
+#include <TopTools_DataMapOfShapeSequenceOfShape.hxx>
+#include <TopTools_MapOfShape.hxx>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -69,6 +70,46 @@ namespace
                           const Standard_Real theScaleUnits)
   {
     return gp_XY (theScaleUnits * Standard_Real(theVec.x) / 64.0, theScaleUnits * Standard_Real(theVec.y) / 64.0);
+  }
+
+  //! Auxiliary method for classification wire theW2 with respect to wire theW1
+  static TopAbs_State classifyWW(
+    const TopoDS_Wire& theW1, const TopoDS_Wire& theW2, const TopoDS_Face& theF)
+  {
+    TopAbs_State aRes = TopAbs_UNKNOWN;
+
+    TopoDS_Face aF = TopoDS::Face(theF.EmptyCopied());
+    aF.Orientation(TopAbs_FORWARD);
+    BRep_Builder aB;
+    aB.Add(aF, theW1);
+    BRepTopAdaptor_FClass2d clas(aF, ::Precision::PConfusion());
+    for (TopoDS_Iterator ew(theW2); ew.More(); ew.Next())
+    {
+      TopoDS_Edge ed = TopoDS::Edge(ew.Value());
+      Standard_Real cf, cl;
+      Handle(Geom2d_Curve) cw = BRep_Tool::CurveOnSurface(ed, theF, cf, cl);
+      if (cw.IsNull()) {
+        continue;
+      }
+      gp_Pnt2d unp = cw->Value((cf + cl) / 2.);
+      TopAbs_State ste = clas.Perform(unp, Standard_False);
+      if (ste == TopAbs_OUT || ste == TopAbs_IN)
+      {
+        if (aRes == TopAbs_UNKNOWN)
+        {
+          aRes = ste;
+        }
+        else {
+          if (aRes != ste)
+          {
+            aRes = TopAbs_UNKNOWN;
+            break;
+          }
+        }
+      }
+    }
+
+    return aRes;
   }
 
 }
@@ -97,15 +138,6 @@ void Font_BRepFont::init()
   myCurve2dAdaptor = new Geom2dAdaptor_HCurve();
   Handle(Adaptor3d_HSurface) aSurfAdaptor = new GeomAdaptor_HSurface (mySurface);
   myCurvOnSurf.Load (aSurfAdaptor);
-
-  myFixer.FixWireMode()          = 1;
-  myFixer.FixOrientationMode()   = 1;
-  myFixer.FixSplitFaceMode()     = 1; // some glyphs might be composed from several faces
-  Handle(ShapeFix_Wire) aWireFixer = myFixer.FixWireTool();
-  aWireFixer->FixConnectedMode() = 1;
-  aWireFixer->ClosedWireMode()   = Standard_True;
-  Handle(ShapeBuild_ReShape) aContext = new ShapeBuild_ReShape();
-  myFixer.SetContext (aContext);
 }
 
 // =======================================================================
@@ -240,6 +272,121 @@ bool Font_BRepFont::to3d (const Handle(Geom2d_Curve)& theCurve2d,
   return !theCurve3d.IsNull();
 }
 
+
+// =======================================================================
+// function : buildFaces
+// purpose  : auxilary for renderGlyph
+// =======================================================================
+Standard_Boolean Font_BRepFont::buildFaces(
+  const TopTools_SequenceOfShape& theWires,
+  TopoDS_Shape& theRes)
+{
+  // split to few faces (if it is needed) and update orientation of wires
+  TopoDS_Shape aRes;
+  // classify wires
+  //Font_DataMapOfShapeMapOfShape aMapOutInts;
+  TopTools_DataMapOfShapeSequenceOfShape aMapOutInts;
+  TopTools_DataMapOfShapeInteger aMapNbOuts;
+  Standard_Integer aNbWires = theWires.Length();
+  TopoDS_Face aF;
+  myBuilder.MakeFace(aF, mySurface, myPrecision);
+  for (Standard_Integer i = 1; i <= aNbWires; i++)
+  {
+    TopoDS_Wire aW1 = TopoDS::Wire(theWires.Value(i));
+    if (!aMapNbOuts.IsBound(aW1))
+    {
+      Standard_Integer aNbOuts = 0;
+      aMapNbOuts.Bind(aW1, aNbOuts);
+    }
+    TopTools_SequenceOfShape anIntWs;
+    for (Standard_Integer j = 1; j <= aNbWires; j++)
+    {
+      if (i == j) continue;
+      TopoDS_Wire aW2 = TopoDS::Wire(theWires.Value(j));
+      TopAbs_State aClass = classifyWW(aW1, aW2, aF);
+      if (aClass == TopAbs_IN)
+      {
+        anIntWs.Append(aW2);
+        if (aMapNbOuts.IsBound(aW2))
+        {
+          aMapNbOuts.ChangeFind(aW2)++;
+        }
+        else
+        {
+          Standard_Integer aNbOuts = 1;
+          aMapNbOuts.Bind(aW2, aNbOuts);
+        }
+      }
+    }
+    aMapOutInts.Bind(aW1, anIntWs);
+  }
+  // check out wires and remove "not out" wires from maps
+  for (TopTools_DataMapIteratorOfDataMapOfShapeInteger itO(aMapNbOuts); itO.More(); itO.Next())
+  {
+    Standard_Integer aTmp = itO.Value() % 2;
+    if (aTmp > 0)
+    {
+      // not out wire
+      aMapOutInts.UnBind(itO.Key());
+    }
+  }
+  // create faces for out wires
+  TopTools_MapOfShape anUsedShapes;
+  Standard_Integer aNbFaces = 0;
+  TopoDS_Compound aFaceComp;
+  myBuilder.MakeCompound(aFaceComp);
+  while (aMapOutInts.Extent() > 0)
+  {
+    // find out wire with max number of outs 
+    TopoDS_Shape aW;
+    Standard_Integer aMaxNbOuts = -1;
+    for (TopTools_DataMapIteratorOfDataMapOfShapeSequenceOfShape itMOI(aMapOutInts); itMOI.More(); itMOI.Next())
+    {
+      TopoDS_Shape aKey = itMOI.Key();
+      Standard_Integer aNbOuts = aMapNbOuts.Find(aKey);
+      if (aNbOuts > aMaxNbOuts)
+      {
+        aMaxNbOuts = aNbOuts;
+        aW = aKey;
+      }
+    }
+    // create face for selected wire
+    TopoDS_Face aNewF;
+    myBuilder.MakeFace(aNewF, mySurface, myPrecision);
+    myBuilder.Add(aNewF, aW);
+    anUsedShapes.Add(aW);
+    const TopTools_SequenceOfShape& anIns = aMapOutInts.Find(aW);
+    for (Standard_Integer i=1; i<= anIns.Length(); i++)
+    {
+      TopoDS_Wire aWin = TopoDS::Wire(anIns.Value(i));
+      if (anUsedShapes.Contains(aWin))
+      {
+        continue;
+      }
+      aWin.Reverse();
+      myBuilder.Add(aNewF, aWin);
+      anUsedShapes.Add(aWin);
+    }
+    aNbFaces++;
+    myBuilder.Add(aFaceComp, aNewF);
+    aMapOutInts.UnBind(aW);
+  }
+  if (aNbFaces > 0)
+  {
+    if (aNbFaces > 1)
+    {
+      theRes = aFaceComp;
+    }
+    else
+    {
+      TopoDS_Iterator itSh(aFaceComp);
+      theRes = itSh.Value();
+    }
+  }
+  return (aNbFaces > 0);
+}
+
+
 // =======================================================================
 // function : renderGlyph
 // purpose  :
@@ -264,8 +411,8 @@ Standard_Boolean Font_BRepFont::renderGlyph (const Standard_Utf32Char theChar,
     return Standard_False;
 
   TopLoc_Location aLoc;
-  TopoDS_Face aFaceDraft;
-  myBuilder.MakeFace (aFaceDraft, mySurface, myPrecision);
+  TopTools_SequenceOfShape aWires;
+  //TopoDS_Compound aFaceCompDraft;
 
   // Get orientation is useless since it doesn't retrieve any in-font information and just computes orientation.
   // Because it fails in some cases - leave this to ShapeFix.
@@ -450,31 +597,23 @@ Standard_Boolean Font_BRepFont::renderGlyph (const Standard_Utf32Char theChar,
     }
 
     TopoDS_Wire aWireDraft = aWireMaker.Wire();
-    //if (anOrient == FT_ORIENTATION_FILL_LEFT)
-    //{
-    // According to the TrueType specification, clockwise contours must be filled
-    aWireDraft.Reverse();
-    //}
-    myBuilder.Add (aFaceDraft, aWireDraft);
+
+    // collect all wires and set CCW orientation
+    TopoDS_Face aF;
+    myBuilder.MakeFace(aF, mySurface, myPrecision);
+    myBuilder.Add(aF, aWireDraft);
+    BRepTopAdaptor_FClass2d clas(aF, ::Precision::PConfusion());
+    TopAbs_State staout = clas.PerformInfinitePoint();
+    if (staout != TopAbs_OUT) {
+      // need to reverse
+      aWireDraft.Reverse();
+    }
+    aWires.Append(aWireDraft);
   }
 
-  myFixer.Init (aFaceDraft);
-  myFixer.Perform();
-  theShape = myFixer.Result();
-  if (!theShape.IsNull()
-  &&  theShape.ShapeType() != TopAbs_FACE)
+  if (!aWires.IsEmpty())
   {
-    // shape fix can not fix orientation within the single call
-    TopoDS_Compound aComp;
-    myBuilder.MakeCompound (aComp);
-    for (TopExp_Explorer aFaceIter (theShape, TopAbs_FACE); aFaceIter.More(); aFaceIter.Next())
-    {
-      TopoDS_Face aFace = TopoDS::Face (aFaceIter.Current());
-      myFixer.Init (aFace);
-      myFixer.Perform();
-      myBuilder.Add (aComp, myFixer.Result());
-    }
-    theShape = aComp;
+    buildFaces(aWires, theShape);
   }
 
   myCache.Bind (theChar, theShape);
