@@ -850,7 +850,7 @@ public:
   //! Sets Shading Model type for the shading aspect.
   Standard_EXPORT bool SetShadingModel (Graphic3d_TypeOfShadingModel theModel,
                                         bool theToOverrideDefaults = false);
-
+  
 protected:
 
   Handle(Prs3d_Drawer)          myLink;

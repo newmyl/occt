@@ -195,4 +195,42 @@ private:
   float myDepthFactor;   //!< factor of depth influence to coverage.
 };
 
+//! Defines state of wireframe properties.
+class OpenGl_WireframeState
+{
+public:
+
+  //! Creates new wireframe state.
+  Standard_EXPORT OpenGl_WireframeState() :
+    myWireframeWidth (1.0f),
+    myWireframeColor (Quantity_NOC_WHITE),
+    myViewport (OpenGl_Vec4 (0.0, 0.0, 0.0, 0.0)) {}
+
+  //! Set fields which got from face aspect.
+  Standard_EXPORT void SetAspects (const Standard_ShortReal& theWireframeWidth,
+                                   const OpenGl_Vec3&        theWireframeColor)
+  {
+    myWireframeWidth = theWireframeWidth;
+    myWireframeColor = theWireframeColor;
+  }
+
+  //! Set viewport field
+  Standard_EXPORT void SetViewport (const OpenGl_Vec4& theViewport) { myViewport = theViewport; }
+
+  //! Return width of wireframe
+  Standard_EXPORT const Standard_ShortReal& WireframeWidth() const { return myWireframeWidth; }
+
+  //! Return color of wireframe
+  Standard_EXPORT const OpenGl_Vec3& WireframeColor() const { return myWireframeColor; }
+
+  //! Return viewport
+  Standard_EXPORT const OpenGl_Vec4& Viewport() const { return myViewport; }
+  
+private:
+
+  Standard_ShortReal myWireframeWidth; //!< wireframe width
+  OpenGl_Vec3        myWireframeColor; //!< wireframe color
+  OpenGl_Vec4        myViewport;       //!< viewport properties
+};
+
 #endif // _OpenGl_State_HeaderFile
