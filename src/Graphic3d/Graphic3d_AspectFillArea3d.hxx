@@ -298,6 +298,18 @@ public:
     myEdgeWidth = (float )theWidth;
   }
 
+  //! Return scale factor for shrunk presentation aspect.
+  Standard_ShortReal ScaleFactor() const { return myScaleFactor; }
+
+  //! Modifies scale factor for shrunk presentation aspect.
+  void SetScaleFactor (const Standard_ShortReal theScaleFactor) { myScaleFactor = theScaleFactor; }
+
+  //! Returns true if presentation data contains quads.
+  bool IsQuadsPrs() const { return myIsQuadsPrs; }
+
+  //! Set quad presentation mode state.
+  void SetQuadsPrs (const Standard_Boolean theIsQuadsPrs) { myIsQuadsPrs = theIsQuadsPrs; }
+
 public:
 
   //! Returns the hatch type used when InteriorStyle is IS_HATCH
@@ -370,6 +382,8 @@ protected:
   Handle(Graphic3d_HatchStyle) myHatchStyle;
 
   Graphic3d_PolygonOffset myPolygonOffset;
+  Standard_ShortReal      myScaleFactor;
+  Standard_Boolean        myIsQuadsPrs;
   bool                    myToDistinguishMaterials;
   bool                    myToDrawEdges;
   bool                    myToSuppressBackFaces;

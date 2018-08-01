@@ -504,6 +504,9 @@ public:
        && !caps->vboDisable;
   }
 
+  //! @return TRUE if pipeline geometry stage is supported
+  Standard_Boolean HasGeometryStage() const { return myHasGeometryStage; }
+
   //! @return cached state of GL_NORMALIZE.
   Standard_Boolean IsGlNormalizeEnabled() const { return myIsGlNormalizeEnabled; }
 
@@ -764,6 +767,9 @@ public: //! @name methods to alter or retrieve current state
   //! Rendering scale factor (inverted value).
   Standard_ShortReal RenderScaleInv() const { return myRenderScaleInv; }
 
+  //! Return scale factor for line width.
+  Standard_ShortReal LineWidthScale() const { return myLineWidthScale; }
+
   //! Set resolution ratio.
   //! Note that this method rounds @theRatio to nearest integer.
   void SetResolution (unsigned int theResolution,
@@ -915,6 +921,8 @@ private: // context info
   Standard_Boolean myHasRayTracing;                 //! indicates whether ray tracing mode is supported 
   Standard_Boolean myHasRayTracingTextures;         //! indicates whether textures in ray tracing mode are supported 
   Standard_Boolean myHasRayTracingAdaptiveSampling; //! indicates whether adaptive screen sampling in ray tracing mode is supported 
+
+  Standard_Boolean myHasGeometryStage; //! indicates whetever pipeline geometry stage is supported
 
   Handle(OpenGl_ShaderManager) myShaderManager; //! support object for managing shader programs
 

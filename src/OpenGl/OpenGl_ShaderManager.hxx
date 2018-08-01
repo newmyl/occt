@@ -38,7 +38,7 @@ class OpenGl_VertexBuffer;
 typedef NCollection_Sequence<Handle(OpenGl_ShaderProgram)> OpenGl_ShaderProgramList;
 
 //! List of variable of shader program.
-typedef NCollection_Vector<TCollection_AsciiString> OpenGl_ShaderVarList;
+typedef NCollection_Sequence<TCollection_AsciiString> OpenGl_ShaderVarList;
 
 //! This class is responsible for managing shader programs.
 class OpenGl_ShaderManager : public Standard_Transient
@@ -86,12 +86,12 @@ public:
   Standard_EXPORT Standard_Boolean IsEmpty() const;
 
   //! Bind program for filled primitives rendering
-  Standard_Boolean BindFaceProgram (const Handle(OpenGl_TextureSet)& theTextures,
-                                    const Graphic3d_TypeOfShadingModel  theShadingModel,
-                                    const Graphic3d_AlphaMode           theAlphaMode,
-                                    const Standard_Boolean              theHasVertColor,
-                                    const Standard_Boolean              theEnableEnvMap,
-                                    const Handle(OpenGl_ShaderProgram)& theCustomProgram)
+  Standard_Boolean BindFaceProgram (const Handle(OpenGl_TextureSet)&          theTextures,
+                                    const Graphic3d_TypeOfShadingModel        theShadingModel,
+                                    const Handle(Graphic3d_AspectFillArea3d)& theAspect,
+                                    const Standard_Boolean                    theHasVertColor,
+                                    const Standard_Boolean                    theEnableEnvMap,
+                                    const Handle(OpenGl_ShaderProgram)&       theCustomProgram)
   {
     if (!theCustomProgram.IsNull()
      || myContext->caps->ffpEnable)
@@ -103,7 +103,21 @@ public:
                                                         && (theTextures.IsNull() || theTextures->IsModulate())
                                                         ? theShadingModel
                                                         : Graphic3d_TOSM_UNLIT;
-    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, theEnableEnvMap);
+    Standard_Integer aBits = 0;
+    if (theAspect.IsNull())
+    {
+      aBits = getProgramBits (theTextures, Graphic3d_AlphaMode_Opaque, theHasVertColor, theEnableEnvMap);
+    }
+    else
+    {
+      myWireframeState.SetAspects (theAspect->EdgeColor(),
+                                   theAspect->EdgeWidth() * myContext->LineWidthScale(),
+                                   theAspect->ScaleFactor(),
+                                   theAspect->IsQuadsPrs(),
+                                   theAspect->ToDrawEdges());
+      aBits = getProgramBits (theTextures, theAspect->AlphaMode(), theHasVertColor, theEnableEnvMap);
+      updateProgramBits (aBits, theAspect);
+    }
     Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits);
     return bindProgramWithState (aProgram);
   }
@@ -323,6 +337,20 @@ public:
 
 public:
 
+  //! Set the state of viewport for wireframe uniforms.
+  //! @param theViewport [in] current viewport value.
+  void SetWireframeViewportState (const Standard_Integer* theViewport)
+  {
+    OpenGl_Vec4 aViewport ((float)theViewport[0], (float)theViewport[1], 
+                           (float)theViewport[2], (float)theViewport[3]);
+    myWireframeState.SetViewport (aViewport);
+  }
+
+  //! Pushes state of Wireframe uniforms to the specified program.
+  Standard_EXPORT void PushWireframeState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
+
+public:
+
   //! Pushes current state of OCCT graphics parameters to specified program.
   Standard_EXPORT void PushState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
@@ -419,7 +447,6 @@ protected:
                                    Graphic3d_AlphaMode theAlphaMode,
                                    Standard_Boolean theHasVertColor,
                                    Standard_Boolean theEnableEnvMap)
-
   {
     Standard_Integer aBits = 0;
     if (theAlphaMode == Graphic3d_AlphaMode_Mask)
@@ -467,6 +494,49 @@ protected:
       aBits |= OpenGl_PO_WriteOit;
     }
     return aBits;
+  }
+
+  //! Update thr program bits according to interior style mode.
+  void updateProgramBits (Standard_Integer&                         theBits, 
+                          const Handle(Graphic3d_AspectFillArea3d)& theAspect)
+  {
+    if (myContext->HasGeometryStage())
+    {
+      switch (theAspect->InteriorStyle())
+      {
+        case Aspect_IS_HOLLOW:
+        {
+          theBits |= (OpenGl_PO_HollowMode << 13);
+          break;
+        }
+        case Aspect_IS_PIXEL_SHRINK:
+        {
+          theBits |= (OpenGl_PO_PixelShrinkMode << 13);
+          break;
+        }
+        case Aspect_IS_SCALE_SHRINK:
+        {
+          theBits |= (OpenGl_PO_ScaleShrinkMode << 13);
+          break;
+        }
+        case Aspect_IS_SOLID_WIREFRAME:
+        {
+          theBits |= (OpenGl_PO_SolidWFMode << 13);
+          break;
+        }
+        case Aspect_IS_HIDDENLINE:
+        {
+          theBits |= (OpenGl_PO_HiddenLineMode << 13);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    if (myContext->SampleAlphaToCoverage())
+    {
+      theBits |= OpenGl_PO_AlphaToCoverage;
+    }
   }
 
   //! Prepare standard GLSL program.
@@ -561,7 +631,18 @@ protected:
   //! Prepare GLSL source for shader programs according to variable list.
   Standard_EXPORT void prepareShadersOutSrc (TCollection_AsciiString&    theSrcVertOut,
                                              TCollection_AsciiString&    theSrcFragOut,
-                                             const OpenGl_ShaderVarList& theVarList);
+                                             TCollection_AsciiString&    theSrcGeomOut,
+                                             const OpenGl_ShaderVarList& theVarList,
+                                             const Standard_Integer      theBits);
+
+  //! Prepare GLSL source for fragment shader according to parameters.
+  Standard_EXPORT void prepareFragExtrSrc (TCollection_AsciiString& theSrcFragMain,
+                                           const Standard_Integer   theBits,
+                                           const Standard_Boolean   isGetColorVar);
+
+  //! Prepare GLSL source for geometry shader according to parameters.
+  Standard_EXPORT TCollection_AsciiString prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList,
+                                                              const Standard_Integer      theBits);
 
 protected:
 
@@ -650,6 +731,7 @@ protected:
   OpenGl_LightSourceState            myLightSourceState;   //!< State of OCCT light sources
   OpenGl_MaterialState               myMaterialState;      //!< State of Front and Back materials
   OpenGl_OitState                    myOitState;           //!< State of OIT uniforms
+  OpenGl_WireframeState              myWireframeState;     //!< State of Wireframe uniforms
 
   gp_XYZ                             myLocalOrigin;        //!< local camera transformation
   Standard_Boolean                   myHasLocalOrigin;     //!< flag indicating that local camera transformation has been set
