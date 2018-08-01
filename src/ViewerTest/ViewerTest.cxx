@@ -1539,7 +1539,7 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   {
     anInterStyle = Aspect_IS_EMPTY;
   }
-  else if (aStyleArg == "hollow")
+  else if (aStyleArg == "wireframe")
   {
     anInterStyle = Aspect_IS_HOLLOW;
   }
@@ -1559,17 +1559,32 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   {
     anInterStyle = Aspect_IS_POINT;
   }
+  else if (aStyleArg == "shrink")
+  {
+    anInterStyle = Aspect_IS_SHRINK;
+  }
+  else if (aStyleArg == "solidwireframe")
+  {
+    anInterStyle = Aspect_IS_SOLID_WIREFRAME;
+  }
   else
   {
-    const Standard_Integer anIntStyle = aStyleArg.IntegerValue();
-    if (anIntStyle < Aspect_IS_EMPTY
-     || anIntStyle > Aspect_IS_POINT)
+    if (aStyleArg.IsIntegerValue())
     {
-      std::cout << "Error: style must be within a range [0 (Aspect_IS_EMPTY), "
-                << Aspect_IS_POINT << " (Aspect_IS_POINT)]\n";
+      const Standard_Integer anIntStyle = aStyleArg.IntegerValue();
+      if (anIntStyle < Aspect_IS_EMPTY || anIntStyle > Aspect_IS_SOLID_WIREFRAME)
+      {
+        std::cout << "Error: style must be within a range [0 (Empty), "
+                  << Aspect_IS_SOLID_WIREFRAME << " (Solid Wireframe)]\n";
+        return 1;
+      }
+      anInterStyle = (Aspect_InteriorStyle)anIntStyle;
+    }
+    else
+    {
+      std::cout << "Error: wrong interior style name: " << aStyleArg << ".\n";
       return 1;
     }
-    anInterStyle = (Aspect_InteriorStyle )anIntStyle;
   }
 
   if (!aName.IsEmpty()
@@ -1657,6 +1672,9 @@ struct ViewerTest_AspectsChangeSet
   Graphic3d_TypeOfShadingModel ShadingModel;
   TCollection_AsciiString      ShadingModelName;
 
+  Standard_Integer             ToSetWireframeWidth;
+  Standard_Integer             WireframeWidth;
+
   //! Empty constructor
   ViewerTest_AspectsChangeSet()
   : ToSetVisibility   (0),
@@ -1692,7 +1710,9 @@ struct ViewerTest_AspectsChangeSet
     ToSetHatch                 (0),
     StdHatchStyle              (-1),
     ToSetShadingModel          (0),
-    ShadingModel               (Graphic3d_TOSM_DEFAULT)
+    ShadingModel               (Graphic3d_TOSM_DEFAULT),
+    ToSetWireframeWidth        (0),
+    WireframeWidth             (1)
     {}
 
   //! @return true if no changes have been requested
@@ -1710,7 +1730,8 @@ struct ViewerTest_AspectsChangeSet
         && ToSetMaxParamValue     == 0
         && ToSetSensitivity       == 0
         && ToSetHatch             == 0
-        && ToSetShadingModel      == 0;
+        && ToSetShadingModel      == 0
+        && ToSetWireframeWidth    == 0;
   }
 
   //! @return true if properties are valid
@@ -1777,6 +1798,11 @@ struct ViewerTest_AspectsChangeSet
     && (ShadingModel < Graphic3d_TOSM_DEFAULT || ShadingModel > Graphic3d_TOSM_FRAGMENT))
     {
       std::cout << "Error: unknown shading model " << ShadingModelName << ".\n";
+      isOk = Standard_False;
+    }
+    if (ToSetWireframeWidth && WireframeWidth < 1)
+    {
+      std::cout << "Error: wireframe width parameter value should be greater or equal to 1 (specified " << WireframeWidth << ")\n";
       isOk = Standard_False;
     }
     return isOk;
@@ -1942,6 +1968,23 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
   else if (aCmdName == "vunsetmaterial")
   {
     aChangeSet->ToSetMaterial = -1;
+  }
+  else if (aCmdName == "vsetwfwidth")
+  {
+    if (aNames.IsEmpty()
+      || !aNames.Last().IsRealValue())
+    {
+      std::cout << "Error: not enough arguments!\n";
+      return 1;
+    }
+    aChangeSet->ToSetWireframeWidth = 1;
+    aChangeSet->WireframeWidth = aNames.Last().IntegerValue();
+    aNames.Remove(aNames.Length());
+  }
+  else if (aCmdName == "vunsetwfwidth")
+  {
+    aChangeSet->ToSetWireframeWidth = -1;
+    aChangeSet->WireframeWidth = 1;
   }
   else if (anArgIter >= theArgNb)
   {
@@ -2384,6 +2427,8 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
       aChangeSet->PathToHatchPattern.Clear();
       aChangeSet->ToSetShadingModel = -1;
       aChangeSet->ShadingModel = Graphic3d_TOSM_DEFAULT;
+      aChangeSet->ToSetWireframeWidth = -1;
+      aChangeSet->WireframeWidth = 1;
     }
     else if (anArg == "-isoontriangulation"
           || anArg == "-isoontriang")
@@ -2496,6 +2541,21 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
       aChangeSet->ToSetShadingModel = -1;
       aChangeSet->ShadingModel = Graphic3d_TOSM_DEFAULT;
     }
+    else if (anArg == "-setwireframewidth")
+    {
+      if (++anArgIter >= theArgNb)
+      {
+        std::cout << "Error: wrong syntax at " << anArg << "\n";
+        return 1;
+      }
+      aChangeSet->ToSetWireframeWidth = 1;
+      aChangeSet->WireframeWidth = Draw::Atoi(theArgVec[anArgIter]);
+    }
+    else if (anArg == "-unsetwireframewidth")
+    {
+      aChangeSet->ToSetWireframeWidth = -1;
+      aChangeSet->WireframeWidth = 1;
+    }
     else
     {
       std::cout << "Error: wrong syntax at " << anArg << "\n";
@@ -2594,6 +2654,10 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
     if (aChangeSet->ToSetShadingModel == 1)
     {
       aDrawer->ShadingAspect()->Aspect()->SetShadingModel (aChangeSet->ShadingModel);
+    }
+    if (aChangeSet->ToSetWireframeWidth == 1)
+    {
+      aDrawer->ShadingAspect()->Aspect()->SetWireframeWidth(aChangeSet->WireframeWidth);
     }
 
     // redisplay all objects in context
@@ -2797,6 +2861,7 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
         }
         if (aChangeSet->ToSetShadingModel != 0)
         {
+          aDrawer->HasOwnShadingAspect();
           aDrawer->SetShadingModel ((aChangeSet->ToSetShadingModel == -1) ? Graphic3d_TOSM_DEFAULT : aChangeSet->ShadingModel, aChangeSet->ToSetShadingModel != -1);
           toRedisplay = Standard_True;
         }
@@ -2808,6 +2873,12 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
             *aDrawer->ShadingAspect()->Aspect() = *aCtx->DefaultDrawer()->ShadingAspect()->Aspect();
           }
           aDrawer->ShadingAspect()->Aspect()->SetAlphaMode (aChangeSet->AlphaMode, aChangeSet->AlphaCutoff);
+          toRedisplay = Standard_True;
+        }
+        if (aChangeSet->ToSetWireframeWidth != 0)
+        {
+          aDrawer->HasOwnShadingAspect();
+          aDrawer->SetWireframeWidth (aChangeSet->WireframeWidth, aChangeSet->ToSetWireframeWidth != -1);
           toRedisplay = Standard_True;
         }
       }
@@ -2850,6 +2921,11 @@ static Standard_Integer VAspects (Draw_Interpretor& /*theDI*/,
           {
             Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects (aSubShape);
             aCurColDrawer->SetShadingModel ((aChangeSet->ToSetShadingModel == -1) ? Graphic3d_TOSM_DEFAULT : aChangeSet->ShadingModel, aChangeSet->ToSetShadingModel != -1);
+          }
+          if (aChangeSet->ToSetWireframeWidth != 0)
+          {
+            Handle(AIS_ColoredDrawer) aCurColDrawer = aColoredPrs->CustomAspects(aSubShape);
+            aCurColDrawer->SetWireframeWidth (aChangeSet->WireframeWidth);
           }
         }
       }
@@ -5849,6 +5925,7 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
       "\n\t\t:          [-setShadingModel {color|flat|gouraud|phong}]"
       "\n\t\t:          [-unsetShadingModel]"
       "\n\t\t:          [-setAlphaMode {opaque|mask|blend|blendauto} [alphaCutOff=0.5]]"
+      "\n\t\t:          [-setWireframeWidth LineWidth] [-unsetWireframeWidth]"
       "\n\t\t: Manage presentation properties of all, selected or named objects."
       "\n\t\t: When -subshapes is specified than following properties will be"
       "\n\t\t: assigned to specified sub-shapes."
@@ -5900,12 +5977,30 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
 
   theCommands.Add("vunsetwidth",
 		  "vunsetwidth [-noupdate|-update] [name]"
-      "\n\t\t: Alias for vaspects -unsetwidth [name] width.",
+      "\n\t\t: Alias for vaspects -unsetwidth [name].",
 		  __FILE__,VAspects,group);
 
+  theCommands.Add("vsetwfwidth",
+    "vsetwidth [-noupdate|-update] [name] LineWidth"
+    "\n\t\t: Alias for vaspects -setwireframewidth [name] LineWidth.",
+    __FILE__, VAspects, group);
+
+  theCommands.Add("vunsetwfwidth",
+    "vunsetwfwidth [-noupdate|-update] [name]"
+    "\n\t\t: Alias for vaspects -unsetwireframewidth [name].",
+    __FILE__, VAspects, group);
+
   theCommands.Add("vsetinteriorstyle",
-		  "vsetinteriorstyle [-noupdate|-update] [name] style"
-      "\n\t\t: Where style is: 0 = EMPTY, 1 = HOLLOW, 2 = HATCH, 3 = SOLID, 4 = HIDDENLINE.",
+    "vsetinteriorstyle [-noupdate|-update] [name] Style"
+      "\n\t\t  : The Style are:"
+      "\n\t\t  :    empty          No interior"
+      "\n\t\t  :    hollow         Display the boundaries of the surface"
+      "\n\t\t  :    hatch          Display hatched surface with a hatch style"
+      "\n\t\t  :    solid          Display surface"
+      "\n\t\t  :    hidenline      Display surface in hidden lines removed"
+      "\n\t\t  :    point          Display only vertices of surface"
+      "\n\t\t  :    shrink         Display shrunk triangulation of surface"
+      "\n\t\t  :    solidwireframe Display boundaries and surface",
 		  __FILE__,VSetInteriorStyle,group);
 
   theCommands.Add("vsensdis",
