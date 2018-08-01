@@ -125,6 +125,7 @@ OpenGl_Context::OpenGl_Context (const Handle(OpenGl_Caps)& theCaps)
   hasFloatBuffer     (OpenGl_FeatureNotAvailable),
   hasHalfFloatBuffer (OpenGl_FeatureNotAvailable),
   hasSampleVariables (OpenGl_FeatureNotAvailable),
+  hasGeometryStage   (OpenGl_FeatureNotAvailable),
   arbDrawBuffers (Standard_False),
   arbNPTW  (Standard_False),
   arbTexRG (Standard_False),
@@ -170,6 +171,7 @@ OpenGl_Context::OpenGl_Context (const Handle(OpenGl_Caps)& theCaps)
   myHasRayTracing (Standard_False),
   myHasRayTracingTextures (Standard_False),
   myHasRayTracingAdaptiveSampling (Standard_False),
+  //myHasGeometryStage (Standard_False),
   myFrameStats (new OpenGl_FrameStats()),
 #if !defined(GL_ES_VERSION_2_0)
   myPointSpriteOrig (GL_UPPER_LEFT),
@@ -1456,6 +1458,12 @@ void OpenGl_Context::init (const Standard_Boolean theIsCoreProfile)
   glGetIntegerv (GL_MAX_CLIP_PLANES,  &myMaxClipPlanes);
 #endif
 
+  hasGeometryStage = IsGlGreaterEqual (3, 2) 
+                   ? OpenGl_FeatureInCore 
+                   : (CheckExtension ("GL_EXT_geometry_shader") && CheckExtension("GL_EXT_shader_io_blocks") 
+                     ? OpenGl_FeatureInExtensions
+                     : OpenGl_FeatureNotAvailable);
+
   if (hasDrawBuffers)
   {
     glGetIntegerv (GL_MAX_DRAW_BUFFERS,      &myMaxDrawBuffers);
@@ -2600,6 +2608,9 @@ void OpenGl_Context::init (const Standard_Boolean theIsCoreProfile)
     core44back = (OpenGl_GlCore44Back* )(&(*myFuncs));
   }
 #endif
+
+  //! Checking availability of pipeline geometry stage. Geometry stage was implemented since OpenGl 3.2+ and OpenGl ES 3.2.
+  //myHasGeometryStage = IsGlGreaterEqual (3, 2) ? true : false;
 }
 
 // =======================================================================
