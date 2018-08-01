@@ -195,4 +195,57 @@ private:
   float myDepthFactor;   //!< factor of depth influence to coverage.
 };
 
+//! Defines state of wireframe properties.
+class OpenGl_WireframeState
+{
+public:
+
+  //! Creates new wireframe state.
+  Standard_EXPORT OpenGl_WireframeState() :
+    myViewport       (OpenGl_Vec4 (0.0)),
+    myWireframeColor (Quantity_NOC_WHITE),
+    myWireframeWidth (1.0f),
+    myIsQuadMode     (false),
+    myIsColoringEdge (false) {}
+
+  //! Set fields which got from face aspect.
+  Standard_EXPORT void SetAspects (const OpenGl_Vec3&       theWireframeColor,
+                                   const Standard_ShortReal theWireframeWidth,
+                                   const Standard_Boolean   theIsQuadMode,
+                                   const Standard_Boolean   theIsColoringEdge)
+  {
+    myWireframeColor = theWireframeColor;
+    myWireframeWidth = theWireframeWidth;
+    myIsQuadMode     = theIsQuadMode;
+    myIsColoringEdge = theIsColoringEdge;
+  }
+
+  //! Set viewport field
+  void SetViewport (const OpenGl_Vec4& theViewport) { myViewport = theViewport; }
+
+  //! Return viewport
+  const OpenGl_Vec4& Viewport() const { return myViewport; }
+
+  //! Return color of wireframe
+  const OpenGl_Vec3& WireframeColor() const { return myWireframeColor; }
+
+  //! Return width of wireframe
+  Standard_ShortReal WireframeWidth() const { return myWireframeWidth; }
+
+  //! Return quad presentation flag
+  Standard_Boolean IsQuadMode() const { return myIsQuadMode; }
+
+  //! Return coloring edges presentation flag
+  Standard_Boolean IsColoringEdge() const { return myIsColoringEdge; }
+
+private:
+
+  OpenGl_Vec4        myViewport;       //!< viewport properties
+  OpenGl_Vec3        myWireframeColor; //!< wireframe color
+  Standard_ShortReal myWireframeWidth; //!< wireframe width
+  Standard_Boolean   myIsQuadMode;     //!< quad presentation flag
+  Standard_Boolean   myIsColoringEdge; //!< coloring edges presentation flag
+
+};
+
 #endif // _OpenGl_State_HeaderFile

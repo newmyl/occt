@@ -125,6 +125,7 @@ OpenGl_Context::OpenGl_Context (const Handle(OpenGl_Caps)& theCaps)
   hasFloatBuffer     (OpenGl_FeatureNotAvailable),
   hasHalfFloatBuffer (OpenGl_FeatureNotAvailable),
   hasSampleVariables (OpenGl_FeatureNotAvailable),
+  hasGeometryStage   (OpenGl_FeatureNotAvailable),
   arbDrawBuffers (Standard_False),
   arbNPTW  (Standard_False),
   arbTexRG (Standard_False),
@@ -1458,6 +1459,12 @@ void OpenGl_Context::init (const Standard_Boolean theIsCoreProfile)
   // get number of maximum clipping planes
   glGetIntegerv (GL_MAX_CLIP_PLANES,  &myMaxClipPlanes);
 #endif
+
+  hasGeometryStage = IsGlGreaterEqual (3, 2) 
+                   ? OpenGl_FeatureInCore 
+                   : (CheckExtension ("GL_EXT_geometry_shader") && CheckExtension("GL_EXT_shader_io_blocks") 
+                     ? OpenGl_FeatureInExtensions
+                     : OpenGl_FeatureNotAvailable);
 
   if (hasDrawBuffers)
   {

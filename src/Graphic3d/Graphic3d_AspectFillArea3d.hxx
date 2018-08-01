@@ -298,6 +298,12 @@ public:
     myEdgeWidth = (float )theWidth;
   }
 
+  //! Returns true if presentation data contains quads.
+  bool IsQuadsPrs() const { return myIsQuadsPrs; }
+
+  //! Set quad presentation mode state.
+  void SetQuadsPrs (const Standard_Boolean theIsQuadsPrs) { myIsQuadsPrs = theIsQuadsPrs; }
+
 public:
 
   //! Returns the hatch type used when InteriorStyle is IS_HATCH
@@ -370,6 +376,7 @@ protected:
   Handle(Graphic3d_HatchStyle) myHatchStyle;
 
   Graphic3d_PolygonOffset myPolygonOffset;
+  Standard_Boolean        myIsQuadsPrs;
   bool                    myToDistinguishMaterials;
   bool                    myToDrawEdges;
   bool                    myToSuppressBackFaces;

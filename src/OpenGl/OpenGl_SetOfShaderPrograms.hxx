@@ -23,20 +23,29 @@
 //! Standard GLSL program combination bits.
 enum OpenGl_ProgramOptions
 {
-  OpenGl_PO_Point       = 0x001, //!< point marker
-  OpenGl_PO_VertColor   = 0x002, //!< per-vertex color
-  OpenGl_PO_TextureRGB  = 0x004, //!< handle RGB   texturing
-  OpenGl_PO_TextureA    = 0x008, //!< handle Alpha texturing
-  OpenGl_PO_TextureEnv  = 0x010, //!< handle environment map
-  OpenGl_PO_StippleLine = 0x020, //!< stipple line
-  OpenGl_PO_ClipPlanes1 = 0x040, //!< handle 1 clipping plane
-  OpenGl_PO_ClipPlanes2 = 0x080, //!< handle 2 clipping planes
+  OpenGl_PO_Point           = 0x001,   //!< point marker
+  OpenGl_PO_VertColor       = 0x002,   //!< per-vertex color
+  OpenGl_PO_TextureRGB      = 0x004,   //!< handle RGB   texturing
+  OpenGl_PO_TextureA        = 0x008,   //!< handle Alpha texturing
+  OpenGl_PO_TextureEnv      = 0x010,   //!< handle environment map
+  OpenGl_PO_StippleLine     = 0x020,   //!< stipple line
+  OpenGl_PO_ClipPlanes1     = 0x040,   //!< handle 1 clipping plane
+  OpenGl_PO_ClipPlanes2     = 0x080,   //!< handle 2 clipping planes
   //OpenGl_PO_ClipPlanes3 = OpenGl_PO_ClipPlanes1|OpenGl_PO_ClipPlanes2, //!< handle 3 clipping planes - not implemented
-  OpenGl_PO_ClipPlanesN = 0x100, //!< handle N clipping planes
-  OpenGl_PO_ClipChains  = 0x200, //!< handle chains of clipping planes
-  OpenGl_PO_AlphaTest   = 0x400, //!< discard fragment by alpha test (defined by cutoff value)
-  OpenGl_PO_WriteOit    = 0x800, //!< write coverage buffer for Blended Order-Independent Transparency
-  OpenGl_PO_NB          = 0x1000 //!< overall number of combinations
+  OpenGl_PO_ClipPlanesN     = 0x100,   //!< handle N clipping planes
+  OpenGl_PO_ClipChains      = 0x200,   //!< handle chains of clipping planes
+  OpenGl_PO_AlphaTest       = 0x400,   //!< discard fragment by alpha test (defined by cutoff value)
+  OpenGl_PO_WriteOit        = 0x800,   //!< write coverage buffer for Blended Order-Independent Transparency
+  OpenGl_PO_AlphaToCoverage = 0x1000,  //!< discard fragment by alpha to coverage
+  OpenGl_PO_AdvShadingMods  = 0xE000,  //!< bit mask for advanced shading mods
+  OpenGl_PO_NB              = 0x10000  //!< overall number of combinations
+};
+
+enum OpenGl_AdvShadingMods
+{
+  OpenGl_PO_HollowMode = 1, //!< boundaries display mode
+  OpenGl_PO_HiddenLineMode, //!< removed hidden lines display mode
+  OpenGl_PO_SolidWFMode     //!< solid wireframe display mode
 };
 
 //! Alias to programs array of predefined length

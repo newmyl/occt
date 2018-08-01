@@ -921,6 +921,7 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
   {
     aContext->ShaderManager()->UpdateModelWorldStateTo (OpenGl_Mat4());
   }
+  aManager->SetWireframeViewportState (aContext->Viewport());
 
   // ====================================
   //      Step 2: Redraw background

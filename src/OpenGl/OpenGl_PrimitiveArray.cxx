@@ -807,7 +807,7 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
         const Standard_Boolean toEnableEnvMap = (!aTextures.IsNull() && (aTextures == theWorkspace->EnvironmentTexture()));
         aCtx->ShaderManager()->BindFaceProgram (aTextures,
                                                 aShadingModel,
-                                                anAspectFace->Aspect()->AlphaMode(),
+                                                anAspectFace->Aspect(),
                                                 hasVertColor,
                                                 toEnableEnvMap,
                                                 anAspectFace->ShaderProgramRes (aCtx));
@@ -866,24 +866,30 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   {
     aCtx->BindTextures (aTextureBack);
   }
-  else
+#if !defined(GL_ES_VERSION_2_0)
+  else if (aCtx->caps->ffpEnable
+        || aCtx->hasGeometryStage == OpenGl_FeatureNotAvailable
+        || anAspectFace->Aspect ()->InteriorStyle () == Aspect_IS_EMPTY
+        || (anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_SOLID
+        && anAspectFace->Aspect()->EdgeLineType() != Aspect_TOL_SOLID))
   {
     if (anAspectFace->Aspect()->ToDrawEdges()
+     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_SOLID_WIREFRAME
      || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
     {
       const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
+      aCtx->SetPolygonMode (GL_LINE);
       drawEdges (anEdgeColor, theWorkspace);
 
       // restore OpenGL polygon mode if needed
-    #if !defined(GL_ES_VERSION_2_0)
       if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
       {
         glPolygonMode (GL_FRONT_AND_BACK,
           anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
       }
-    #endif
     }
   }
+#endif
 }
 
 // =======================================================================
