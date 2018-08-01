@@ -70,12 +70,15 @@ Handle(Graphic3d_ShaderObject) OpenGl_ShaderObject::CreateFromSource (TCollectio
     const Standard_Boolean hasGeomStage = theNbGeomInputVerts > 0
                                        && aStageLower <  Graphic3d_TOS_GEOMETRY
                                        && aStageUpper >= Graphic3d_TOS_GEOMETRY;
+    const Standard_Boolean isAllStagesVar = aStageLower == Graphic3d_TOS_VERTEX
+                                         && aStageUpper == Graphic3d_TOS_FRAGMENT;
     if (hasGeomStage
     || !theInName.IsEmpty()
     || !theOutName.IsEmpty())
     {
       if (aSrcInStructs.IsEmpty()
-       && aSrcOutStructs.IsEmpty())
+       && aSrcOutStructs.IsEmpty()
+       && isAllStagesVar)
       {
         if (theType == aStageLower)
         {
@@ -93,8 +96,9 @@ Handle(Graphic3d_ShaderObject) OpenGl_ShaderObject::CreateFromSource (TCollectio
       }
     }
 
-    if (!aSrcInStructs.IsEmpty()
-     || !aSrcOutStructs.IsEmpty())
+    if (isAllStagesVar
+     && (!aSrcInStructs.IsEmpty()
+      || !aSrcOutStructs.IsEmpty()))
     {
       if (!aSrcInStructs.IsEmpty())
       {
@@ -118,30 +122,25 @@ Handle(Graphic3d_ShaderObject) OpenGl_ShaderObject::CreateFromSource (TCollectio
     }
   }
 
-  if (!aSrcInStructs.IsEmpty()
-   && theType == Graphic3d_TOS_GEOMETRY)
+  if (theType == Graphic3d_TOS_GEOMETRY)
   {
-    aSrcInStructs  += TCollection_AsciiString ("\n} ") + theInName  + "[" + theNbGeomInputVerts + "];";
+    aSrcUniforms.Prepend (TCollection_AsciiString ("\nlayout (triangles) in;\nlayout (triangle_strip, max_vertices = ") + theNbGeomInputVerts + ") out;");
+    if (!aSrcInStructs.IsEmpty())
+    {
+      aSrcInStructs  += TCollection_AsciiString ("\n} ") + theInName  + "[" + theNbGeomInputVerts + "];";
+    }
+    if (!aSrcOutStructs.IsEmpty())
+    {
+      aSrcOutStructs += TCollection_AsciiString ("\n} ") + theOutName + ";";
+    }
   }
   else if (!aSrcInStructs.IsEmpty())
   {
-    aSrcInStructs += "\n}";
-    if (!theInName.IsEmpty())
-    {
-      aSrcInStructs += " ";
-      aSrcInStructs += theInName;
-    }
-    aSrcInStructs += ";";
+    aSrcInStructs += "\n};";
   }
   else if (!aSrcOutStructs.IsEmpty())
   {
-    aSrcOutStructs += "\n}";
-    if (!theInName.IsEmpty())
-    {
-      aSrcOutStructs += " ";
-      aSrcOutStructs += theOutName;
-    }
-    aSrcOutStructs += ";";
+    aSrcOutStructs += "\n};";
   }
 
   theSource.Prepend (aSrcUniforms + aSrcInStructs + aSrcOutStructs + aSrcInOuts);

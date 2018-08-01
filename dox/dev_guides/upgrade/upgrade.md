@@ -1627,3 +1627,12 @@ Now methods *GeomConvert::ConcatG1*, *GeomConvert::ConcatC1*, *Geom2dConvert::Co
 Previously Document format version after restoring by DocumentRetrievalDriver was propagated using static methods of corresponding units (like MDataStd or MNaming) to static variables of these units and after that became accessible to Drivers of these units.
 Now Document format version is available to drivers via RelocationTable. The Relocation table now keeps HeaderData of the document and a format version can be extracted in next way: theRelocTable.GetHeaderData()->StorageVersion().
 Obsolete methods: *static void SetDocumentVersion (const Standard_Integer DocVersion)* and *static Standard_Integer DocumentVersion()* of *BinMDataStd*, *BinMNaming*, *XmlMDataStd* and *XmlMNaming* are removed.
+
+@subsection upgrade_740_interiorstyles New interior styles is implemented
+
+List of updated interior styles:
+*Aspect_IS_HOLLOW* - display boundaries of the surface.
+*Aspect_IS_HIDDENLINE* - display surface in hidden lines removed.
+*Aspect_IS_SOLID_WIREFRAME* - display boundaries and surface.
+All updated interior styles using geometry shader, which available since OpenGl 3.2+ and OpenGl ES 3.2+.
+

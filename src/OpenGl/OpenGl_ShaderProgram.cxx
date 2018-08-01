@@ -75,7 +75,13 @@ Standard_CString OpenGl_ShaderProgram::PredefinedKeywords[] =
   "occOitDepthFactor",     // OpenGl_OCCT_OIT_DEPTH_FACTOR
 
   "occTexTrsf2d",          // OpenGl_OCCT_TEXTURE_TRSF2D
-  "occPointSize"           // OpenGl_OCCT_POINT_SIZE
+  "occPointSize",          // OpenGl_OCCT_POINT_SIZE
+
+  "occViewport",           // OpenGl_OCCT_VIEWPORT
+  "occLineWidth",          // OpenGl_OCCT_LINE_WIDTH
+  "occWireframeColor",     // OpenGl_OCCT_WIREFRAME_COLOR
+  "occIsQuadMode",         // OpenGl_OCCT_QUAD_MODE_STATE
+  "occIsColoringEdge"      // OpenGl_OCCT_COLORING_EDGES_STATE
 };
 
 namespace
@@ -209,18 +215,43 @@ Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&
 
   // detect the minimum GLSL version required for defined Shader Objects
 #if defined(GL_ES_VERSION_2_0)
-  if (myHasTessShader
-  || (aShaderMask & Graphic3d_TOS_GEOMETRY) != 0)
+  if (myHasTessShader)
   {
     if (!theCtx->IsGlGreaterEqual (3, 2))
     {
       theCtx->PushMessage (GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 0, GL_DEBUG_SEVERITY_HIGH,
-                           "Error! Geometry and Tessellation shaders require OpenGL ES 3.2+");
+                           "Error! Tessellation shader require OpenGL ES 3.2+");
       return false;
     }
     else if (aHeaderVer.IsEmpty())
     {
       aHeaderVer = "#version 320 es";
+    }
+  }
+  else if ((aShaderMask & Graphic3d_TOS_GEOMETRY) != 0)
+  {
+    switch (theCtx->hasGeometryStage)
+    {
+      case OpenGl_FeatureNotAvailable:
+      {
+        theCtx->PushMessage (GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_ERROR, 0, GL_DEBUG_SEVERITY_HIGH,
+                             "Error! Geometry shader require OpenGL ES 3.2+ or GL_EXT_geometry_shader");
+        return false;
+      }
+      case OpenGl_FeatureInExtensions:
+      {
+        if (aHeaderVer.IsEmpty())
+        {
+          aHeaderVer = "#version 310 es";
+        }
+      }
+      case OpenGl_FeatureInCore:
+      {
+        if (aHeaderVer.IsEmpty())
+        {
+          aHeaderVer = "#version 320 es";
+        }
+      }
     }
   }
   else if ((aShaderMask & Graphic3d_TOS_COMPUTE) != 0)
@@ -349,6 +380,13 @@ Standard_Boolean OpenGl_ShaderProgram::Initialize (const Handle(OpenGl_Context)&
       }
 #endif
     }
+#if defined(GL_ES_VERSION_2_0)
+    if (theCtx->hasGeometryStage == OpenGl_FeatureInExtensions)
+    {
+      anExtensions += "#extension GL_EXT_geometry_shader : enable\n"
+                      "#extension GL_EXT_shader_io_blocks : enable\n";
+    }
+#endif
 
     TCollection_AsciiString aPrecisionHeader;
     if (anIter.Value()->Type() == Graphic3d_TOS_FRAGMENT)
