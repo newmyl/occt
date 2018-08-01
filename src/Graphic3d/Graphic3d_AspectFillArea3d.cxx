@@ -35,7 +35,10 @@ Graphic3d_AspectFillArea3d::Graphic3d_AspectFillArea3d()
   myToDistinguishMaterials (false),
   myToDrawEdges         (false),
   myToSuppressBackFaces (true),
-  myToMapTexture        (false)
+  myToMapTexture        (false),
+  myScaleFactor         (0.8f),
+  myIsQuadMode          (false),
+  myIsAdvancedShading   (true)
 {
   //
 }
@@ -66,7 +69,10 @@ Graphic3d_AspectFillArea3d::Graphic3d_AspectFillArea3d (const Aspect_InteriorSty
   myToDistinguishMaterials (false),
   myToDrawEdges         (false),
   myToSuppressBackFaces (true),
-  myToMapTexture        (false)
+  myToMapTexture        (false),
+  myScaleFactor         (0.8f),
+  myIsQuadMode          (false),
+  myIsAdvancedShading   (true)
 {
   if (theEdgeLineWidth <= 0.0)
   {

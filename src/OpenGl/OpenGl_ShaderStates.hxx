@@ -195,4 +195,63 @@ private:
   float myDepthFactor;   //!< factor of depth influence to coverage.
 };
 
+//! Defines state of wireframe properties.
+class OpenGl_WireframeState
+{
+public:
+
+  //! Creates new wireframe state.
+  Standard_EXPORT OpenGl_WireframeState() :
+    myWireframeWidth (1.0f),
+    myWireframeColor (Quantity_NOC_WHITE),
+    myViewport       (OpenGl_Vec4 (0.0)),
+    myScaleFactor    (0.8f),
+    myIsQuadMode     (false),
+    myIsColoringEdge (false) {}
+
+  //! Set fields which got from face aspect.
+  Standard_EXPORT void SetAspects (const Standard_ShortReal& theWireframeWidth,
+                                   const OpenGl_Vec3&        theWireframeColor,
+                                   const Standard_ShortReal& theScaleFactor,
+                                   const Standard_Boolean&   theIsQuadMode,
+                                   const Standard_Boolean&   theIsColoringEdge)
+  {
+    myWireframeWidth = theWireframeWidth;
+    myWireframeColor = theWireframeColor;
+    myScaleFactor    = theScaleFactor;
+    myIsQuadMode     = theIsQuadMode;
+    myIsColoringEdge = theIsColoringEdge;
+  }
+
+  //! Set viewport field
+  Standard_EXPORT void SetViewport (const OpenGl_Vec4& theViewport) { myViewport = theViewport; }
+
+  //! Return width of wireframe
+  Standard_EXPORT Standard_ShortReal WireframeWidth() const { return myWireframeWidth; }
+
+  //! Return color of wireframe
+  Standard_EXPORT const OpenGl_Vec3& WireframeColor() const { return myWireframeColor; }
+
+  //! Return viewport
+  Standard_EXPORT const OpenGl_Vec4& Viewport() const { return myViewport; }
+
+  //! Return scale factor
+  Standard_EXPORT Standard_ShortReal ScaleFactor() const { return myScaleFactor; }
+
+  //! Return quad presentation flag
+  Standard_EXPORT Standard_Boolean IsQuadMode() const { return myIsQuadMode; }
+
+  //! Return coloring edges presentation flag
+  Standard_EXPORT Standard_Boolean IsColoringEdge() const { return myIsColoringEdge; }
+
+private:
+
+  Standard_ShortReal myWireframeWidth; //!< wireframe width
+  OpenGl_Vec3        myWireframeColor; //!< wireframe color
+  OpenGl_Vec4        myViewport;       //!< viewport properties
+  Standard_ShortReal myScaleFactor;    //!< scale factor for shrunk presentation
+  Standard_Boolean   myIsQuadMode;     //!< quad presentation flag
+  Standard_Boolean   myIsColoringEdge; //!< coloring edges presentation flag
+};
+
 #endif // _OpenGl_State_HeaderFile

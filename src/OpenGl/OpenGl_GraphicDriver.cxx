@@ -433,6 +433,8 @@ Standard_Integer OpenGl_GraphicDriver::InquireLimit (const Graphic3d_TypeOfLimit
             && (InquireLimit (Graphic3d_TypeOfLimit_HasBlendedOit) == 1)) ? 1 : 0;
     case Graphic3d_TypeOfLimit_NB:
       return 0;
+    case Graphic3d_TypeOfLimit_HasShrunkPrs:
+      return aCtx->IsGlGreaterEqual (3, 2);
   }
   return 0;
 }

@@ -298,6 +298,27 @@ public:
     myEdgeWidth = (float )theWidth;
   }
 
+  //! Return scale factor for shrunk presentation aspect.
+  Standard_ShortReal ScaleFactor() const { return myScaleFactor; }
+
+  //! Modifies scale factor for shrunk presentation aspect.
+  void SetScaleFactor (const Standard_Real theScaleFactor)
+  {
+    myScaleFactor = (float)theScaleFactor;
+  }
+
+  //! Returns true if quad presentation is on (false by default).
+  bool IsQuadMode() const { return myIsQuadMode; }
+
+  //! Set quad presentation mode state.
+  void SetQuadMode (const Standard_Boolean theIsQuadMode) { myIsQuadMode = theIsQuadMode; }
+
+  //! Returns true if advanced shading is on (true by default).
+  Standard_Boolean IsAdvancedShading() const { return myIsAdvancedShading; }
+
+  //! Set advanced shading (based on geometry shader) mode. 
+  void SetAdvancedShading (const Standard_Boolean theIsAdvancedShading) { myIsAdvancedShading = theIsAdvancedShading; }
+
 public:
 
   //! Returns the hatch type used when InteriorStyle is IS_HATCH
@@ -374,6 +395,9 @@ protected:
   bool                    myToDrawEdges;
   bool                    myToSuppressBackFaces;
   bool                    myToMapTexture;
+  Standard_ShortReal      myScaleFactor;
+  Standard_Boolean        myIsQuadMode;
+  Standard_Boolean        myIsAdvancedShading;
 
 };
 

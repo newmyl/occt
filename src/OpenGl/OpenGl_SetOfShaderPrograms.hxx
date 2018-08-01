@@ -23,20 +23,27 @@
 //! Standard GLSL program combination bits.
 enum OpenGl_ProgramOptions
 {
-  OpenGl_PO_Point       = 0x001, //!< point marker
-  OpenGl_PO_VertColor   = 0x002, //!< per-vertex color
-  OpenGl_PO_TextureRGB  = 0x004, //!< handle RGB   texturing
-  OpenGl_PO_TextureA    = 0x008, //!< handle Alpha texturing
-  OpenGl_PO_TextureEnv  = 0x010, //!< handle environment map
-  OpenGl_PO_StippleLine = 0x020, //!< stipple line
-  OpenGl_PO_ClipPlanes1 = 0x040, //!< handle 1 clipping plane
-  OpenGl_PO_ClipPlanes2 = 0x080, //!< handle 2 clipping planes
+  OpenGl_PO_Point           = 0x001,   //!< point marker
+  OpenGl_PO_VertColor       = 0x002,   //!< per-vertex color
+  OpenGl_PO_TextureRGB      = 0x004,   //!< handle RGB   texturing
+  OpenGl_PO_TextureA        = 0x008,   //!< handle Alpha texturing
+  OpenGl_PO_TextureEnv      = 0x010,   //!< handle environment map
+  OpenGl_PO_StippleLine     = 0x020,   //!< stipple line
+  OpenGl_PO_ClipPlanes1     = 0x040,   //!< handle 1 clipping plane
+  OpenGl_PO_ClipPlanes2     = 0x080,   //!< handle 2 clipping planes
   //OpenGl_PO_ClipPlanes3 = OpenGl_PO_ClipPlanes1|OpenGl_PO_ClipPlanes2, //!< handle 3 clipping planes - not implemented
-  OpenGl_PO_ClipPlanesN = 0x100, //!< handle N clipping planes
-  OpenGl_PO_ClipChains  = 0x200, //!< handle chains of clipping planes
-  OpenGl_PO_AlphaTest   = 0x400, //!< discard fragment by alpha test (defined by cutoff value)
-  OpenGl_PO_WriteOit    = 0x800, //!< write coverage buffer for Blended Order-Independent Transparency
-  OpenGl_PO_NB          = 0x1000 //!< overall number of combinations
+  OpenGl_PO_ClipPlanesN     = 0x100,   //!< handle N clipping planes
+  OpenGl_PO_ClipChains      = 0x200,   //!< handle chains of clipping planes
+  OpenGl_PO_AlphaTest       = 0x400,   //!< discard fragment by alpha test (defined by cutoff value)
+  OpenGl_PO_WriteOit        = 0x800,   //!< write coverage buffer for Blended Order-Independent Transparency
+  OpenGl_PO_HollowMode      = 0x1000,  //!< boundaries display mode
+  OpenGl_PO_PixelShrinkMode = 0x2000,  //!< pixel shrunk triangulation display mode
+  OpenGl_PO_SolidWFMode     = 0x4000,  //!< solid wireframe display mode
+  OpenGl_PO_HiddenLine      = 0x8000,  //!< removed hidden lines display mode
+  OpenGl_PO_ScaleShrinkMode = 0x10000, //!< scalability shrunk triangulation display mode
+  OpenGl_PO_MSAA            = 0x20000, //!< MSAA enabled
+  OpenGl_PO_AdvShading      = 0x40000, //!< to use advanced shading
+  OpenGl_PO_NB              = 0x80000  //!< overall number of combinations
 };
 
 //! Alias to programs array of predefined length

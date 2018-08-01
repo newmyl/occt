@@ -784,6 +784,9 @@ public: //! @name methods to alter or retrieve current state
     myLineWidthScale  = Max (1.0f, std::floor (theRatio + 0.5f));
   }
 
+  //! Return scale factor for line width.
+  Standard_ShortReal LineWidthScale() const { return myLineWidthScale; }
+
 private:
 
   //! Wrapper to system function to retrieve GL function pointer by name.
