@@ -390,8 +390,10 @@ void OpenGl_FrameStatsPrs::Render (const Handle(OpenGl_Workspace)& theWorkspace)
     }
     aCtx->ApplyModelViewMatrix();
 
+    Handle (Graphic3d_AspectFillArea3d)anAspect = new Graphic3d_AspectFillArea3d();
+    anAspect->SetAlphaMode (Graphic3d_AlphaMode_Blend);
     aCtx->ShaderManager()->BindFaceProgram (Handle(OpenGl_TextureSet)(), Graphic3d_TOSM_UNLIT,
-                                            Graphic3d_AlphaMode_Blend, true, false,
+                                            anAspect, true, false,
                                             Handle(OpenGl_ShaderProgram)());
     aCtx->SetColor4fv (OpenGl_Vec4 (1.0f, 1.0f, 1.0f, 1.0f));
     glEnable (GL_BLEND);

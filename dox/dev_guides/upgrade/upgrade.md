@@ -1616,3 +1616,12 @@ Now methods *GeomConvert::ConcatG1*, *GeomConvert::ConcatC1*, *Geom2dConvert::Co
 
 *SelectBasics_PickResult* structure has been extended, so that it now defines 3D point on detected entity in addition to Depth value along picking ray.
 *SelectMgr_SelectingVolumeManager::Overlap()* methods have been corrected to fill in *SelectBasics_PickResult* structure (depth and 3D point) instead of only depth value, so that custom *Select3D_SensitiveEntity* implementation should be updated accordingly (including *Select3D_SensitiveSet* subclasses).
+
+@subsection upgrade_740_interiorstyles New interior styles is implemented
+
+List of updated interior styles:
+*Aspect_IS_HOLLOW* - display boundaries of the surface.
+*Aspect_IS_HIDDENLINE* - display surface in hidden lines removed.
+*Aspect_IS_SOLID_WIREFRAME* - display boundaries and surface.
+All updated interior styles using geometry shader, which available since OpenGl 3.2+ and OpenGl ES 3.2+.
+
