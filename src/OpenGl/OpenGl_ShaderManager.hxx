@@ -83,24 +83,28 @@ public:
   Standard_EXPORT Standard_Boolean IsEmpty() const;
 
   //! Bind program for filled primitives rendering
-  Standard_Boolean BindFaceProgram (const Handle(OpenGl_TextureSet)& theTextures,
-                                    const Graphic3d_TypeOfShadingModel  theShadingModel,
-                                    const Graphic3d_AlphaMode           theAlphaMode,
-                                    const Standard_Boolean              theHasVertColor,
-                                    const Standard_Boolean              theEnableEnvMap,
-                                    const Handle(OpenGl_ShaderProgram)& theCustomProgram)
+  Standard_Boolean BindFaceProgram (const Handle(OpenGl_TextureSet)&          theTextures,
+                                    const Graphic3d_TypeOfShadingModel        theShadingModel,
+                                    const Handle(Graphic3d_AspectFillArea3d)& theAspect,
+                                    const Standard_Boolean                    theHasVertColor,
+                                    const Standard_Boolean                    theEnableEnvMap,
+                                    const Handle(OpenGl_ShaderProgram)&       theCustomProgram)
   {
     if (!theCustomProgram.IsNull()
      || myContext->caps->ffpEnable)
     {
       return bindProgramWithState (theCustomProgram);
     }
-
+    
+    myWireframeWidth = theAspect->WireframeWidth();
+    myWireframeColor = theAspect->EdgeColor();
+    
     const Graphic3d_TypeOfShadingModel aShadeModelOnFace = theShadingModel != Graphic3d_TOSM_UNLIT
                                                         && (theTextures.IsNull() || theTextures->IsModulate())
                                                         ? theShadingModel
                                                         : Graphic3d_TOSM_UNLIT;
-    const Standard_Integer        aBits    = getProgramBits (theTextures, theAlphaMode, theHasVertColor, theEnableEnvMap);
+    Standard_Integer aBits = getProgramBits (theTextures, theAspect->AlphaMode(), theHasVertColor, theEnableEnvMap);
+    updateProgramBits(aBits, theAspect);
     Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits);
     return bindProgramWithState (aProgram);
   }
@@ -119,7 +123,7 @@ public:
       return bindProgramWithState (theCustomProgram);
     }
 
-    Standard_Integer aBits = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false);
+    Standard_Integer aBits = getProgramBits(theTextures, theAlphaMode, theHasVertColor, false);
     if (theLineType != Aspect_TOL_SOLID)
     {
       aBits |= OpenGl_PO_StippleLine;
@@ -320,6 +324,11 @@ public:
 
 public:
 
+  //! Pushes state of Wireframe uniforms to the specified program.
+  Standard_EXPORT void PushWireframeState(const Handle(OpenGl_ShaderProgram)& theProgram) const;
+
+public:
+
   //! Pushes current state of OCCT graphics parameters to specified program.
   Standard_EXPORT void PushState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
@@ -413,10 +422,9 @@ protected:
 
   //! Define program bits.
   Standard_Integer getProgramBits (const Handle(OpenGl_TextureSet)& theTextures,
-                                   Graphic3d_AlphaMode theAlphaMode,
+                                   const Graphic3d_AlphaMode theAlphaMode,
                                    Standard_Boolean theHasVertColor,
                                    Standard_Boolean theEnableEnvMap)
-
   {
     Standard_Integer aBits = 0;
     if (theAlphaMode == Graphic3d_AlphaMode_Mask)
@@ -463,7 +471,34 @@ protected:
     {
       aBits |= OpenGl_PO_WriteOit;
     }
+
     return aBits;
+  }
+
+  //! Update thr program bits according to interior style mode.
+  void updateProgramBits(Standard_Integer& theBits, 
+                         const Handle(Graphic3d_AspectFillArea3d)& theAspect)
+  {
+    switch (theAspect->InteriorStyle())
+    {
+    case Aspect_IS_WIREFRAME:
+    {
+      theBits |= OpenGl_PO_WFMode;
+      break;
+    }
+    case Aspect_IS_SHRUNK:
+    {
+      theBits |= OpenGl_PO_ShrinkMode;
+      break;
+    }
+    case Aspect_IS_COMBINED:
+    {
+      theBits |= OpenGl_PO_CombineMode;
+      break;
+    }
+    default:
+      break;
+    }
   }
 
   //! Prepare standard GLSL program.
@@ -642,6 +677,9 @@ protected:
   OpenGl_LightSourceState            myLightSourceState;   //!< State of OCCT light sources
   OpenGl_MaterialState               myMaterialState;      //!< State of Front and Back materials
   OpenGl_OitState                    myOitState;           //!< State of OIT uniforms
+
+  Standard_Integer                   myWireframeWidth;     //!< Value of wireframe width uniform
+  OpenGl_Vec3                        myWireframeColor;     //!< Value of wireframe color uniform
 
   gp_XYZ                             myLocalOrigin;        //!< local camera transformation
   Standard_Boolean                   myHasLocalOrigin;     //!< flag indicating that local camera transformation has been set
