@@ -1,0 +1,30 @@
+puts "============"
+puts "0029076: Visualization - implement element shrinking Shader"
+puts "============"
+puts ""
+
+pload MODELING VISUALIZATION
+vinit View1
+psphere s0 2
+psphere s1 1
+psphere s2 1
+vdisplay -dispMode 1 s0 s1 s2
+vsetlocation s1 -1.3 -1.3 1.3
+vsetlocation s2 1.3 1.3 1.3
+vrotate 0.0 0.5 0.0
+vrotate 0.5 0.0 0.0
+vfit
+vaspects s0 -setShadingModel color
+vaspects s1 -setShadingModel phong
+vaspects s2 -setShadingModel gouraud
+vsetinteriorstyle wireframe
+vdump $imagedir/${casename}_wireframe.png
+
+vsetinteriorstyle shrunk
+vsetwfwidth 3
+vdump $imagedir/${casename}_shrunk.png
+
+vsetinteriorstyle combined
+vaspects -setWireframeWidth 1
+vsetedgetype s0 -color 1.0 1.0 1.0
+vdump $imagedir/${casename}_combined.png
