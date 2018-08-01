@@ -324,17 +324,22 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
     switch (anIntstyle)
     {
       case Aspect_IS_EMPTY:
-      case Aspect_IS_HOLLOW:
-      {
-        myGlContext->SetPolygonMode (GL_LINE);
-        break;
-      }
       case Aspect_IS_HATCH:
       {
         myGlContext->SetPolygonMode (GL_FILL);
         myGlContext->SetPolygonHatchEnabled (true);
         break;
       }
+      case Aspect_IS_HOLLOW:
+      {
+        if (myGlContext->core32 == NULL)
+        {
+          myGlContext->SetPolygonMode(GL_LINE);
+          break;
+        }
+      }
+      case Aspect_IS_SHRINK:
+      case Aspect_IS_SOLID_WIREFRAME:
       case Aspect_IS_SOLID:
       case Aspect_IS_HIDDENLINE:
       {
