@@ -1,0 +1,39 @@
+puts "TODO CR29596 All: Intersection of pair of shapes has failed"
+puts "TODO CR30010 All: Error :  is WRONG because number of"
+puts "TODO CR30010 All: Error: Meshing not done"
+puts "TODO CR30010 All: Faulty shapes in variables faulty_1 to faulty_"
+
+puts "========"
+puts "OCC29900: Invalid result of FUSE operation"
+puts "========"
+puts ""
+
+cpulimit 3000
+
+brestore [locate_data_file bug30010_bigFillet_Run_12_1.brep] s1
+brestore [locate_data_file bug30010_bigFillet_Run_12_2.brep] s2
+
+bdrawwarnshapes 1
+bnondestructive 1
+bfuzzyvalue 0.0
+brunparallel 1
+
+bclearobjects
+bcleartools
+baddobjects s1
+baddtools s2
+bfillds
+bbop result 1
+
+checkshape result
+checknbshapes result -wire 80 -face 80 -shell 1 -solid 1
+checkprops result -s 131053 -v 1.23621e+006
+
+incmesh result 0.01
+if {[tricheck result] != ""} {
+  puts "Error: Meshing not done"
+}
+
+boptions -default
+
+checkview -display result -2d -path ${imagedir}/${test_image}.png
