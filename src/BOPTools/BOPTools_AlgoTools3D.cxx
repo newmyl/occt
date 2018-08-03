@@ -785,30 +785,55 @@ Standard_Integer BOPTools_AlgoTools3D::PointInFace
    gp_Pnt2d& theP2D,
    const Handle(IntTools_Context)& theContext)
 {
-  Standard_Integer i, iErr = 1;
-  Standard_Real aUMin, aUMax, aVMin, aVMax, aUx;
-  //
+  // Error status
+  Standard_Integer iErr = 1;
+
+  // Get UV bounds of the face
+  Standard_Real aUMin, aUMax, aVMin, aVMax;
   theContext->UVBounds(theF, aUMin, aUMax, aVMin, aVMax);
-  //
-  gp_Dir2d aD2D(0. , 1.);
-  aUx = IntTools_Tools::IntermediatePoint(aUMin, aUMax);
-  //
-  for (i = 0; i < 2; ++i) {
-    gp_Pnt2d aP2D(aUx, 0.);
+
+  // Middle point of the 2d bounding box of the face
+  Standard_Real aUx = IntTools_Tools::IntermediatePoint(aUMin, aUMax),
+                aVx = IntTools_Tools::IntermediatePoint(aVMin, aVMax);
+
+  for (Standard_Integer i = 0; i < 4; ++i)
+  {
+    // Point to start the hatching line
+    gp_Pnt2d aP2D(aUx, aVx);
+    // Direction for the hatching line
+    gp_Dir2d aD2D  = (i < 2) ? gp::DY2d() : gp::DX2d();
     Handle(Geom2d_Line) aL2D = new Geom2d_Line (aP2D, aD2D);
     iErr = BOPTools_AlgoTools3D::PointInFace
       (theF, aL2D, theP, theP2D, theContext);
-    if (iErr == 0) {
+    if (iErr == 0)
       // done
-      break;
-    }
-    else {
-      // possible reason - incorrect computation of the 2d box of the face.
-      // try to compute the point with the translated line.
-      aUx = aUMax - (aUx - aUMin);
+      return iErr;
+    else
+    {
+      // Possible reason - incorrect computation of the 2d box of the face.
+      // Try to compute the point with the translated line.
+      if (i < 2)
+        aUx = aUMax - (aUx - aUMin);
+      else
+        aVx = aVMax - (aVx - aVMin);
     }
   }
-  //
+
+  // The tries to find the point using the hatching line passing through
+  // the middle of the bounding box of the face have failed.
+  // Try to start hatching line at the middle of the edges of the face.
+  TopExp_Explorer anExpE(theF, TopAbs_EDGE);
+  for (; anExpE.More(); anExpE.Next())
+  {
+    const TopoDS_Edge& aE = TopoDS::Edge(anExpE.Current());
+    Standard_Real aT1, aT2;
+    BRep_Tool::Range(aE, aT1, aT2);
+    iErr = BOPTools_AlgoTools3D::PointInFace
+      (theF, aE, 0.5 * (aT1 + aT2), 0.0, theP, theP2D, theContext);
+    if (iErr == 0)
+      return iErr;
+  }
+
   return iErr;
 }
 //=======================================================================

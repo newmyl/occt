@@ -399,46 +399,7 @@ void BOPAlgo_PaveFiller::PerformEE()
               aTolVnew = aTolMin;
             }
           }
-          // <-LXBR
-          {
-            Standard_Integer nVS[2], iFound;
-            Standard_Real aTolVx, aD2, aDT2;
-            TColStd_MapOfInteger aMV;
-            gp_Pnt aPx;
-            //
-            iFound=0;
-            j=-1;
-            aMV.Add(nV[0]);
-            aMV.Add(nV[1]);
-            //
-            if (aMV.Contains(nV[2])) {
-              ++j;
-              nVS[j]=nV[2];
-            }
-            if (aMV.Contains(nV[3])) {
-              ++j;
-              nVS[j]=nV[3];
-            }
-            //
-            for (Standard_Integer k1=0; k1<=j; ++k1) {
-              const TopoDS_Vertex& aVx= *(TopoDS_Vertex*)&(myDS->Shape(nVS[k1]));
-              aTolVx=BRep_Tool::Tolerance(aVx);
-              aPx=BRep_Tool::Pnt(aVx);
-              aD2=aPnew.SquareDistance(aPx);
-              //
-              aDT2=100.*(aTolVnew+aTolVx)*(aTolVnew+aTolVx);
-              //
-              if (aD2<aDT2) {
-                iFound=1;
-                break;
-              }
-            }
-            //
-            if (iFound) {
-              continue;
-            }
-          }
-          //
+
           // 1
           BOPDS_InterfEE& aEE=aEEs.Appended();
           iX=aEEs.Length()-1;
