@@ -24,9 +24,11 @@ struct IMeshTools_Parameters {
   //! Default constructor
   IMeshTools_Parameters ()
     :
-    Angle (0.5),
-    Deflection (0.001),
-    MinSize (Precision::Confusion ()),
+    AngleBorder(0.5),
+    DeflectionBorder(0.001),
+    AngleInterior(-1.0),
+    DeflectionInterior(-1.0),
+    MinSize (-1.0),
     InParallel (Standard_False),
     Relative (Standard_False),
     InternalVerticesMode (Standard_True),
@@ -35,12 +37,26 @@ struct IMeshTools_Parameters {
   {
   }
 
-  //! Angular deflection
-  Standard_Real                                    Angle;
+  //! Returns default relation between MinSize and Deflection
+  static Standard_Real RelMinSize()
+  {
+    return 0.1;
+  }
 
-  //! Deflection
-  Standard_Real                                    Deflection;
+  //! Angular deflection distributed on the nodes,
+  //! which split edges of the face.
+  Standard_Real                                    AngleBorder;
 
+  //! Linear deflection applied to the edges (excluding internal edges)
+  Standard_Real                                    DeflectionBorder;
+  
+  //! Angular deflection distributed on the nodes
+  //! placed inside of the face (including internal edges).
+  Standard_Real                                    AngleInterior;
+
+  //! Linear deflection for triangles inside of faces
+  Standard_Real                                    DeflectionInterior;
+  
   //! Minimal allowed size of mesh element
   Standard_Real                                    MinSize;
 

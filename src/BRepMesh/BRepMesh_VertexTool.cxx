@@ -94,7 +94,7 @@ Standard_Integer BRepMesh_VertexTool::Add(
 //function : Delete
 //purpose  : 
 //=======================================================================
-void BRepMesh_VertexTool::Delete(const Standard_Integer theIndex)
+void BRepMesh_VertexTool::DeleteVertex(const Standard_Integer theIndex)
 {
   BRepMesh_Vertex& aV = mySelector.GetVertex(theIndex);
 

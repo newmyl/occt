@@ -52,7 +52,7 @@ public:
   //! @param theReservedSize size to be reserved for vector of circles.
   inline void Init(const Standard_Integer /*theReservedSize*/)
   {
-    myTolerance = Precision::PConfusion() * Precision::PConfusion();
+    myTolerance = Precision::PConfusion();
   }
 
   //! Sets new size for cell filter.

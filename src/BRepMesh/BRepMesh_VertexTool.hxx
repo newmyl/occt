@@ -96,7 +96,7 @@ public:
     const Standard_Boolean isForceAdd);
 
   //! Deletes vertex with the given index from the tool.
-  Standard_EXPORT void Delete(const Standard_Integer theIndex);
+  Standard_EXPORT void DeleteVertex(const Standard_Integer theIndex);
 
   //! Returns set of mesh vertices.
   inline const Handle(IMeshData::VectorOfVertex)& Vertices() const
@@ -145,7 +145,7 @@ public:
   //! Remove last node from the structure.
   inline void RemoveLast()
   {
-    Delete(Extent());
+    DeleteVertex(Extent());
   }
 
   //! Returns the list with indexes of vertices that have movability attribute

@@ -33,5 +33,3 @@ vselect 220 170
 checkprops result -s 92.9029 
 checkshape result
 checkview -screenshot -3d -path ${imagedir}/${test_image}.png
-
-

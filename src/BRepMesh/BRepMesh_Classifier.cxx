@@ -126,10 +126,10 @@ void BRepMesh_Classifier::RegisterWire(
   if (Abs(anAngle) < aAngTol)
     anAngle = 0.0;
 
-  myTabClass.Append(opencascade::std::shared_ptr<CSLib_Class2d>(new CSLib_Class2d(
-    aPClass, theTolUV.first, theTolUV.second, 
-    theRangeU.first,  theRangeV.first,
-    theRangeU.second, theRangeV.second)));
+  myTabClass.Append(new CSLib_Class2d(
+                    aPClass, theTolUV.first, theTolUV.second,
+                    theRangeU.first, theRangeV.first,
+                    theRangeU.second, theRangeV.second));
 
   myTabOrient.Append( !(anAngle < 0.0) );
 }

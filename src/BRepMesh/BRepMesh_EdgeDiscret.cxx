@@ -89,6 +89,7 @@ Standard_Boolean BRepMesh_EdgeDiscret::Perform (
 {
   myModel      = theModel;
   myParameters = theParameters;
+
   if (myModel.IsNull())
   {
     return Standard_False;
@@ -133,13 +134,13 @@ void BRepMesh_EdgeDiscret::process (const Standard_Integer theEdgeIndex) const
     if (aMinPCurveIndex != -1)
     {
       aDEdge->SetDeflection (aMinDeflection);
-      const IMeshData::IFaceHandle aDFace = aDEdge->GetPCurve(aMinPCurveIndex)->GetFace().lock();
+      const IMeshData::IFaceHandle aDFace = aDEdge->GetPCurve(aMinPCurveIndex)->GetFace();
       aEdgeTessellator = CreateEdgeTessellationExtractor(aDEdge, aDFace);
     }
     else
     {
       const IMeshData::IPCurveHandle& aPCurve = aDEdge->GetPCurve(0);
-      const IMeshData::IFaceHandle    aDFace  = aPCurve->GetFace().lock();
+      const IMeshData::IFaceHandle    aDFace  = aPCurve->GetFace();
       aEdgeTessellator = BRepMesh_EdgeDiscret::CreateEdgeTessellator(
         aDEdge, aPCurve->GetOrientation(), aDFace, myParameters);
     }
@@ -182,7 +183,7 @@ Standard_Real BRepMesh_EdgeDiscret::checkExistingPolygonAndUpdateStatus(
   const IMeshData::IPCurveHandle& thePCurve) const
 {
   const TopoDS_Edge& aEdge = theDEdge->GetEdge ();
-  const TopoDS_Face& aFace = thePCurve->GetFace ().lock ()->GetFace ();
+  const TopoDS_Face& aFace = thePCurve->GetFace ()->GetFace ();
 
   TopLoc_Location aLoc;
   const Handle (Poly_Triangulation)& aFaceTriangulation =
@@ -233,6 +234,9 @@ void BRepMesh_EdgeDiscret::Tessellate3d(
   TopoDS_Vertex aFirstVertex, aLastVertex;
   TopExp::Vertices(aEdge, aFirstVertex, aLastVertex);
 
+  if(aFirstVertex.IsNull() || aLastVertex.IsNull())
+    return;
+
   if (theUpdateEnds)
   {
     gp_Pnt aPoint;
@@ -282,7 +286,7 @@ void BRepMesh_EdgeDiscret::Tessellate2d(
   for (Standard_Integer aPCurveIt = 0; aPCurveIt < theDEdge->PCurvesNb(); ++aPCurveIt)
   {
     const IMeshData::IPCurveHandle& aPCurve = theDEdge->GetPCurve(aPCurveIt);
-    const IMeshData::IFaceHandle    aDFace  = aPCurve->GetFace().lock();
+    const IMeshData::IFaceHandle    aDFace  = aPCurve->GetFace();
     IMeshData::ICurveArrayAdaptorHandle aCurveArray(new IMeshData::ICurveArrayAdaptor(aCurve));
     BRepMesh_EdgeParameterProvider<IMeshData::ICurveArrayAdaptorHandle> aProvider(
       theDEdge, aPCurve->GetOrientation(), aDFace, aCurveArray);

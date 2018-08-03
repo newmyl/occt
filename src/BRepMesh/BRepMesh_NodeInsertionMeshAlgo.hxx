@@ -154,24 +154,32 @@ private:
     Handle(SequenceOfPnt2d) aWirePoints = new SequenceOfPnt2d(theAllocator);
     for (Standard_Integer aEdgeIt = 0; aEdgeIt < theDWire->EdgesNb(); ++aEdgeIt)
     {
-      const IMeshData::IEdgeHandle    aDEdge = theDWire->GetEdge(aEdgeIt).lock();
+      const IMeshData::IEdgeHandle    aDEdge = theDWire->GetEdge(aEdgeIt);
       const IMeshData::IPCurveHandle& aPCurve = aDEdge->GetPCurve(
-        this->getDFace(), theDWire->GetEdgeOrientation(aEdgeIt));
+        this->getDFace().get(), theDWire->GetEdgeOrientation(aEdgeIt));
 
       Standard_Integer aPointIt, aEndIndex, aInc;
       if (aPCurve->IsForward())
       {
-        aPointIt = 0;
+        // For an infinite cylinder (for example)
+        // aPCurve->ParametersNb() == 0
+
         aEndIndex = aPCurve->ParametersNb() - 1;
+        aPointIt = Min(0, aEndIndex);
         aInc = 1;
       }
       else
       {
+        // For an infinite cylinder (for example)
+        // aPCurve->ParametersNb() == 0
+
         aPointIt = aPCurve->ParametersNb() - 1;
-        aEndIndex = 0;
+        aEndIndex = Min(0, aPointIt);
         aInc = -1;
       }
 
+      // For an infinite cylinder (for example)
+      // this cycle will not be executed.
       for (; aPointIt != aEndIndex; aPointIt += aInc)
       {
         const gp_Pnt2d& aPnt2d = aPCurve->GetPoint(aPointIt);

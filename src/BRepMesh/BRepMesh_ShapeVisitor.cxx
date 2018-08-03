@@ -139,8 +139,8 @@ Standard_Boolean BRepMesh_ShapeVisitor::addWire (
     {
       const IMeshData::IEdgeHandle& aDEdge = myModel->GetEdge (myDEdgeMap.Find (aEdge));
 
-      aDEdge->AddPCurve (theDFace, aEdge.Orientation());
-      aDWire->AddEdge   (aDEdge,   aEdge.Orientation());
+      aDEdge->AddPCurve (theDFace.get(), aEdge.Orientation());
+      aDWire->AddEdge   (aDEdge.get(),   aEdge.Orientation());
     }
   }
 

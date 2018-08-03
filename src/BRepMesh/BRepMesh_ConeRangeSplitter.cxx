@@ -33,7 +33,8 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_ConeRangeSplitter::GenerateSurfaceNodes(
                               Abs(aRefR + aRangeV.second * Sin(aSAng)));
 
   Standard_Real Dv, Du = GCPnts_TangentialDeflection::ArcAngularStep(
-    aRadius, GetDFace()->GetDeflection(), theParameters.Angle, theParameters.MinSize);
+    aRadius, GetDFace()->GetDeflection(),
+    theParameters.AngleBorder, theParameters.MinSize);
 
   const Standard_Real aDiffU = aRangeU.second - aRangeU.first;
   const Standard_Real aDiffV = aRangeV.second - aRangeV.first;
@@ -50,7 +51,7 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_ConeRangeSplitter::GenerateSurfaceNodes(
   const Standard_Real aPasMaxU = aRangeU.second - Du*0.5;
   for (Standard_Real aPasV = aRangeV.first + Dv; aPasV < aPasMaxV; aPasV += Dv)
   {
-    for (Standard_Real aPasU = aRangeV.first + Du; aPasU < aPasMaxU; aPasU += Du)
+    for (Standard_Real aPasU = aRangeU.first + Du; aPasU < aPasMaxU; aPasU += Du)
     {
       aNodes->Append(gp_Pnt2d(aPasU, aPasV));
     }

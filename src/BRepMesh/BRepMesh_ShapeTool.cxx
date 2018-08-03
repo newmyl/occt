@@ -111,7 +111,7 @@ void BRepMesh_ShapeTool::CheckAndUpdateFlags (
   }
 
   const TopoDS_Edge& aEdge = theEdge->GetEdge ();
-  const TopoDS_Face& aFace = thePCurve->GetFace ().lock ()->GetFace ();
+  const TopoDS_Face& aFace = thePCurve->GetFace ()->GetFace ();
 
   Handle (Geom_Curve) aCurve;
   Standard_Real aFirstParam, aLastParam;

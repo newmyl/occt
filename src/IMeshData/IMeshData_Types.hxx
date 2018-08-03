@@ -77,17 +77,17 @@ namespace IMeshData
   const size_t MEMORY_BLOCK_SIZE_HUGE = 512 * 1024;
 #endif
 
-  typedef opencascade::std::weak_ptr<IMeshData_Edge> IEdgePtr;
-  typedef opencascade::std::weak_ptr<IMeshData_Face> IFacePtr;
+  typedef IMeshData_Edge* IEdgePtr;
+  typedef IMeshData_Face* IFacePtr;
 
-  typedef opencascade::std::shared_ptr<IMeshData_Edge>   IEdgeHandle;
-  typedef opencascade::std::shared_ptr<IMeshData_Wire>   IWireHandle;
-  typedef opencascade::std::shared_ptr<IMeshData_Face>   IFaceHandle;
-  typedef opencascade::std::shared_ptr<IMeshData_Curve>  ICurveHandle;
-  typedef opencascade::std::shared_ptr<IMeshData_PCurve> IPCurveHandle;
+  typedef Handle(IMeshData_Edge)   IEdgeHandle;
+  typedef Handle(IMeshData_Wire)   IWireHandle;
+  typedef Handle(IMeshData_Face)   IFaceHandle;
+  typedef Handle(IMeshData_Curve)  ICurveHandle;
+  typedef Handle(IMeshData_PCurve) IPCurveHandle;
 
   typedef IMeshData_ParametersListArrayAdaptor<ICurveHandle> ICurveArrayAdaptor;
-  typedef opencascade::std::shared_ptr<ICurveArrayAdaptor>   ICurveArrayAdaptorHandle;
+  typedef Handle(ICurveArrayAdaptor)   ICurveArrayAdaptorHandle;
 
   typedef NCollection_Shared<NCollection_EBTree<Standard_Integer, Bnd_Box2d> > BndBox2dTree;
   typedef NCollection_UBTreeFiller<Standard_Integer, Bnd_Box2d>                BndBox2dTreeFiller;
@@ -135,15 +135,15 @@ namespace IMeshData
   template<typename Type>
   struct WeakEqual
   {
-    static Standard_Boolean IsEqual(const opencascade::std::weak_ptr<Type>& theFirst,
-                                    const opencascade::std::weak_ptr<Type>& theSecond)
+    static Standard_Boolean IsEqual(const Type* theFirst,
+                                    const Type* theSecond)
     {
-      return (theFirst.lock().get() == theSecond.lock().get());
+      return (theFirst == theSecond);
     }
 
-    static Standard_Integer HashCode(const opencascade::std::weak_ptr<Type>& thePtr, Standard_Integer theUpper)
+    static Standard_Integer HashCode(const Type* thePtr, Standard_Integer theUpper)
     {
-      return ::HashCode(thePtr.lock().get(), theUpper);
+      return ::HashCode(thePtr, theUpper);
     }
   };
 

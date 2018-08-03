@@ -49,8 +49,10 @@ namespace
 
       if (!aTriangulation.IsNull())
       {
-        Standard_Boolean isTriangulationConsistent = Standard_True;
-        if (aTriangulation->Deflection() < 1.1 * aDFace->GetDeflection())
+        Standard_Boolean isTriangulationConsistent = 
+          aTriangulation->Deflection() < 1.1 * aDFace->GetDeflection();
+
+        if (isTriangulationConsistent)
         {
           // #25080: check that indices of links forming triangles are in range.
           const Standard_Integer aNodesNb = aTriangulation->NbNodes();
@@ -140,7 +142,7 @@ Standard_Boolean BRepMesh_ModelPreProcessor::Perform(
     for (Standard_Integer aPCurveIt = 0; aPCurveIt < aDEdge->PCurvesNb(); ++aPCurveIt)
     {
       // Find adjacent outdated face.
-      const IMeshData::IFaceHandle aDFace = aDEdge->GetPCurve(aPCurveIt)->GetFace().lock();
+      const IMeshData::IFaceHandle aDFace = aDEdge->GetPCurve(aPCurveIt)->GetFace();
       if (!aUsedFaces.Contains(aDFace.get()))
       {
         aUsedFaces.Add(aDFace.get());
@@ -156,7 +158,7 @@ Standard_Boolean BRepMesh_ModelPreProcessor::Perform(
             const IMeshData::IWireHandle& aDWire = aDFace->GetWire(aWireIt);
             for (Standard_Integer aWireEdgeIt = 0; aWireEdgeIt < aDWire->EdgesNb(); ++aWireEdgeIt)
             {
-              const IMeshData::IEdgeHandle aTmpDEdge = aDWire->GetEdge(aWireEdgeIt).lock();
+              const IMeshData::IEdgeHandle aTmpDEdge = aDWire->GetEdge(aWireEdgeIt);
               BRepMesh_ShapeTool::NullifyEdge(aTmpDEdge->GetEdge(), aTriangulation, aLoc);
             }
           }

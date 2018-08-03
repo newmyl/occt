@@ -73,7 +73,7 @@ MeshTest_DrawableMesh::MeshTest_DrawableMesh(
 {
   myMesher = theMesher;
   if (!myMesher.IsNull())
-    myDeflection = myMesher->Parameters().Deflection;
+    myDeflection = myMesher->GetParameters().DeflectionBorder;
 }
 
 //=======================================================================
@@ -85,8 +85,8 @@ void MeshTest_DrawableMesh::Add(const TopoDS_Shape& theShape)
   if (myMesher.IsNull())
   {
     myMesher = new BRepMesh_IncrementalMesh;
-    myMesher->ChangeParameters().Deflection = myDeflection;
-    myMesher->ChangeParameters().Angle = 0.5;
+    myMesher->GetParameters().DeflectionBorder = myDeflection;
+    myMesher->GetParameters().AngleBorder      = 0.5;
   }
   
   myMesher->SetShape(theShape);

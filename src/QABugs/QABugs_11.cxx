@@ -1261,9 +1261,9 @@ static Standard_Integer OCC369(Draw_Interpretor& di, Standard_Integer argc, cons
 
     // 3. Build mesh
     IMeshTools_Parameters aMeshParams;
-    aMeshParams.Relative = Standard_True;
-    aMeshParams.Deflection = 0.2;
-    aMeshParams.Angle = M_PI / 6;
+    aMeshParams.Relative         = Standard_True;
+    aMeshParams.DeflectionBorder = 0.2;
+    aMeshParams.AngleBorder      = M_PI / 6.0;
     BRepMesh_IncrementalMesh aMesh(aShape, aMeshParams);
 
   }
@@ -3029,7 +3029,10 @@ Standard_Integer OCC14376(Draw_Interpretor& di, Standard_Integer argc, const cha
   }
   di<<"deflection="<< aDeflection << "\n";
 
-  BRepMesh_IncrementalMesh aIMesh(aShape, aDeflection, Standard_False, M_PI / 9.);
+  IMeshTools_Parameters aParams;
+  aParams.DeflectionBorder = aDeflection;
+  aParams.AngleBorder      = M_PI / 9.0;
+  BRepMesh_IncrementalMesh aIMesh(aShape, aParams);
   TopLoc_Location aLocation;
   Handle(Poly_Triangulation) aTriang = BRep_Tool::Triangulation(TopoDS::Face(aShape), aLocation);
 
@@ -4447,7 +4450,10 @@ static Standard_Integer OCC20627 (Draw_Interpretor& di, Standard_Integer argc, c
       TopoDS_Wire wireShape( w.Wire());
       BRepBuilderAPI_MakeFace faceBuilder(wireShape);
       TopoDS_Face f( faceBuilder.Face());
-      BRepMesh_IncrementalMesh im(f,1);
+
+      IMeshTools_Parameters aParams;
+      aParams.DeflectionBorder = 1.0;
+      BRepMesh_IncrementalMesh im(f,aParams);
       BRepTools::Clean(f);
     }
   return 0;

@@ -184,7 +184,9 @@ void Tesselate_Presentation::tesselateShape(const TopoDS_Shape& aShape)
 //==========================================================================
 
   BRepTools::Clean(aShape);
-  BRepMesh_IncrementalMesh(aShape,aDeflection);
+  IMeshTools_Parameters aMeshParams;
+  aMeshParams.DeflectionBorder = aDeflection;
+  BRepMesh_IncrementalMesh(aShape, aMeshParams);
 
   BRep_Builder aBuilder,aBuild1,aBuild2;
   TopoDS_Compound aCompound,aComp1,aComp2;

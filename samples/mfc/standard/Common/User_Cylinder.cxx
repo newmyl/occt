@@ -89,7 +89,10 @@ case 6: //color
     myAspect->SetEdgeOn();
 
     myDeflection = Prs3d::GetDeflection(myShape,myDrawer);
-    BRepMesh_IncrementalMesh(myShape,myDeflection);
+    
+    IMeshTools_Parameters aMeshParams;
+    aMeshParams.DeflectionBorder = myDeflection;
+    BRepMesh_IncrementalMesh(myShape, aMeshParams);
 
     myX1OnOff = Standard_False;
     myXBlueOnOff = Standard_False;

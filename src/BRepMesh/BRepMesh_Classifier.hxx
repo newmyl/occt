@@ -20,6 +20,7 @@
 #include <Standard_Macro.hxx>
 #include <TopAbs_State.hxx>
 #include <IMeshData_Types.hxx>
+#include <NCollection_Handle.hxx>
 
 #include <memory>
 
@@ -61,8 +62,8 @@ public:
 
 private:
 
-  NCollection_Vector<opencascade::std::shared_ptr<CSLib_Class2d> > myTabClass;
-  IMeshData::VectorOfBoolean                                       myTabOrient;
+  NCollection_Vector<NCollection_Handle<CSLib_Class2d> > myTabClass;
+  IMeshData::VectorOfBoolean                             myTabOrient;
 };
 
 #endif

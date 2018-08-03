@@ -55,8 +55,20 @@ void BRepMesh_DefaultRangeSplitter::AdjustRange()
   updateRange(aSurface->FirstUParameter(), aSurface->LastUParameter(),
               aSurface->IsUPeriodic(), myRangeU.first, myRangeU.second);
 
+  if (myRangeU.second < myRangeU.first)
+  {
+    myIsValid = Standard_False;
+    return;
+  }
+
   updateRange(aSurface->FirstVParameter(), aSurface->LastVParameter(),
               aSurface->IsVPeriodic(), myRangeV.first, myRangeV.second);
+
+  if (myRangeV.second < myRangeV.first)
+  {
+    myIsValid = Standard_False;
+    return;
+  }
 
   const Standard_Real aLengthU = computeLengthU();
   const Standard_Real aLengthV = computeLengthV();
@@ -220,14 +232,20 @@ void BRepMesh_DefaultRangeSplitter::updateRange(
     }
     else
     {
-      if (theGeomFirst > theDiscreteFirst)
+      if ((theDiscreteFirst < theGeomLast) && (theDiscreteLast > theGeomFirst))
       {
-        theDiscreteFirst = theGeomFirst;
-      }
+        //Protection against the faces whose pcurve is out of the surface's domain
+        //(see issue #23675 and test cases "bugs iges buc60820*")
 
-      if (theGeomLast < theDiscreteLast)
-      {
-        theDiscreteLast = theGeomLast;
+        if (theGeomFirst > theDiscreteFirst)
+        {
+          theDiscreteFirst = theGeomFirst;
+        }
+
+        if (theGeomLast < theDiscreteLast)
+        {
+          theDiscreteLast = theGeomLast;
+        }
       }
     }
   }

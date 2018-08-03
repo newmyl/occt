@@ -98,7 +98,7 @@ public: //! @name API for accessing mesh nodes.
     if (isForce || myNodes->FindKey(theIndex).Movability() == BRepMesh_Free)
     {
       if (LinksConnectedTo(theIndex).Extent()==0)
-        myNodes->Delete(theIndex);
+        myNodes->DeleteVertex(theIndex);
     }
   }
 

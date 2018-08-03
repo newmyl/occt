@@ -37,7 +37,7 @@ public:
     const Standard_Real                     theTolerance,
     const Standard_Integer                  theReservedSize,
     const Handle(NCollection_IncAllocator)& theAllocator)
-  : myTolerance(theTolerance*theTolerance),
+  : mySqTolerance(theTolerance*theTolerance),
     myResIndices(theAllocator),
     myCircles(theReservedSize, theAllocator)
   {
@@ -95,7 +95,25 @@ public:
 
     const Standard_Real aDX = myPoint.ChangeCoord(1) - aLoc.ChangeCoord(1);
     const Standard_Real aDY = myPoint.ChangeCoord(2) - aLoc.ChangeCoord(2);
-    if ((aDX * aDX + aDY * aDY) - (aRadius * aRadius) <= myTolerance)
+
+    //This check is wrong. It is better to use 
+    //  
+    //  const Standard_Real aR = aRadius + aToler;
+    //  if ((aDX * aDX + aDY * aDY) <= aR * aR)
+    //  {
+    //    ...
+    //  }
+
+    //where aToler = sqrt(mySqTolerance). Taking into account the fact
+    //that the input parameter of the class (see constructor) is linear
+    //(not quadratic) tolerance there is no point in square root computation.
+    //Simply, we do not need to compute square of the input tolerance and to
+    //assign it to mySqTolerance. The input linear tolerance is needed to be used.
+
+    //However, this change leads to hangs the test case "perf mesh bug27119".
+    //So, this correction is better to be implemented in the future.
+
+    if ((aDX * aDX + aDY * aDY) - (aRadius * aRadius) <= mySqTolerance)
       myResIndices.Append(theTargetIndex);
 
     return CellFilter_Keep;
@@ -110,7 +128,7 @@ public:
   }
 
 private:
-  Standard_Real             myTolerance;
+  Standard_Real             mySqTolerance;
   IMeshData::ListOfInteger  myResIndices;
   IMeshData::VectorOfCircle myCircles;
   gp_XY                     myPoint;

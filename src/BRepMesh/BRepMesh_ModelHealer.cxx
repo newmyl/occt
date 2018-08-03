@@ -48,12 +48,12 @@ namespace
     //! Main operator.
     void operator()(const IMeshData::IEdgePtr& theDEdge) const
     {
-      const IMeshData::IEdgeHandle aDEdge = theDEdge.lock();
+      const IMeshData::IEdgeHandle aDEdge = theDEdge;
       aDEdge->Clear(Standard_True);
       aDEdge->SetDeflection(Max(aDEdge->GetDeflection() / 3., Precision::Confusion()));
 
       const IMeshData::IPCurveHandle& aPCurve = aDEdge->GetPCurve(0);
-      const IMeshData::IFaceHandle    aDFace = aPCurve->GetFace().lock();
+      const IMeshData::IFaceHandle    aDFace = aPCurve->GetFace();
       Handle(IMeshTools_CurveTessellator) aTessellator =
         BRepMesh_EdgeDiscret::CreateEdgeTessellator(
           aDEdge, aPCurve->GetOrientation(), aDFace, myParameters);
@@ -126,10 +126,17 @@ Standard_Boolean BRepMesh_ModelHealer::Perform(
     return Standard_False;
   }
 
+  // MinSize is made as a constant. It is connected with
+  // the fact that too rude discretisation can lead to 
+  // self-intersecting polygon, which cannot be fixed.
+  // As result the face will not be triangulated at all.
+  // E.g. see "Test mesh standard_mesh C7", the face #17.
+  myParameters.MinSize = Precision::Confusion();
+
   myFaceIntersectingEdges = new IMeshData::DMapOfIFacePtrsMapOfIEdgePtrs;
   for (Standard_Integer aFaceIt = 0; aFaceIt < myModel->FacesNb(); ++aFaceIt)
   {
-    myFaceIntersectingEdges->Bind(myModel->GetFace(aFaceIt), Handle(IMeshData::MapOfIEdgePtr)());
+    myFaceIntersectingEdges->Bind(myModel->GetFace(aFaceIt).get(), Handle(IMeshData::MapOfIEdgePtr)());
   }
 
   // TODO: Here we can process edges in order to remove close discrete points.
@@ -141,7 +148,7 @@ Standard_Boolean BRepMesh_ModelHealer::Perform(
   {
     if (!aFaceIt.Value().IsNull())
     {
-      const IMeshData::IFaceHandle aDFace = aFaceIt.Key().lock();
+      const IMeshData::IFaceHandle aDFace = aFaceIt.Key();
       aDFace->SetStatus(IMeshData_SelfIntersectingWire);
       aDFace->SetStatus(IMeshData_Failure);
     }
@@ -176,7 +183,7 @@ void BRepMesh_ModelHealer::amplifyEdges()
     IMeshData::MapOfIEdgePtr::Iterator aEdgeIt(aEdgesToUpdate);
     for (; aEdgeIt.More(); aEdgeIt.Next())
     {
-      const IMeshData::IEdgeHandle aDEdge = aEdgeIt.Value().lock();
+      const IMeshData::IEdgeHandle aDEdge = aEdgeIt.Value();
       for (Standard_Integer aPCurveIt = 0; aPCurveIt < aDEdge->PCurvesNb(); ++aPCurveIt)
       {
         aFacesToCheck.Add(aDEdge->GetPCurve(aPCurveIt)->GetFace());
@@ -219,7 +226,7 @@ Standard_Boolean BRepMesh_ModelHealer::popEdgesToUpdate(
 //=======================================================================
 void BRepMesh_ModelHealer::process(const IMeshData::IFaceHandle& theDFace) const
 {
-  Handle(IMeshData::MapOfIEdgePtr)& aIntersections = myFaceIntersectingEdges->ChangeFind(theDFace);
+  Handle(IMeshData::MapOfIEdgePtr)& aIntersections = myFaceIntersectingEdges->ChangeFind(theDFace.get());
   aIntersections.Nullify();
 
   fixFaceBoundaries(theDFace);
@@ -258,9 +265,9 @@ void BRepMesh_ModelHealer::fixFaceBoundaries(const IMeshData::IFaceHandle& theDF
       const int aPrevEdgeIt = (aEdgeIt + aDWire->EdgesNb() - 1) % aDWire->EdgesNb();
       const int aNextEdgeIt = (aEdgeIt + 1) % aDWire->EdgesNb();
 
-      const IMeshData::IEdgeHandle aPrevEdge = aDWire->GetEdge(aPrevEdgeIt).lock();
-      const IMeshData::IEdgeHandle aCurrEdge = aDWire->GetEdge(aEdgeIt).lock();
-      const IMeshData::IEdgeHandle aNextEdge = aDWire->GetEdge(aNextEdgeIt).lock();
+      const IMeshData::IEdgeHandle aPrevEdge = aDWire->GetEdge(aPrevEdgeIt);
+      const IMeshData::IEdgeHandle aCurrEdge = aDWire->GetEdge(aEdgeIt);
+      const IMeshData::IEdgeHandle aNextEdge = aDWire->GetEdge(aNextEdgeIt);
 
       Standard_Boolean isConnected = !getCommonVertex(aCurrEdge, aNextEdge).IsNull() &&
                                      !getCommonVertex(aPrevEdge, aCurrEdge).IsNull();
@@ -268,13 +275,13 @@ void BRepMesh_ModelHealer::fixFaceBoundaries(const IMeshData::IFaceHandle& theDF
       if (isConnected)
       {
         const IMeshData::IPCurveHandle& aPrevPCurve =
-          aPrevEdge->GetPCurve(theDFace, aDWire->GetEdgeOrientation(aPrevEdgeIt));
+          aPrevEdge->GetPCurve(theDFace.get(), aDWire->GetEdgeOrientation(aPrevEdgeIt));
 
         const IMeshData::IPCurveHandle& aCurrPCurve =
-          aCurrEdge->GetPCurve(theDFace, aDWire->GetEdgeOrientation(aEdgeIt));
+          aCurrEdge->GetPCurve(theDFace.get(), aDWire->GetEdgeOrientation(aEdgeIt));
 
         const IMeshData::IPCurveHandle& aNextPCurve =
-          aNextEdge->GetPCurve(theDFace, aDWire->GetEdgeOrientation(aNextEdgeIt));
+          aNextEdge->GetPCurve(theDFace.get(), aDWire->GetEdgeOrientation(aNextEdgeIt));
 
         isConnected = connectClosestPoints(aPrevPCurve, aCurrPCurve, aNextPCurve);
 
@@ -330,6 +337,20 @@ TopoDS_Vertex BRepMesh_ModelHealer::getCommonVertex(
 {
   TopoDS_Vertex aVertex1_1, aVertex1_2;
   TopExp::Vertices(theEdge1->GetEdge(), aVertex1_1, aVertex1_2);
+
+  //Test bugs moddata_2 bug428.
+  //  restore [locate_data_file OCC428.brep] rr
+  //  explode rr f
+  //  explode rr_91 w
+  //  explode rr_91_2 e
+  //  nbshapes rr_91_2_2
+  //  # 0 vertices; 1 edge
+
+  //This shape is invalid and can lead to exception in this code.
+
+  if (aVertex1_1.IsNull() || aVertex1_2.IsNull())
+    return TopoDS_Vertex();
+
   if (theEdge1->GetEdge().IsSame(theEdge2->GetEdge()))
   {
     return aVertex1_1.IsSame(aVertex1_2) ? aVertex1_1 : TopoDS_Vertex();
@@ -337,6 +358,9 @@ TopoDS_Vertex BRepMesh_ModelHealer::getCommonVertex(
 
   TopoDS_Vertex aVertex2_1, aVertex2_2;
   TopExp::Vertices(theEdge2->GetEdge(), aVertex2_1, aVertex2_2);
+
+  if (aVertex2_1.IsNull() || aVertex2_2.IsNull())
+    return TopoDS_Vertex();
 
   if (isSameWithSomeOf(aVertex1_1, aVertex2_1, aVertex2_2))
   {

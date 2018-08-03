@@ -45,8 +45,7 @@ namespace
     {
       const IMeshData::IWireHandle& aDWire = myDFace->GetWire(theWireIndex);
 
-      Handle(NCollection_IncAllocator) aTmpAlloc1 =
-        new BRepMesh_IncAllocator(IMeshData::MEMORY_BLOCK_SIZE_HUGE);
+      Handle(NCollection_IncAllocator) aTmpAlloc1 = new NCollection_IncAllocator();
 
       Handle(BRepMesh_FaceChecker::Segments) aSegments = 
         new BRepMesh_FaceChecker::Segments(aDWire->EdgesNb(), aTmpAlloc1);
@@ -55,8 +54,7 @@ namespace
       myWiresSegments  ->ChangeValue(theWireIndex) = aSegments;
       myWiresBndBoxTree->ChangeValue(theWireIndex) = aBndBoxTree;
 
-      Handle(NCollection_IncAllocator) aTmpAlloc2 = 
-        new BRepMesh_IncAllocator(IMeshData::MEMORY_BLOCK_SIZE_HUGE);
+      Handle(NCollection_IncAllocator) aTmpAlloc2 = new NCollection_IncAllocator();
       IMeshData::BndBox2dTreeFiller aBndBoxTreeFiller(*aBndBoxTree, aTmpAlloc2);
 
       for (Standard_Integer aEdgeIt = 0; aEdgeIt < aDWire->EdgesNb(); ++aEdgeIt)
@@ -64,7 +62,7 @@ namespace
         // TODO: check 2d wire for consistency.
 
         const IMeshData::IEdgePtr&      aDEdge  = aDWire->GetEdge(aEdgeIt);
-        const IMeshData::IPCurveHandle& aPCurve = aDEdge.lock()->GetPCurve(myDFace, aDWire->GetEdgeOrientation(aEdgeIt));
+        const IMeshData::IPCurveHandle& aPCurve = aDEdge->GetPCurve(myDFace.get(), aDWire->GetEdgeOrientation(aEdgeIt));
 
         for (Standard_Integer aPointIt = 1; aPointIt < aPCurve->ParametersNb(); ++aPointIt)
         {

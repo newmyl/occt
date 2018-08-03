@@ -118,8 +118,10 @@ static Standard_Integer incrementalmesh(Draw_Interpretor& di, Standard_Integer n
 Builds triangular mesh for the shape\n\
 usage: incmesh Shape LinearDeflection [options]\n\
 options:\n\
-        -a val          angular deflection in deg\n\
+        -a val          angular deflection for edges in deg\n\
                         (default ~28.64 deg = 0.5 rad)\n\n\
+        -ai val         angular deflection inside of faces in deg\n\
+                        (default ~57.29 deg = 1 rad)\n\n\
         -min            minimum size parameter limiting size of triangle's\n\
                         edges to prevent sinking into amplification in case\n\
                         of distorted curves and surfaces\n\n\
@@ -141,13 +143,9 @@ options:\n\
     return 0;
   }
 
-  Standard_Real aLinDeflection     = Max(Draw::Atof(argv[2]), Precision::Confusion());
-  Standard_Real aAngDeflection     = 0.5;
-  Standard_Real aMinSize           = Precision::Confusion();
-  Standard_Boolean isRelative      = Standard_False;
-  Standard_Boolean isInParallel    = Standard_False;
-  Standard_Boolean isIntVertices   = Standard_True;
-  Standard_Boolean isControlSurDef = Standard_True;
+  IMeshTools_Parameters aMeshParams;
+  aMeshParams.DeflectionBorder = aMeshParams.DeflectionInterior = 
+    Max(Draw::Atof(argv[2]), Precision::Confusion());
 
   if (nbarg > 3)
   {
@@ -160,20 +158,26 @@ options:\n\
       if (aOpt == "")
         continue;
       else if (aOpt == "-relative")
-        isRelative = Standard_True;
+        aMeshParams.Relative = Standard_True;
       else if (aOpt == "-parallel")
-        isInParallel = Standard_True;
+        aMeshParams.InParallel = Standard_True;
       else if (aOpt == "-int_vert_off")
-        isIntVertices = Standard_False;
+        aMeshParams.InternalVerticesMode = Standard_False;
       else if (aOpt == "-surf_def_off")
-        isControlSurDef = Standard_False;
+        aMeshParams.ControlSurfaceDeflection = Standard_False;
       else if (i < nbarg)
       {
         Standard_Real aVal = Draw::Atof(argv[i++]);
         if (aOpt == "-a")
-          aAngDeflection = aVal * M_PI / 180.;
+        {
+          aMeshParams.AngleBorder = aVal * M_PI / 180.;
+        }
+        else if (aOpt == "-ai")
+        {
+          aMeshParams.AngleInterior = aVal * M_PI / 180.;
+        }
         else if (aOpt == "-min")
-          aMinSize = aVal;
+          aMeshParams.MinSize = aVal;
         else
           --i;
       }
@@ -181,17 +185,8 @@ options:\n\
   }
 
   di << "Incremental Mesh, multi-threading "
-     << (isInParallel ? "ON" : "OFF") << "\n";
+     << (aMeshParams.InParallel ? "ON" : "OFF") << "\n";
 
-  IMeshTools_Parameters aMeshParams;
-  aMeshParams.Deflection = aLinDeflection;
-  aMeshParams.Angle = aAngDeflection;
-  aMeshParams.Relative =  isRelative;
-  aMeshParams.InParallel = isInParallel;
-  aMeshParams.MinSize = aMinSize;
-  aMeshParams.InternalVerticesMode = isIntVertices;
-  aMeshParams.ControlSurfaceDeflection = isControlSurDef;
-  
   BRepMesh_IncrementalMesh aMesher (aShape, aMeshParams);
 
   di << "Meshing statuses: ";
@@ -408,7 +403,10 @@ static Standard_Integer MemLeakTest(Draw_Interpretor&, Standard_Integer /*nbarg*
     TopoDS_Wire wireShape( w.Wire());
     BRepBuilderAPI_MakeFace faceBuilder(wireShape);          
     TopoDS_Face f( faceBuilder.Face());
-    BRepMesh_IncrementalMesh im(f,1);
+
+    IMeshTools_Parameters aParams;
+    aParams.DeflectionBorder = 1.0;
+    BRepMesh_IncrementalMesh im(f,aParams);
     BRepTools::Clean(f);      
   }
   return 0;
@@ -1314,7 +1312,9 @@ static Standard_Integer wavefront(Draw_Interpretor&, Standard_Integer nbarg, con
   Standard_Real aDeflection = 
     MAX3( aXmax-aXmin , aYmax-aYmin , aZmax-aZmin) * 0.004;
 
-  BRepMesh_IncrementalMesh aMesh (S, aDeflection);
+  IMeshTools_Parameters aParams;
+  aParams.DeflectionBorder = aDeflection;
+  BRepMesh_IncrementalMesh aMesh (S, aParams);
 
 
   TopLoc_Location L;

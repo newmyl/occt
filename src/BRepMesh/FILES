@@ -28,10 +28,10 @@ BRepMesh_DelaunayBaseMeshAlgo.cxx
 BRepMesh_DelaunayBaseMeshAlgo.hxx
 BRepMesh_DelaunayDeflectionControlMeshAlgo.hxx
 BRepMesh_DelaunayNodeInsertionMeshAlgo.hxx
-BRepMesh_DiscretFactory.hxx
 BRepMesh_DiscretFactory.cxx
-BRepMesh_DiscretRoot.hxx
+BRepMesh_DiscretFactory.hxx
 BRepMesh_DiscretRoot.cxx
+BRepMesh_DiscretRoot.hxx
 BRepMesh_Edge.hxx
 BRepMesh_EdgeDiscret.cxx
 BRepMesh_EdgeDiscret.hxx
@@ -43,6 +43,7 @@ BRepMesh_FaceChecker.hxx
 BRepMesh_FaceDiscret.cxx
 BRepMesh_FaceDiscret.hxx
 BRepMesh_FactoryError.hxx
+BRepMesh_FastDiscret.hxx
 BRepMesh_GeomTool.cxx
 BRepMesh_GeomTool.hxx
 BRepMesh_IncAllocator.hxx
@@ -60,9 +61,9 @@ BRepMesh_ModelPostProcessor.cxx
 BRepMesh_ModelPostProcessor.hxx
 BRepMesh_ModelPreProcessor.cxx
 BRepMesh_ModelPreProcessor.hxx
-BRepMesh_NodeInsertionMeshAlgo.hxx
 BRepMesh_NURBSRangeSplitter.cxx
 BRepMesh_NURBSRangeSplitter.hxx
+BRepMesh_NodeInsertionMeshAlgo.hxx
 BRepMesh_OrientedEdge.hxx
 BRepMesh_PairOfIndex.hxx
 BRepMesh_PluginEntryType.hxx
@@ -77,9 +78,9 @@ BRepMesh_SphereRangeSplitter.cxx
 BRepMesh_SphereRangeSplitter.hxx
 BRepMesh_TorusRangeSplitter.cxx
 BRepMesh_TorusRangeSplitter.hxx
+BRepMesh_Triangle.hxx
 BRepMesh_UVParamRangeSplitter.hxx
 BRepMesh_Vertex.hxx
 BRepMesh_VertexInspector.hxx
 BRepMesh_VertexTool.cxx
 BRepMesh_VertexTool.hxx
-BRepMesh_Triangle.hxx

@@ -55,9 +55,8 @@ public:
   }
 
   //! Functor API to discretize the given edge.
-  inline void operator() (const IMeshData::IFacePtr& theDFace) const {
-    const IMeshData::IFaceHandle aDFace = theDFace.lock();
-    process(aDFace);
+  inline void operator() (const IMeshData::IFaceHandle& theDFace) const {
+    process(theDFace);
   }
 
   DEFINE_STANDARD_RTTI_INLINE(BRepMesh_ModelHealer, IMeshTools_ModelAlgo)

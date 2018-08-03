@@ -79,7 +79,7 @@ namespace
       {
         const IMeshData::IPCurveHandle& aPCurve   = theDEdge->GetPCurve(aPCurveIt);
         const IMeshData::IFacePtr&      aDFacePtr = aPCurve->GetFace();
-        const IMeshData::IFaceHandle    aDFace    = aDFacePtr.lock();
+        const IMeshData::IFaceHandle    aDFace    = aDFacePtr;
         if (aDFace->IsSet(IMeshData_Failure) ||
             aDFace->IsSet(IMeshData_Reused))
         {
@@ -100,7 +100,7 @@ namespace
       IMeshData::IDMapOfIFacePtrsListOfIPCurves::Iterator aPolygonIt(aMapOfPCurves);
       for (; aPolygonIt.More(); aPolygonIt.Next())
       {
-        const TopoDS_Face& aFace = aPolygonIt.Key().lock()->GetFace();
+        const TopoDS_Face& aFace = aPolygonIt.Key()->GetFace();
 
         TopLoc_Location aLoc;
         const Handle(Poly_Triangulation)& aTriangulation =

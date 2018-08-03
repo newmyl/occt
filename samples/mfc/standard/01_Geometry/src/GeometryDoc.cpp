@@ -1350,7 +1350,9 @@ void CGeometryDoc::simplify(const TopoDS_Shape& aShape)
     //and all the polygons on the triangulations of the edges
     BRepTools::Clean(aShape);
     // adds a triangulation of the shape aShape with the deflection aDeflection
-    BRepMesh_IncrementalMesh(aShape,aDeflection);
+    IMeshTools_Parameters aMeshParams;
+    aMeshParams.DeflectionBorder = aDeflection;
+    BRepMesh_IncrementalMesh(aShape, aMeshParams);
 
     Standard_Integer aIndex = 1, nbNodes = 0;
 

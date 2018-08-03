@@ -69,7 +69,7 @@ void BRepMesh_BaseMeshAlgo::Perform(
   {
   }
 
-  myDFace.reset(); // Do not hold link to face.
+  myDFace.Nullify(); // Do not hold link to face.
   myStructure.Nullify();
   myNodesMap .Nullify();
   myUsedNodes.Nullify();
@@ -94,10 +94,10 @@ Standard_Boolean BRepMesh_BaseMeshAlgo::initDataStructure()
 
     for (Standard_Integer aEdgeIt = 0; aEdgeIt < aDWire->EdgesNb(); ++aEdgeIt)
     {
-      const IMeshData::IEdgeHandle    aDEdge = aDWire->GetEdge(aEdgeIt).lock();
+      const IMeshData::IEdgeHandle    aDEdge = aDWire->GetEdge(aEdgeIt);
       const IMeshData::ICurveHandle&  aCurve = aDEdge->GetCurve();
       const IMeshData::IPCurveHandle& aPCurve = aDEdge->GetPCurve(
-        myDFace, aDWire->GetEdgeOrientation(aEdgeIt));
+        myDFace.get(), aDWire->GetEdgeOrientation(aEdgeIt));
 
       const TopAbs_Orientation aOri = fixSeamEdgeOrientation(aDEdge, aPCurve);
 
@@ -199,7 +199,7 @@ TopAbs_Orientation BRepMesh_BaseMeshAlgo::fixSeamEdgeOrientation(
   for (Standard_Integer aPCurveIt = 0; aPCurveIt < theDEdge->PCurvesNb(); ++aPCurveIt)
   {
     const IMeshData::IPCurveHandle& aPCurve = theDEdge->GetPCurve(aPCurveIt);
-    if (aPCurve->GetFace().lock() == myDFace && thePCurve != aPCurve)
+    if (aPCurve->GetFace() == myDFace && thePCurve != aPCurve)
     {
       // Simple check that another pcurve of seam edge does not coincide with reference one.
       const gp_Pnt2d& aPnt1_1 = thePCurve->GetPoint(0);

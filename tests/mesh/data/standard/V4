@@ -1,3 +1,5 @@
+puts "TODO ?OCC30056 All: Meshing statuses: Failure UnorientedWire"
+
 set TheFileName shading_wrongshape_015.brep
 set bug_withouttri "OCC22687"
 if { [string compare $command "shading"] == 0 } {

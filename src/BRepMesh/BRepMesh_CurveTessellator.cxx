@@ -25,6 +25,7 @@
 #include <TopExp.hxx>
 #include <Adaptor3d_HCurveOnSurface.hxx>
 #include <Adaptor2d_HCurve2d.hxx>
+#include <Standard_Failure.hxx>
 
 //=======================================================================
 //function : Constructor
@@ -64,6 +65,11 @@ BRepMesh_CurveTessellator::BRepMesh_CurveTessellator (
 //=======================================================================
 void BRepMesh_CurveTessellator::init()
 {
+  if (myParameters.MinSize <= 0.0)
+  {
+    Standard_Failure::Raise ("The structure \"myParameters\" is not initialized");
+  }
+
   TopExp::Vertices(myEdge, myFirstVertex, myLastVertex);
 
   Standard_Real aPreciseAngDef = 0.5 * myDEdge->GetAngularDeflection();
@@ -139,7 +145,7 @@ void BRepMesh_CurveTessellator::splitByDeflection2d ()
     {
       TopLoc_Location aLoc;
       const IMeshData::IPCurveHandle& aPCurve = myDEdge->GetPCurve(aPCurveIt);
-      const TopoDS_Face&              aFace   = aPCurve->GetFace ().lock ()->GetFace ();
+      const TopoDS_Face&              aFace   = aPCurve->GetFace ()->GetFace ();
       const Handle (Geom_Surface)&    aSurface = BRep_Tool::Surface (aFace, aLoc);
       if (aSurface->IsInstance(STANDARD_TYPE(Geom_Plane)))
       {
@@ -274,6 +280,13 @@ void BRepMesh_CurveTessellator::splitSegment (
 
   if (Abs(theLast - theFirst) < 2 * Precision::PConfusion())
   {
+    return;
+  }
+
+  if ((theCurve2d->FirstParameter() - theFirst > Precision::PConfusion()) ||
+      (theLast - theCurve2d->LastParameter() > Precision::PConfusion()))
+  {
+    // E.g. test bugs moddata_3 bug30133
     return;
   }
 

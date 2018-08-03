@@ -841,9 +841,10 @@ void DBRep_DrawableShape::DisplayHiddenLines(Draw_Display& dis)
   Standard_Real Ang,Def;
   HLRBRep::PolyHLRAngleAndDeflection(myAng,Ang,Def);
   IMeshTools_Parameters aMeshParams;
-  aMeshParams.Relative = Standard_True;
-  aMeshParams.Deflection = Def;
-  aMeshParams.Angle = Ang;
+  aMeshParams.Relative         = Standard_True;
+  aMeshParams.DeflectionBorder = Def;
+  aMeshParams.AngleBorder      = Ang;
+
   BRepMesh_IncrementalMesh MESH(myShape, aMeshParams);
   Standard_Boolean recompute = Standard_True;
   // find if the view must be recomputed

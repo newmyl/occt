@@ -81,7 +81,10 @@ void CTriangulationDoc::OnTriangu()
 	TopoDS_Shape theBox = BRepPrimAPI_MakeBox(200,60,60);
 	TopoDS_Shape theSphere = BRepPrimAPI_MakeSphere(gp_Pnt(100,20,20),80);
 	TopoDS_Shape ShapeFused = BRepAlgoAPI_Fuse(theSphere,theBox);
-	BRepMesh_IncrementalMesh(ShapeFused,1);
+  
+        IMeshTools_Parameters aMeshParams;
+        aMeshParams.DeflectionBorder = 1.0;
+	BRepMesh_IncrementalMesh(ShapeFused, aMeshParams);
 
 	Handle (AIS_Shape)	aSection = new AIS_Shape(ShapeFused);
 	myAISContext->SetDisplayMode (aSection, 1, Standard_False);
@@ -139,7 +142,10 @@ void CTriangulationDoc::OnVisu()
 TopoDS_Shape theBox = BRepPrimAPI_MakeBox(200,60,60).Shape();
 TopoDS_Shape theSphere = BRepPrimAPI_MakeSphere(gp_Pnt(100, 20, 20), 80).Shape();
 TopoDS_Shape ShapeFused = BRepAlgoAPI_Fuse(theSphere, theBox).Shape();
-BRepMesh_IncrementalMesh(ShapeFused,1);
+
+IMeshTools_Parameters aMeshParams;
+aMeshParams.DeflectionBorder = 1.0;
+BRepMesh_IncrementalMesh(ShapeFused, aMeshParams);
 
 Handle (AIS_Shape)	aSection = new AIS_Shape(ShapeFused);
 myAISContext->SetDisplayMode (aSection, 1, Standard_False);
@@ -264,8 +270,10 @@ void CTriangulationDoc::OnClear()
 TopoDS_Shape theBox = BRepPrimAPI_MakeBox(200, 60, 60).Shape();
 TopoDS_Shape theSphere = BRepPrimAPI_MakeSphere(gp_Pnt(100, 20, 20), 80).Shape();
 TopoDS_Shape ShapeFused = BRepAlgoAPI_Fuse(theSphere,theBox);
-BRepMesh_IncrementalMesh(ShapeFused,1);
 
+IMeshTools_Parameters aMeshParams;
+aMeshParams.DeflectionBorder = 1.0;
+BRepMesh_IncrementalMesh(ShapeFused, aMeshParams);
 
 Handle (AIS_Shape)	aSection = new AIS_Shape(ShapeFused);
 myAISContext->SetDisplayMode (aSection, 1, Standard_False);

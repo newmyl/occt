@@ -140,11 +140,13 @@ static Standard_Real CalculVolume(const TopoDS_Shape& So,
       
       Handle (Poly_Triangulation) facing = BRep_Tool::Triangulation(F,L);
       if(facing.IsNull() || withForce)
-	{
-	  BRepMesh_IncrementalMesh MESH(F, tol);
-	  
-	  facing = BRep_Tool::Triangulation(F,L);
-	}
+      {
+        IMeshTools_Parameters aParams;
+        aParams.DeflectionBorder = tol;
+        BRepMesh_IncrementalMesh MESH(F, aParams);
+
+        facing = BRep_Tool::Triangulation(F,L);
+      }
 
       TColgp_Array1OfPnt tab(1,(facing->NbNodes()));
       tab = facing->Nodes();

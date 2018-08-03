@@ -34,7 +34,7 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_TorusRangeSplitter::GenerateSurfaceNodes
   const Standard_Real R = aTorus.MajorRadius();
 
   const Standard_Real oldDv = GCPnts_TangentialDeflection::ArcAngularStep(
-    r, GetDFace()->GetDeflection(), theParameters.Angle, theParameters.MinSize);
+    r, GetDFace()->GetDeflection(), theParameters.AngleBorder, theParameters.MinSize);
 
   Standard_Real Dv = 0.9*oldDv; //TWOTHIRD * oldDv;
   Dv = oldDv;
@@ -47,7 +47,7 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_TorusRangeSplitter::GenerateSurfaceNodes
   if (ru > 1.e-16)
   {
     Du = GCPnts_TangentialDeflection::ArcAngularStep(ru,
-      GetDFace()->GetDeflection(), theParameters.Angle, theParameters.MinSize);
+      GetDFace()->GetDeflection(), theParameters.AngleBorder, theParameters.MinSize);
 
     const Standard_Real aa = sqrt(Du*Du + oldDv*oldDv);
     if (aa < gp::Resolution())
@@ -90,7 +90,7 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_TorusRangeSplitter::GenerateSurfaceNodes
   aParamV = fillParams(GetParametersV(), GetRangeV(), nbV, 2. / 3., aTmpAlloc);
 
   const std::pair<Standard_Real, Standard_Real> aNewRangeU(aRangeU.first  + Du * 0.1,
-                                                           aRangeU.second - Dv * 0.1);
+                                                           aRangeU.second - Du * 0.1);
 
   const std::pair<Standard_Real, Standard_Real> aNewRangeV(aRangeV.first  + Dv * 0.1,
                                                            aRangeV.second - Dv * 0.1);

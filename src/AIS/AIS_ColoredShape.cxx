@@ -501,7 +501,10 @@ void AIS_ColoredShape::ComputeSelection (const Handle(SelectMgr_Selection)& theS
   if (myDrawer->IsAutoTriangulation()
   && !BRepTools::Triangulation (myshape, Precision::Infinite()))
   {
-    BRepMesh_IncrementalMesh aMesher (myshape, aDeflection, Standard_False, aDeviationAngle);
+    IMeshTools_Parameters aParams;
+    aParams.DeflectionBorder = aDeflection;
+    aParams.AngleBorder      = aDeviationAngle;
+    BRepMesh_IncrementalMesh aMesher (myshape, aParams);
   }
 
   AIS_DataMapOfShapeDrawer aSubshapeDrawerMap;

@@ -1,3 +1,5 @@
+puts "TODO ?OCC30056 All: Meshing statuses: SelfIntersectingWire Failure"
+
 set TheFileName shading_wrongshape_009.brep
 set bug_area "OCC22687"
 set bug_withouttri "OCC22687"

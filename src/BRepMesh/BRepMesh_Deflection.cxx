@@ -76,25 +76,32 @@ void BRepMesh_Deflection::ComputeDeflection (
   {
     Standard_Real aScale;
     aLinDeflection = RelativeEdgeDeflection (theDEdge->GetEdge (),
-      theParameters.Deflection, theMaxShapeSize, aScale);
-    aAngDeflection = theParameters.Angle * aScale;
+      theParameters.DeflectionBorder, theMaxShapeSize, aScale);
+
+    // Is it OK?
+    aAngDeflection = theParameters.AngleBorder * aScale;
   }
   else
   {
-    aLinDeflection = theParameters.Deflection;
-    aAngDeflection = theParameters.Angle;
+    aLinDeflection = theParameters.DeflectionBorder;
+    aAngDeflection = theParameters.AngleBorder;
   }
 
+  const TopoDS_Edge& anEdge = theDEdge->GetEdge();
+
   TopoDS_Vertex aFirstVertex, aLastVertex;
-  TopExp::Vertices(theDEdge->GetEdge(), aFirstVertex, aLastVertex);
+  TopExp::Vertices(anEdge, aFirstVertex, aLastVertex);
 
   Handle(Geom_Curve) aCurve;
   Standard_Real aFirstParam, aLastParam;
-  if (BRepMesh_ShapeTool::Range(theDEdge->GetEdge(), aCurve, aFirstParam, aLastParam))
+  if (BRepMesh_ShapeTool::Range(anEdge, aCurve, aFirstParam, aLastParam))
   {
-    const Standard_Real aVertexAdjustDistance =
-      Max(BRep_Tool::Pnt(aFirstVertex).Distance(aCurve->Value(aFirstParam)),
-          BRep_Tool::Pnt(aLastVertex ).Distance(aCurve->Value(aLastParam)));
+    const Standard_Real aDistF = aFirstVertex.IsNull() ? -1.0 : 
+                        BRep_Tool::Pnt(aFirstVertex).Distance(aCurve->Value(aFirstParam));
+    const Standard_Real aDistL = aLastVertex.IsNull()  ? -1.0 :
+                        BRep_Tool::Pnt(aLastVertex).Distance(aCurve->Value(aLastParam));
+
+    const Standard_Real aVertexAdjustDistance = Max(aDistF, aDistL);
 
     aLinDeflection = Max(aVertexAdjustDistance, aLinDeflection);
   }
@@ -116,14 +123,14 @@ void BRepMesh_Deflection::ComputeDeflection (
   {
     for (Standard_Integer aEdgeIt = 0; aEdgeIt < theDWire->EdgesNb(); ++aEdgeIt)
     {
-      aWireDeflection += theDWire->GetEdge(aEdgeIt).lock()->GetDeflection();
+      aWireDeflection += theDWire->GetEdge(aEdgeIt)->GetDeflection();
     }
 
     aWireDeflection /= theDWire->EdgesNb ();
   }
   else
   {
-    aWireDeflection = theParameters.Deflection;
+    aWireDeflection = theParameters.DeflectionBorder;
   }
 
   theDWire->SetDeflection (aWireDeflection);
@@ -149,7 +156,7 @@ void BRepMesh_Deflection::ComputeDeflection (
   }
   else
   {
-    aFaceDeflection = theParameters.Deflection;
+    aFaceDeflection = theParameters.DeflectionInterior;
   }
 
   theDFace->SetDeflection (Max(2.* BRepMesh_ShapeTool::MaxFaceTolerance(

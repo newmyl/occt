@@ -130,7 +130,10 @@ static Standard_Integer OCC426 (Draw_Interpretor& di, Standard_Integer argc, con
     {
       TopoDS_Face TopologicalFace = TopoDS::Face (ExpFace.Current());
       TopologicalFace.Orientation (TopAbs_FORWARD) ;
-      BRepMesh_IncrementalMesh IM(TopologicalFace, 1);
+
+      IMeshTools_Parameters aParams;
+      aParams.DeflectionBorder = 1.0;
+      BRepMesh_IncrementalMesh IM(TopologicalFace, aParams);
       TopLoc_Location loc;
       Handle(Poly_Triangulation) facing = BRep_Tool::Triangulation(TopologicalFace, loc);
       if (facing.IsNull())
@@ -407,7 +410,10 @@ Standard_Integer performTriangulation (TopoDS_Shape aShape, Draw_Interpretor& di
       total++;
       TopoDS_Face TopologicalFace = TopoDS::Face (ExpFace.Current());
       TopologicalFace.Orientation (TopAbs_FORWARD) ;
-      BRepMesh_IncrementalMesh IM(TopologicalFace, 1);
+
+      IMeshTools_Parameters aParams;
+      aParams.DeflectionBorder = 1.0;
+      BRepMesh_IncrementalMesh IM(TopologicalFace, aParams);
       TopLoc_Location loc;
       facing = BRep_Tool::Triangulation(TopologicalFace, loc);
       di << "Face " << total << " - ";

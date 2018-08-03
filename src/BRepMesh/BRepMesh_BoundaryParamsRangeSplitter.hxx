@@ -35,7 +35,7 @@ public:
   }
 
   //! Registers border point.
-  virtual void AddPoint(const gp_Pnt2d& thePoint)
+  virtual void AddPoint(const gp_Pnt2d& thePoint) Standard_OVERRIDE
   {
     BRepMesh_NURBSRangeSplitter::AddPoint(thePoint);
     GetParametersU().Add(thePoint.X());
@@ -45,8 +45,9 @@ public:
 protected:
 
   //! Initializes U and V parameters lists using CN continuity intervals.
-  virtual void initParameters() const
+  virtual Standard_Boolean initParameters() const Standard_OVERRIDE
   {
+    return Standard_True;
   }
 };
 

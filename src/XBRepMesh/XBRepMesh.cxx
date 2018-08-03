@@ -31,8 +31,8 @@ Standard_Integer XBRepMesh::Discret(
   //
   iErr=0;
   BRepMesh_IncrementalMesh* anAlgo = new BRepMesh_IncrementalMesh;
-  anAlgo->ChangeParameters().Deflection = theDeflection;
-  anAlgo->ChangeParameters().Angle = theAngle;
+  anAlgo->GetParameters().DeflectionBorder = theDeflection;
+  anAlgo->GetParameters().AngleBorder      = theAngle;
   anAlgo->SetShape(theShape);
   theAlgo = anAlgo;
 

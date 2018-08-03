@@ -18,6 +18,7 @@
 
 #include <BRepMesh_DelaunayNodeInsertionMeshAlgo.hxx>
 #include <BRepMesh_GeomTool.hxx>
+#include <GeomLib.hxx>
 
 //! Extends node insertion Delaunay meshing algo in order to control 
 //! deflection of generated trianges. Splits triangles failing the check.
@@ -314,16 +315,56 @@ private:
         const gp_XY aMidPnt2d = (theNodesInfo[i].Point2d +
                                  theNodesInfo[j].Point2d) / 2.;
 
-        usePoint(aMidPnt2d, LineDeviation(theNodesInfo[i].Point, theNodesInfo[j].Point));
+        if (!usePoint (aMidPnt2d, LineDeviation (theNodesInfo[i].Point, 
+                                                 theNodesInfo[j].Point)))
+        {
+          if (!checkLinkEndsForAngularDeviation(theNodesInfo[i], 
+                                                theNodesInfo[j],
+                                                aMidPnt2d))
+          {
+            myControlNodes->Append(aMidPnt2d);
+          }
+        }
       }
     }
+  }
+
+  //! Checks the given point (located between the given nodes)
+  //! for specified angular deviation.
+  Standard_Boolean checkLinkEndsForAngularDeviation(const TriangleNodeInfo& theNodeInfo1,
+                                                    const TriangleNodeInfo& theNodeInfo2,
+                                                    const gp_XY& /*theMidPoint*/)
+  {
+    gp_Dir aNorm1, aNorm2;
+    const Handle(Geom_Surface)& aSurf = 
+      this->getDFace()->GetSurface()->ChangeSurface().Surface().Surface();
+    
+    if ((GeomLib::NormEstim(aSurf, theNodeInfo1.Point2d, Precision::Confusion(), aNorm1) == 0) &&
+        (GeomLib::NormEstim(aSurf, theNodeInfo2.Point2d, Precision::Confusion(), aNorm2) == 0))
+    {
+      Standard_Real anAngle = aNorm1.Angle(aNorm2);
+      if (anAngle > this->getParameters().AngleInterior)
+        return Standard_False;
+    }
+#if 0
+    else if (GeomLib::NormEstim(aSurf, theMidPoint, Precision::Confusion(), aNorm1) != 0)
+    {
+      // It is better to consider the singular point as a node of triangulation.
+      // However, it leads to hangs up meshing some faces (including faces with
+      // degenerated edges). E.g. tests "mesh standard_incmesh Q6".
+      // So, this code fragment is better to implement in the future.
+      return Standard_False;
+    }
+#endif
+
+    return Standard_True;
   }
 
   //! Computes deflection of the given point and caches it for
   //! insertion in case if it overflows deflection.
   //! @return True if point has been cached for insertion.
   template<class DeflectionFunctor>
-  inline void usePoint(
+  inline Standard_Boolean usePoint(
     const gp_XY&             thePnt2d,
     const DeflectionFunctor& theDeflectionFunctor)
   {
@@ -332,10 +373,13 @@ private:
     if (!checkDeflectionOfPointAndUpdateCache(thePnt2d, aPnt, theDeflectionFunctor.SquareDeviation(aPnt)))
     {
       myControlNodes->Append(thePnt2d);
+      return Standard_True;
     }
+
+    return Standard_False;
   }
 
-  //! Checks the given point for specified deflection.
+  //! Checks the given point for specified linear deflection.
   //! Updates value of total mesh defleciton.
   Standard_Boolean checkDeflectionOfPointAndUpdateCache(
     const gp_XY&        thePnt2d,
@@ -347,18 +391,14 @@ private:
       myMaxSqDeflection = theSqDeflection;
     }
 
-    const Standard_Real aSqDeflection = this->getDFace()->GetDeflection() * this->getDFace()->GetDeflection();
+    const Standard_Real aSqDeflection = 
+      this->getDFace()->GetDeflection() * this->getDFace()->GetDeflection();
     if (theSqDeflection < aSqDeflection)
     {
       return Standard_True;
     }
 
-    if (this->getParameters().MinSize > Precision::Confusion())
-    {
-      return rejectByMinSize(thePnt2d, thePnt3d);
-    }
-
-    return Standard_False;
+    return rejectByMinSize(thePnt2d, thePnt3d);
   }
 
   //! Checks the given node for 
@@ -366,10 +406,8 @@ private:
     const gp_XY&  thePnt2d,
     const gp_Pnt& thePnt3d)
   {
-    const Standard_Real aSqMinSize = this->getParameters().MinSize * this->getParameters().MinSize;
-
-    Handle(NCollection_IncAllocator) aTmpAlloc =
-      new NCollection_IncAllocator(IMeshData::MEMORY_BLOCK_SIZE_HUGE);
+    const Standard_Real aSqMinSize = 
+      this->getParameters().MinSize * this->getParameters().MinSize;
 
     IMeshData::MapOfInteger aUsedNodes;
     IMeshData::ListOfInteger& aCirclesList =

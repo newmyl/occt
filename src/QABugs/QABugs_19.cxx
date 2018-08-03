@@ -3979,7 +3979,10 @@ static Standard_Integer OCC26407 (Draw_Interpretor& theDI, Standard_Integer theA
   gp_Vec face_normal = gp_Vec(v0, v1).Crossed(gp_Vec(v0, v2));
 
   TopoDS_Face face = BRepBuilderAPI_MakeFace(gp_Pln(v0, face_normal), wire_builder);
-  BRepMesh_IncrementalMesh m(face, 1e-7);
+
+  IMeshTools_Parameters aParams;
+  aParams.DeflectionBorder = 1e-7;
+  BRepMesh_IncrementalMesh m(face, aParams);
 
   if (m.GetStatusFlags() != 0)
   {
