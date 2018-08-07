@@ -1,0 +1,10 @@
+pload QAcommands
+
+set aFile1 [locate_data_file bug29195_1.std]
+set aFile2 [locate_data_file bug29195_2.std]
+set aFile3 [locate_data_file bug29195_3.std]
+set aFile4 [locate_data_file bug29195_4.std]
+
+OCC29195 10 $aFile1 $aFile2 $aFile3 $aFile4
+set RES [dgetenv Result29195]
+puts "OCC29195 is $RES"

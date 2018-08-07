@@ -1,0 +1,21 @@
+pload QAcommands
+##set imagedir [pwd]
+
+set aFile1 [locate_data_file bug29195_1.cbf]
+set aFile2 [locate_data_file bug29195_2.cbf]
+set aFile3 [locate_data_file bug29195_3.cbf]
+set aFile4 [locate_data_file bug29195_4.cbf]
+set aNew1 ${imagedir}/new_bug29195_1.cbf
+set aNew2 ${imagedir}/new_bug29195_2.cbf
+set aNew3 ${imagedir}/new_bug29195_3.cbf
+set aNew4 ${imagedir}/new_bug29195_4.cbf
+
+OCC29195 500 $aFile1 $aFile2 $aFile3 $aFile4
+set RES [dgetenv Result29195]
+
+if { [file exists ${aNew1}] } {file delete ${aNew1}}
+if { [file exists ${aNew2}] } {file delete ${aNew2}}
+if { [file exists ${aNew3}] } {file delete ${aNew3}}
+if { [file exists ${aNew4}] } {file delete ${aNew4}}
+
+puts "OCC29195 is $RES"
