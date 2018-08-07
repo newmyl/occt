@@ -27,7 +27,7 @@
 #include <Standard_ProgramError.hxx>
 #include <TCollection_ExtendedString.hxx>
 
-#define theMetaDataDriver CDF_Session::CurrentSession()->MetaDataDriver()
+#define theMetaDataDriver Handle(CDF_Application)::DownCast((myCurrentDocument->Application()))->MetaDataDriver()
 
 
 static TCollection_ExtendedString blank("");
@@ -215,36 +215,7 @@ Standard_Boolean CDF_Store::SetPreviousVersion (const Standard_ExtString aPrevio
   return Standard_True;
 }
 
-void CDF_Store::InitComponent() {
-   myList->Init();
-}
-
-Standard_Boolean CDF_Store::MoreComponent() const {
-  return myList->More();
-}
-
-void CDF_Store::NextComponent()  {
-  myList->Next();
-}
-void CDF_Store::SetCurrent() {
-  myCurrentDocument = myList->Value();
-  myIsMainDocument = myCurrentDocument == myMainDocument;
-
-
-}
-
-Standard_ExtString CDF_Store::Component() const {
-  
-  static TCollection_ExtendedString retv;
-  retv=myList->Value()->Presentation();
-  return retv.ToExtString();
-}
-Standard_Boolean CDF_Store::HasSubComponents () const {
-   return myHasSubComponents;
-}
-
-void CDF_Store::SetCurrent(const Standard_ExtString aPresentation) {
-  myCurrentDocument = CDM_Document::FindFromPresentation(aPresentation);
+void CDF_Store::SetCurrent(const Standard_ExtString /*aPresentation*/) {
   myIsMainDocument = myCurrentDocument == myMainDocument;
 }
 void CDF_Store::SetMain() {
@@ -256,18 +227,6 @@ Standard_Boolean CDF_Store::IsMainDocument() const {
   return myIsMainDocument;
 }
 
-CDF_SubComponentStatus CDF_Store::SubComponentStatus(const Standard_ExtString aPresentation) const {
-   Handle(CDM_Document) d = CDM_Document::FindFromPresentation(aPresentation);
-
-  if(!d->IsStored()) 
-    return d->HasRequestedFolder()? CDF_SCS_Consistent : CDF_SCS_Unconsistent;
-
-  if(d->IsModified()) return CDF_SCS_Modified;
-  return CDF_SCS_Stored;
-}
-
-
-
 PCDM_StoreStatus CDF_Store::StoreStatus() const {
   return myStatus;
 }
@@ -278,8 +237,7 @@ Standard_ExtString CDF_Store::AssociatedStatusText() const {
 
 void CDF_Store::FindDefault() {
   if (!myCurrentDocument->IsStored ()) {
-    myCurrentDocument->SetRequestedFolder(CDF_Session::CurrentSession()->CurrentApplication()->DefaultFolder());
-//    myCurrentDocument->SetRequestedName(theMetaDataDriver->SetName(myCurrentDocument,myCurrentDocument->Presentation()));
+    myCurrentDocument->SetRequestedFolder(Handle(CDF_Application)::DownCast((myCurrentDocument->Application()))->DefaultFolder());
     myCurrentDocument->SetRequestedName(theMetaDataDriver->SetName(myCurrentDocument,myCurrentDocument->RequestedName()));
   }
 }

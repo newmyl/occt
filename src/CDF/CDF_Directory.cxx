@@ -37,8 +37,10 @@ void CDF_Directory::Remove(const Handle(CDM_Document)& aDocument) {
   Standard_Boolean found = Standard_False;
   for (; it.More() && !found;) {
     found = aDocument == it.Value();
-    if(found) 
+    if (found) {
       myDocuments.Remove(it);
+      break;
+    }
     else
       it.Next();
   }
@@ -51,6 +53,7 @@ Standard_Boolean CDF_Directory::Contains(const Handle(CDM_Document)& aDocument) 
   Standard_Boolean found = Standard_False;
   for (; it.More() && !found; it.Next()) {
     found = aDocument == it.Value();
+    if (found) break;
   }
   return found;
 }
