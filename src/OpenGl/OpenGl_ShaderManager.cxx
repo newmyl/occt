@@ -1539,7 +1539,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc(TCollection_AsciiString& theSrcFra
                                               const Standard_Boolean   isGetColorVar,
                                               const Standard_Integer   theBits)
 {
-  if (theBits & OpenGl_PO_WFMode)
+  if (theBits & OpenGl_PO_HollowMode)
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
@@ -1561,7 +1561,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc(TCollection_AsciiString& theSrcFra
         EOL"  if (aMixColor.a == 0.0) discard;"
         EOL"  else occSetFragColor (aMixColor);";
   }
-  else if (theBits & OpenGl_PO_CombineMode)
+  else if (theBits & OpenGl_PO_SolidWFMode)
   {
     theSrcFragOut  += EOL"uniform vec3 occWireframeColor;";
     theSrcFragMain += TCollection_AsciiString()
@@ -1822,9 +1822,9 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   TCollection_AsciiString aSrcGeom;
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragExtraMain, aSrcFragMainGetColor;
   TCollection_AsciiString aSrcFragGetColor = EOL"vec4 getColor(void) { return occColor; }";
-  const Standard_Boolean  isUseGeomShader  = theBits & OpenGl_PO_WFMode || 
+  const Standard_Boolean  isUseGeomShader  = theBits & OpenGl_PO_HollowMode || 
                                              theBits & OpenGl_PO_ShrinkMode || 
-                                             theBits & OpenGl_PO_CombineMode;
+                                             theBits & OpenGl_PO_SolidWFMode;
 
   prepareFragExtrSrc (aSrcFragExtraOut, aSrcFragMainGetColor, true, theBits);
   
@@ -2303,9 +2303,9 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramGouraud (Handle(OpenGl_S
   TCollection_AsciiString aSrcVert, aSrcVertColor, aSrcVertExtraOut, aSrcVertExtraMain;
   TCollection_AsciiString aSrcGeom;
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragExtraMain, aSrcFragGetColor;
-  const Standard_Boolean isUseGeomShader = theBits & OpenGl_PO_WFMode ||
+  const Standard_Boolean isUseGeomShader = theBits & OpenGl_PO_HollowMode ||
                                            theBits & OpenGl_PO_ShrinkMode ||
-                                           theBits & OpenGl_PO_CombineMode;
+                                           theBits & OpenGl_PO_SolidWFMode;
   aSrcFragGetColor = isUseGeomShader ?
     EOL"vec4 getColor(void) { return gl_FrontFacing ? FrontColorFS : BackColorFS; }" :
     EOL"vec4 getColor(void) { return gl_FrontFacing ? FrontColor : BackColor; }";
@@ -2538,9 +2538,9 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramPhong (Handle(OpenGl_Sha
   TCollection_AsciiString aSrcVert, aSrcVertExtraOut, aSrcVertExtraMain, aSrcVertMain;
   TCollection_AsciiString aSrcGeom;
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragGetVertColor, aSrcFragExtraMain;
-  const Standard_Boolean isUseGeomShader    = theBits & OpenGl_PO_WFMode ||
+  const Standard_Boolean isUseGeomShader    = theBits & OpenGl_PO_HollowMode ||
                                               theBits & OpenGl_PO_ShrinkMode ||
-                                              theBits & OpenGl_PO_CombineMode;
+                                              theBits & OpenGl_PO_SolidWFMode;
   TCollection_AsciiString thePhongCompLight = isUseGeomShader ?
     "computeLighting (normalize (NormalFS), normalize (ViewFS), PositionFS, gl_FrontFacing)" :
     "computeLighting (normalize (Normal), normalize (View), Position, gl_FrontFacing)";

@@ -481,19 +481,19 @@ protected:
   {
     switch (theAspect->InteriorStyle())
     {
-    case Aspect_IS_WIREFRAME:
+    case Aspect_IS_HOLLOW:
     {
-      theBits |= OpenGl_PO_WFMode;
+      theBits |= OpenGl_PO_HollowMode;
       break;
     }
-    case Aspect_IS_SHRUNK:
+    case Aspect_IS_SHRINK:
     {
       theBits |= OpenGl_PO_ShrinkMode;
       break;
     }
-    case Aspect_IS_COMBINED:
+    case Aspect_IS_SOLID_WIREFRAME:
     {
-      theBits |= OpenGl_PO_CombineMode;
+      theBits |= OpenGl_PO_SolidWFMode;
       break;
     }
     default:

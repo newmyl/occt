@@ -330,9 +330,9 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
         myGlContext->SetPolygonHatchEnabled (true);
         break;
       }
-      case Aspect_IS_WIREFRAME:
-      case Aspect_IS_SHRUNK:
-      case Aspect_IS_COMBINED:
+      case Aspect_IS_HOLLOW:
+      case Aspect_IS_SHRINK:
+      case Aspect_IS_SOLID_WIREFRAME:
 
       case Aspect_IS_SOLID:
       case Aspect_IS_HIDDENLINE:

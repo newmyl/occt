@@ -1541,7 +1541,7 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   }
   else if (aStyleArg == "wireframe")
   {
-    anInterStyle = Aspect_IS_WIREFRAME;
+    anInterStyle = Aspect_IS_HOLLOW;
   }
   else if (aStyleArg == "hatch")
   {
@@ -1559,23 +1559,23 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   {
     anInterStyle = Aspect_IS_POINT;
   }
-  else if (aStyleArg == "shrunk")
+  else if (aStyleArg == "shrink")
   {
-    anInterStyle = Aspect_IS_SHRUNK;
+    anInterStyle = Aspect_IS_SHRINK;
   }
-  else if (aStyleArg == "combined")
+  else if (aStyleArg == "solidwireframe")
   {
-    anInterStyle = Aspect_IS_COMBINED;
+    anInterStyle = Aspect_IS_SOLID_WIREFRAME;
   }
   else
   {
     if (aStyleArg.IsIntegerValue())
     {
       const Standard_Integer anIntStyle = aStyleArg.IntegerValue();
-      if (anIntStyle < Aspect_IS_EMPTY || anIntStyle > Aspect_IS_COMBINED)
+      if (anIntStyle < Aspect_IS_EMPTY || anIntStyle > Aspect_IS_SOLID_WIREFRAME)
       {
-        std::cout << "Error: style must be within a range [0 (Aspect_IS_EMPTY), "
-                  << Aspect_IS_COMBINED << " (Aspect_IS_COMBINED)]\n";
+        std::cout << "Error: style must be within a range [0 (Empty), "
+                  << Aspect_IS_SOLID_WIREFRAME << " (Solid Wireframe)]\n";
         return 1;
       }
       anInterStyle = (Aspect_InteriorStyle)anIntStyle;
@@ -5993,14 +5993,14 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
   theCommands.Add("vsetinteriorstyle",
     "vsetinteriorstyle [-noupdate|-update] [name] Style"
       "\n\t\t  : The Style are:"
-      "\n\t\t  :    empty     No interior"
-      "\n\t\t  :    wireframe Display wireframe of surface"
-      "\n\t\t  :    hatch     Display hatched surface with a hatch style"
-      "\n\t\t  :    solid     Display surface"
-      "\n\t\t  :    hidenline Display surface in hidden lines removed"
-      "\n\t\t  :    point     Display only vertices of surface"
-      "\n\t\t  :    shrunk    Display shrunk triangulation of surface"
-      "\n\t\t  :    combined  Display wireframe and surface",
+      "\n\t\t  :    empty          No interior"
+      "\n\t\t  :    hollow         Display the boundaries of the surface"
+      "\n\t\t  :    hatch          Display hatched surface with a hatch style"
+      "\n\t\t  :    solid          Display surface"
+      "\n\t\t  :    hidenline      Display surface in hidden lines removed"
+      "\n\t\t  :    point          Display only vertices of surface"
+      "\n\t\t  :    shrink         Display shrunk triangulation of surface"
+      "\n\t\t  :    solidwireframe Display boundaries and surface",
 		  __FILE__,VSetInteriorStyle,group);
 
   theCommands.Add("vsensdis",
