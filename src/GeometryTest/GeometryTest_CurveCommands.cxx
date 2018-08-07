@@ -1032,7 +1032,7 @@ static Standard_Integer crvtpoints (Draw_Interpretor& di, Standard_Integer n, co
   defl = Draw::Atof(a[3]);
 
   if(n > 3)
-    angle = Draw::Atof(a[4]);
+    angle = Draw::Atof(a[4]) * M_PI / 180;
 
   GCPnts_TangentialDeflection PntGen(aHCurve->Curve(), angle, defl, 2);
   

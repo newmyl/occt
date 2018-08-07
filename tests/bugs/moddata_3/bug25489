@@ -12,7 +12,7 @@ subshape a e 8
 mkcurve c a_8
 
 set deflection 0.001
-set info [crvtpoints r c ${deflection} pi/6]
+set info [crvtpoints r c ${deflection} 30]
 
 set str1 "Nb points +: +(\[-0-9.+eE\]+)\n"
 set str2 "Max defl: +(\[-0-9.+eE\]+) +(\[-0-9.+eE\]+) +(\[-0-9.+eE\]+) +(\[-0-9.+eE\]+)"

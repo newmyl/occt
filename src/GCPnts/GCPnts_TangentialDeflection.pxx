@@ -195,9 +195,9 @@ void GCPnts_TangentialDeflection::PerformLinear (const TheCurve& C) {
   parameters.Append (firstu);
   points    .Append (P);
   if (minNbPnts > 2) {
-    Standard_Real Du = (lastu - firstu) / minNbPnts;
+    Standard_Real Du = (lastu - firstu) / (minNbPnts - 1);
     Standard_Real U = firstu + Du;
-    for (Standard_Integer i = 2; i <= minNbPnts; i++) {
+    for (Standard_Integer i = 2; i < minNbPnts; i++) {
       D0 (C, U, P);
       parameters.Append (U);
       points    .Append (P);
@@ -287,6 +287,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
     {
       //Si c'est une droite on verifie en calculant minNbPoints :
       Standard_Boolean IsLine   = Standard_True;
+      Standard_Boolean IsSequential = Standard_True;
       Standard_Integer NbPoints = (minNbPnts > 3) ? minNbPnts : 3;
       switch (C.GetType()) {
       case GeomAbs_BSplineCurve:
@@ -325,8 +326,8 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
           Intervs(i + 1) = lastu;
         }
 
-        Standard_Real delta = (Intervs(i+1) - Intervs(i))/NbPoints;
-        for (j = 1; j <= NbPoints && IsLine; ++j)
+        Standard_Real delta = (Intervs(i+1) - Intervs(i))/(NbPoints-1);
+        for (j = 1; j < NbPoints && IsLine; ++j)
         {
           param = Intervs(i) + j*delta;
           D0 (C, param, MiddlePoint);
@@ -336,6 +337,12 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
           {
             const Standard_Real aAngle = V2.CrossMagnitude(V1)/(L1*L2);
             IsLine = (aAngle < ATol);
+
+            // Check if points on line are subsequent
+            if(IsLine && IsSequential)
+            {
+                IsSequential = (L2 <= L1);
+            }
           }
         }
       }
@@ -345,7 +352,18 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
         parameters.Clear();
         points    .Clear();
 
+        const Standard_Integer oldMinNbPoints = minNbPnts;
+        if(!IsSequential)
+        {
+            minNbPnts = NbPoints;
+        }
+
         PerformLinear(C);
+
+        if(!IsSequential)
+        {
+            minNbPnts = oldMinNbPoints;
+        }
         return;
       }
       else

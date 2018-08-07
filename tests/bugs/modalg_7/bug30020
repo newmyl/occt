@@ -1,0 +1,19 @@
+puts "========"
+puts "0030020: Incorrect bspline visualization"
+puts "========\n"
+
+set F [open pnts w]
+puts $F "3 3d"
+puts $F "0 0 0"
+puts $F "2 0 0"
+puts $F "1 0 0"
+close $F
+interpol c pnts
+file delete pnts
+
+set out [crvtpoints r c 0.1 1]
+if {[lindex $out 3] != 3} {
+  puts "Error: number of points is not equal to 3"
+}
+
+checklength r -l 3
