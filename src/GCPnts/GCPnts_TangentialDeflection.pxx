@@ -306,7 +306,6 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
       ;}
       ////
       Standard_Real param = 0.;
-      gp_Pnt prevMiddlePoint = CurrentPoint;
       for (i = 1; i <= NbInterv && IsLine; ++i)
       {
         // Avoid usage intervals out of [firstu, lastu].
@@ -342,12 +341,10 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
             // Check if points on line are subsequent
             if(IsLine && IsSequential)
             {
-                gp_XYZ V3 = MiddlePoint.XYZ() - prevMiddlePoint.XYZ();
-                Standard_Real L3 = V3.Modulus();
-                IsSequential = (L2 <= L1 && L3 <= L1);
+                gp_XYZ V3 = LastPoint.XYZ() - MiddlePoint.XYZ();
+                IsSequential = (V3.Dot(V2) > 0);
             }
           }
-          prevMiddlePoint = MiddlePoint;
         }
       }
 
@@ -609,6 +606,9 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
   //Additional check for intervals
   Standard_Real MinLen2 = myMinLen * myMinLen;
   Standard_Integer MaxNbp = 10 * Nbp;
+
+  Standard_Real CosAngleMax = sqrt(1 - AngleMax * AngleMax);
+
   for(i = 1; i < Nbp; ++i)
   {
     U1 = parameters(i);
@@ -622,7 +622,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
     const gp_Pnt& P2 = points(i+1);
     D0(C, umax, MiddlePoint);
     amax = EstimAngl(P1, MiddlePoint, P2);
-    if(dmax > curvatureDeflection || amax > AngleMax)
+    if(dmax > curvatureDeflection || amax < CosAngleMax)
     {
       if(umax - U1 > uTol && U2 - umax > uTol)
       {
