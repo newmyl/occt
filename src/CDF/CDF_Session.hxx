@@ -49,13 +49,13 @@ public:
   Standard_EXPORT static Handle(CDF_Session) CurrentSession();
   
   //! returns true if theApp is added to the session
-  Standard_EXPORT const Standard_Boolean AddApplication(const Handle(CDF_Application)& theApp, const Standard_ThreadId theID);
+  Standard_EXPORT Standard_Boolean AddApplication(const Handle(CDF_Application)& theApp, const Standard_ThreadId theID);
 
   //! returns true if theApp is removed from the session
-  Standard_EXPORT const Standard_Boolean RemoveApplication(const Standard_ThreadId theID);
+  Standard_EXPORT Standard_Boolean RemoveApplication(const Standard_ThreadId theID);
 
   //! returns true if theApp is removed from the session
-  Standard_EXPORT const Standard_Boolean FindApplication(const Standard_ThreadId, Handle(CDF_Application)& theApp) const;
+  Standard_EXPORT Standard_Boolean FindApplication(const Standard_ThreadId, Handle(CDF_Application)& theApp) const;
 
 
 friend class CDF_Application;

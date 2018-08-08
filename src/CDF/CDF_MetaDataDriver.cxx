@@ -78,7 +78,7 @@ void CDF_MetaDataDriver::CreateReference(const Handle(CDM_MetaData)& ,
 //=======================================================================
 
 Handle(PCDM_ReferenceIterator) CDF_MetaDataDriver::ReferenceIterator() {
-  Standard_Integer anID = OSD_Thread::Current();
+  Standard_ThreadId anID = OSD_Thread::Current();
   Handle(CDF_Application) anApp; 
   CDF_Session::CurrentSession()->FindApplication(anID, anApp);
   return new PCDM_ReferenceIterator(anApp->MessageDriver());

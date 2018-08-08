@@ -67,7 +67,7 @@ Handle(CDF_Session) CDF_Session::CurrentSession() {
 //function : AddApplication
 //purpose  : adds the application to the session with unique name
 //=======================================================================
-const Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)& theApp,
+Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)& theApp,
   const Standard_ThreadId theID)
 {
   if (!theApp.IsNull())
@@ -84,7 +84,7 @@ const Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)
 //function : FindApplication
 //purpose  : 
 //=======================================================================
-const Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theID, Handle(CDF_Application)& theApp) const
+Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theID, Handle(CDF_Application)& theApp) const
 {
   if (myAppDirectory.IsBound(theID))
   {
@@ -96,7 +96,7 @@ const Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theI
 //function : RemoveApplication
 //purpose  : removes the application with name=<theName> from the session
 //=======================================================================
-const Standard_Boolean CDF_Session::RemoveApplication(const Standard_ThreadId theID)
+Standard_Boolean CDF_Session::RemoveApplication(const Standard_ThreadId theID)
 {
   if (myAppDirectory.IsBound(theID))
   {
