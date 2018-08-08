@@ -23,7 +23,6 @@
 #include <CDM_ListOfDocument.hxx>
 #include <CDM_MetaData.hxx>
 #include <CDM_NamesDirectory.hxx>
-#include <CDM_PresentationDirectory.hxx>
 #include <CDM_Reference.hxx>
 #include <CDM_ReferenceIterator.hxx>
 #include <Resource_Manager.hxx>
@@ -39,11 +38,6 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(CDM_Document,Standard_Transient)
 
-static CDM_PresentationDirectory& getPresentations() {
-  static CDM_PresentationDirectory thePresentations;
-  return thePresentations;
-}
-
 //=======================================================================
 //function : CDM_Document
 //purpose  : 
@@ -51,7 +45,6 @@ static CDM_PresentationDirectory& getPresentations() {
 
 CDM_Document::CDM_Document():
   myResourcesAreLoaded          (Standard_False),
-  myValidPresentation           (Standard_False),
   myVersion                     (1),
   myActualReferenceIdentifier   (0),
   myStorageVersion              (0),
@@ -518,104 +511,6 @@ Standard_ExtString CDM_Document::Comment() const
 }
 
 //=======================================================================
-//function : Presentation
-//purpose  : 
-//=======================================================================
-
-Standard_ExtString CDM_Document::Presentation()
-{
-  if(!myValidPresentation) ComputePresentation();
-  return myPresentation.ToExtString();
-}
-
-//=======================================================================
-//function : UnvalidPresentation
-//purpose  : 
-//=======================================================================
-
-void CDM_Document::UnvalidPresentation()
-{
-  if(myValidPresentation) {
-    getPresentations().UnBind(myPresentation);
-    myValidPresentation=Standard_False;
-  }
-}
-
-//=======================================================================
-//function : ComputePresentation
-//purpose  : 
-//=======================================================================
-
-void CDM_Document::ComputePresentation()
-{
-  TCollection_ExtendedString presentation("");
-  static Standard_Integer theUnnamedDocuments(0);
-  static CDM_NamesDirectory theNames;
-
-  if(!myMetaData.IsNull()) {
-    presentation += myMetaData->Name();
-    if(!theNames.IsBound(presentation)) theNames.Bind(presentation,0);
-    Standard_Integer range = theNames(presentation);
-    range += 1;
-    theNames(presentation) = range;
-    if(range != 1) {
-      presentation += "<";
-      presentation += range;
-      presentation += ">";
-    }
-  }
-  else {
-    presentation = "Document_";
-    presentation += ++theUnnamedDocuments;
-  }
-  
-  if(getPresentations().IsBound(presentation)) {
-    TCollection_ExtendedString Test = presentation;
-    Test += "!";
-    Standard_Integer Count=0;
-    while (getPresentations().IsBound(Test)) {
-      Count++;
-      Test = presentation; Test+= "!"; Test+= Count;
-    }
-    presentation = Test;
-  }
-  
-  
-  myPresentation = TCollection_ExtendedString(presentation);
-  myValidPresentation = Standard_True;
-  getPresentations().Bind(presentation,this);
-}
-
-//=======================================================================
-//function : FindFromPresentation
-//purpose  : 
-//=======================================================================
-
-Handle(CDM_Document) CDM_Document::FindFromPresentation
-                                (const TCollection_ExtendedString& aPresentation)
-{
-  TCollection_ExtendedString x(aPresentation);
-  if(!getPresentations().IsBound(x)) {
-    Standard_SStream aMsg;
-    aMsg <<"No document having this presentation: " << x << " does exist."
-         << endl << (char)0;
-    throw Standard_NoSuchObject(aMsg.str().c_str());
-  }
-  return getPresentations()(x);
-}
-
-//=======================================================================
-//function : FindPresentation
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean CDM_Document::FindPresentation
-                                (const TCollection_ExtendedString& aPresentation)
-{
-  return getPresentations().IsBound(aPresentation);
-}
-
-//=======================================================================
 //function : IsStored
 //purpose  : 
 //=======================================================================
@@ -658,11 +553,8 @@ void CDM_Document::SetMetaData(const Handle(CDM_MetaData)& aMetaData)
       }
     }
     if(!myMetaData.IsNull()) {
-      if(myMetaData->Name() != aMetaData->Name()) UnvalidPresentation();
       myMetaData->UnsetDocument();
     }
-    else
-      UnvalidPresentation();
   }
 
   myStorageVersion = Modifications();
@@ -682,7 +574,6 @@ void CDM_Document::UnsetIsStored()
 {
   if(!myMetaData.IsNull()) { 
     myMetaData->UnsetDocument();
-//    myMetaData.Nullify();
   }
 }
 
@@ -789,7 +680,7 @@ TCollection_ExtendedString CDM_Document::RequestedName()
     if(!myMetaData.IsNull())
       myRequestedName=myMetaData->Name();
     else
-      myRequestedName=Presentation();
+      myRequestedName="Document_";
   }
   myRequestedNameIsDefined=Standard_True;
   return myRequestedName;
@@ -910,7 +801,6 @@ void CDM_Document::Close()
   RemoveAllReferences();
   UnsetIsStored();
   myApplication.Nullify();
-  UnvalidPresentation();
 
 }
 

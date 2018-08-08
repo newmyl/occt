@@ -68,6 +68,18 @@
 #include <BRepBndLib.hxx>
 #include <OSD_Timer.hxx>
 
+#include <OSD_Thread.hxx>
+#include <OSD_Environment.hxx>
+#include <TDocStd_PathParser.hxx>
+#include <TDocStd_Application.hxx>
+#include <TDF_ChildIterator.hxx>
+#include <XmlLDrivers.hxx>
+#include <XmlDrivers.hxx>
+#include <BinLDrivers.hxx>
+#include <BinDrivers.hxx>
+#include <StdLDrivers.hxx>
+#include <StdDrivers.hxx>
+
 #include <limits>
 
 //=======================================================================
@@ -3024,6 +3036,239 @@ static Standard_Integer OCC29311 (Draw_Interpretor& theDI, Standard_Integer theA
   return 0;
 }
 
+//////////
+//#include <Standard_Mutex.hxx>
+//Standard_Mutex gMutex;
+
+typedef struct
+{
+  int ID;
+  int iThread;
+  const char* strArgs;
+  bool finished;
+  int* res;
+  //OSD_Thread* pthread;  
+} Args;
+
+static void printMsg(const char* msg)
+{
+  printf(msg);
+}
+
+static void printDocIsNull()
+{
+  printMsg("Doc Name is not defined\n");
+}
+
+// Thread function.
+//#define DEB_PRINT
+
+static Standard_Integer nbREP(50);
+
+void* threadFunction(void* theArgs)
+{
+  Args * args = (Args*)theArgs;
+  Standard_Boolean found(Standard_False);
+  try
+  {
+    TCollection_AsciiString aDocName(args->strArgs);
+    if (aDocName.IsEmpty())
+    {
+      printDocIsNull();
+      *(args->res) = -1;
+      return args->res;
+    }
+#ifdef DEB_PRINT
+    printf("A thread ## = %d is started with ID = %d\n", args->iThread, OSD_Thread::Current());
+#endif
+    Handle(TDocStd_Application) anApp = new TDocStd_Application();
+    if (!anApp.IsNull()) {
+
+      StdLDrivers::DefineFormat(anApp);
+      BinLDrivers::DefineFormat(anApp);
+      XmlLDrivers::DefineFormat(anApp);
+      StdDrivers::DefineFormat(anApp);
+      BinDrivers::DefineFormat(anApp);
+      XmlDrivers::DefineFormat(anApp);
+
+      Handle(TDocStd_Document) aDoc;
+      for (int i = 1; i <= nbREP; i++) {
+        PCDM_ReaderStatus aStatus = anApp->Open(aDocName, aDoc);
+        if (aStatus != PCDM_RS_OK) {
+#ifdef DEB_PRINT
+          printf("Open Error = %d " " ID = %d\n", aStatus, OSD_Thread::Current());
+#endif
+          args->finished = true;
+          *(args->res) = -1;
+          return args->res;
+        }
+        else {
+#ifdef DEB_PRINT
+          printf("A document %s is opened; ID = %d\n", args->strArgs, OSD_Thread::Current());
+#endif
+          TDF_Label aLabel = aDoc->Main();
+          TDF_ChildIterator anIt(aLabel, Standard_True);
+          for (; anIt.More(); anIt.Next()) {
+            const TDF_Label& aLab = anIt.Value();
+            Handle(TDataStd_AsciiString) anAtt;
+            aLab.FindAttribute(TDataStd_AsciiString::GetID(), anAtt);
+            if (!anAtt.IsNull()) {
+              TCollection_AsciiString aStr = anAtt->Get();
+              if (aStr.IsEqual(aDocName)) {
+                found = Standard_True;
+                *(args->res) = (int)aLab.Tag();
+                break;
+              }
+            }
+          }
+         
+          if (aDoc->StorageFormat() != "MDTV-Standard") {
+            TDocStd_PathParser tool(aDocName);
+            TCollection_ExtendedString directory = tool.Trek() + "/";
+            TCollection_ExtendedString file = tool.Name();
+            file = TCollection_ExtendedString ("new_") + file + ".";
+            file += tool.Extension();
+            //anApp->SaveAs(aDoc, TCollection_AsciiString("new_") + aDocName);
+            anApp->SaveAs(aDoc, directory + file);
+          }
+          // gMutex.Lock();
+          anApp->Close(aDoc);
+          //gMutex.Unlock();
+#ifdef DEB_PRINT
+          printf("A document %s is closed; ID = %d\n", args->strArgs, OSD_Thread::Current());
+          //args->finished = true;
+#endif
+        }
+      }
+      args->finished = true;
+    }
+  } //try
+  catch (...)
+  {
+#ifdef DEB_PRINT
+    printf("A thread ID = %d is FAILED.\n", OSD_Thread::Current());
+#endif
+    args->finished = true;
+    *(args->res) = -1;
+    return args->res;
+  }
+
+  args->finished = true;
+
+#ifdef DEB_PRINT
+  if (found)
+    printf("A thread ID = %d is finished, the Key is found.\n", OSD_Thread::Current());
+  else
+    printf("A thread ID = %d is finished, the Key is not found.\n", OSD_Thread::Current());
+#endif
+
+  return args->res;
+}
+//=======================================================================
+//function : OCC29195
+//purpose  : 
+//=======================================================================
+static Standard_Integer OCC29195(Draw_Interpretor&, Standard_Integer theArgC, const char** theArgV)
+{
+  if (theArgC < 2)
+  {
+    cout << "\nOCC29195 [nbRep] doc1 [doc2 [doc3 [doc4]]], where:";
+    cout << "\nnbRep - number repetitions of a thread function (by default - 50)";
+    cout << "\ndoc1, doc2, doc3, doc4  - names (max - 4 documents) of OCAF document\n" << endl;
+    return 1;
+  }
+  bool finished = false;
+  int iThread(0), nbThreads(0), off(0);
+  if (TCollection_AsciiString(theArgV[1]).IsIntegerValue())
+  {
+    nbREP = TCollection_AsciiString(theArgV[1]).IntegerValue();
+    off = 1;
+    if (theArgC < 3) {
+      printMsg("TEST is FAILED\n");
+      return 0;
+    }
+  }
+  Standard_Integer aNbFiles = theArgC - (off + 1);
+
+  // Get number of processors = number of threads.
+  SYSTEM_INFO sysInfo;
+  GetSystemInfo(&sysInfo);
+  nbThreads = sysInfo.dwNumberOfProcessors;
+  if (aNbFiles < nbThreads)
+    nbThreads = aNbFiles;
+
+  // Allocate data
+  Args* args = new Args[nbThreads];
+  OSD_Thread* threads = new OSD_Thread[nbThreads];
+
+  while (iThread < nbThreads)
+  {
+    args[iThread].strArgs = new char[80];//doc name
+    if ((iThread) < aNbFiles)
+      args[iThread].strArgs = theArgV[iThread + off + 1];
+    args[iThread].iThread = iThread;
+    args[iThread].ID = threads[iThread].GetId();
+    args[iThread].finished = false;
+    args[iThread].res = new int;
+    threads[iThread].SetFunction(&threadFunction);
+    //args[iThread].pthread = &(threads[iThread]);
+    iThread++;
+  }
+
+
+  iThread = 0;
+  while (iThread < nbThreads)
+  {
+    args[iThread].finished = false;
+    threads[iThread].Run((void*)&(args[iThread]));
+    iThread++;
+  }
+
+  // Sleep while the threads are run.
+  while (!finished)
+  {
+    finished = true;
+    iThread = 0;
+    while (iThread < nbThreads)
+    {
+      if (!args[iThread].finished)
+      {
+        finished = false;
+        break;
+      }
+      else {
+        //printf("Waiting:  %s .\n", args[iThread].strArgs);
+      }
+      iThread++;
+    }
+    Sleep(100);
+  }
+  Standard_Integer nb(0);
+  OSD_Environment anEnv("Result29195");
+  if (finished)
+    for (iThread = 0; iThread < nbThreads; iThread++)
+    {
+      if (*(args[iThread].res) == -1)
+      {
+        printMsg("OCC29195 is FAILED\n");
+        anEnv.SetValue("FAILED");
+        anEnv.Build();
+        break;
+      }
+      else nb++;
+    }
+  if (nb == nbThreads)
+  {
+    printMsg("OCC29195 is finished OK\n");
+    anEnv.SetValue("OK");
+    anEnv.Build();
+  }
+  // Delete all allocated data.
+  delete[] args;
+  delete[] threads;
+
+  return 0;
+}
 void QABugs::Commands_20(Draw_Interpretor& theCommands) {
   const char *group = "QABugs";
 
@@ -3063,6 +3308,6 @@ void QABugs::Commands_20(Draw_Interpretor& theCommands) {
   theCommands.Add ("OCC29925", "OCC29925: check safety of character classification functions", __FILE__, OCC29925, group);
   theCommands.Add("OCC29807", "OCC29807 surface1 surface2 u1 v1 u2 v2", __FILE__, OCC29807, group);
   theCommands.Add("OCC29311", "OCC29311 shape counter nbiter: check performance of OBB calculation", __FILE__, OCC29311, group);
-
+  theCommands.Add("OCC29195", "OCC29195 [nbRep] doc1 [doc2 [doc3 [doc4]]] ", __FILE__, OCC29195, group);
   return;
 }
