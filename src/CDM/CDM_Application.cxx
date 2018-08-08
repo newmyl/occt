@@ -78,10 +78,9 @@ void CDM_Application::Write(const Standard_ExtString aString)
 //purpose  : 
 //=======================================================================
 
-void CDM_Application::BeginOfUpdate (const Handle(CDM_Document)& aDocument)
+void CDM_Application::BeginOfUpdate (const Handle(CDM_Document)& /*aDocument*/)
 {
   TCollection_ExtendedString updating("Updating:");
-  updating+=aDocument->Presentation();
   Write(updating.ToExtString());
 }
 
@@ -91,7 +90,7 @@ void CDM_Application::BeginOfUpdate (const Handle(CDM_Document)& aDocument)
 //=======================================================================
 
 void CDM_Application::EndOfUpdate
-                        (const Handle(CDM_Document)&       aDocument,
+                        (const Handle(CDM_Document)&       /*aDocument*/,
                          const Standard_Boolean            theStatus,
                          const TCollection_ExtendedString& /*ErrorString*/)
 {
@@ -100,8 +99,6 @@ void CDM_Application::EndOfUpdate
     message="Updated:";
   else
     message="Error during updating:";
-      
-  message+=aDocument->Presentation();
   Write(message.ToExtString());
 }
 

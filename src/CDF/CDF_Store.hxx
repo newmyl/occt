@@ -97,25 +97,6 @@ public:
   //! returns the description of the format of the main object.
   Standard_EXPORT Standard_ExtString Description() const;
   
-  //! Allows to Start a new Iteration from beginning
-  Standard_EXPORT void InitComponent();
-  
-  //! Returns True if there are more entries to return
-  Standard_EXPORT Standard_Boolean MoreComponent() const;
-  
-  //! Go to the next entry
-  //! (if there is not, Value will raise an exception)
-  Standard_EXPORT void NextComponent();
-  
-  Standard_EXPORT void SetCurrent();
-  
-  //! Returns item value of current entry
-  Standard_EXPORT Standard_ExtString Component() const;
-  
-  Standard_EXPORT Standard_Boolean HasSubComponents() const;
-  
-  Standard_EXPORT CDF_SubComponentStatus SubComponentStatus (const Standard_ExtString aPresentation) const;
-  
   Standard_EXPORT void SetCurrent (const Standard_ExtString aPresentation);
   
   //! the two following methods can

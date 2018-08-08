@@ -24,7 +24,8 @@
 #include <Message_Msg.hxx>
 #include <Message_MsgFile.hxx>
 #include <Resource_Manager.hxx>
-
+#include <CDF_Session.hxx>
+#include <OSD_Thread.hxx>
 #include <stdio.h>
 
 #include "TObj_TObj_msg.pxx"
@@ -35,11 +36,16 @@ IMPLEMENT_STANDARD_RTTIEXT(TObj_Application,TDocStd_Application)
 //function : GetInstance
 //purpose  :
 //=======================================================================
-
 Handle(TObj_Application) TObj_Application::GetInstance()
 {
-  static Handle(TObj_Application) anInstance = new TObj_Application;
-  return anInstance;
+  //static Handle(TObj_Application) anInstance = new TObj_Application;
+  Handle(CDF_Session) aSession;
+  if (!CDF_Session::Exists()) aSession = new CDF_Session();
+  else aSession = CDF_Session::CurrentSession(); 
+  Handle(TObj_Application)anApp;
+  if (!aSession->FindApplication(OSD_Thread::Current(), anApp))
+      anApp = new TObj_Application;
+  return anApp;  
 }
 
 //=======================================================================
