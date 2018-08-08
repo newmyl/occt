@@ -80,8 +80,6 @@ protected:
   
   Standard_EXPORT void SetReferenceCounter (const Handle(CDM_Document)& aDocument, const Standard_Integer aReferenceCounter);
 
-
-
 private:
 
   
