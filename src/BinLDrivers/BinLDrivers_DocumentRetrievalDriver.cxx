@@ -338,7 +338,7 @@ Standard_Integer BinLDrivers_DocumentRetrievalDriver::ReadSubTree
                           const TDF_Label&  theLabel)
 {
   Standard_Integer nbRead = 0;
-  static TCollection_ExtendedString aMethStr
+  TCollection_ExtendedString aMethStr
     ("BinLDrivers_DocumentRetrievalDriver: ");
 
   // Read attributes:

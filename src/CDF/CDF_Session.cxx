@@ -40,10 +40,9 @@ static Handle(CDF_Session) CS;
 //function : 
 //purpose  : 
 //=======================================================================
-CDF_Session::CDF_Session () : myHasCurrentApplication(Standard_False)
+CDF_Session::CDF_Session ()
 {  
   Standard_MultiplyDefined_Raise_if(!CS.IsNull()," a session already exists");
-  myDirectory = new CDF_Directory();
   CS = this;
 }
 
@@ -56,15 +55,6 @@ Standard_Boolean CDF_Session::Exists() {
 }
 
 //=======================================================================
-//function : Directory
-//purpose  : 
-//=======================================================================
-Handle(CDF_Directory) CDF_Session::Directory() const {
-  
-  return CS->myDirectory;
-}
-
-//=======================================================================
 //function : CurrentSession
 //purpose  : 
 //=======================================================================
@@ -74,58 +64,43 @@ Handle(CDF_Session) CDF_Session::CurrentSession() {
 }
 
 //=======================================================================
-//function : HasCurrentApplication
-//purpose  : 
+//function : AddApplication
+//purpose  : adds the application to the session with unique name
 //=======================================================================
-Standard_Boolean CDF_Session::HasCurrentApplication() const {
-  return myHasCurrentApplication;
-}
-
-//=======================================================================
-//function : CurrentApplication
-//purpose  : 
-//=======================================================================
-Handle(CDF_Application) CDF_Session::CurrentApplication() const {
-  Standard_NoSuchObject_Raise_if(!myHasCurrentApplication,"there is no current application in the session");
-  return myCurrentApplication;
-}
-
-//=======================================================================
-//function : SetCurrentApplication
-//purpose  : 
-//=======================================================================
-void CDF_Session::SetCurrentApplication(const Handle(CDF_Application)& anApplication) {
-  myCurrentApplication  = anApplication;
-  myHasCurrentApplication = Standard_True;
-}
-
-//=======================================================================
-//function : UnsetCurrentApplication
-//purpose  : 
-//=======================================================================
-void CDF_Session::UnsetCurrentApplication() {
-  myHasCurrentApplication = Standard_False;
-  myCurrentApplication.Nullify();
-}
-
-//=======================================================================
-//function : MetaDataDriver
-//purpose  : 
-//=======================================================================
-Handle(CDF_MetaDataDriver) CDF_Session::MetaDataDriver() const {
-  Standard_NoSuchObject_Raise_if(myMetaDataDriver.IsNull(),"no metadatadriver has been provided; this session is not able to store or retrieve files.");
-  return myMetaDataDriver;
-}
-
-//=======================================================================
-//function : LoadDriver
-//purpose  : 
-//=======================================================================
-void CDF_Session::LoadDriver() {
-  if (myMetaDataDriver.IsNull()) {
-    // for compatibility with old code, initialize useless driver directly
-    // instead of loading it as plugin
-    Handle(CDF_MetaDataDriverFactory) aFactory;
-    myMetaDataDriver = new CDF_FWOSDriver;
+Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)& theApp,
+  const Standard_ThreadId theID)
+{
+  if (!theApp.IsNull())
+  {
+    if (!myAppDirectory.IsBound(theID))
+    {
+      return myAppDirectory.Bind(theID, theApp);        
+    }
   }
+  return Standard_False;
+}
+
+//=======================================================================
+//function : FindApplication
+//purpose  : 
+//=======================================================================
+Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theID, Handle(CDF_Application)& theApp) const
+{
+  if (myAppDirectory.IsBound(theID))
+  {
+    return myAppDirectory.Find(theID, theApp);
+  }
+  return Standard_False;
+}
+//=======================================================================
+//function : RemoveApplication
+//purpose  : removes the application with name=<theName> from the session
+//=======================================================================
+Standard_Boolean CDF_Session::RemoveApplication(const Standard_ThreadId theID)
+{
+  if (myAppDirectory.IsBound(theID))
+  {
+    return myAppDirectory.UnBind(theID);
+  }
+  return Standard_False;
 }

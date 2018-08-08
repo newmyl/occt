@@ -26,6 +26,7 @@
 #include <Standard_ExtString.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
+#include <CDM_MetaDataLookUpTable.hxx>
 
 class CDM_Reference;
 class CDM_MetaData;
@@ -67,6 +68,9 @@ public:
   //! Returns the application version.
   Standard_EXPORT virtual TCollection_AsciiString Version() const;
 
+  //! Returns MetaData LookUpTable
+  Standard_EXPORT virtual  CDM_MetaDataLookUpTable* MetaDataLookUpTable();
+
 friend class CDM_Reference;
 friend class CDM_MetaData;
 
@@ -75,12 +79,11 @@ friend class CDM_MetaData;
 
 protected:
 
-  
+  Standard_EXPORT CDM_Application();
+
   Standard_EXPORT void SetDocumentVersion (const Handle(CDM_Document)& aDocument, const Handle(CDM_MetaData)& aMetaData) const;
   
   Standard_EXPORT void SetReferenceCounter (const Handle(CDM_Document)& aDocument, const Standard_Integer aReferenceCounter);
-
-
 
 private:
 
@@ -90,7 +93,8 @@ private:
   //! returns -1 if the metadata has no modification counter.
   Standard_EXPORT virtual Standard_Integer DocumentVersion (const Handle(CDM_MetaData)& aMetaData) = 0;
 
-
+  Handle(Message_Messenger) myMessenger;
+  CDM_MetaDataLookUpTable myMetaDataLookUpTable;
 
 };
 

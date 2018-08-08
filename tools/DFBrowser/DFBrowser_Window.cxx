@@ -54,7 +54,7 @@
 #include <OSD_Directory.hxx>
 #include <OSD_Environment.hxx>
 #include <OSD_Protection.hxx>
-
+#include <OSD_Thread.hxx>
 #include <inspector/View_Displayer.hxx>
 #include <inspector/View_ToolBar.hxx>
 #include <inspector/View_Viewer.hxx>
@@ -66,6 +66,7 @@
 #include <inspector/ViewControl_Tools.hxx>
 
 #include <Standard_WarningsDisable.hxx>
+#include <Standard_ThreadId.hxx>
 #include <QAction>
 #include <QApplication>
 #include <QComboBox>
@@ -481,7 +482,10 @@ void DFBrowser_Window::OpenFile (const TCollection_AsciiString& theFileName)
     Handle(CDF_Session) aSession = CDF_Session::CurrentSession();
     if (!aSession.IsNull())
     {
-      anApplication = Handle(TDocStd_Application)::DownCast (CDF_Session::CurrentSession()->CurrentApplication());
+      Standard_ThreadId anID = OSD_Thread::Current();
+      Handle(CDF_Application) anApp;
+      CDF_Session::CurrentSession()->FindApplication(anID, anApp);
+      anApplication = Handle(TDocStd_Application)::DownCast (anApp);
       if (!anApplication.IsNull())
       {
         for (int aDocId = 1, aNbDocuments = anApplication->NbDocuments(); aDocId <= aNbDocuments; aDocId++)
