@@ -327,6 +327,8 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
         }
 
         Standard_Real delta = (Intervs(i+1) - Intervs(i))/(NbPoints-1);
+        gp_Pnt prevMiddlePoint = CurrentPoint;
+
         for (j = 1; j < NbPoints && IsLine; ++j)
         {
           param = Intervs(i) + j*delta;
@@ -341,9 +343,12 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
             // Check if points on line are subsequent
             if(IsLine && IsSequential)
             {
-                IsSequential = (L2 <= L1);
+                gp_XYZ V3 = MiddlePoint.XYZ() - prevMiddlePoint.XYZ();
+                Standard_Real L3 = V3.Modulus();
+                IsSequential = (L3 <= L1);
             }
           }
+          prevMiddlePoint = MiddlePoint;
         }
       }
 
