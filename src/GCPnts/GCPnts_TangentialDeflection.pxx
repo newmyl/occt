@@ -293,13 +293,13 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
       case GeomAbs_BSplineCurve:
         {
           Handle_TheBSplineCurve BS = C.BSpline() ;
-          NbPoints = Max(BS->Degree() + 1, NbPoints);
+          NbPoints = Max(BS->NbPoles(), Max(BS->Degree() + 1, NbPoints));
           break;
         }
       case GeomAbs_BezierCurve:
         {
           Handle_TheBezierCurve  BZ = C.Bezier();
-          NbPoints = Max(BZ->Degree() + 1, NbPoints);
+          NbPoints = Max(BZ->NbPoles(), Max(BZ->Degree() + 1, NbPoints));
           break;
         }
       default:
@@ -342,7 +342,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
             if(IsLine && IsSequential)
             {
                 gp_XYZ V3 = LastPoint.XYZ() - MiddlePoint.XYZ();
-                IsSequential = (V3.Dot(V2) > 0);
+                IsSequential = (V3.Dot(V2) >= 0.0);
             }
           }
         }
@@ -408,6 +408,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
   Standard_Boolean MorePoints = Standard_True;
   Standard_Real U2            = firstu;   
   Standard_Real AngleMax      = angularDeflection * 0.5;  //car on prend le point milieu
+  Standard_Real MinLen2       = myMinLen * myMinLen;
   Standard_Integer aIdx[2] = {Intervs.Lower(), Intervs.Lower()}; // Indexes of intervals of U1 and U2, used to handle non-uniform case.
   Standard_Boolean isNeedToCheck = Standard_False;
   gp_Pnt aPrevPoint = points.Last();
@@ -451,17 +452,17 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
 
       V1 = (CurrentPoint.XYZ() - aPrevPoint.XYZ()); //Critere de fleche
       V2 = (MiddlePoint.XYZ()  - aPrevPoint.XYZ());
-      L1 = V1.Modulus ();
+      L1 = V1.SquareModulus ();
 
-      FCoef = (L1 > myMinLen) ? 
-        V1.CrossMagnitude(V2)/(L1*curvatureDeflection) : 0.0;
+      FCoef = (L1 > MinLen2) ?
+        V1.CrossMagnitude(V2)/(Sqrt(L1)*curvatureDeflection) : 0.0;
 
       V1 = (CurrentPoint.XYZ() - MiddlePoint.XYZ()); //Critere d'angle
-      L1 = V1.Modulus ();
-      L2 = V2.Modulus ();
-      if (L1 > myMinLen && L2 > myMinLen)
+      L1 = V1.SquareModulus ();
+      L2 = V2.SquareModulus ();
+      if (L1 > MinLen2 && L2 > MinLen2)
       {
-        Standard_Real angg = V1.CrossMagnitude(V2) / (L1 * L2);
+        Standard_Real angg = V1.CrossMagnitude(V2) / (Sqrt(L1 * L2));
         ACoef = angg / AngleMax;
       }
       else
@@ -604,10 +605,9 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
     }
   }
   //Additional check for intervals
-  Standard_Real MinLen2 = myMinLen * myMinLen;
   Standard_Integer MaxNbp = 10 * Nbp;
 
-  Standard_Real CosAngleMax = sqrt(1 - AngleMax * AngleMax);
+  Standard_Real CosAngleMax = Sqrt(1.0 - AngleMax * AngleMax);
 
   for(i = 1; i < Nbp; ++i)
   {

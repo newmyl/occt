@@ -67,7 +67,7 @@ static void D2 (const Adaptor2d_Curve2d& C, const Standard_Real U,
 static Standard_Real EstimAngl(const gp_Pnt& P1, const gp_Pnt& Pm, const gp_Pnt& P2)
 {
   gp_Vec V1(P1, Pm), V2(Pm, P2);
-  Standard_Real L = V1.Magnitude() * V2.Magnitude();
+  Standard_Real L = Sqrt(V1.SquareMagnitude() * V2.SquareMagnitude());
   //
   if(L > gp::Resolution())
   {
