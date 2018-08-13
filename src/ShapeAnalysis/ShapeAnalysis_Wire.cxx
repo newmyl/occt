@@ -937,13 +937,29 @@ Standard_Boolean ShapeAnalysis_Wire::CheckDegenerated (const Standard_Integer nu
     return Standard_False;
   }
 
-  //added by rln 18/12/97 CSR# CTS18544 entity 13638
-  //the situation when degenerated edge already exists but flag is not set
-  //(i.e. the parametric space is closed)
-  GeomAdaptor_Surface& Ads = mySurf->Adaptor3d()->ChangeSurface();
-  Standard_Real max = Max ( Ads.UResolution(myPrecision), 
-			    Ads.VResolution(myPrecision) );
-  if ( p2d1.Distance (p2d2) /*Abs (par1 - par2)*/ <= max + gp::Resolution() ) return Standard_False;
+  {
+    //added by rln 18/12/97 CSR# CTS18544 entity 13638
+    //the situation when degenerated edge already exists but flag is not set
+    //(i.e. the parametric space is closed)
+    GeomAdaptor_Surface& Ads = mySurf->Adaptor3d()->ChangeSurface();
+    Standard_Real max = Max ( Ads.UResolution(myPrecision),
+      Ads.VResolution(myPrecision) );
+
+    // The constant is used to avoid numerical instability when the
+    // computational error for the coordinates of "p2d1" and "p2d2" is more than
+    // the distance between these points and even more than "max".
+    // The value of the constant should be not less than the relative
+    // computational error for the coordinates.
+    // The value of the constant is selected based on the case described in OCCT
+    // Mantiss issue 30062.
+    const Standard_Real aRelativePrecisionP2d1P2d2 = 2e-6;
+
+    const Standard_Real aCoordinateMax =
+      Max(Max(Abs(p2d1.X()), Abs(p2d1.Y())), Max(Abs(p2d2.X()), Abs(p2d2.Y())));
+
+    if (p2d1.Distance (p2d2) /*Abs (par1 - par2)*/ <= (max + gp::Resolution()) +
+      aCoordinateMax * aRelativePrecisionP2d1P2d2) return Standard_False;
+  }
 
   //#84 rln p2d1 = aP2d.XY() + par1 * theDir2d.XY();
   //#84 rln p2d2 = aP2d.XY() + par2 * theDir2d.XY();
