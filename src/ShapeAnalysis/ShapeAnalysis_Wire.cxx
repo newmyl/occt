@@ -941,8 +941,8 @@ Standard_Boolean ShapeAnalysis_Wire::CheckDegenerated (const Standard_Integer nu
   //the situation when degenerated edge already exists but flag is not set
   //(i.e. the parametric space is closed)
   GeomAdaptor_Surface& Ads = mySurf->Adaptor3d()->ChangeSurface();
-  Standard_Real max = Max ( Ads.UResolution(myPrecision), 
-			    Ads.VResolution(myPrecision) );
+  Standard_Real max = Max ( Ads.UResolution(precVtx), 
+			    Ads.VResolution(precVtx) );
   if ( p2d1.Distance (p2d2) /*Abs (par1 - par2)*/ <= max + gp::Resolution() ) return Standard_False;
 
   //#84 rln p2d1 = aP2d.XY() + par1 * theDir2d.XY();
