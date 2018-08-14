@@ -3050,7 +3050,7 @@ static Standard_Integer OCC29311 (Draw_Interpretor& theDI, Standard_Integer theA
 
 typedef struct
 {
-  int ID;
+  Standard_ThreadId ID;
   int iThread;
   const char* strArgs;
   bool finished;
@@ -3273,7 +3273,11 @@ static Standard_Integer OCC29195(Draw_Interpretor&, Standard_Integer theArgC, co
       }
       iThread++;
     }
+#ifdef WIN32
     Sleep(100);
+#else
+    sleep(100);
+#endif
   }
   Standard_Integer nb(0);
   OSD_Environment anEnv("Result29195");
