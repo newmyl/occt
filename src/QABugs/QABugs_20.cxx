@@ -3060,7 +3060,7 @@ typedef struct
 
 static void printMsg(const char* msg)
 {
-  printf(msg);
+  printf("%s\n", msg);
 }
 
 static void printDocIsNull()
@@ -3076,7 +3076,9 @@ static Standard_Integer nbREP(50);
 void* threadFunction(void* theArgs)
 {
   Args * args = (Args*)theArgs;
+#ifdef DEB_PRINT
   Standard_Boolean found(Standard_False);
+#endif
   try
   {
     TCollection_AsciiString aDocName(args->strArgs);
@@ -3123,7 +3125,9 @@ void* threadFunction(void* theArgs)
             if (!anAtt.IsNull()) {
               TCollection_AsciiString aStr = anAtt->Get();
               if (aStr.IsEqual(aDocName)) {
+#ifdef DEB_PRINT
                 found = Standard_True;
+#endif
                 *(args->res) = (int)aLab.Tag();
                 break;
               }
