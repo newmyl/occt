@@ -154,9 +154,6 @@ public:
   
   Standard_EXPORT Standard_Boolean SetDefaultFolder (const Standard_ExtString aFolder);
 
-  //! returns the directory of the Application;
-  Standard_EXPORT Handle(CDF_Directory) Directory() const;
-
   //! returns MetaDatdDriver of this application
   Standard_EXPORT Handle(CDF_MetaDataDriver) MetaDataDriver() const;
 
