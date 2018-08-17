@@ -943,7 +943,7 @@ Standard_Boolean ShapeAnalysis_Wire::CheckDegenerated (const Standard_Integer nu
   GeomAdaptor_Surface& Ads = mySurf->Adaptor3d()->ChangeSurface();
   Standard_Real max = Max ( Ads.UResolution(myPrecision), 
 			    Ads.VResolution(myPrecision) );
-  if ( p2d1.Distance (p2d2) /*Abs (par1 - par2)*/ <= max + gp::Resolution() ) return Standard_False;
+  if ( p2d1.Distance (p2d2) /*Abs (par1 - par2)*/ <= max + Precision::PConfusion() ) return Standard_False;
 
   //#84 rln p2d1 = aP2d.XY() + par1 * theDir2d.XY();
   //#84 rln p2d2 = aP2d.XY() + par2 * theDir2d.XY();
@@ -958,6 +958,7 @@ Standard_Boolean ShapeAnalysis_Wire::CheckDegenerated (const Standard_Integer nu
 
 Standard_Boolean ShapeAnalysis_Wire::CheckDegenerated (const Standard_Integer num)
 {
+
   gp_Pnt2d p2d1, p2d2;
   return CheckDegenerated ( num, p2d1, p2d2 );
 }
