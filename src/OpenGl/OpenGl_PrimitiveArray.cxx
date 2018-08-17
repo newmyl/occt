@@ -868,21 +868,14 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   }
   else
   {
-    if (anAspectFace->Aspect()->ToDrawEdges()
-     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
+  // restore OpenGL polygon mode if needed
+  #if !defined(GL_ES_VERSION_2_0)
+    if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
     {
-      const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
-      drawEdges (anEdgeColor, theWorkspace);
-
-      // restore OpenGL polygon mode if needed
-    #if !defined(GL_ES_VERSION_2_0)
-      if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
-      {
-        glPolygonMode (GL_FRONT_AND_BACK,
-          anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
-      }
-    #endif
+      glPolygonMode (GL_FRONT_AND_BACK,
+                     anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
     }
+  #endif
   }
 }
 

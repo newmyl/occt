@@ -333,7 +333,6 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
       case Aspect_IS_HOLLOW:
       case Aspect_IS_SHRINK:
       case Aspect_IS_SOLID_WIREFRAME:
-
       case Aspect_IS_SOLID:
       case Aspect_IS_HIDDENLINE:
       {

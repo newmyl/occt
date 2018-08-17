@@ -298,15 +298,6 @@ public:
     myEdgeWidth = (float )theWidth;
   }
 
-  //! Return width for wireframe in pixels.
-  Standard_Integer WireframeWidth() const { return myWireframeWidth; }
-
-  //! Modifies the wireframe thickness.
-  void SetWireframeWidth(const Standard_Integer theWidth)
-  {
-    myWireframeWidth = theWidth;
-  }
-
 public:
 
   //! Returns the hatch type used when InteriorStyle is IS_HATCH
@@ -377,7 +368,6 @@ protected:
   Aspect_TypeOfLine            myEdgeType;
   Standard_ShortReal           myEdgeWidth;
   Handle(Graphic3d_HatchStyle) myHatchStyle;
-  Standard_Integer             myWireframeWidth;
 
   Graphic3d_PolygonOffset myPolygonOffset;
   bool                    myToDistinguishMaterials;

@@ -5364,9 +5364,9 @@ static int VSetEdgeType (Draw_Interpretor& theDI,
   Standard_Boolean isForceRedisplay = Standard_False;
 
   // Get shape name
-  TCollection_AsciiString aName(theArgs[1]);
+  TCollection_AsciiString aShapeName (theArgs[1]);
   Handle(AIS_InteractiveObject) anObject;
-  if (!GetMapOfAIS().Find2 (aName, anObject))
+  if (!GetMapOfAIS().Find2 (aShapeName, anObject))
   {
     theDI <<  theArgs[0] << " error: wrong object name.\n";
     return 1;
@@ -5379,54 +5379,106 @@ static int VSetEdgeType (Draw_Interpretor& theDI,
     *anObject->Attributes()->ShadingAspect()->Aspect() = *anObject->Attributes()->Link()->ShadingAspect()->Aspect();
   }
   const Handle(Prs3d_ShadingAspect)& aFillAreaAspect = anObject->Attributes()->ShadingAspect();
+  if (aFillAreaAspect->Aspect()->InteriorStyle() == Aspect_IS_SOLID)
+  {
+    aFillAreaAspect->Aspect()->SetInteriorStyle (Aspect_IS_SOLID_WIREFRAME);
+  }
   aFillAreaAspect->Aspect()->SetEdgeOn();
 
   // Parse parameters
   for (Standard_Integer anIt = 2; anIt < theArgNum; ++anIt)
   {
-    TCollection_AsciiString aParam ((theArgs[anIt]));
+    TCollection_AsciiString aParam (theArgs[anIt]);
     if (aParam.Value (1) == '-' && !aParam.IsRealValue())
     {
       if (aParam.IsEqual ("-type"))
       {
-        if (theArgNum <= anIt + 1)
+        if (theArgNum <= ++anIt)
         {
           theDI <<  theArgs[0] << " error: wrong number of values for parameter '"
                 << aParam.ToCString() << "'.\n";
           return 1;
         }
 
-        ++anIt;
         Aspect_TypeOfLine aTypeEnum = Aspect_TOL_SOLID;
         if (!ViewerTest::ParseLineType (theArgs[anIt], aTypeEnum))
         {
-          std::cout << "Syntax error: wrong line type: '" << theArgs[anIt] << "'.\n";
+          theDI << theArgs[0] << " syntax error: wrong line type: '" << theArgs[anIt] << "'.\n";
           return 1;
         }
         anObject->Attributes()->ShadingAspect()->Aspect()->SetEdgeLineType (aTypeEnum);
       }
       else if (aParam.IsEqual ("-color"))
       {
-        if (theArgNum <= anIt + 3)
+        Standard_Integer aNbComps = 0;
+        Standard_Integer aCompIter = anIt + 1;
+        for (; aCompIter < theArgNum; ++aCompIter, ++aNbComps)
         {
-          theDI <<  theArgs[0] << " error: wrong number of values for parameter '"
-                << aParam.ToCString() << "'.\n";
-          return 1;
+          if (theArgs[aCompIter][0] == '-')
+          {
+            break;
+          }
         }
-
-        Standard_Real aR = Draw::Atof(theArgs[++anIt]);
-        Standard_Real aG = Draw::Atof(theArgs[++anIt]);
-        Standard_Real aB = Draw::Atof(theArgs[++anIt]);
-        Quantity_Color aColor = Quantity_Color (aR > 1 ? aR / 255.0 : aR,
-                                                aG > 1 ? aG / 255.0 : aG,
-                                                aB > 1 ? aB / 255.0 : aB,
-                                                Quantity_TOC_RGB);
-
-        aFillAreaAspect->Aspect()->SetEdgeColor (aColor);
+        switch (aNbComps)
+        {
+          case 1:
+          {
+            Quantity_NameOfColor aColor = Quantity_NOC_BLACK;
+            Standard_CString     aName  = theArgs[anIt + 1];
+            if (!Quantity_Color::ColorFromName (aName, aColor))
+            {
+              theDI << theArgs[0] << " error: unknown color name '" << aName << "'.\n";
+              return 1;
+            }
+            aFillAreaAspect->Aspect()->SetEdgeColor (aColor);
+            break;
+          }
+          case 3:
+          {
+            Standard_Real aR = Draw::Atof (theArgs[++anIt]);
+            Standard_Real aG = Draw::Atof (theArgs[++anIt]);
+            Standard_Real aB = Draw::Atof (theArgs[++anIt]);
+            Quantity_Color aColor = Quantity_Color (aR > 1 ? aR / 255.0 : aR,
+                                                    aG > 1 ? aG / 255.0 : aG,
+                                                    aB > 1 ? aB / 255.0 : aB,
+                                                    Quantity_TOC_RGB);
+            aFillAreaAspect->Aspect()->SetEdgeColor (aColor);
+            break;
+          }
+          default:
+          {
+            theDI << theArgs[0] << " error: wrong number of values for parameter '"
+                  << aParam.ToCString() << "'.\n";
+            return 1;
+          }
+        }
+        anIt += aNbComps;
       }
       else if (aParam.IsEqual ("-force"))
       {
         isForceRedisplay = Standard_True;
+      }
+      else if (aParam.IsEqual ("-width"))
+      {
+        TCollection_AsciiString aParamValue (theArgs[++anIt]);
+        if (!aParamValue.IsRealValue())
+        {
+          theDI << theArgs[0] << " error: wrong value for parameter '"
+                << aParam.ToCString() << "'.\n";
+          return 1;
+        }
+
+        Standard_Real aWidth = Draw::Atof (theArgs[anIt]);
+        if (aWidth < 1)
+        {
+          theDI << theArgs[0] << " error: wrong value for parameter '"
+                << aParam.ToCString() << "'. The value must be equal or greater then 1.0!\n";
+          return 1;
+        }
+        else
+        {
+          aFillAreaAspect->Aspect()->SetEdgeWidth (aWidth);
+        }
       }
       else
       {
@@ -5479,9 +5531,16 @@ static int VUnsetEdgeType (Draw_Interpretor& theDI,
     theDI <<  theArgs[0] << " error: wrong object name.\n";
     return 1;
   }
-
-  // Enable trianle edge mode
-  anObject->Attributes()->ShadingAspect()->Aspect()->SetEdgeOff();
+  const Handle(Prs3d_ShadingAspect)& aFillAreaAspect = anObject->Attributes()->ShadingAspect();
+  if (aFillAreaAspect->Aspect()->InteriorStyle() == Aspect_IS_SOLID_WIREFRAME)
+  {
+    aFillAreaAspect->Aspect()->SetInteriorStyle (Aspect_IS_SOLID);
+  }
+  aFillAreaAspect->Aspect()->SetEdgeOff();
+  aFillAreaAspect->Aspect()->SetEdgeColor (Quantity_Color (0.328999996, 
+                                                           0.224000007, 
+                                                           0.0270000007, 
+                                                           Quantity_TOC_RGB));
 
   // Parse parameters
   if (theArgNum == 3)
@@ -5506,7 +5565,7 @@ static int VUnsetEdgeType (Draw_Interpretor& theDI,
   }
   else
   {
-    anObject->SetAspect (anObject->Attributes()->ShadingAspect());
+    anObject->SetAspect (aFillAreaAspect);
   }
 
   //Update view

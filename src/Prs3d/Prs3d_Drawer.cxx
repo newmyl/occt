@@ -1308,34 +1308,3 @@ bool Prs3d_Drawer::SetShadingModel (Graphic3d_TypeOfShadingModel theModel,
 
   return isUpdateNeeded;
 }
-
-// =======================================================================
-// function : SetWireframeWidth
-// purpose  :
-// =======================================================================
-bool Prs3d_Drawer::SetWireframeWidth(Standard_Integer theWidth,
-  bool theToOverrideDefaults)
-{
-  bool isUpdateNeeded = false;
-
-  if (theToOverrideDefaults
-    && !myHasOwnShadingAspect)
-  {
-    isUpdateNeeded = true;
-    myShadingAspect = new Prs3d_ShadingAspect();
-    myHasOwnShadingAspect = true;
-    if (!myLink.IsNull())
-    {
-      *myShadingAspect->Aspect() = *myLink->ShadingAspect()->Aspect();
-    }
-  }
-
-  if (!myShadingAspect.IsNull()
-    && myHasOwnShadingAspect)
-  {
-    myShadingAspect->Aspect()->SetWireframeWidth (theWidth);
-  }
-
-  return isUpdateNeeded;
-}
-

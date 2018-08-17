@@ -37,6 +37,9 @@ class OpenGl_VertexBuffer;
 //! List of shader programs.
 typedef NCollection_Sequence<Handle(OpenGl_ShaderProgram)> OpenGl_ShaderProgramList;
 
+//! List of variable of shader program.
+typedef NCollection_Vector<TCollection_AsciiString> OpenGl_ShaderVarList;
+
 //! This class is responsible for managing shader programs.
 class OpenGl_ShaderManager : public Standard_Transient
 {
@@ -96,15 +99,23 @@ public:
       return bindProgramWithState (theCustomProgram);
     }
     
-    myWireframeWidth = theAspect->WireframeWidth();
-    myWireframeColor = theAspect->EdgeColor();
+    myWireframeState.SetAspects (theAspect->EdgeWidth() * myContext->LineWidthScale(),
+                                 theAspect->EdgeColor());
     
     const Graphic3d_TypeOfShadingModel aShadeModelOnFace = theShadingModel != Graphic3d_TOSM_UNLIT
                                                         && (theTextures.IsNull() || theTextures->IsModulate())
                                                         ? theShadingModel
                                                         : Graphic3d_TOSM_UNLIT;
-    Standard_Integer aBits = getProgramBits (theTextures, theAspect->AlphaMode(), theHasVertColor, theEnableEnvMap);
-    updateProgramBits(aBits, theAspect);
+    Standard_Integer aBits = 0;
+    if (theAspect.IsNull())
+    {
+      aBits = getProgramBits (theTextures, Graphic3d_AlphaMode_Opaque, theHasVertColor, theEnableEnvMap);
+    }
+    else
+    {
+      aBits = getProgramBits (theTextures, theAspect->AlphaMode(), theHasVertColor, theEnableEnvMap);
+      updateProgramBits (aBits, theAspect);
+    }
     Handle(OpenGl_ShaderProgram)& aProgram = getStdProgram (aShadeModelOnFace, aBits);
     return bindProgramWithState (aProgram);
   }
@@ -123,7 +134,7 @@ public:
       return bindProgramWithState (theCustomProgram);
     }
 
-    Standard_Integer aBits = getProgramBits(theTextures, theAlphaMode, theHasVertColor, false);
+    Standard_Integer aBits = getProgramBits (theTextures, theAlphaMode, theHasVertColor, false);
     if (theLineType != Aspect_TOL_SOLID)
     {
       aBits |= OpenGl_PO_StippleLine;
@@ -323,9 +334,16 @@ public:
   Standard_EXPORT void PushOitState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
 public:
+  
+  //! Set the state of viewport for wireframe uniforms.
+  //! @param theViewport [in] current viewport value.
+  void SetWireframeViewportState (const OpenGl_Vec4& theViewport)
+  {
+    myWireframeState.SetViewport (theViewport);
+  }
 
   //! Pushes state of Wireframe uniforms to the specified program.
-  Standard_EXPORT void PushWireframeState(const Handle(OpenGl_ShaderProgram)& theProgram) const;
+  Standard_EXPORT void PushWireframeState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
 public:
 
@@ -422,7 +440,7 @@ protected:
 
   //! Define program bits.
   Standard_Integer getProgramBits (const Handle(OpenGl_TextureSet)& theTextures,
-                                   const Graphic3d_AlphaMode theAlphaMode,
+                                   Graphic3d_AlphaMode theAlphaMode,
                                    Standard_Boolean theHasVertColor,
                                    Standard_Boolean theEnableEnvMap)
   {
@@ -481,23 +499,32 @@ protected:
   {
     switch (theAspect->InteriorStyle())
     {
-    case Aspect_IS_HOLLOW:
-    {
-      theBits |= OpenGl_PO_HollowMode;
-      break;
+      case Aspect_IS_HOLLOW:
+      {
+        theBits |= OpenGl_PO_HollowMode;
+        break;
+      }
+      case Aspect_IS_SHRINK:
+      {
+        theBits |= OpenGl_PO_ShrinkMode;
+        break;
+      }
+      case Aspect_IS_SOLID_WIREFRAME:
+      {
+        theBits |= OpenGl_PO_SolidWFMode;
+        break;
+      }
+      case Aspect_IS_HIDDENLINE:
+      {
+        theBits |= OpenGl_PO_HiddenLine;
+        break;
+      }
+      default:
+        break;
     }
-    case Aspect_IS_SHRINK:
+    if (theAspect->ToDrawEdges())
     {
-      theBits |= OpenGl_PO_ShrinkMode;
-      break;
-    }
-    case Aspect_IS_SOLID_WIREFRAME:
-    {
-      theBits |= OpenGl_PO_SolidWFMode;
-      break;
-    }
-    default:
-      break;
+      theBits |= OpenGl_PO_ColoringEdges;
     }
   }
 
@@ -592,16 +619,19 @@ protected:
 
 protected:
   //! Prepare GLSL source for fragment shader according to parameters.
-  Standard_EXPORT void prepareFragExtrSrc (TCollection_AsciiString& theSrcFragOut,
-                                          TCollection_AsciiString& theSrcFragMain,
-                                          const Standard_Boolean   isGetColorVar,
-                                          const Standard_Integer   theBits);
+  Standard_EXPORT void prepareFragExtrSrc (TCollection_AsciiString& theSrcFragMain,
+                                           const Standard_Boolean   isGetColorVar,
+                                           const Standard_Integer   theBits);
 
   //! Prepare GLSL source for geometry shader according to parameters.
-  Standard_EXPORT TCollection_AsciiString prepareGeomSrc (const Standard_Integer             theBits,
-                                                          const Graphic3d_TypeOfShadingModel theShadingModel,
-                                                          const Standard_Boolean             theFlatNormal = false);
-
+  Standard_EXPORT TCollection_AsciiString prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList);
+  
+  //! Prepare GLSL source for shader programs according to variable list.
+  Standard_EXPORT void prepareShadersOutSrc (TCollection_AsciiString&    theSrcVertOut,
+                                             TCollection_AsciiString&    theSrcFragOut,
+                                             TCollection_AsciiString&    theSrcGeomOut,
+                                             const OpenGl_ShaderVarList& theVarList,
+                                             const Standard_Boolean      theToUseGeomShader);
 protected:
 
   //! Packed properties of light source
@@ -689,9 +719,7 @@ protected:
   OpenGl_LightSourceState            myLightSourceState;   //!< State of OCCT light sources
   OpenGl_MaterialState               myMaterialState;      //!< State of Front and Back materials
   OpenGl_OitState                    myOitState;           //!< State of OIT uniforms
-
-  Standard_Integer                   myWireframeWidth;     //!< Value of wireframe width uniform
-  OpenGl_Vec3                        myWireframeColor;     //!< Value of wireframe color uniform
+  OpenGl_WireframeState              myWireframeState;     //!< State of Wireframe uniforms
 
   gp_XYZ                             myLocalOrigin;        //!< local camera transformation
   Standard_Boolean                   myHasLocalOrigin;     //!< flag indicating that local camera transformation has been set
