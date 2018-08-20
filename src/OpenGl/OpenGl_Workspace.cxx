@@ -331,6 +331,13 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
         break;
       }
       case Aspect_IS_HOLLOW:
+      {
+        if (myGlContext->core32 == NULL)
+        {
+          myGlContext->SetPolygonMode(GL_LINE);
+          break;
+        }
+      }
       case Aspect_IS_SHRINK:
       case Aspect_IS_SOLID_WIREFRAME:
       case Aspect_IS_SOLID:

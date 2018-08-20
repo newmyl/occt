@@ -866,16 +866,23 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
   {
     aCtx->BindTextures (aTextureBack);
   }
-  else
+  else if (aCtx->ActiveProgram().IsNull() && aCtx->core11 != NULL)
   {
-  // restore OpenGL polygon mode if needed
-  #if !defined(GL_ES_VERSION_2_0)
-    if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
+    if (anAspectFace->Aspect()->ToDrawEdges()
+     || anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_HIDDENLINE)
     {
-      glPolygonMode (GL_FRONT_AND_BACK,
-                     anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
+      const OpenGl_Vec4& anEdgeColor = theWorkspace->EdgeColor();
+      drawEdges (anEdgeColor, theWorkspace);
+
+      // restore OpenGL polygon mode if needed
+    #if !defined(GL_ES_VERSION_2_0)
+      if (anAspectFace->Aspect()->InteriorStyle() >= Aspect_IS_HATCH)
+      {
+        glPolygonMode (GL_FRONT_AND_BACK,
+          anAspectFace->Aspect()->InteriorStyle() == Aspect_IS_POINT ? GL_POINT : GL_FILL);
+      }
+    #endif
     }
-  #endif
   }
 }
 
