@@ -23,7 +23,7 @@ public:
 
   //! Empty constructor.
   Graphic3d_IndexBuffer (const Handle(NCollection_BaseAllocator)& theAlloc)
-  : Graphic3d_Buffer (theAlloc) {}
+  : Graphic3d_Buffer (theAlloc, true, false) {}
 
   //! Allocates new empty index array
   template<typename IndexType_t>
@@ -74,6 +74,14 @@ public:
     {
       ChangeValue<unsigned int>   (theIndex) = (unsigned int   )theValue;
     }
+  }
+
+  //! Invalidate the given indices
+  Standard_Boolean Invalidate(Standard_Integer theStartIndex, Standard_Integer theEndIndex)
+  {
+    Graphic3d_Range aRange;
+    aRange.Start = Stride * theStartIndex;
+    aRange.Length = Stride * (theEndIndex - theStartIndex + 1);
   }
 
 public:

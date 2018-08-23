@@ -16,7 +16,7 @@
 #define _Graphic3d_ArrayOfPrimitives_HeaderFile
 
 #include <Graphic3d_BoundBuffer.hxx>
-#include <Graphic3d_Buffer.hxx>
+#include <Graphic3d_AttribBuffer.hxx>
 #include <Graphic3d_IndexBuffer.hxx>
 #include <Graphic3d_TypeOfPrimitiveArray.hxx>
 #include <gp_Dir.hxx>
@@ -68,7 +68,7 @@ public:
   Standard_EXPORT virtual ~Graphic3d_ArrayOfPrimitives();
 
   //! Returns vertex attributes buffer (colors, normals, texture coordinates).
-  const Handle(Graphic3d_Buffer)& Attributes() const { return myAttribs; }
+  const Handle(Graphic3d_AttribBuffer)& Attributes() const { return myAttribs; }
 
   //! Returns the type of this primitive
   Graphic3d_TypeOfPrimitiveArray Type() const { return myType; }
@@ -77,13 +77,13 @@ public:
   Standard_EXPORT Standard_CString StringType() const;
 
   //! Returns TRUE when vertex normals array is defined.
-  Standard_Boolean HasVertexNormals() const { return myVNor != 0; }
+  Standard_Boolean HasVertexNormals() const { return myINor != 0; }
 
   //! Returns TRUE when vertex colors array is defined.
-  Standard_Boolean HasVertexColors() const { return myVCol != 0; }
+  Standard_Boolean HasVertexColors() const { return myICol != 0; }
 
   //! Returns TRUE when vertex texels array is defined.
-  Standard_Boolean HasVertexTexels() const { return myVTex != 0; }
+  Standard_Boolean HasVertexTexels() const { return myITex != 0; }
 
   //! Returns the number of defined vertex
   Standard_Integer VertexNumber() const { return !myAttribs.IsNull() ? myAttribs->NbElements : -1; }
@@ -345,10 +345,10 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    if (myVCol != 0)
+    if (myICol != 0)
     {
       Graphic3d_Vec4ub *aColorPtr = 
-        reinterpret_cast<Graphic3d_Vec4ub* >(myAttribs->changeValue (theIndex - 1) + size_t(myVCol));
+        reinterpret_cast<Graphic3d_Vec4ub* >(myAttribs->changeValue (theIndex - 1, myICol) + size_t(myVCol));
       aColorPtr->SetValues (Standard_Byte(theR * 255.0),
                             Standard_Byte(theG * 255.0),
                             Standard_Byte(theB * 255.0), 255);
@@ -370,10 +370,10 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    if (myVCol != 0)
+    if (myICol != 0)
     {
       Graphic3d_Vec4ub *aColorPtr = 
-        reinterpret_cast<Graphic3d_Vec4ub* >(myAttribs->changeValue (theIndex - 1) + size_t(myVCol));
+        reinterpret_cast<Graphic3d_Vec4ub* >(myAttribs->changeValue (theIndex - 1, myICol) + size_t(myVCol));
       (*aColorPtr) = theColor;
     }
     myAttribs->NbElements = Max (theIndex, myAttribs->NbElements);
@@ -395,9 +395,9 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    if (myVCol != 0)
+    if (myICol != 0)
     {
-      *reinterpret_cast<Standard_Integer* >(myAttribs->changeValue (theIndex - 1) + size_t(myVCol)) = theColor32;
+      *reinterpret_cast<Standard_Integer* >(myAttribs->changeValue (theIndex - 1, myICol) + size_t(myVCol)) = theColor32;
     }
   }
 
@@ -420,9 +420,9 @@ public:
       throw Standard_OutOfRange("BAD VERTEX index");
     }
 
-    if (myVNor != 0)
+    if (myINor != 0)
     {
-      Graphic3d_Vec3& aVec = *reinterpret_cast<Graphic3d_Vec3* >(myAttribs->changeValue (theIndex - 1) + size_t(myVNor));
+      Graphic3d_Vec3& aVec = *reinterpret_cast<Graphic3d_Vec3* >(myAttribs->changeValue (theIndex - 1, myINor) + size_t(myVNor));
       aVec.x() = Standard_ShortReal (theNX);
       aVec.y() = Standard_ShortReal (theNY);
       aVec.z() = Standard_ShortReal (theNZ);
@@ -449,9 +449,9 @@ public:
       throw Standard_OutOfRange("BAD VERTEX index");
     }
 
-    if (myVTex != 0)
+    if (myITex != 0)
     {
-      Graphic3d_Vec2& aVec = *reinterpret_cast<Graphic3d_Vec2* >(myAttribs->changeValue (theIndex - 1) + size_t(myVTex));
+      Graphic3d_Vec2& aVec = *reinterpret_cast<Graphic3d_Vec2* >(myAttribs->changeValue (theIndex - 1, myITex) + size_t(myVTex));
       aVec.x() = Standard_ShortReal (theTX);
       aVec.y() = Standard_ShortReal (theTY);
     }
@@ -480,7 +480,7 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    const Graphic3d_Vec3& aVec = myAttribs->Value<Graphic3d_Vec3> (theRank - 1);
+    const Graphic3d_Vec3& aVec = myAttribs->Value<Graphic3d_Vec3> (theRank - 1, 0);
     theX = Standard_Real(aVec.x());
     theY = Standard_Real(aVec.y());
     theZ = Standard_Real(aVec.z());
@@ -499,7 +499,7 @@ public:
                     Graphic3d_Vec4ub&      theColor) const
   {
     if (myAttribs.IsNull()
-     || myVCol == 0)
+     || myICol == 0)
     {
       throw Standard_OutOfRange ("Primitive array does not define color attribute");
     }
@@ -518,7 +518,7 @@ public:
   {
     theR = theG = theB = 0.0;
     if (myAttribs.IsNull()
-     || myVCol == 0)
+     || myICol == 0)
     {
       return;
     }
@@ -537,7 +537,7 @@ public:
   //! Returns the vertex color values at rank theRank from the vertex table if defined.
   void VertexColor (const Standard_Integer theRank, Standard_Integer& theColor) const
   {
-    if (myVCol != 0)
+    if (myICol != 0)
     {
       theColor = *reinterpret_cast<const Standard_Integer* >(myAttribs->value (theRank - 1) + size_t(myVCol));
     }
@@ -565,7 +565,7 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    if (myVNor != 0)
+    if (myINor != 0)
     {
       const Graphic3d_Vec3& aVec = *reinterpret_cast<const Graphic3d_Vec3* >(myAttribs->value (theRank - 1) + size_t(myVNor));
       theNX = Standard_Real(aVec.x());
@@ -596,7 +596,7 @@ public:
       throw Standard_OutOfRange ("BAD VERTEX index");
     }
 
-    if (myVTex != 0)
+    if (myITex != 0)
     {
       const Graphic3d_Vec2& aVec = *reinterpret_cast<const Graphic3d_Vec2* >(myAttribs->value (theRank - 1) + size_t(myVTex));
       theTX = Standard_Real(aVec.x());
@@ -773,21 +773,26 @@ protected: //! @name protected constructors
                                                const Standard_Boolean theHasVNormals,
                                                const Standard_Boolean theHasVColors,
                                                const Standard_Boolean theHasBColors,
-                                               const Standard_Boolean theHasVTexels);
+                                               const Standard_Boolean theHasVTexels,
+                                               const Standard_Boolean theIsInterleaved,
+                                               const Standard_Boolean theIsMutable);
 
 private: //! @name private fields
 
   Handle(Graphic3d_IndexBuffer)  myIndices;
-  Handle(Graphic3d_Buffer)       myAttribs;
+  Handle(Graphic3d_AttribBuffer) myAttribs;
   Handle(Graphic3d_BoundBuffer)  myBounds;
   Graphic3d_TypeOfPrimitiveArray myType;
   Standard_Integer myMaxBounds;
   Standard_Integer myMaxVertexs;
   Standard_Integer myMaxEdges;
+
   Standard_Byte myVNor;
   Standard_Byte myVTex;
   Standard_Byte myVCol;
-
+  Standard_Integer myINor;
+  Standard_Integer myITex;
+  Standard_Integer myICol;
 };
 
 #endif // _Graphic3d_ArrayOfPrimitives_HeaderFile

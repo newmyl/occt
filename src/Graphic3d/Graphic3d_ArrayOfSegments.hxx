@@ -51,8 +51,10 @@ public:
   //! @param theHasVColors when TRUE, AddVertex(Point,Color) should be used for specifying vertex color
   Graphic3d_ArrayOfSegments (const Standard_Integer theMaxVertexs,
                              const Standard_Integer theMaxEdges   = 0,
-                             const Standard_Boolean theHasVColors = Standard_False)
-  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_SEGMENTS, theMaxVertexs, 0, theMaxEdges, Standard_False, theHasVColors, Standard_False, Standard_False) {}
+                             const Standard_Boolean theHasVColors = Standard_False,
+                             const Standard_Boolean theIsInterleaved = Standard_True,
+                             const Standard_Boolean theIsMutable = Standard_False)
+  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_SEGMENTS, theMaxVertexs, 0, theMaxEdges, Standard_False, theHasVColors, Standard_False, Standard_False, theIsInterleaved, theIsMutable) {}
 
 };
 

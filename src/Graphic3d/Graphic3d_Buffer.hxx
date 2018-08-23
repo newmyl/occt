@@ -17,6 +17,7 @@
 #include <Graphic3d_Vec.hxx>
 #include <NCollection_Array1.hxx>
 #include <NCollection_Buffer.hxx>
+#include <vector>
 
 //! Type of attribute in Vertex Buffer
 enum Graphic3d_TypeOfAttribute
@@ -68,17 +69,26 @@ struct Graphic3d_Attribute
 
 typedef NCollection_Array1<Graphic3d_Attribute> Graphic3d_Array1OfAttribute;
 
+struct Graphic3d_Range
+{
+  Standard_Integer Start;
+  Standard_Integer Length;
+};
+
 //! Buffer of vertex attributes.
 class Graphic3d_Buffer : public NCollection_Buffer
 {
 public:
 
   //! Empty constructor.
-  Graphic3d_Buffer (const Handle(NCollection_BaseAllocator)& theAlloc)
+  Graphic3d_Buffer (const Handle(NCollection_BaseAllocator)& theAlloc,
+                    Standard_Boolean isInterleaved, Standard_Boolean isMutable)
   : NCollection_Buffer (theAlloc),
     Stride       (0),
     NbElements   (0),
-    NbAttributes (0)
+    NbAttributes (0),
+    bIsInterleaved(isInterleaved),
+    bIsMutable(isMutable)
   {
     //
   }
@@ -109,6 +119,8 @@ public:
     {
       anOffset += Graphic3d_Attribute::Stride (Attribute (anAttribIter).DataType);
     }
+    if (!bIsInterleaved)
+      anOffset *= NbElements;
     return anOffset;
   }
 
@@ -128,22 +140,34 @@ public:
   }
 
   //! Access specified element.
-  inline const Standard_Byte* value (const Standard_Integer theElem) const
+  inline const Standard_Byte* value (const Standard_Integer theElem, const Standard_Integer theAttribIndex = 0) const
   {
-    return myData + Stride * size_t(theElem);
+    if (bIsInterleaved)
+      return myData + Stride * size_t(theElem);
+    else
+    {
+      int aStrideI = AttributesArray()[theAttribIndex].Stride(); //TODO: correct attribute index
+      return myData + aStrideI * theElem;
+    }
   }
 
   //! Access specified element.
-  inline Standard_Byte* changeValue (const Standard_Integer theElem)
+  inline Standard_Byte* changeValue (const Standard_Integer theElem, const Standard_Integer theAttribIndex = 0)
   {
-    return myData + Stride * size_t(theElem);
+    if (bIsInterleaved)
+      return myData + Stride * size_t(theElem);
+    else
+    {
+      int aStrideI = AttributesArray()[theAttribIndex].Stride(); //TODO: correct attribute index
+      return myData + aStrideI * theElem;
+    }
   }
 
   //! Access element with specified position and type.
   template <typename Type_t>
-  inline const Type_t& Value (const Standard_Integer theElem) const
+  inline const Type_t& Value (const Standard_Integer theElem, const Standard_Integer theAttribIndex = 0) const
   {
-    return *reinterpret_cast<const Type_t*>(value (theElem));
+    return *reinterpret_cast<const Type_t*>(value (theElem, theAttribIndex));
   }
 
   //! Access element with specified position and type.
@@ -163,7 +187,7 @@ public:
   }
 
   //! Allocates new empty array
-  bool Init (const Standard_Integer     theNbElems,
+  Standard_Boolean Init (const Standard_Integer     theNbElems,
              const Graphic3d_Attribute* theAttribs,
              const Standard_Integer     theNbAttribs)
   {
@@ -197,14 +221,39 @@ public:
         ChangeAttribute (anAttribIter) = theAttribs[anAttribIter];
       }
     }
+
+    if (!bIsInterleaved)
+    {
+      Stride = 0;
+    }
+
     return true;
   }
 
   //! Allocates new empty array
-  bool Init (const Standard_Integer             theNbElems,
+  Standard_Boolean Init (const Standard_Integer             theNbElems,
              const Graphic3d_Array1OfAttribute& theAttribs)
   {
     return Init (theNbElems, &theAttribs.First(), theAttribs.Size());
+  }
+
+  inline Standard_Boolean IsInterleaved() const { return bIsInterleaved; }
+  inline Standard_Boolean IsMutable() const { return bIsMutable; }
+
+  std::vector<Graphic3d_Range> InvalidatedRanges() const
+  {
+    return Ranges;
+  }
+
+  void Validate()
+  { 
+    Ranges.clear();
+  }
+  
+protected:
+  void Invalidate(const Graphic3d_Range& theRange)
+  {
+    Ranges.push_back(theRange);
   }
 
 public:
@@ -212,6 +261,11 @@ public:
   Standard_Integer Stride;       //!< the distance to the attributes of the next vertex
   Standard_Integer NbElements;   //!< number of the elements
   Standard_Integer NbAttributes; //!< number of vertex attributes
+
+private:
+  Standard_Boolean bIsInterleaved;
+  Standard_Boolean bIsMutable;
+  std::vector<Graphic3d_Range> Ranges;
 
 public:
 

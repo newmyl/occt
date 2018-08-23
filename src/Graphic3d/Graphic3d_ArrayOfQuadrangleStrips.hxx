@@ -53,8 +53,10 @@ public:
                                      const Standard_Boolean theHasVNormals = Standard_False,
                                      const Standard_Boolean theHasVColors  = Standard_False,
                                      const Standard_Boolean theHasSColors  = Standard_False,
-                                     const Standard_Boolean theHasVTexels  = Standard_False)
-  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_QUADRANGLESTRIPS, theMaxVertexs, theMaxStrips, 0, theHasVNormals, theHasVColors, theHasSColors, theHasVTexels) {}
+                                     const Standard_Boolean theHasVTexels  = Standard_False,
+                                     const Standard_Boolean theIsInterleaved = Standard_True,
+                                     const Standard_Boolean theIsMutable = Standard_False)
+  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_QUADRANGLESTRIPS, theMaxVertexs, theMaxStrips, 0, theHasVNormals, theHasVColors, theHasSColors, theHasVTexels, theIsInterleaved, theIsMutable) {}
 
 };
 

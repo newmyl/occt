@@ -53,7 +53,9 @@ Graphic3d_ArrayOfPrimitives::Graphic3d_ArrayOfPrimitives (const Graphic3d_TypeOf
                                                           const Standard_Boolean               theHasVNormals,
                                                           const Standard_Boolean               theHasVColors,
                                                           const Standard_Boolean               theHasFColors,
-                                                          const Standard_Boolean               theHasVTexels)
+                                                          const Standard_Boolean               theHasVTexels,
+                                                          const Standard_Boolean               theIsInterleaved,
+                                                          const Standard_Boolean               theIsMutable)
 : myType       (theType),
   myMaxBounds  (0),
   myMaxVertexs (0),
@@ -63,7 +65,7 @@ Graphic3d_ArrayOfPrimitives::Graphic3d_ArrayOfPrimitives (const Graphic3d_TypeOf
   myVCol       (0)
 {
   Handle(NCollection_AlignedAllocator) anAlloc = new NCollection_AlignedAllocator (16);
-  myAttribs = new Graphic3d_Buffer (anAlloc);
+  myAttribs = new Graphic3d_AttribBuffer(anAlloc, theIsInterleaved, theIsMutable);
   if (theMaxVertexs < 1)
   {
     return;
@@ -146,17 +148,23 @@ Graphic3d_ArrayOfPrimitives::Graphic3d_ArrayOfPrimitives (const Graphic3d_TypeOf
         break;
       case Graphic3d_TOA_NORM:
       {
-        myVNor = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        if(theIsInterleaved)
+          myVNor = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        myINor = anAttribIter;
         break;
       }
       case Graphic3d_TOA_UV:
       {
-        myVTex = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        if (theIsInterleaved)
+          myVTex = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        myITex = anAttribIter;
         break;
       }
       case Graphic3d_TOA_COLOR:
       {
-        myVCol = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        if (theIsInterleaved)
+          myVCol = static_cast<Standard_Byte>(myAttribs->AttributeOffset (anAttribIter));
+        myICol = anAttribIter;
         break;
       }
     }

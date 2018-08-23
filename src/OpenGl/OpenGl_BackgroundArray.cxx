@@ -35,7 +35,7 @@ OpenGl_BackgroundArray::OpenGl_BackgroundArray (const Graphic3d_TypeOfBackground
   myToUpdate (Standard_False)
 {
   Handle(NCollection_AlignedAllocator) anAlloc = new NCollection_AlignedAllocator (16);
-  myAttribs = new Graphic3d_Buffer (anAlloc);
+  myAttribs = new Graphic3d_Buffer (anAlloc, true, false);
 
   myDrawMode = GL_TRIANGLE_STRIP;
 

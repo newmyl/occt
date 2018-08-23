@@ -74,14 +74,16 @@ public:
   //! Create uninitialized VBO.
   OpenGl_VertexBufferT (const Graphic3d_Attribute* theAttribs,
                         const Standard_Integer     theStride)
-  : Stride (theStride)
+  : Stride (theStride),
+    NbElements(1)
   {
     memcpy (Attribs, theAttribs, sizeof(Graphic3d_Attribute) * NbAttributes);
   }
 
   //! Create uninitialized VBO.
   OpenGl_VertexBufferT (const Graphic3d_Buffer& theAttribs)
-  : Stride (theAttribs.Stride)
+  : Stride (theAttribs.IsInterleaved() ? theAttribs.Stride : 0),
+    NbElements(theAttribs.IsInterleaved() ? 1 : theAttribs.NbElements)
   {
     memcpy (Attribs, theAttribs.AttributesArray(), sizeof(Graphic3d_Attribute) * NbAttributes);
   }
@@ -160,7 +162,7 @@ public:
       }
 
       TheBaseClass::bindAttribute (theGlCtx, anAttrib.Id, aNbComp, aDataType, Stride, anOffset);
-      anOffset += Graphic3d_Attribute::Stride (anAttrib.DataType);
+      anOffset += Graphic3d_Attribute::Stride (anAttrib.DataType) * NbElements;
     }
   }
 
@@ -183,7 +185,7 @@ public:
 
   Graphic3d_Attribute Attribs[NbAttributes];
   Standard_Integer    Stride;
-
+  Standard_Integer    NbElements;
 };
 
 // =======================================================================
@@ -225,7 +227,8 @@ Standard_Boolean OpenGl_PrimitiveArray::initNormalVbo (const Handle(OpenGl_Conte
   }
 
   // specify data type as Byte and NbComponents as Stride, so that OpenGl_VertexBuffer::EstimatedDataSize() will return correct value
-  if (!myVboAttribs->init (theCtx, myAttribs->Stride, myAttribs->NbElements, myAttribs->Data(), GL_UNSIGNED_BYTE, myAttribs->Stride))
+  int aStride = myAttribs->IsInterleaved() ? myAttribs->Stride : myAttribs->AttributeOffset(myAttribs->NbAttributes) / myAttribs->NbElements;
+  if (!myVboAttribs->init (theCtx, aStride, myAttribs->NbElements, myAttribs->Data(), GL_UNSIGNED_BYTE, aStride))
   {
     TCollection_ExtendedString aMsg;
     aMsg += "VBO creation for Primitive Array has failed for ";
@@ -297,7 +300,8 @@ Standard_Boolean OpenGl_PrimitiveArray::buildVBO (const Handle(OpenGl_Context)& 
    && initNormalVbo (theCtx))
   {
     if (!theCtx->caps->keepArrayData
-     && !theToKeepData)
+     && !theToKeepData
+     && !myAttribs->IsMutable())
     {
       myIndices.Nullify();
       myAttribs.Nullify();
@@ -344,13 +348,27 @@ Standard_Boolean OpenGl_PrimitiveArray::buildVBO (const Handle(OpenGl_Context)& 
   }
   myVboAttribs = aVboAttribs;
   if (!theCtx->caps->keepArrayData
-   && !theToKeepData)
+   && !theToKeepData
+   && !myAttribs->IsMutable())
   {
     // does not make sense for compatibility mode
     //myIndices.Nullify();
     //myAttribs.Nullify();
   }
 
+  return Standard_True;
+}
+
+Standard_Boolean OpenGl_PrimitiveArray::updateVBO(const Handle(OpenGl_Context)& theCtx) const
+{
+  const std::vector<Graphic3d_Range>& ranges = myAttribs->InvalidatedRanges();
+  for (size_t i = 0, n = ranges.size(); i < n; i++)
+  {
+    Graphic3d_Range aRange = ranges[i];
+    theCtx->core15fwd->glBufferSubData(myVboAttribs->GetTarget(),
+      aRange.Start, aRange.Length, myAttribs->Data() + aRange.Start);
+  }
+  myAttribs->Validate();
   return Standard_True;
 }
 
@@ -738,6 +756,9 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     myIsVboInit = Standard_True;
   }
 
+  if (!myAttribs.IsNull() && myAttribs->IsMutable() && myAttribs->InvalidatedRanges().size() > 0)
+    updateVBO(aCtx);
+
   // Temporarily disable environment mapping
   Handle(OpenGl_TextureSet) aTextureBack;
   bool toDrawArray = true;
@@ -983,7 +1004,7 @@ Standard_Boolean OpenGl_PrimitiveArray::processIndices (const Handle(OpenGl_Cont
 
   if (myAttribs->NbElements > std::numeric_limits<GLushort>::max())
   {
-    Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (new NCollection_AlignedAllocator (16));
+    Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (new NCollection_AlignedAllocator (16), true, false);
     if (!anAttribs->Init (myIndices->NbElements, myAttribs->AttributesArray(), myAttribs->NbAttributes))
     {
       return Standard_False; // failed to initialize attribute array

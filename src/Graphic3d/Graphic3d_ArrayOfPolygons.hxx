@@ -95,8 +95,10 @@ public:
                              const Standard_Boolean theHasVNormals = Standard_False,
                              const Standard_Boolean theHasVColors  = Standard_False,
                              const Standard_Boolean theHasBColors  = Standard_False,
-                             const Standard_Boolean theHasVTexels  = Standard_False)
-  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_POLYGONS, theMaxVertexs, theMaxBounds, theMaxEdges, theHasVNormals, theHasVColors, theHasBColors, theHasVTexels) {}
+                             const Standard_Boolean theHasVTexels  = Standard_False,
+                             const Standard_Boolean theIsInterleaved = Standard_True,
+                             const Standard_Boolean theIsMutable = Standard_False)
+  : Graphic3d_ArrayOfPrimitives (Graphic3d_TOPA_POLYGONS, theMaxVertexs, theMaxBounds, theMaxEdges, theHasVNormals, theHasVColors, theHasBColors, theHasVTexels, theIsInterleaved, theIsMutable) {}
 
 };
 
