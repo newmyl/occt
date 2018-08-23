@@ -14,7 +14,7 @@
 // commercial license or contractual agreement.
 
 
-#include <CDM_MessageDriver.hxx>
+#include <Message_Messenger.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TColStd_HArray1OfByte.hxx>
@@ -37,7 +37,7 @@ IMPLEMENT_DOMSTRING(AnimationLastIdx, "animation_last_idx")
 //purpose  : Constructor
 //=======================================================================
 XmlMXCAFDoc_AnimationDriver::XmlMXCAFDoc_AnimationDriver
-  (const Handle(CDM_MessageDriver)& theMsgDriver)
+  (const Handle(Message_Messenger)& theMsgDriver)
 : XmlMDF_ADriver (theMsgDriver, "xcaf", "Animation")
 {}
 
@@ -84,8 +84,6 @@ Standard_Boolean XmlMXCAFDoc_AnimationDriver::Paste
   if (!anAnimFirstIdxStr.GetInteger(anAnimFirstIdx) || !anAnimLastIdxStr.GetInteger(anAnimLastIdx))
     return Standard_False;
   Handle(TColStd_HArray1OfByte) anAnim = new TColStd_HArray1OfByte(anAnimFirstIdx, anAnimLastIdx);
-  
-  const Standard_Integer aMaxSize = anImageLastIdx - anImageFirstIdx + anAnimLastIdx - anAnimFirstIdx + 2;
   
   XmlObjMgt_DOMString aDataStr = XmlObjMgt::GetStringValue(theSource);
   Standard_SStream anSS(aDataStr.GetString());

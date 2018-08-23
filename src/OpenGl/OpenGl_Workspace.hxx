@@ -17,9 +17,13 @@
 #define _OpenGl_Workspace_Header
 
 #include <Graphic3d_BufferType.hxx>
+#include <Graphic3d_PresentationAttributes.hxx>
 
 #include <OpenGl_AspectFace.hxx>
-#include <OpenGl_CappingAlgo.hxx>
+#include <OpenGl_AspectMarker.hxx>
+#include <OpenGl_AspectLine.hxx>
+#include <OpenGl_AspectText.hxx>
+#include <OpenGl_CappingRenderer.hxx>
 #include <OpenGl_FrameBuffer.hxx>
 #include <OpenGl_Material.hxx>
 #include <OpenGl_Matrix.hxx>
@@ -260,8 +264,17 @@ public:
   //! Returns face aspect for textured font rendering.
   const OpenGl_AspectFace& FontFaceAspect() const { return myFontFaceAspect; }
 
+  //! Sets and applies current polygon offset.
+  void SetPolygonOffset (const Graphic3d_PolygonOffset& theParams);
+
+  //! Returns currently applied polygon offset parameters.
+  const Graphic3d_PolygonOffset& AppliedPolygonOffset() { return myPolygonOffsetApplied; }
+
   //! Returns capping algorithm rendering filter.
-  const Handle(OpenGl_CappingAlgoFilter)& DefaultCappingAlgoFilter() const { return myDefaultCappingAlgoFilter; }
+  const Handle(OpenGl_CappingRenderFilter)& CappingRenderFilter() const
+  {
+    return myCappingRenderFilter;
+  }
 
   //! Returns face aspect for none culling mode.
   const OpenGl_AspectFace& NoneCulling() const { return myNoneCulling; }
@@ -282,7 +295,7 @@ protected: //! @name protected fields
   Handle(OpenGl_Context)           myGlContext;
   Standard_Boolean                 myUseZBuffer;
   Standard_Boolean                 myUseDepthWrite;
-  Handle(OpenGl_CappingAlgoFilter) myDefaultCappingAlgoFilter;
+  Handle(OpenGl_CappingRenderFilter) myCappingRenderFilter;
   OpenGl_AspectFace                myNoneCulling;
   OpenGl_AspectFace                myFrontCulling;
   OpenGl_AspectFace                myFontFaceAspect;
@@ -305,6 +318,8 @@ protected: //! @name fields related to status
   Handle(Graphic3d_PresentationAttributes) myHighlightStyle; //!< active highlight style
 
   OpenGl_Matrix myModelViewMatrix; //!< Model matrix with applied structure transformations
+
+  Graphic3d_PolygonOffset myPolygonOffsetApplied; //!< currently applied polygon offset
 
   OpenGl_AspectFace myAspectFaceHl; //!< Hiddenline aspect
 

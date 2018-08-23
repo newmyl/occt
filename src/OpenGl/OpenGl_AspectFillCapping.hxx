@@ -55,6 +55,9 @@ public:
   //! Returns the shading aspect for drawing hatch layer of a section.
   Standard_EXPORT const OpenGl_AspectFace* HatchingFaceAspect() const;
 
+  //! Returns estimated GPU memory usage for holding data without considering overheads and allocation alignment rules.
+  Standard_Size EstimatedDataSize() const Standard_OVERRIDE{ return 0; }
+
 protected:
 
   Handle(Graphic3d_AspectFillCapping) myAspect;         //!< Section style settings from application's level.

@@ -68,6 +68,9 @@ namespace
     }
     OpenGl_Element* GlElement() const { return myGlElement; }
 
+    //! Returns estimated GPU memory usage for holding data without considering overheads and allocation alignment rules.
+    Standard_Size EstimatedDataSize() const Standard_OVERRIDE { return 0; }
+
   private:
     OpenGl_Element* myGlElement;
 
@@ -203,7 +206,7 @@ void OpenGl_CappingRenderer::renderOne (const Handle(OpenGl_Workspace)&    theWo
     aContext->ShaderManager()->UpdateClippingState();
 
     glClear (GL_STENCIL_BUFFER_BIT);
-    glColorMask (GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    const bool aColorMaskBack = aContext->SetColorMask(false);
 
     // override aspects, disable culling
     theWorkspace->SetAspectFace (&theWorkspace->NoneCulling());
@@ -232,7 +235,7 @@ void OpenGl_CappingRenderer::renderOne (const Handle(OpenGl_Workspace)&    theWo
     aContext->ShaderManager()->UpdateClippingState();
 
     // render capping plane using the generated stencil mask
-    glColorMask (GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    aContext->SetColorMask(aColorMaskBack);
     if (theWorkspace->UseDepthWrite())
     {
       glDepthMask (GL_TRUE);
@@ -298,7 +301,7 @@ void OpenGl_CappingRenderer::renderOne (const Handle(OpenGl_Workspace)&    theWo
           aViewScale = static_cast<Standard_ShortReal> (aViewDim.Y() / aContext->Viewport()[3]);
         }
 
-        aHatchScale = 1.0f / (aViewScale * anAspectHatching->TextureSet (aContext)->First()->SizeY());
+        aHatchScale = 1.0f / (aViewScale * anAspectHatching->TextureSet(aContext)->First()->SizeY());
       }
     }
 
@@ -440,8 +443,5 @@ Standard_Boolean OpenGl_CappingRenderFilter::ShouldRender (const Handle(OpenGl_W
     return Standard_False;
   }
 
-  const OpenGl_PrimitiveArray* aPArray = dynamic_cast<const OpenGl_PrimitiveArray*> (theGlElement);
-  return aPArray != NULL
-      && aPArray->DrawMode() >= OpenGl_PrimitiveArray::THE_FILLPRIM_FROM
-      && aPArray->DrawMode() <= OpenGl_PrimitiveArray::THE_FILLPRIM_TO;
+  return theGlElement->IsFillDrawMode();
 }

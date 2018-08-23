@@ -127,10 +127,6 @@ public:
   //! \param [in] theItemId - assembly item ID.
   //! \return annotated item label if it is found, otherwise - null label.
   Standard_EXPORT TDF_Label FindAnnotatedItem(const XCAFDoc_AssemblyItemId& theItemId) const;
-  Standard_EXPORT TDF_Label FindAnnotatedItemAttr(const XCAFDoc_AssemblyItemId& theItemId,
-                                                  const Standard_GUID&          theGUID) const;
-  Standard_EXPORT TDF_Label FindAnnotatedItemSubshape(const XCAFDoc_AssemblyItemId& theItemId,
-                                                      Standard_Integer              theSubshapeIndex) const;
 
   //! Finds a label of the given labeled item in the annotated items hive.
   //! \param [in] theItemLabel - item label.
@@ -235,12 +231,6 @@ public:
   //! \return number of added labels.
   Standard_EXPORT Standard_Integer GetNotes(const XCAFDoc_AssemblyItemId& theItemId,
                                             TDF_LabelSequence&            theNoteLabels) const;
-  Standard_EXPORT Standard_Integer GetAttrNotes(const XCAFDoc_AssemblyItemId& theItemId,
-                                                const Standard_GUID&          theGUID,
-                                                TDF_LabelSequence&            theNoteLabels) const;
-  Standard_EXPORT Standard_Integer GetSubshapeNotes(const XCAFDoc_AssemblyItemId& theItemId,
-                                                    Standard_Integer              theSubshapeIndex,
-                                                    TDF_LabelSequence&            theNoteLabels) const;
 
   //! Gets all note labels of the labeled item.
   //! Notes linked to item's attributes aren't
@@ -295,12 +285,6 @@ public:
   //! \return a handle to the assembly reference attribute.
   Standard_EXPORT Handle(XCAFDoc_AssemblyItemRef) AddNote(const TDF_Label&              theNoteLabel,
                                                           const XCAFDoc_AssemblyItemId& theItemId);
-  Standard_EXPORT Handle(XCAFDoc_AssemblyItemRef) AddNoteToAttr(const TDF_Label&              theNoteLabel,
-                                                                const XCAFDoc_AssemblyItemId& theItemId,
-                                                                const Standard_GUID&          theGUID);
-  Standard_EXPORT Handle(XCAFDoc_AssemblyItemRef) AddNoteToSubshape(const TDF_Label&              theNoteLabel,
-                                                                    const XCAFDoc_AssemblyItemId& theItemId,
-                                                                    Standard_Integer              theSubshapeIndex);
 
   //! Adds the given note to the labeled item.
   //! \param [in] theNoteLabel - note label.
