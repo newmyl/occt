@@ -204,7 +204,8 @@ public:
   Standard_EXPORT OpenGl_WireframeState() :
     myWireframeWidth (1.0f),
     myWireframeColor (Quantity_NOC_WHITE),
-    myViewport (OpenGl_Vec4 (0.0, 0.0, 0.0, 0.0)) {}
+    myViewport       (OpenGl_Vec4 (0.0)),
+    myCameraScale    (0.0) {}
 
   //! Set fields which got from face aspect.
   Standard_EXPORT void SetAspects (const Standard_ShortReal& theWireframeWidth,
@@ -217,20 +218,25 @@ public:
   //! Set viewport field
   Standard_EXPORT void SetViewport (const OpenGl_Vec4& theViewport) { myViewport = theViewport; }
 
+  Standard_EXPORT void SetCameraScale(const Standard_Real& theCameraScale) { myCameraScale = theCameraScale; }
+
   //! Return width of wireframe
-  Standard_EXPORT const Standard_ShortReal& WireframeWidth() const { return myWireframeWidth; }
+  Standard_EXPORT const Standard_ShortReal WireframeWidth() const { return myWireframeWidth; }
 
   //! Return color of wireframe
   Standard_EXPORT const OpenGl_Vec3& WireframeColor() const { return myWireframeColor; }
 
   //! Return viewport
   Standard_EXPORT const OpenGl_Vec4& Viewport() const { return myViewport; }
+
+  Standard_EXPORT const Standard_Real CameraScale() const { return myCameraScale; }
   
 private:
 
   Standard_ShortReal myWireframeWidth; //!< wireframe width
   OpenGl_Vec3        myWireframeColor; //!< wireframe color
   OpenGl_Vec4        myViewport;       //!< viewport properties
+  Standard_Real      myCameraScale;
 };
 
 #endif // _OpenGl_State_HeaderFile

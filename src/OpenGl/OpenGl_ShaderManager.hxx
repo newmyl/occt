@@ -341,6 +341,11 @@ public:
     myWireframeState.SetViewport (theViewport);
   }
 
+  void SetWireframeCameraScaleState (const Standard_Real& theScale)
+  {
+    myWireframeState.SetCameraScale (theScale);
+  }
+
   //! Pushes state of Wireframe uniforms to the specified program.
   Standard_EXPORT void PushWireframeState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
@@ -434,6 +439,9 @@ public:
   {
     return myLastView == theView;
   }
+
+  //!
+  const OpenGl_View* LastView() const { return myLastView; }
 
 protected:
 

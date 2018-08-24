@@ -1240,6 +1240,12 @@ void OpenGl_ShaderManager::PushWireframeState(const Handle(OpenGl_ShaderProgram)
   {
     theProgram->SetUniform (myContext, aLocWireframeColor, myWireframeState.WireframeColor());
   }
+
+  const GLint aLocCameraScale = theProgram->GetUniformLocation (myContext, "occCameraScale");
+  if (aLocCameraScale != OpenGl_ShaderProgram::INVALID_LOCATION)
+  {
+    theProgram->SetUniform (myContext, aLocCameraScale, (float)(myWireframeState.CameraScale()));
+  }
 }
 
 
@@ -1534,7 +1540,8 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
-        EOL"  float mixVal    = step (occLineWidth / 2, aDistance);"
+        EOL"  float mixVal    = step (occLineWidth / 2.0, aDistance);"
+        //EOL"  float mixVal    = smoothstep (occLineWidth - 1.0, occLineWidth, aDistance);"
         EOL"  vec4 aMixColor  = mix ("
       + (theBits & OpenGl_PO_ColoringEdges ? "vec4 (occWireframeColor, 1.0)"
                                            : (isGetColorVar ? "getColor()" : "aColor"))
@@ -1546,7 +1553,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
-        EOL"  float mixVal    = step (occLineWidth / 2, aDistance);"
+        EOL"  float mixVal    = step (occLineWidth / occCameraScale, aDistance);"
         EOL"  vec4 aMixColor  = mix (vec4(0.0), " 
       + (isGetColorVar ? "getColor()" : "aColor")
       + ", mixVal);"
@@ -1557,7 +1564,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
-        EOL"  float mixVal    = step (occLineWidth / 2, aDistance);"
+        EOL"  float mixVal    = step (occLineWidth / 2.0, aDistance);"
         EOL"  occSetFragColor (mix (vec4 (occWireframeColor, 1.0), "
       + (isGetColorVar ? "getColor()" : "aColor")
       + ", mixVal));";
@@ -1566,7 +1573,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
   {
     theSrcFragMain += 
       EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
-      EOL"  float mixVal    = step (occLineWidth / 2, aDistance);"
+      EOL"  float mixVal    = step (occLineWidth / 2.0, aDistance);"
       EOL"  occSetFragColor (mix (vec4 (occWireframeColor, 1.0), vec4(0.0), mixVal));";
   }
   else
@@ -1676,7 +1683,8 @@ void OpenGl_ShaderManager::prepareShadersOutSrc (TCollection_AsciiString&    the
       EOL
       EOL"noperspective in vec3 EdgeDistance;"
       EOL"uniform float occLineWidth;"
-      EOL"uniform vec3 occWireframeColor;";
+      EOL"uniform vec3 occWireframeColor;"
+      EOL"uniform float occCameraScale;";
     theSrcGeomOut = TCollection_AsciiString()
       + EOL"layout (triangles) in;"
         EOL"layout (triangle_strip, max_vertices = 3) out;"
@@ -1895,7 +1903,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   {
     prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader);
   }
-  else
+  else if (toUseGeomShader)
   {
     aSrcFragExtraOut +=
       EOL"noperspective in vec3 EdgeDistance;"
