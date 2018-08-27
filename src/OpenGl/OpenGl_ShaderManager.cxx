@@ -1241,10 +1241,10 @@ void OpenGl_ShaderManager::PushWireframeState(const Handle(OpenGl_ShaderProgram)
     theProgram->SetUniform (myContext, aLocWireframeColor, myWireframeState.WireframeColor());
   }
 
-  const GLint aLocCameraScale = theProgram->GetUniformLocation (myContext, "occCameraScale");
-  if (aLocCameraScale != OpenGl_ShaderProgram::INVALID_LOCATION)
+  const GLint aLocScaleFactor = theProgram->GetStateLocation (OpenGl_OCCT_SCALE_FACTOR);
+  if (aLocScaleFactor != OpenGl_ShaderProgram::INVALID_LOCATION)
   {
-    theProgram->SetUniform (myContext, aLocCameraScale, (float)(myWireframeState.CameraScale()));
+    theProgram->SetUniform (myContext, aLocScaleFactor, myWireframeState.ScaleFactor());
   }
 }
 
@@ -1536,31 +1536,30 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
                                                const Standard_Boolean   isGetColorVar,
                                                const Standard_Integer   theBits)
 {
-  if (theBits & OpenGl_PO_HollowMode)
+  if ((theBits & OpenGl_PO_HollowMode) != 0)
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
         EOL"  float mixVal    = step (occLineWidth / 2.0, aDistance);"
-        //EOL"  float mixVal    = smoothstep (occLineWidth - 1.0, occLineWidth, aDistance);"
         EOL"  vec4 aMixColor  = mix ("
-      + (theBits & OpenGl_PO_ColoringEdges ? "vec4 (occWireframeColor, 1.0)"
-                                           : (isGetColorVar ? "getColor()" : "aColor"))
+      + ((theBits & OpenGl_PO_ColoringEdges) != 0 ? "vec4 (occWireframeColor, 1.0)"
+                                         : (isGetColorVar ? "getColor()" : "aColor"))
       + ", vec4(0.0), mixVal);"
         EOL"  if (aMixColor.a == 0.0) discard;"
         EOL"  else occSetFragColor (aMixColor);";
   }
-  else if (theBits & OpenGl_PO_ShrinkMode)
+  else if ((theBits & OpenGl_PO_PixelShrinkMode) != 0)
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
-        EOL"  float mixVal    = step (occLineWidth / occCameraScale, aDistance);"
+        EOL"  float mixVal    = step (occLineWidth / 2.0, aDistance);"
         EOL"  vec4 aMixColor  = mix (vec4(0.0), " 
       + (isGetColorVar ? "getColor()" : "aColor")
       + ", mixVal);"
         EOL"  if (aMixColor.a == 0.0) discard;"
         EOL"  else occSetFragColor (aMixColor);";
   }
-  else if (theBits & OpenGl_PO_SolidWFMode)
+  else if ((theBits & OpenGl_PO_SolidWFMode) != 0)
   {
     theSrcFragMain += TCollection_AsciiString()
       + EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
@@ -1569,7 +1568,7 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
       + (isGetColorVar ? "getColor()" : "aColor")
       + ", mixVal));";
   }
-  else if (theBits & OpenGl_PO_HiddenLine)
+  else if ((theBits & OpenGl_PO_HiddenLine) != 0)
   {
     theSrcFragMain += 
       EOL"  float aDistance = min (min (EdgeDistance[0], EdgeDistance[1]), EdgeDistance[2]);"
@@ -1589,14 +1588,17 @@ void OpenGl_ShaderManager::prepareFragExtrSrc (TCollection_AsciiString& theSrcFr
 // function : prepareEdgeDistString
 // purpose  : Auxiliary function for prepareGeomSrc function
 // =======================================================================
-TCollection_AsciiString prepareEdgeDistString (const Standard_Integer& theTriVertIter)
+TCollection_AsciiString OpenGl_ShaderManager::prepareEdgeDistString (const Standard_Integer& theTriVertIter,
+                                                                     const Standard_Integer  theBits)
 {
   switch (theTriVertIter)
   {
     case 0:
-      return EOL"  EdgeDistance = vec3 (aHeightA, 0.0, 0.0);";
+      return TCollection_AsciiString()
+        + EOL"  EdgeDistance = vec3 (aHeightA, 0.0, " + ((theBits & OpenGl_PO_QuadMode) != 0 ? "occLineWidth" : "0.0") + ");";
     case 1:
-      return EOL"  EdgeDistance = vec3 (0.0, aHeightB, 0.0);";
+      return TCollection_AsciiString()
+        + EOL"  EdgeDistance = vec3 (0.0, aHeightB, " + ((theBits & OpenGl_PO_QuadMode) != 0 ? "occLineWidth" : "0.0") + ");";
     case 2:
       return EOL"  EdgeDistance = vec3 (0.0, 0.0, aHeightC);";
     default:
@@ -1608,38 +1610,57 @@ TCollection_AsciiString prepareEdgeDistString (const Standard_Integer& theTriVer
 // function : prepareGeomSrc
 // purpose  :
 // =======================================================================
-TCollection_AsciiString OpenGl_ShaderManager::prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList)
+TCollection_AsciiString OpenGl_ShaderManager::prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList,
+                                                                  const Standard_Integer      theBits)
 {
-  TCollection_AsciiString aSrcMainGeom =
-    EOL"vec3 ViewPortTransform (vec4 theVec)"
-    EOL"{"
-    EOL"  vec3 aWinCoord = theVec.xyz / theVec.w;"
-    EOL"  aWinCoord   = aWinCoord * 0.5 + 0.5;"
-    EOL"  aWinCoord.x = aWinCoord.x * occViewport[0] + occViewport[2];"
-    EOL"  aWinCoord.y = aWinCoord.y * occViewport[1] + occViewport[3];"
-    EOL"  return aWinCoord;"
-    EOL"}"
-    EOL"void main()"
-    EOL"{"
-    EOL"  vec3 aSideA     = ViewPortTransform (gl_in[2].gl_Position) - ViewPortTransform (gl_in[1].gl_Position);"
-    EOL"  vec3 aSideB     = ViewPortTransform (gl_in[2].gl_Position) - ViewPortTransform (gl_in[0].gl_Position);"
-    EOL"  vec3 aSideC     = ViewPortTransform (gl_in[1].gl_Position) - ViewPortTransform (gl_in[0].gl_Position);"
-    EOL"  float aQuadArea = abs (aSideB.x * aSideC.y - aSideB.y * aSideC.x);"
-    EOL"  float aHeightA  = aQuadArea / length (aSideA);"
-    EOL"  float aHeightB  = aQuadArea / length (aSideB);"
-    EOL"  float aHeightC  = aQuadArea / length (aSideC);";
+  TCollection_AsciiString aSrcMainGeom = TCollection_AsciiString()
+    + ((theBits & OpenGl_PO_ScaleShrinkMode) != 0
+        ? TCollection_AsciiString()
+          + EOL"void main()"
+            EOL"{"
+            EOL"  vec3 aCenter = vec3 (0.0, 0.0, 0.0);"
+          + ((theBits & OpenGl_PO_QuadMode) != 0
+              ? EOL"  aCenter = (gl_in[1].gl_Position.xyz + gl_in[0].gl_Position.xyz) / 2.0;" 
+              : EOL"  for (int aTriVertIter = 0; aTriVertIter < 3; ++aTriVertIter)"
+                EOL"  {"
+                EOL"    aCenter += gl_in[aTriVertIter].gl_Position.xyz;"
+                EOL"  }"
+                EOL"  aCenter /= 3.0;")
+        : EOL"vec3 ViewPortTransform (vec4 theVec)"
+          EOL"{"
+          EOL"  vec3 aWinCoord = theVec.xyz / theVec.w;"
+          EOL"  aWinCoord   = aWinCoord * 0.5 + 0.5;"
+          EOL"  aWinCoord.x = aWinCoord.x * occViewport[0] + occViewport[2];"
+          EOL"  aWinCoord.y = aWinCoord.y * occViewport[1] + occViewport[3];"
+          EOL"  return aWinCoord;"
+          EOL"}"
+          EOL"void main()"
+          EOL"{"
+          EOL"  vec3 aSideA     = ViewPortTransform (gl_in[2].gl_Position) - ViewPortTransform (gl_in[1].gl_Position);"
+          EOL"  vec3 aSideB     = ViewPortTransform (gl_in[2].gl_Position) - ViewPortTransform (gl_in[0].gl_Position);"
+          EOL"  vec3 aSideC     = ViewPortTransform (gl_in[1].gl_Position) - ViewPortTransform (gl_in[0].gl_Position);"
+          EOL"  float aQuadArea = abs (aSideB.x * aSideC.y - aSideB.y * aSideC.x);"
+          EOL"  float aHeightA  = aQuadArea / length (aSideA);"
+          EOL"  float aHeightB  = aQuadArea / length (aSideB);"
+          EOL"  float aHeightC  = aQuadArea / length (aSideC);");
   for (Standard_Integer aTriVertIter = 0; aTriVertIter < 3; ++aTriVertIter)
   {
+    TCollection_AsciiString aIterStr = TCollection_AsciiString(aTriVertIter);
     for (OpenGl_ShaderVarList::Iterator aVarListIter(theVarList); aVarListIter.More(); aVarListIter.Next())
     {
       TCollection_AsciiString aVarName = aVarListIter.Value().Token (" ", 2);
       aSrcMainGeom += TCollection_AsciiString()
-        + EOL"  geomOut." + aVarName + " = geomIn[" + TCollection_AsciiString (aTriVertIter) + "]." + aVarName + ";";
+        + EOL"  geomOut." + aVarName + " = geomIn[" + aIterStr + "]." + aVarName + ";";
     }
     aSrcMainGeom += TCollection_AsciiString()
-      + prepareEdgeDistString (aTriVertIter)
-      + EOL"  gl_Position     = gl_in[" + TCollection_AsciiString (aTriVertIter) + "].gl_Position;"
-        EOL"  EmitVertex();";
+      + ((theBits & OpenGl_PO_ScaleShrinkMode) != 0
+          ? TCollection_AsciiString()
+            + EOL"  vec3 aVec" + aIterStr + " = gl_in[" + aIterStr + "].gl_Position.xyz - aCenter;"
+              EOL"  vec3 aVertRes" + aIterStr + " = aCenter + normalize (aVec" + aIterStr + ") * length (aVec" + aIterStr + ") * occScaleFactor;"
+              EOL"  gl_Position = vec4 (aVertRes" + aIterStr + ", 1.0);"
+          : prepareEdgeDistString (aTriVertIter, theBits)
+            + EOL"  gl_Position     = gl_in[" + aIterStr + "].gl_Position;")
+      + EOL"  EmitVertex();";
   }
   aSrcMainGeom +=
     EOL"  EndPrimitive();"
@@ -1656,7 +1677,8 @@ void OpenGl_ShaderManager::prepareShadersOutSrc (TCollection_AsciiString&    the
                                                  TCollection_AsciiString&    theSrcFragOut,
                                                  TCollection_AsciiString&    theSrcGeomOut,
                                                  const OpenGl_ShaderVarList& theVarList,
-                                                 const Standard_Boolean      theToUseGeomShader)
+                                                 const Standard_Boolean      theToUseGeomShader,
+                                                 const Standard_Integer      theBits)
 {
   if (theToUseGeomShader)
   {
@@ -1678,19 +1700,21 @@ void OpenGl_ShaderManager::prepareShadersOutSrc (TCollection_AsciiString&    the
         + EOL"  " + aVarListIter.Value() + ";";
     }
     theSrcVertOut += EOL"};";
-    theSrcFragOut +=
-      EOL"};"
-      EOL
-      EOL"noperspective in vec3 EdgeDistance;"
-      EOL"uniform float occLineWidth;"
-      EOL"uniform vec3 occWireframeColor;"
-      EOL"uniform float occCameraScale;";
+    theSrcFragOut += TCollection_AsciiString()
+      + EOL"};"
+        EOL
+      + ((theBits & OpenGl_PO_ScaleShrinkMode) != 0 ? EOL""
+          : EOL"noperspective in vec3 EdgeDistance;"
+            EOL"uniform float occLineWidth;"
+            EOL"uniform vec3 occWireframeColor;");
     theSrcGeomOut = TCollection_AsciiString()
       + EOL"layout (triangles) in;"
         EOL"layout (triangle_strip, max_vertices = 3) out;"
-        EOL"noperspective out vec3 EdgeDistance;"
-        EOL"uniform vec4 occViewport;"
-        EOL
+      + ((theBits & OpenGl_PO_ScaleShrinkMode) != 0 ? EOL"uniform float occScaleFactor;"
+          : EOL"noperspective out vec3 EdgeDistance;"
+            EOL"uniform vec4 occViewport;")
+      + ((theBits & OpenGl_PO_QuadMode) != 0 ? EOL"uniform float occLineWidth;" : "")
+      + EOL
         EOL"in VertexData"
         EOL"{"
       + aTmpSrcGeomSrc
@@ -1728,11 +1752,12 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragExtraMain, aSrcFragMainGetColor;
   TCollection_AsciiString aSrcFragGetColor = EOL"vec4 getColor(void) { return occColor; }";
   OpenGl_ShaderVarList    aVarList;
-  const Standard_Boolean  toUseGeomShader  = myContext->core32 != NULL       && 
-                                            (theBits & OpenGl_PO_HollowMode  ||
-                                             theBits & OpenGl_PO_ShrinkMode  ||
-                                             theBits & OpenGl_PO_SolidWFMode ||
-                                             theBits & OpenGl_PO_HiddenLine);
+  const Standard_Boolean  toUseGeomShader  = myContext->core32 != NULL                  && 
+                                            ((theBits & OpenGl_PO_HollowMode)      != 0 ||
+                                             (theBits & OpenGl_PO_PixelShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_ScaleShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_SolidWFMode)     != 0 ||
+                                             (theBits & OpenGl_PO_HiddenLine)      != 0);
 
   prepareFragExtrSrc (aSrcFragMainGetColor, true, theBits);
   
@@ -1901,19 +1926,22 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   }
   if (!aVarList.IsEmpty())
   {
-    prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader);
+    prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader, theBits);
   }
   else if (toUseGeomShader)
   {
     aSrcFragExtraOut +=
-      EOL"noperspective in vec3 EdgeDistance;"
-      EOL"uniform float occLineWidth;"
-      EOL"uniform vec3 occWireframeColor;";
-    aSrcGeomExtraOut +=
-      EOL"layout (triangles) in;"
-      EOL"layout (triangle_strip, max_vertices = 3) out;"
-      EOL"noperspective out vec3 EdgeDistance;"
-      EOL"uniform vec4 occViewport;";
+      ((theBits & OpenGl_PO_ScaleShrinkMode) != 0 ? EOL""
+        : EOL"noperspective in vec3 EdgeDistance;"
+          EOL"uniform float occLineWidth;"
+          EOL"uniform vec3 occWireframeColor;");
+    aSrcGeomExtraOut += TCollection_AsciiString()
+      + EOL"layout (triangles) in;"
+        EOL"layout (triangle_strip, max_vertices = 3) out;"
+      + ((theBits & OpenGl_PO_ScaleShrinkMode) != 0 ? EOL"uniform float occScaleFactor;"
+          : EOL"noperspective out vec3 EdgeDistance;"
+            EOL"uniform vec4 occViewport;")
+      + ((theBits & OpenGl_PO_QuadMode) != 0 ? EOL"uniform float occLineWidth;" : "");
   }
 
   aSrcVert =
@@ -1930,7 +1958,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
   {
     aSrcGeom = TCollection_AsciiString()
       + aSrcGeomExtraOut
-      + prepareGeomMainSrc (aVarList);
+      + prepareGeomMainSrc (aVarList, theBits);
   }
 
   aSrcFrag =
@@ -2157,11 +2185,12 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramGouraud (Handle(OpenGl_S
   TCollection_AsciiString aSrcGeom, aSrcGeomExtraOut;
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragExtraMain, aSrcFragGetColor;
   OpenGl_ShaderVarList    aVarList;
-  const Standard_Boolean  toUseGeomShader =  myContext->core32 != NULL       && 
-                                            (theBits & OpenGl_PO_HollowMode  ||
-                                             theBits & OpenGl_PO_ShrinkMode  ||
-                                             theBits & OpenGl_PO_SolidWFMode ||
-                                             theBits & OpenGl_PO_HiddenLine);
+  const Standard_Boolean  toUseGeomShader  = myContext->core32 != NULL                  && 
+                                            ((theBits & OpenGl_PO_HollowMode)      != 0 ||
+                                             (theBits & OpenGl_PO_PixelShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_ScaleShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_SolidWFMode)     != 0 ||
+                                             (theBits & OpenGl_PO_HiddenLine)      != 0);
 
   aSrcFragGetColor = EOL"vec4 getColor(void) { return gl_FrontFacing ? FrontColor : BackColor; }";
 
@@ -2253,13 +2282,13 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramGouraud (Handle(OpenGl_S
 
   prepareFragExtrSrc (aSrcFragExtraMain, true, theBits);
 
-  prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader);
+  prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader, theBits);
   
   if (toUseGeomShader)
   {
     aSrcGeom = TCollection_AsciiString()
       + aSrcGeomExtraOut
-      + prepareGeomMainSrc (aVarList);
+      + prepareGeomMainSrc (aVarList, theBits);
   }
 
   Standard_Integer aNbLights = 0;
@@ -2342,11 +2371,13 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramPhong (Handle(OpenGl_Sha
   TCollection_AsciiString aSrcFrag, aSrcFragExtraOut, aSrcFragGetVertColor, aSrcFragExtraMain;
   TCollection_AsciiString aSrcFragGetColor = EOL"vec4 getColor(void) { return " thePhongCompLight "; }";
   OpenGl_ShaderVarList    aVarList;
-  const Standard_Boolean  toUseGeomShader  = myContext->core32 != NULL       && 
-                                            (theBits & OpenGl_PO_HollowMode  ||
-                                             theBits & OpenGl_PO_ShrinkMode  ||
-                                             theBits & OpenGl_PO_SolidWFMode ||
-                                             theBits & OpenGl_PO_HiddenLine);
+  const Standard_Boolean  toUseGeomShader  = myContext->core32 != NULL                  && 
+                                            ((theBits & OpenGl_PO_HollowMode)      != 0 ||
+                                             (theBits & OpenGl_PO_PixelShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_ScaleShrinkMode) != 0 ||
+                                             (theBits & OpenGl_PO_SolidWFMode)     != 0 ||
+                                             (theBits & OpenGl_PO_HiddenLine)      != 0);
+  //const Standard_Boolean  isScaleShrink    = (theBits & OpenGl_PO_ScaleShrinkMode) != 0;
   
   if ((theBits & OpenGl_PO_Point) != 0)
   {
@@ -2445,13 +2476,13 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramPhong (Handle(OpenGl_Sha
     EOL"  Position      = occWorldViewMatrix * PositionWorld;"
     EOL"  View          = vec3 (0.0, 0.0, 1.0);";
   
-  prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader);
+  prepareShadersOutSrc (aSrcVertExtraOut, aSrcFragExtraOut, aSrcGeomExtraOut, aVarList, toUseGeomShader, theBits);
 
   if (toUseGeomShader)
   {
     aSrcGeom = TCollection_AsciiString()
       + aSrcGeomExtraOut
-      + prepareGeomMainSrc (aVarList);
+      + prepareGeomMainSrc (aVarList, theBits);
   }
 
   aSrcVert = TCollection_AsciiString()

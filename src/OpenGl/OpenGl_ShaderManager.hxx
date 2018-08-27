@@ -111,7 +111,8 @@ public:
     else
     {
       myWireframeState.SetAspects (theAspect->EdgeWidth() * myContext->LineWidthScale(),
-                                   theAspect->EdgeColor());
+                                   theAspect->EdgeColor(),
+                                   theAspect->ScaleFactor());
       aBits = getProgramBits (theTextures, theAspect->AlphaMode(), theHasVertColor, theEnableEnvMap);
       updateProgramBits (aBits, theAspect);
     }
@@ -341,11 +342,6 @@ public:
     myWireframeState.SetViewport (theViewport);
   }
 
-  void SetWireframeCameraScaleState (const Standard_Real& theScale)
-  {
-    myWireframeState.SetCameraScale (theScale);
-  }
-
   //! Pushes state of Wireframe uniforms to the specified program.
   Standard_EXPORT void PushWireframeState (const Handle(OpenGl_ShaderProgram)& theProgram) const;
 
@@ -501,8 +497,8 @@ protected:
   }
 
   //! Update thr program bits according to interior style mode.
-  void updateProgramBits(Standard_Integer& theBits, 
-                         const Handle(Graphic3d_AspectFillArea3d)& theAspect)
+  void updateProgramBits (Standard_Integer&                         theBits, 
+                          const Handle(Graphic3d_AspectFillArea3d)& theAspect)
   {
     switch (theAspect->InteriorStyle())
     {
@@ -511,9 +507,14 @@ protected:
         theBits |= OpenGl_PO_HollowMode;
         break;
       }
-      case Aspect_IS_SHRINK:
+      case Aspect_IS_PIXEL_SHRINK:
       {
-        theBits |= OpenGl_PO_ShrinkMode;
+        theBits |= OpenGl_PO_PixelShrinkMode;
+        break;
+      }
+      case Aspect_IS_SCALE_SHRINK:
+      {
+        theBits |= OpenGl_PO_ScaleShrinkMode;
         break;
       }
       case Aspect_IS_SOLID_WIREFRAME:
@@ -532,6 +533,10 @@ protected:
     if (theAspect->ToDrawEdges())
     {
       theBits |= OpenGl_PO_ColoringEdges;
+    }
+    if (theAspect->IsQuadMode())
+    {
+      theBits |= OpenGl_PO_QuadMode;
     }
   }
 
@@ -631,14 +636,21 @@ protected:
                                            const Standard_Integer   theBits);
 
   //! Prepare GLSL source for geometry shader according to parameters.
-  Standard_EXPORT TCollection_AsciiString prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList);
+  Standard_EXPORT TCollection_AsciiString prepareGeomMainSrc (const OpenGl_ShaderVarList& theVarList,
+                                                              const Standard_Integer      theBits);
   
   //! Prepare GLSL source for shader programs according to variable list.
   Standard_EXPORT void prepareShadersOutSrc (TCollection_AsciiString&    theSrcVertOut,
                                              TCollection_AsciiString&    theSrcFragOut,
                                              TCollection_AsciiString&    theSrcGeomOut,
                                              const OpenGl_ShaderVarList& theVarList,
-                                             const Standard_Boolean      theToUseGeomShader);
+                                             const Standard_Boolean      theToUseGeomShader,
+                                             const Standard_Integer      theBits);
+
+  //! 
+  Standard_EXPORT TCollection_AsciiString prepareEdgeDistString (const Standard_Integer& theTriVertIter,
+                                                                 const Standard_Integer  theBits);
+
 protected:
 
   //! Packed properties of light source

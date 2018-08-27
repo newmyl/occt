@@ -338,7 +338,8 @@ const OpenGl_AspectFace* OpenGl_Workspace::ApplyAspectFace()
           break;
         }
       }
-      case Aspect_IS_SHRINK:
+      case Aspect_IS_PIXEL_SHRINK:
+      case Aspect_IS_SCALE_SHRINK:
       case Aspect_IS_SOLID_WIREFRAME:
       case Aspect_IS_SOLID:
       case Aspect_IS_HIDDENLINE:

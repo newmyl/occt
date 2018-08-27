@@ -25,7 +25,8 @@ Aspect_IS_HATCH,          //!< display hatched surface with a hatch style.
 Aspect_IS_SOLID,          //!< display surface.
 Aspect_IS_HIDDENLINE,     //!< display surface in hidden lines removed.
 Aspect_IS_POINT,          //!< display only vertices of surface.
-Aspect_IS_SHRINK,         //!< display shrunk triangulation of surface.
+Aspect_IS_PIXEL_SHRINK,   //!< display shrunk triangulation of surface on pixels.
+Aspect_IS_SCALE_SHRINK,   //!< display shrunk triangulation of surface on scalability.
 Aspect_IS_SOLID_WIREFRAME //!< display boundaries and surface.
 };
 

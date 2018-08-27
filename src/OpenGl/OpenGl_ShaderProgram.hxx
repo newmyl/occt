@@ -79,6 +79,7 @@ enum OpenGl_StateVariable
   OpenGl_OCCT_VIEWPORT,
   OpenGl_OCCT_LINE_WIDTH,
   OpenGl_OCCT_WIREFRAME_COLOR,
+  OpenGl_OCCT_SCALE_FACTOR,
 
   // DON'T MODIFY THIS ITEM (insert new items before it)
   OpenGl_OCCT_NUMBER_OF_STATE_VARIABLES

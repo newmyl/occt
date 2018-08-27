@@ -205,20 +205,20 @@ public:
     myWireframeWidth (1.0f),
     myWireframeColor (Quantity_NOC_WHITE),
     myViewport       (OpenGl_Vec4 (0.0)),
-    myCameraScale    (0.0) {}
+    myScaleFactor    (0.8f) {}
 
   //! Set fields which got from face aspect.
   Standard_EXPORT void SetAspects (const Standard_ShortReal& theWireframeWidth,
-                                   const OpenGl_Vec3&        theWireframeColor)
+                                   const OpenGl_Vec3&        theWireframeColor,
+                                   const Standard_ShortReal& theScaleFactor)
   {
     myWireframeWidth = theWireframeWidth;
     myWireframeColor = theWireframeColor;
+    myScaleFactor    = theScaleFactor;
   }
 
   //! Set viewport field
   Standard_EXPORT void SetViewport (const OpenGl_Vec4& theViewport) { myViewport = theViewport; }
-
-  Standard_EXPORT void SetCameraScale(const Standard_Real& theCameraScale) { myCameraScale = theCameraScale; }
 
   //! Return width of wireframe
   Standard_EXPORT const Standard_ShortReal WireframeWidth() const { return myWireframeWidth; }
@@ -229,14 +229,15 @@ public:
   //! Return viewport
   Standard_EXPORT const OpenGl_Vec4& Viewport() const { return myViewport; }
 
-  Standard_EXPORT const Standard_Real CameraScale() const { return myCameraScale; }
+  //! Return scale factor
+  Standard_EXPORT const Standard_ShortReal ScaleFactor() const { return myScaleFactor; }
   
 private:
 
   Standard_ShortReal myWireframeWidth; //!< wireframe width
   OpenGl_Vec3        myWireframeColor; //!< wireframe color
   OpenGl_Vec4        myViewport;       //!< viewport properties
-  Standard_Real      myCameraScale;
+  Standard_ShortReal myScaleFactor;    //!< scale factor for shrunk presentation
 };
 
 #endif // _OpenGl_State_HeaderFile

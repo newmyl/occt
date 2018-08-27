@@ -1559,9 +1559,13 @@ static int VSetInteriorStyle (Draw_Interpretor& theDI,
   {
     anInterStyle = Aspect_IS_POINT;
   }
-  else if (aStyleArg == "shrink")
+  else if (aStyleArg == "pixelshrink")
   {
-    anInterStyle = Aspect_IS_SHRINK;
+    anInterStyle = Aspect_IS_PIXEL_SHRINK;
+  }
+  else if (aStyleArg == "scaleshrink")
+  {
+    anInterStyle = Aspect_IS_SCALE_SHRINK;
   }
   else if (aStyleArg == "solidwireframe")
   {
@@ -5927,7 +5931,8 @@ void ViewerTest::Commands(Draw_Interpretor& theCommands)
       "\n\t\t  :    solid          Display surface"
       "\n\t\t  :    hidenline      Display surface in hidden lines removed"
       "\n\t\t  :    point          Display only vertices of surface"
-      "\n\t\t  :    shrink         Display shrunk triangulation of surface"
+      "\n\t\t  :    pixelshrink    Display shrunk triangulation of surface on pixels"
+      "\n\t\t  :    scaleshrink    Display shrunk triangulation of surface on scalability."
       "\n\t\t  :    solidwireframe Display boundaries and surface",
 		  __FILE__,VSetInteriorStyle,group);
 

@@ -1055,9 +1055,6 @@ void OpenGl_View::render (Graphic3d_Camera::Projection theProjection,
   {
     aManager->SetLastView (this);
   }
-
-  aManager->SetWireframeCameraScaleState (this->Camera()->Scale());
-  //Standard_Real aScale1 = aManager->LastView()->Camera()->Scale();
 }
 
 // =======================================================================

@@ -79,7 +79,8 @@ Standard_CString OpenGl_ShaderProgram::PredefinedKeywords[] =
 
   "occViewport",          // OpenGl_OCCT_VIEWPORT
   "occLineWidth",         // OpenGl_OCCT_LINE_WIDTH
-  "occWireframeColor"     // OpenGl_OCCT_WIREFRAME_COLOR
+  "occWireframeColor",    // OpenGl_OCCT_WIREFRAME_COLOR
+  "occScaleFactor"        // OpenGl_OCCT_SCALE_FACTOR
 };
 
 namespace

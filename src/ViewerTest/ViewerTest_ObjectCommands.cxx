@@ -5496,6 +5496,28 @@ static int VSetEdgeType (Draw_Interpretor& theDI,
           aFillAreaAspect->Aspect()->SetEdgeWidth (aWidth);
         }
       }
+      else if (aParam.IsEqual ("-scalefactor"))
+      {
+        TCollection_AsciiString aParamValue (theArgs[++anIt]);
+        if (!aParamValue.IsRealValue())
+        {
+          theDI << theArgs[0] << " error: wrong value for parameter '"
+            << aParam.ToCString() << "'.\n";
+          return 1;
+        }
+
+        Standard_Real aScaleFactor = Draw::Atof (theArgs[anIt]);
+        if (aScaleFactor < 0.0 || aScaleFactor > 1.0)
+        {
+          theDI << theArgs[0] << " error: wrong value for parameter '"
+            << aParam.ToCString() << "'. The value must be between 0.0 and 1.0!\n";
+          return 1;
+        }
+        else
+        {
+          aFillAreaAspect->Aspect()->SetScaleFactor (aScaleFactor);
+        }
+      }
       else
       {
         theDI <<  theArgs[0] << " error: unknown parameter '"
@@ -6488,8 +6510,9 @@ void ViewerTest::ObjectCommands(Draw_Interpretor& theCommands)
   
   theCommands.Add ("vsetedgetype",
                    "vsetedgetype usage:\n"
-                   "vsetedgetype ShapeName [-force] [-type {solid, dash, dot}] [-color R G B] "
-                   "\n\t\t:        Sets edges type and color for input shape",
+                   "vsetedgetype ShapeName [-force] [-type {solid, dash, dot}] [-color R G B] [-width value]"
+                   "\n\t\t:                [-scalefactor value]"   
+                   "\n\t\t:        Sets edges width, type and color for input shape",
                    __FILE__, VSetEdgeType, group);
 
   theCommands.Add ("vunsetedgetype",
