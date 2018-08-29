@@ -82,10 +82,12 @@ public:
 
   //! Empty constructor.
   Graphic3d_Buffer (const Handle(NCollection_BaseAllocator)& theAlloc,
-                    Standard_Boolean isInterleaved, Standard_Boolean isMutable)
+                    Standard_Boolean isInterleaved, Standard_Boolean isMutable,
+                    Standard_Integer theMaxNbElements)
   : NCollection_Buffer (theAlloc),
     Stride       (0),
     NbElements   (0),
+    MaxNbElements(theMaxNbElements),
     NbAttributes (0),
     bIsInterleaved(isInterleaved),
     bIsMutable(isMutable)
@@ -120,7 +122,7 @@ public:
       anOffset += Graphic3d_Attribute::Stride (Attribute (anAttribIter).DataType);
     }
     if (!bIsInterleaved)
-      anOffset *= NbElements;
+      anOffset *= MaxNbElements;
     return anOffset;
   }
 
@@ -146,8 +148,9 @@ public:
       return myData + Stride * size_t(theElem);
     else
     {
-      int aStrideI = AttributesArray()[theAttribIndex].Stride(); //TODO: correct attribute index
-      return myData + aStrideI * theElem;
+      int anOffset = AttributeOffset(theAttribIndex);
+      int aStrideI = AttributesArray()[theAttribIndex].Stride();
+      return myData + anOffset + aStrideI * theElem;
     }
   }
 
@@ -158,8 +161,9 @@ public:
       return myData + Stride * size_t(theElem);
     else
     {
-      int aStrideI = AttributesArray()[theAttribIndex].Stride(); //TODO: correct attribute index
-      return myData + aStrideI * theElem;
+      int anOffset = AttributeOffset(theAttribIndex);
+      int aStrideI = AttributesArray()[theAttribIndex].Stride();
+      return myData + anOffset + aStrideI * theElem;
     }
   }
 
@@ -205,6 +209,7 @@ public:
 
     Stride       = aStride;
     NbElements   = theNbElems;
+    MaxNbElements = theNbElems;
     NbAttributes = theNbAttribs;
     if (NbElements != 0)
     {
@@ -261,6 +266,7 @@ public:
   Standard_Integer Stride;       //!< the distance to the attributes of the next vertex
   Standard_Integer NbElements;   //!< number of the elements
   Standard_Integer NbAttributes; //!< number of vertex attributes
+  Standard_Integer MaxNbElements;   //!< maximum number of the elements
 
 private:
   Standard_Boolean bIsInterleaved;

@@ -22,7 +22,8 @@ class Graphic3d_AttribBuffer : public Graphic3d_Buffer
 public:
   //! Empty constructor.
   Standard_EXPORT Graphic3d_AttribBuffer(const Handle(NCollection_BaseAllocator)& theAlloc,
-    Standard_Boolean isInterleaved, Standard_Boolean isMutable);
+    Standard_Boolean isInterleaved, Standard_Boolean isMutable, 
+    Standard_Integer theMaxNbElements);
 
   Standard_EXPORT Standard_Boolean Invalidate(Standard_Integer theAttributeIndex);
   Standard_EXPORT Standard_Boolean Invalidate(Standard_Integer theAttributeIndex,

@@ -1,0 +1,11 @@
+puts "============="
+puts "0030076: Visualization, TKV3d - API to update certain vertex attribute(s) without recomputing a presentation"
+puts "============="
+
+pload ALL
+
+vinit
+vdrawparray a triangles v 0 0 0 c 1 0 0 v 1 0 0 c 1 0 0 v 1 1 0 c 1 0 0 v 1 1 0 c 0 0 1 v 0 1 0 c 0 0 1 v 0 0 0 c 0 0 1
+vdrawparray a randomcolors
+
+vfit

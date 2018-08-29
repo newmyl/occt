@@ -14,8 +14,9 @@
 #include <Graphic3d_AttribBuffer.hxx>
 
 Graphic3d_AttribBuffer::Graphic3d_AttribBuffer(const Handle(NCollection_BaseAllocator)& theAlloc,
-                                               Standard_Boolean isInterleaved, Standard_Boolean isMutable)
-  : Graphic3d_Buffer(theAlloc, isInterleaved, isMutable)
+                                               Standard_Boolean isInterleaved, Standard_Boolean isMutable,
+                                               Standard_Integer theMaxNbElements)
+  : Graphic3d_Buffer(theAlloc, isInterleaved, isMutable, theMaxNbElements)
 {
 }
 

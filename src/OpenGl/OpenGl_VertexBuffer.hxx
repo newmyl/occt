@@ -48,6 +48,8 @@ public:
     return myBufferId != NO_BUFFER;
   }
 
+  inline GLuint BufferId() const { return myBufferId; }
+
   //! @return the number of components per generic vertex attribute.
   inline GLuint GetComponentsNb() const
   {

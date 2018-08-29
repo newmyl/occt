@@ -65,11 +65,12 @@ Graphic3d_ArrayOfPrimitives::Graphic3d_ArrayOfPrimitives (const Graphic3d_TypeOf
   myVCol       (0)
 {
   Handle(NCollection_AlignedAllocator) anAlloc = new NCollection_AlignedAllocator (16);
-  myAttribs = new Graphic3d_AttribBuffer(anAlloc, theIsInterleaved, theIsMutable);
   if (theMaxVertexs < 1)
   {
     return;
   }
+
+  myAttribs = new Graphic3d_AttribBuffer(anAlloc, theIsInterleaved, theIsMutable, theMaxVertexs);
 
   if (theMaxEdges > 0)
   {

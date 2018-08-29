@@ -28,7 +28,7 @@ public:
 
   //! Empty constructor.
   Select3D_BVHIndexBuffer (const Handle(NCollection_BaseAllocator)& theAlloc)
-  : Graphic3d_Buffer (theAlloc, true, false), myHasPatches (false) {}
+  : Graphic3d_Buffer (theAlloc, true, false, 0), myHasPatches (false) {}
 
   bool HasPatches() const { return myHasPatches; }
 

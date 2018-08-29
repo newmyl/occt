@@ -3165,6 +3165,20 @@ public:
 
   virtual Standard_Boolean AcceptDisplayMode (const Standard_Integer theMode) const Standard_OVERRIDE { return theMode == 0; }
 
+  void SetRandomColors()
+  {
+    for (int i = 0, n = myPArray->VertexNumber(); i < n; i++)
+    {
+      Graphic3d_Vec4ub color;
+      color.r() = rand() % 255;
+      color.g() = rand() % 255;
+      color.b() = rand() % 255;
+      color.a() = 255;
+      myPArray->SetVertexColor(i + 1, color);
+    }
+    myPArray->Attributes()->Invalidate(1);
+  }
+
 private:
 
   void Compute (const Handle(PrsMgr_PresentationManager3d)& aPresentationManager,
@@ -3276,7 +3290,7 @@ MyPArrayObject::MyPArrayObject (Handle(TColStd_HArray1OfAsciiString) theArrayDes
                                               hasVColors, hasBColors);
   else if (anArrayType == "triangles")
     anArray = new Graphic3d_ArrayOfTriangles (aVertexNum, aEdgeNum, hasNormals,
-                                              hasVColors, hasTexels);
+                                              hasVColors, hasTexels, false, true);
   else if (anArrayType == "trianglefans")
     anArray = new Graphic3d_ArrayOfTriangleFans (aVertexNum, aBoundNum,
                                                  hasNormals, hasVColors,
@@ -3448,6 +3462,20 @@ static int VDrawPArray (Draw_Interpretor& di, Standard_Integer argc, const char*
     std::cout << "Error: no active Viewer\n";
     return 1;
   }
+
+  if (argc == 3 && strcmp(argv[2], "randomcolors") == 0)
+  {
+    Handle(MyPArrayObject) aPObject = Handle(MyPArrayObject)::DownCast(GetMapOfAIS().Find2(argv[1]));
+    if (!aPObject.IsNull())
+    {
+      printf("Set random colors\n");
+      aPObject->SetRandomColors();
+      return 0;
+    }
+    else
+      return 1;
+  }
+
   else if (argc < 3)
   {
     std::cout << "Syntax error: wrong number of arguments\n";

@@ -23,7 +23,7 @@ public:
 
   //! Empty constructor.
   Graphic3d_IndexBuffer (const Handle(NCollection_BaseAllocator)& theAlloc)
-  : Graphic3d_Buffer (theAlloc, true, false) {}
+  : Graphic3d_Buffer (theAlloc, true, false, 0) {}
 
   //! Allocates new empty index array
   template<typename IndexType_t>

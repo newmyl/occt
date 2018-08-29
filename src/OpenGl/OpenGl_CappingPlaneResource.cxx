@@ -72,7 +72,7 @@ OpenGl_CappingPlaneResource::OpenGl_CappingPlaneResource (const Handle(Graphic3d
 {
   // Fill primitive array
   Handle(NCollection_AlignedAllocator) anAlloc = new NCollection_AlignedAllocator (16);
-  Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (anAlloc, true, false);
+  Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (anAlloc, true, false, 0);
   Graphic3d_Attribute anAttribInfo[] =
   {
     { Graphic3d_TOA_POS,  Graphic3d_TOD_VEC4 },

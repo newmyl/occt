@@ -361,13 +361,34 @@ Standard_Boolean OpenGl_PrimitiveArray::buildVBO (const Handle(OpenGl_Context)& 
 
 Standard_Boolean OpenGl_PrimitiveArray::updateVBO(const Handle(OpenGl_Context)& theCtx) const
 {
-  const std::vector<Graphic3d_Range>& ranges = myAttribs->InvalidatedRanges();
+  int aStride = myAttribs->IsInterleaved() ? myAttribs->Stride : myAttribs->AttributeOffset(myAttribs->NbAttributes) / myAttribs->NbElements;
+  int aSize = myAttribs->AttributeOffset(myAttribs->NbAttributes);
+  myVboAttribs->init(theCtx, aStride, myAttribs->NbElements, myAttribs->Data(), GL_UNSIGNED_BYTE, aStride);
+
+  /*GLint a, b, c;
+  theCtx->core15fwd->glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &a);
+  theCtx->core15fwd->glGetIntegerv(GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &b);
+  theCtx->core15fwd->glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &c);
+
+  myVboAttribs->BindAllAttributes(theCtx);
+
+  printf("array buffer: %i\n", (int)a);
+  printf("vertex attrib: %i\n", (int)b);
+  printf("element array: %i\n", (int)c);
+  printf("my buffer: %i\n", (int)myVboAttribs->BufferId());
+  theCtx->core15fwd->glBufferData(myVboAttribs->GetTarget(), aSize, myAttribs->Data(), GL_STATIC_DRAW);
+
+  myVboAttribs->UnbindAllAttributes(theCtx);
+
+  /*const std::vector<Graphic3d_Range>& ranges = myAttribs->InvalidatedRanges();
   for (size_t i = 0, n = ranges.size(); i < n; i++)
   {
     Graphic3d_Range aRange = ranges[i];
     theCtx->core15fwd->glBufferSubData(myVboAttribs->GetTarget(),
       aRange.Start, aRange.Length, myAttribs->Data() + aRange.Start);
-  }
+  }*/
+  //myVboAttribs->Unbind(theCtx);
+
   myAttribs->Validate();
   return Standard_True;
 }
@@ -756,8 +777,8 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     myIsVboInit = Standard_True;
   }
 
-  if (!myAttribs.IsNull() && myAttribs->IsMutable() && myAttribs->InvalidatedRanges().size() > 0)
-    updateVBO(aCtx);
+  //if (!myAttribs.IsNull() && myAttribs->IsMutable() && myAttribs->InvalidatedRanges().size() > 0)
+  //  updateVBO(aCtx);
 
   // Temporarily disable environment mapping
   Handle(OpenGl_TextureSet) aTextureBack;
@@ -880,6 +901,9 @@ void OpenGl_PrimitiveArray::Render (const Handle(OpenGl_Workspace)& theWorkspace
     const Graphic3d_Vec4* aFaceColors = !myBounds.IsNull() && !toHilight && anAspectFace->Aspect()->InteriorStyle() != Aspect_IS_HIDDENLINE
                                       ?  myBounds->Colors
                                       :  NULL;
+    if (!myAttribs.IsNull() && myAttribs->IsMutable() && myAttribs->InvalidatedRanges().size() > 0)
+      updateVBO(aCtx);
+
     drawArray (theWorkspace, aFaceColors, hasColorAttrib);
   }
 
@@ -1004,7 +1028,7 @@ Standard_Boolean OpenGl_PrimitiveArray::processIndices (const Handle(OpenGl_Cont
 
   if (myAttribs->NbElements > std::numeric_limits<GLushort>::max())
   {
-    Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (new NCollection_AlignedAllocator (16), true, false);
+    Handle(Graphic3d_Buffer) anAttribs = new Graphic3d_Buffer (new NCollection_AlignedAllocator (16), true, false, 0);
     if (!anAttribs->Init (myIndices->NbElements, myAttribs->AttributesArray(), myAttribs->NbAttributes))
     {
       return Standard_False; // failed to initialize attribute array
