@@ -448,8 +448,8 @@ static void getSDR(const Handle(StepRepr_ProductDefinitionShape)& PDS,
       getListSDR(sa,listSDRAspect,TP);
       continue;
     }
+    }
   }
-}
 
 
 //=======================================================================
@@ -652,7 +652,7 @@ static void getSDR(const Handle(StepRepr_ProductDefinitionShape)& PDS,
 Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(const Handle(StepRepr_NextAssemblyUsageOccurrence)& NAUO ,
                                                                        const Handle(Transfer_TransientProcess)& TP)
 {
- Handle(TransferBRep_ShapeBinder) shbinder;
+  Handle(TransferBRep_ShapeBinder) shbinder;
   Handle(StepBasic_ProductDefinition) PD;
   const Interface_Graph& graph = TP->Graph();
   gp_Trsf Trsf;
@@ -820,7 +820,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(const Han
       nsh ++;
     }
   }
-  
+
   // [BEGIN] Proceed with non-manifold topology (ssv; 12.11.2010)
   if (!isManifold) {
     Handle(Standard_Transient) info;
@@ -850,7 +850,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(const Han
       // Make compound to store closed Shells
       TopoDS_Compound compWithClosings;
       brepBuilder.MakeCompound(compWithClosings);
-
+      
       // Attempt to close Shells one-by-one
       for (Standard_Integer i = 1; i <= shellClosingsMap.Extent(); i++) {
         TopoDS_Shell adjustedShell = this->closeIDEASShell( TopoDS::Shell( shellClosingsMap.FindKey(i) ),
@@ -878,14 +878,14 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(const Han
     TopoDS_Iterator it(comp);
     for ( ; it.More(); it.Next() ) {
       TopoDS_Shape aSubShape = it.Value();
-      if ( aSubShape.ShapeType() == TopAbs_SHELL && aSubShape.Closed() ) {
-        TopoDS_Solid nextSolid;
-        brepBuilder.MakeSolid(nextSolid);
-        brepBuilder.Add(nextSolid, aSubShape);
-        brepBuilder.Add(reconstComp, nextSolid);
-      } 
-      else if (aSubShape.ShapeType() == TopAbs_SHELL)
-        brepBuilder.Add(reconstComp, aSubShape);
+        if (aSubShape.ShapeType() == TopAbs_SHELL && aSubShape.Closed()) {
+            TopoDS_Solid nextSolid;
+            brepBuilder.MakeSolid(nextSolid);
+            brepBuilder.Add(nextSolid, aSubShape);
+            brepBuilder.Add(reconstComp, nextSolid);
+        }
+        else if (aSubShape.ShapeType() == TopAbs_SHELL)
+            brepBuilder.Add(reconstComp, aSubShape);
     }
 
     comp = reconstComp;
@@ -1360,51 +1360,51 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(const Han
   try {
     OCC_CATCH_SIGNALS
 
-  StepToTopoDS_Tool         myTool;
-  StepToTopoDS_DataMapOfTRI aMap;
-  
-  myTool.Init(aMap, TP);
-  StepToTopoDS_TranslateFace myTF;
-  myTF.SetPrecision(myPrecision);
-  myTF.SetMaxTol(myMaxTol);
-  
-  // Non-manifold topology is not processed here (ssv; 15.11.2010)
-  StepToTopoDS_NMTool dummyNMTool;
-  myTF.Init (fs, myTool, dummyNMTool);
-  Handle(StepRepr_Representation) oldSRContext = mySRContext;
-  if ( mySRContext.IsNull() ) { // if no context, try to find it (ex: r0701_ug.stp #4790)
-    Handle(StepRepr_Representation) context = FindContext ( fs, TP );
-    if ( context.IsNull() ) {
-      TP->AddWarning ( fs, "Entity with no unit context; default units taken" );
-      ResetUnits();
-    }
-    else PrepareUnits ( context, TP );
-  }
-  
-  // Apply ShapeFix
-  Handle(Transfer_Binder) binder = TP->Find (fs);
-  sb = Handle(TransferBRep_ShapeBinder)::DownCast ( binder );
-  if ( ! sb.IsNull() && ! sb->Result().IsNull() ) {
-    TopoDS_Shape S = sb->Result();
-    
-    Handle(Standard_Transient) info;
-    TopoDS_Shape shape = XSAlgo::AlgoContainer()->ProcessShape( S, myPrecision, myMaxTol,
-                                                                "read.step.resource.name", 
-                                                                "read.step.sequence", info,
-                                                                TP->GetProgress() );
-    //      TopoDS_Shape shape = XSAlgo::AlgoContainer()->PerformFixShape( S, TP, myPrecision, myMaxTol );
-    if ( shape != S ) 
-      sb->SetResult ( shape );
-    
-    XSAlgo::AlgoContainer()->MergeTransferInfo(TP, info, nbTPitems);
-  }
+    StepToTopoDS_Tool         myTool;
+    StepToTopoDS_DataMapOfTRI aMap;
 
-  
-  if ( oldSRContext.IsNull() && ! mySRContext.IsNull() ) //:S4136
-    PrepareUnits ( oldSRContext, TP ); 
-  TP->Bind(fs, sb);
-  return sb; // TP->Find (start);
-}
+    myTool.Init(aMap, TP);
+    StepToTopoDS_TranslateFace myTF;
+    myTF.SetPrecision(myPrecision);
+    myTF.SetMaxTol(myMaxTol);
+
+    // Non-manifold topology is not processed here (ssv; 15.11.2010)
+    StepToTopoDS_NMTool dummyNMTool;
+    myTF.Init(fs, myTool, dummyNMTool);
+    Handle(StepRepr_Representation) oldSRContext = mySRContext;
+    if (mySRContext.IsNull()) { // if no context, try to find it (ex: r0701_ug.stp #4790)
+      Handle(StepRepr_Representation) context = FindContext(fs, TP);
+      if (context.IsNull()) {
+        TP->AddWarning(fs, "Entity with no unit context; default units taken");
+        ResetUnits();
+      }
+      else PrepareUnits(context, TP);
+    }
+
+    // Apply ShapeFix
+    Handle(Transfer_Binder) binder = TP->Find(fs);
+    sb = Handle(TransferBRep_ShapeBinder)::DownCast(binder);
+    if (!sb.IsNull() && !sb->Result().IsNull()) {
+      TopoDS_Shape S = sb->Result();
+
+      Handle(Standard_Transient) info;
+      TopoDS_Shape shape = XSAlgo::AlgoContainer()->ProcessShape(S, myPrecision, myMaxTol,
+        "read.step.resource.name",
+        "read.step.sequence", info,
+        TP->GetProgress());
+      //      TopoDS_Shape shape = XSAlgo::AlgoContainer()->PerformFixShape( S, TP, myPrecision, myMaxTol );
+      if (shape != S)
+        sb->SetResult(shape);
+
+      XSAlgo::AlgoContainer()->MergeTransferInfo(TP, info, nbTPitems);
+    }
+
+
+    if (oldSRContext.IsNull() && !mySRContext.IsNull()) //:S4136
+      PrepareUnits(oldSRContext, TP);
+    TP->Bind(fs, sb);
+    return sb; // TP->Find (start);
+  }
   catch(Standard_Failure)
   {
     TP->AddFail(fs,"Exeption is raised. Entity was not translated.");
@@ -1447,17 +1447,17 @@ Handle(Transfer_Binder) STEPControl_ActorRead::TransferShape(const Handle(Standa
     shbinder = OldWay(start,TP);
   //skl
   
-  else if(start->IsKind(STANDARD_TYPE(StepBasic_ProductDefinition))) {
-    Handle(StepBasic_ProductDefinition) PD = 
+  else if (start->IsKind(STANDARD_TYPE(StepBasic_ProductDefinition))) {
+    Handle(StepBasic_ProductDefinition) PD =
       Handle(StepBasic_ProductDefinition)::DownCast(start);
-     shbinder = TransferEntity(PD,TP);
+    shbinder = TransferEntity(PD, TP);
   }
   
   // NextAssemblyUsageOccurrence
   else if (start->IsKind(STANDARD_TYPE(StepRepr_NextAssemblyUsageOccurrence))) {
-    Handle(StepRepr_NextAssemblyUsageOccurrence) NAUO = 
+    Handle(StepRepr_NextAssemblyUsageOccurrence) NAUO =
       Handle(StepRepr_NextAssemblyUsageOccurrence)::DownCast(start);
-     shbinder = TransferEntity(NAUO,TP);
+    shbinder = TransferEntity(NAUO, TP);
   }
   //end skl
     
@@ -1629,19 +1629,25 @@ Standard_Boolean STEPControl_ActorRead::ComputeTransformation (const Handle(Step
   // corresponding reps and fix case of inversion error
   Handle(StepGeom_Axis2Placement3d) org = Origin;
   Handle(StepGeom_Axis2Placement3d) trg = Target;
-  Standard_Integer code1=0, code2=0, i;
-  for ( i=1; code1 != 1 && i <= OrigContext->NbItems(); i++ ) {
-    if ( OrigContext->ItemsValue(i) == org ) code1 = 1;
-    else if ( OrigContext->ItemsValue(i) == trg ) code1 = -1;
+  Standard_Integer code1=0, code11 = 0, code2=0, code21 = 0,i;
+  
+  for ( i=1; i <= OrigContext->NbItems(); i++ ) {
+    if (OrigContext->ItemsValue(i) == org) code1 = 1;
+    else if (OrigContext->ItemsValue(i) == trg) code11 = -1;
+    
   }
-  for ( i=1; code2 != 1 && i <= TargContext->NbItems(); i++ ) {
-    if ( TargContext->ItemsValue(i) == org ) code2 = -1;
-    else if ( TargContext->ItemsValue(i) == trg ) code2 = 1;
+  for ( i=1;  i <= TargContext->NbItems(); i++ ) {
+    if (TargContext->ItemsValue(i) == org) code21 = -1;
+    else if (TargContext->ItemsValue(i) == trg) code2 = 1;
+    
   }
-  if ( code1 != 1 && code2 != 1 ) {
-    if ( code1 == -1 && code2 == -1 ) {
-      Handle(StepGeom_Axis2Placement3d) swp = org; org = trg; trg = swp;
-      TP->AddWarning ( org, "Axis placements are swapped in SRRWT; corrected" );
+  if ( code1 != 1 || code2 != 1 ) {
+    if (code11 && code21)
+    {
+      Handle(StepGeom_Axis2Placement3d) swp = org;
+      org = trg;
+      trg = swp;
+      TP->AddWarning(org, "Axis placements are swapped in SRRWT; corrected");
     }
     else {
       TP->AddWarning ( ( code1 == 1 ? trg : org ), 
