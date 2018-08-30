@@ -26,6 +26,23 @@ set (CMAKE_SUPPRESS_REGENERATION TRUE)
 
 set (CMAKE_CONFIGURATION_TYPES Release Debug RelWithDebInfo CACHE INTERNAL "" FORCE)
 
+# build variables
+macro (BUILD_TOOL_MESSAGE BUILD_TOOL_TARGET_VARIABLE BUILD_TOOL_TARGET_STRING)
+set (${BUILD_TOOL_TARGET_VARIABLE}_DESCR
+"Indicates whether ${BUILD_TOOL_TARGET_STRING} tool should be built or not.
+It should be noted that some toolkits of the module can be built even if this module
+is not checked (this happens if some other modules depend on these toolkits)")
+set (${BUILD_TOOL_TARGET_VARIABLE} ON CACHE BOOL "${${BUILD_TOOL_TARGET_VARIABLE}_DESCR}")
+endmacro()
+
+BUILD_TOOL_MESSAGE (BUILD_PLUGIN_TKTreeModel "TKTreeModel")
+BUILD_TOOL_MESSAGE (BUILD_PLUGIN_TKDFBrowser "TKDFBrowser")
+BUILD_TOOL_MESSAGE (BUILD_PLUGIN_TKVInspector "TKVInspector")
+BUILD_TOOL_MESSAGE (BUILD_PLUGIN_TKShapeView "TKShapeView")
+if (NOT BUILD_PLUGIN_TKDFBrowser AND NOT BUILD_PLUGIN_TKVInspector AND NOT BUILD_PLUGIN_TKShapeView)
+  set (BUILD_TREE_MODEL_ONLY ON)
+endif()
+
 # macro: include patched file if it exists
 macro (OCCT_INCLUDE_CMAKE_FILE BEING_INCLUDED_FILE)
   if (BUILD_PATCH AND EXISTS "${BUILD_PATCH}/${BEING_INCLUDED_FILE}.cmake")
@@ -333,9 +350,16 @@ endif()
 # list <OCCT_TOOLS> will contain all tools
 #if (BUILD_Inspector)
   OCCT_MODULES_AND_TOOLKITS (TOOLS "TOOL_TOOLKITS" OCCT_TOOLS)
-  foreach (OCCT_TOOL ${OCCT_TOOLS})
-    list (APPEND BUILD_TOOL_TOOLKITS ${${OCCT_TOOL}_TOOL_TOOLKITS})
-  endforeach()
+
+  if (DEFINED BUILD_TREE_MODEL_ONLY AND BUILD_TREE_MODEL_ONLY)
+    list (APPEND BUILD_TOOL_TOOLKITS "TKTreeModel")
+  else()
+    foreach (OCCT_TOOL ${OCCT_TOOLS})
+      list (APPEND BUILD_TOOL_TOOLKITS ${${OCCT_TOOL}_TOOL_TOOLKITS})
+    endforeach()
+  endif()
+
+  message("Build: ${BUILD_TOOL_TOOLKITS}")
 
   # collect all the headers to <binary dir>/inc/inspector folder
   string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
@@ -363,9 +387,15 @@ if (3RDPARTY_LIBRARY_DIRS)
 endif()
 
 # include patched toolkit projects or original ones
-if (BUILD_TOOL_TOOLKITS)
+if (BUILD_TREE_MODEL_ONLY)
+  OCCT_ADD_SUBDIRECTORY ("tools/TKTreeModel")
+  message (STATUS "Info: TKTreeModel OCCT toolkits processed")
+else()
   foreach (BUILD_TOOL_TOOLKIT ${BUILD_TOOL_TOOLKITS})
-    OCCT_ADD_SUBDIRECTORY ("tools/${BUILD_TOOL_TOOLKIT}")
+    if (NOT DEFINED BUILD_PLUGIN_${BUILD_TOOL_TOOLKIT} OR BUILD_PLUGIN_${BUILD_TOOL_TOOLKIT})
+      OCCT_ADD_SUBDIRECTORY ("tools/${BUILD_TOOL_TOOLKIT}")
+      message (STATUS "Info: ${BUILD_TOOL_TOOLKIT} toolkits processed")
+    endif()
   endforeach()
 endif()
 

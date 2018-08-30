@@ -105,11 +105,9 @@ void VInspector_ViewModel::SetContext (const Handle(AIS_InteractiveContext)& the
 QModelIndexList VInspector_ViewModel::FindPointers (const QStringList& thePointers)
 {
   QModelIndexList anIndices;
-  QModelIndex aParentIndex = index (0, 0);
-  TreeModel_ItemBasePtr aParentItem = TreeModel_ModelBase::GetItemByIndex (aParentIndex); // context item
-  for (int aRowId = 0, aCount = aParentItem->rowCount(); aRowId < aCount; aRowId++)
+  for (int aRowId = 0, aCount = rowCount(); aRowId < aCount; aRowId++)
   {
-    QModelIndex anIndex = index (aRowId, 0, aParentIndex);
+    QModelIndex anIndex = index (aRowId, 0);
     TreeModel_ItemBasePtr anItemBase = TreeModel_ModelBase::GetItemByIndex (anIndex);
     VInspector_ItemPresentableObjectPtr anItemPrs = itemDynamicCast<VInspector_ItemPresentableObject>(anItemBase);
     if (!anItemPrs)

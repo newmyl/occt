@@ -557,6 +557,22 @@ When this option is switched ON, MS Visual Studio project has an additional tree
 @figure{VStudio_projects.png,"Inspector packages in MS Visual Studio",160}
 
 
+@subsection occt_inspector_5_1 Building tools with CMake outside of OCCT
+
+To compile OCCT tools, run CMake and set the source directory into the "tools" folder of OCCT.
+@figure{build_cmake_tools.png,"OCCT tools",160}
+
+"OpenCASCADE_Dir" should be defined and point into <b>cmake</b> directory of installed OCCT. (Please be sure that sources
+of OCCT for compiled tools are the same as sources of installed OCCT, otherwise interface might be different and
+you have compilation errors)
+
+After, define 3RDPARTY_QT_DIR
+
+Checked variables BUILD_PLUGIN_* define which plugins should be compiled.
+If only BUILD_PLUGIN_TreeModel is checked, no plugins are compiled, only TreeModel library that might be used as an interface
+of communication to Qt tree model by items implementation.
+
+
 @section occt_inspector_6 Sources and packaging
 
 OCCT sources are extended by the /tools directory.

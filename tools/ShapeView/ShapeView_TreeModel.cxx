@@ -107,11 +107,9 @@ void ShapeView_TreeModel::RemoveAllShapes()
 // =======================================================================
 QModelIndex ShapeView_TreeModel::FindIndex (const TopoDS_Shape& theShape) const
 {
-  QModelIndex aParentIndex = index (0, 0);
-  TreeModel_ItemBasePtr aParentItem = TreeModel_ModelBase::GetItemByIndex (aParentIndex); // application item
-  for (int aChildId = 0, aCount = aParentItem->rowCount(); aChildId < aCount; aChildId++)
+  for (int aChildId = 0, aCount = rowCount(); aChildId < aCount; aChildId++)
   {
-    QModelIndex anIndex = index (aChildId, 0, aParentIndex);
+    QModelIndex anIndex = index (aChildId, 0);
     ShapeView_ItemShapePtr anItem = itemDynamicCast<ShapeView_ItemShape> (TreeModel_ModelBase::GetItemByIndex (anIndex));
     if (anItem && anItem->GetItemShape() == theShape)
       return anIndex;

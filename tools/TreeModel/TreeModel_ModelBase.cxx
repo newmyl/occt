@@ -66,10 +66,6 @@ QModelIndex TreeModel_ModelBase::index (int theRow, int theColumn, const QModelI
   if (!hasIndex (theRow, theColumn, theParent))
     return QModelIndex();
 
-  // to create index on the root item
-  if (!theParent.isValid())
-    return createIndex (theRow, theColumn, getIndexValue (RootItem (theColumn)));
-
   TreeModel_ItemBasePtr aParentItem;
   if (!theParent.isValid())
     aParentItem = RootItem (theColumn);
@@ -164,10 +160,6 @@ QVariant TreeModel_ModelBase::headerData (int theSection, Qt::Orientation theOri
 // =======================================================================
 int TreeModel_ModelBase::rowCount (const QModelIndex& theParent) const
 {
-  // to create index on the root item
-  if (!theParent.isValid())
-    return 1;
-
   TreeModel_ItemBasePtr aParentItem;
   if (!theParent.isValid())
     aParentItem = RootItem (0);

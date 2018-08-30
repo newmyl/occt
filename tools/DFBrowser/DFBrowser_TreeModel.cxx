@@ -98,12 +98,12 @@ QModelIndex DFBrowser_TreeModel::FindIndex (const TDF_Label& theLabel) const
     }
   }
   bool aDocumentItemFound = false;
-  QModelIndex aParentIndex = index (0, 0);
-  TreeModel_ItemBasePtr aParentItem = TreeModel_ModelBase::GetItemByIndex (aParentIndex); // application item
+  QModelIndex aParentIndex;
+  TreeModel_ItemBasePtr aParentItem;
   // find document, where label of document item is equal to Root label
-  for (int aChildId = 0, aCount = aParentItem->rowCount(); aChildId < aCount; aChildId++)
+  for (int aChildId = 0, aCount = rowCount(); aChildId < aCount; aChildId++)
   {
-    QModelIndex anIndex = index (aChildId, 0, aParentIndex);
+    QModelIndex anIndex = index (aChildId, 0);
     TreeModel_ItemBasePtr anItemBase = TreeModel_ModelBase::GetItemByIndex (anIndex);
     DFBrowser_ItemDocumentPtr anItem = itemDynamicCast<DFBrowser_ItemDocument> (anItemBase);
     if (anItem->GetLabel() == aRoot)
