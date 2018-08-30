@@ -361,14 +361,6 @@ Standard_Boolean OpenGl_PrimitiveArray::buildVBO (const Handle(OpenGl_Context)& 
 
 Standard_Boolean OpenGl_PrimitiveArray::updateVBO(const Handle(OpenGl_Context)& theCtx) const
 {
-  //int aStride = myAttribs->IsInterleaved() ? myAttribs->Stride : myAttribs->AttributeOffset(myAttribs->NbAttributes) / myAttribs->NbElements;
-  //int aSize = myAttribs->AttributeOffset(myAttribs->NbAttributes);
-  //myVboAttribs->init(theCtx, aStride, myAttribs->NbElements, myAttribs->Data(), GL_UNSIGNED_BYTE, aStride);
-
-  //myVboAttribs->Bind(theCtx);
-  //theCtx->core15fwd->glBufferData(myVboAttribs->GetTarget(), aSize, myAttribs->Data(), GL_STATIC_DRAW);
-  //myVboAttribs->Unbind(theCtx);
-
   myVboAttribs->Bind(theCtx);
   const std::vector<Graphic3d_Range>& ranges = myAttribs->InvalidatedRanges();
   for (size_t i = 0, n = ranges.size(); i < n; i++)
