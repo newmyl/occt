@@ -213,8 +213,8 @@ void BVH_QueueBuilder<T, N>::addChildren (BVH_Tree<T, N>* theBVH,
 
     theBVH->Level (aChildIndex) = theBVH->Level (theNode) + 1;
 
-    (anIdx == 0 ? theBVH->template Child<0> (theNode)
-                : theBVH->template Child<1> (theNode)) = aChildIndex;
+    (anIdx == 0 ? theBVH->template ChangeChild<0> (theNode)
+                : theBVH->template ChangeChild<1> (theNode)) = aChildIndex;
 
     // Check to see if the child node must be split
     const Standard_Boolean isLeaf = theSubNodes.NbPrims (anIdx) <= BVH_Builder<T, N>::myLeafNodeSize

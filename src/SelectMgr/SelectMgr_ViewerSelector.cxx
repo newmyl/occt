@@ -60,6 +60,16 @@ namespace {
   };
 
   static const Graphic3d_Mat4d SelectMgr_ViewerSelector_THE_IDENTITY_MAT;
+
+  //! This structure describes the node in BVH
+  struct NodeInStack
+  {
+    NodeInStack (Standard_Integer theId = 0,
+                 Standard_Boolean theIsFullInside = false) : Id (theId), IsFullInside (theIsFullInside) {}
+
+    Standard_Integer Id;           //!< node identifier
+    Standard_Boolean IsFullInside; //!< if the node is completely inside the current selection volume
+  };
 }
 
 //=======================================================================
@@ -197,7 +207,8 @@ Standard_Integer SelectMgr_ViewerSelector::sensitivity (const Handle(SelectBasic
 //=======================================================================
 void SelectMgr_ViewerSelector::checkOverlap (const Handle(SelectBasics_SensitiveEntity)& theEntity,
                                              const gp_GTrsf& theInversedTrsf,
-                                             SelectMgr_SelectingVolumeManager& theMgr)
+                                             SelectMgr_SelectingVolumeManager& theMgr,
+                                             Standard_Boolean theIsFullInside)
 {
   Handle(SelectMgr_EntityOwner) anOwner (Handle(SelectMgr_EntityOwner)::DownCast (theEntity->OwnerId()));
   Handle(SelectMgr_SelectableObject) aSelectable;
@@ -341,6 +352,7 @@ void SelectMgr_ViewerSelector::computeFrustum (const Handle(SelectBasics_Sensiti
 //=======================================================================
 void SelectMgr_ViewerSelector::traverseObject (const Handle(SelectMgr_SelectableObject)& theObject,
                                                const SelectMgr_SelectingVolumeManager& theMgr,
+                                               Standard_Boolean theIsFullInside,
                                                const Handle(Graphic3d_Camera)& theCamera,
                                                const Graphic3d_Mat4d& theProjectionMat,
                                                const Graphic3d_Mat4d& theWorldViewMat,
@@ -386,39 +398,51 @@ void SelectMgr_ViewerSelector::traverseObject (const Handle(SelectMgr_Selectable
                                         : theMgr;
 
   SelectMgr_FrustumCache aScaledTrnsfFrustums;
-
-  Standard_Integer aNode = 0; // a root node
-  if (!aMgr.Overlaps (aSensitivesTree->MinPoint (0),
+  if (!theIsFullInside
+   && !aMgr.Overlaps (aSensitivesTree->MinPoint (0),
                       aSensitivesTree->MaxPoint (0)))
   {
     return;
   }
 
   const Standard_Integer aFirstStored = mystored.Extent() + 1;
-
-  Standard_Integer aStack[BVH_Constants_MaxTreeDepth];
+  NodeInStack aStack[BVH_Constants_MaxTreeDepth];
+  NodeInStack aNode (0, theIsFullInside); // a root node
   Standard_Integer aHead = -1;
+  const bool toCheckFullInside = (aMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point);
   for (;;)
   {
-    if (!aSensitivesTree->IsOuter (aNode))
+    const BVH_Vec4i& aNodeInfo = aSensitivesTree->NodeInfoBuffer()[aNode.Id];
+    if (!aSensitivesTree->IsOuter (aNodeInfo))
     {
-      const Standard_Integer aLeftChildIdx  = aSensitivesTree->Child<0> (aNode);
-      const Standard_Integer aRightChildIdx = aSensitivesTree->Child<1> (aNode);
-      const Standard_Boolean isLeftChildIn  =  aMgr.Overlaps (aSensitivesTree->MinPoint (aLeftChildIdx),
-                                                              aSensitivesTree->MaxPoint (aLeftChildIdx));
-      const Standard_Boolean isRightChildIn = aMgr.Overlaps (aSensitivesTree->MinPoint (aRightChildIdx),
-                                                             aSensitivesTree->MaxPoint (aRightChildIdx));
-      if (isLeftChildIn
-          && isRightChildIn)
+      NodeInStack aLeftChild (aSensitivesTree->Child<0> (aNodeInfo), toCheckFullInside), aRightChild (aSensitivesTree->Child<1> (aNodeInfo), toCheckFullInside);
+      Standard_Boolean isLeftChildIn = Standard_True, isRightChildIn = Standard_True;
+      if (!aNode.IsFullInside)
       {
-        aNode = aLeftChildIdx;
+        isLeftChildIn = aMgr.Overlaps (aSensitivesTree->MinPoint (aLeftChild.Id), aSensitivesTree->MaxPoint (aLeftChild.Id), toCheckFullInside ? &aLeftChild.IsFullInside : NULL);
+        if (!isLeftChildIn)
+        {
+          aLeftChild.IsFullInside = Standard_False;
+        }
+
+        isRightChildIn = aMgr.Overlaps (aSensitivesTree->MinPoint (aRightChild.Id), aSensitivesTree->MaxPoint (aRightChild.Id), toCheckFullInside ? &aRightChild.IsFullInside : NULL);
+        if (!isRightChildIn)
+        {
+          aRightChild.IsFullInside = Standard_False;
+        }
+      }
+
+      if (isLeftChildIn
+       && isRightChildIn)
+      {
+        aNode = aLeftChild;
         ++aHead;
-        aStack[aHead] = aRightChildIdx;
+        aStack[aHead] = aRightChild;
       }
       else if (isLeftChildIn
-        || isRightChildIn)
+            || isRightChildIn)
       {
-        aNode = isLeftChildIn ? aLeftChildIdx : aRightChildIdx;
+        aNode = isLeftChildIn ? aLeftChild : aRightChild;
       }
       else
       {
@@ -433,8 +457,8 @@ void SelectMgr_ViewerSelector::traverseObject (const Handle(SelectMgr_Selectable
     }
     else
     {
-      Standard_Integer aStartIdx = aSensitivesTree->BegPrimitive (aNode);
-      Standard_Integer anEndIdx = aSensitivesTree->EndPrimitive (aNode);
+      const Standard_Integer aStartIdx = aSensitivesTree->BegPrimitive (aNodeInfo);
+      const Standard_Integer anEndIdx  = aSensitivesTree->EndPrimitive (aNodeInfo);
       for (Standard_Integer anIdx = aStartIdx; anIdx <= anEndIdx; ++anIdx)
       {
         const Handle(SelectMgr_SensitiveEntity)& aSensitive = anEntitySet->GetSensitiveById (anIdx);
@@ -443,7 +467,7 @@ void SelectMgr_ViewerSelector::traverseObject (const Handle(SelectMgr_Selectable
           const Handle(SelectBasics_SensitiveEntity)& anEnt = aSensitive->BaseSensitive();
           SelectMgr_SelectingVolumeManager aTmpMgr = aMgr;
           computeFrustum (anEnt, theMgr, aInversedTrsf, aScaledTrnsfFrustums, aTmpMgr);
-          checkOverlap (anEnt, aInversedTrsf, aTmpMgr);
+          checkOverlap (anEnt, aInversedTrsf, aTmpMgr, aNode.IsFullInside);
         }
       }
       if (aHead < 0)
@@ -517,9 +541,7 @@ void SelectMgr_ViewerSelector::TraverseSensitives()
 
   for (Standard_Integer aBVHSetIt = 0; aBVHSetIt < SelectMgr_SelectableObjectSet::BVHSubsetNb; ++aBVHSetIt)
   {
-    SelectMgr_SelectableObjectSet::BVHSubset aBVHSubset =
-      static_cast<SelectMgr_SelectableObjectSet::BVHSubset> (aBVHSetIt);
-
+    SelectMgr_SelectableObjectSet::BVHSubset aBVHSubset = static_cast<SelectMgr_SelectableObjectSet::BVHSubset> (aBVHSetIt);
     if (mySelectableObjects.IsEmpty (aBVHSubset))
     {
       continue;
@@ -529,9 +551,8 @@ void SelectMgr_ViewerSelector::TraverseSensitives()
 
     SelectMgr_SelectingVolumeManager aMgr (Standard_False);
 
-    // for 2D space selection transform selecting volumes to perform overap testing
-    // directly in camera's eye space omitting the camera position, which is not
-    // needed there at all
+    // for 2D space selection transform selecting volumes to perform overlap testing
+    // directly in camera's eye space omitting the camera position, which is not needed there at all
     if (aBVHSubset == SelectMgr_SelectableObjectSet::BVHSubset_2dPersistent)
     {
       const Graphic3d_Mat4d& aMat = mySelectingVolumeMgr.WorldViewMatrix();
@@ -564,36 +585,48 @@ void SelectMgr_ViewerSelector::TraverseSensitives()
                                             : SelectMgr_ViewerSelector_THE_IDENTITY_MAT;
 
     const opencascade::handle<BVH_Tree<Standard_Real, 3> >& aBVHTree = mySelectableObjects.BVH (aBVHSubset);
-
-    Standard_Integer aNode = 0;
     if (!aMgr.Overlaps (aBVHTree->MinPoint (0), aBVHTree->MaxPoint (0)))
     {
       continue;
     }
 
-    Standard_Integer aStack[BVH_Constants_MaxTreeDepth];
+    NodeInStack aStack[BVH_Constants_MaxTreeDepth];
+    NodeInStack aNode;
     Standard_Integer aHead = -1;
+    const bool toCheckFullInside = (aMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point);
     for (;;)
     {
-      if (!aBVHTree->IsOuter (aNode))
+      const BVH_Vec4i& aNodeInfo = aBVHTree->NodeInfoBuffer()[aNode.Id];
+      if (!aBVHTree->IsOuter (aNodeInfo))
       {
-        const Standard_Integer aLeftChildIdx  = aBVHTree->Child<0> (aNode);
-        const Standard_Integer aRightChildIdx = aBVHTree->Child<1> (aNode);
-        const Standard_Boolean isLeftChildIn  =
-          aMgr.Overlaps (aBVHTree->MinPoint (aLeftChildIdx), aBVHTree->MaxPoint (aLeftChildIdx));
-        const Standard_Boolean isRightChildIn =
-          aMgr.Overlaps (aBVHTree->MinPoint (aRightChildIdx), aBVHTree->MaxPoint (aRightChildIdx));
-        if (isLeftChildIn
-          && isRightChildIn)
+        NodeInStack aLeftChild (aBVHTree->Child<0> (aNodeInfo), toCheckFullInside), aRightChild (aBVHTree->Child<1> (aNodeInfo), toCheckFullInside);
+        Standard_Boolean isLeftChildIn = Standard_True, isRightChildIn = Standard_True;
+        if (!aNode.IsFullInside)
         {
-          aNode = aLeftChildIdx;
+          isLeftChildIn = aMgr.Overlaps (aBVHTree->MinPoint (aLeftChild.Id), aBVHTree->MaxPoint (aLeftChild.Id), toCheckFullInside ? &aLeftChild.IsFullInside : NULL);
+          if (!isLeftChildIn)
+          {
+            aLeftChild.IsFullInside = Standard_False;
+          }
+
+          isRightChildIn = aMgr.Overlaps (aBVHTree->MinPoint (aRightChild.Id), aBVHTree->MaxPoint (aRightChild.Id), toCheckFullInside ? &aRightChild.IsFullInside : NULL);
+          if (!isRightChildIn)
+          {
+            aRightChild.IsFullInside = Standard_False;
+          }
+        }
+
+        if (isLeftChildIn
+         && isRightChildIn)
+        {
+          aNode = aLeftChild;
           ++aHead;
-          aStack[aHead] = aRightChildIdx;
+          aStack[aHead] = aRightChild;
         }
         else if (isLeftChildIn
-          || isRightChildIn)
+              || isRightChildIn)
         {
-          aNode = isLeftChildIn ? aLeftChildIdx : aRightChildIdx;
+          aNode = isLeftChildIn ? aLeftChild : aRightChild;
         }
         else
         {
@@ -608,14 +641,12 @@ void SelectMgr_ViewerSelector::TraverseSensitives()
       }
       else
       {
-        Standard_Integer aStartIdx = aBVHTree->BegPrimitive (aNode);
-        Standard_Integer anEndIdx  = aBVHTree->EndPrimitive (aNode);
+        const Standard_Integer aStartIdx = aBVHTree->BegPrimitive (aNodeInfo);
+        const Standard_Integer anEndIdx  = aBVHTree->EndPrimitive (aNodeInfo);
         for (Standard_Integer anIdx = aStartIdx; anIdx <= anEndIdx; ++anIdx)
         {
-          const Handle(SelectMgr_SelectableObject)& aSelectableObject =
-            mySelectableObjects.GetObjectById (aBVHSubset, anIdx);
-
-          traverseObject (aSelectableObject, aMgr, aCamera, aProjectionMat, aWorldViewMat, aWidth, aHeight);
+          const Handle(SelectMgr_SelectableObject)& aSelectableObject = mySelectableObjects.GetObjectById (aBVHSubset, anIdx);
+          traverseObject (aSelectableObject, aMgr, aNode.IsFullInside, aCamera, aProjectionMat, aWorldViewMat, aWidth, aHeight);
         }
         if (aHead < 0)
         {

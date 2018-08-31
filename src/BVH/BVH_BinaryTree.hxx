@@ -41,19 +41,20 @@ public: //! @name methods for accessing individual nodes
   void SetInner (const int theNodeIndex) { BVH::Array<int, 4>::ChangeValue (this->myNodeInfoBuffer, theNodeIndex).x() = 0; }
 
   //! Returns index of the K-th child of the given inner node.
-  //! \tparam K the index of node child (0 or 1)
-  template<int K>
-  int Child (const int theNodeIndex) const { return BVH::Array<int, 4>::Value (this->myNodeInfoBuffer, theNodeIndex)[K + 1]; }
+  //! @param K the index of node child (0 or 1)
+  template<int K> static int Child (const BVH_Vec4i& theNodeInfo) { return theNodeInfo[K + 1]; }
 
   //! Returns index of the K-th child of the given inner node.
-  //! \tparam K the index of node child (0 or 1)
-  template<int K>
-  int& ChangeChild (const int theNodeIndex) { return BVH::Array<int, 4>::ChangeValue (this->myNodeInfoBuffer, theNodeIndex)[K + 1]; }
+  //! @param K the index of node child (0 or 1)
+  template<int K> static int& ChangeChild (BVH_Vec4i& theNodeInfo) { return theNodeInfo[K + 1]; }
 
   //! Returns index of the K-th child of the given inner node.
-  //! \tparam K the index of node child (0 or 1)
-  template<int K>
-  int& Child (const int theNodeIndex) { return BVH::Array<int, 4>::ChangeValue (this->myNodeInfoBuffer, theNodeIndex)[K + 1]; }
+  //! @param K the index of node child (0 or 1)
+  template<int K> int Child (const int theNodeIndex) const { return Child<K> (BVH::Array<int, 4>::Value (this->myNodeInfoBuffer, theNodeIndex)); }
+
+  //! Returns index of the K-th child of the given inner node.
+  //! @param K the index of node child (0 or 1)
+  template<int K> int& ChangeChild (const int theNodeIndex) { return ChangeChild<K> (BVH::Array<int, 4>::ChangeValue (this->myNodeInfoBuffer, theNodeIndex)); }
 
 public: //! @name methods for adding/removing tree nodes
 

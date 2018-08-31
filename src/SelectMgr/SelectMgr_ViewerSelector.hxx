@@ -265,22 +265,27 @@ protected:
   //! current selecting volume.
   //! @param theObject [in] the selectable object for traversal.
   //! @param theMgr [in] the (un)transformed copy of the selecting volume manager representing active selection frustum.
+  //! @param theIsFullInside [IN] when TRUE indicates that entire BVH node is already inside selection volume (in case of area selection);
+  //!                             in this case algorithm might skip checking the element and just register it as detected
   //! @param theCamera, theProjectionMat, theWorldViewMat [in] the source camera and matrices for theMgr given.
   //! @param theViewportWidth, theViewportHeight [in] viewport (window) dimensions for evaluating 
   //!        object's transformation persistence.
   Standard_EXPORT void traverseObject (const Handle(SelectMgr_SelectableObject)& theObject,
                                        const SelectMgr_SelectingVolumeManager& theMgr,
+                                       Standard_Boolean theIsFullInside,
                                        const Handle(Graphic3d_Camera)& theCamera,
                                        const Graphic3d_Mat4d& theProjectionMat,
                                        const Graphic3d_Mat4d& theWorldViewMat,
                                        const Standard_Integer theViewportWidth,
                                        const Standard_Integer theViewportHeight);
 
-  //! Internal function that checks if a particular sensitive
-  //! entity theEntity overlaps current selecting volume precisely
+  //! Internal function that checks if a particular sensitive entity theEntity overlaps current selecting volume precisely.
+  //! @param theIsFullInside [IN] when TRUE indicates that entire BVH node is already inside selection volume (in case of area selection);
+  //!                             in this case algorithm might skip checking the element and just register it as detected
   Standard_EXPORT void checkOverlap (const Handle(SelectBasics_SensitiveEntity)& theEntity,
                                      const gp_GTrsf& theInversedTrsf,
-                                     SelectMgr_SelectingVolumeManager& theMgr);
+                                     SelectMgr_SelectingVolumeManager& theMgr,
+                                     Standard_Boolean theIsFullInside);
 
 private:
 

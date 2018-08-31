@@ -66,6 +66,33 @@ public: //! @name general methods
     return BVH::Array<int, 4>::Size (myNodeInfoBuffer);
   }
 
+//! @name methods for accessing BVH_Vec4i properties within NodeInfoBuffer()
+public:
+
+  //! Returns index of first primitive of the given leaf node.
+  static int& BegPrimitive (BVH_Vec4i& theNodeInfo) { return theNodeInfo.y(); }
+
+  //! Returns index of first primitive of the given leaf node.
+  static int BegPrimitive (const BVH_Vec4i& theNodeInfo) { return theNodeInfo.y(); }
+
+  //! Returns index of last primitive of the given leaf node.
+  static int& EndPrimitive (BVH_Vec4i& theNodeInfo) { return theNodeInfo.z(); }
+
+  //! Returns index of last primitive of the given leaf node.
+  static int EndPrimitive (const BVH_Vec4i& theNodeInfo) { return theNodeInfo.z(); }
+
+  //! Returns number of primitives in the given leaf node.
+  static int NbPrimitives (const BVH_Vec4i& theNodeInfo) { return EndPrimitive (theNodeInfo) - BegPrimitive (theNodeInfo) + 1; }
+
+  //! Returns level (depth) of the given node.
+  static int& Level (BVH_Vec4i& theNodeInfo) { return theNodeInfo.w(); }
+
+  //! Returns level (depth) of the given node.
+  static int Level (const BVH_Vec4i& theNodeInfo) { return theNodeInfo.w(); }
+
+  //! Checks whether the given node is outer.
+  static bool IsOuter (const BVH_Vec4i& theNodeInfo) { return theNodeInfo.x() != 0; }
+
 public: //! @name methods for accessing individual nodes
 
   //! Returns minimum point of the given node.
@@ -93,52 +120,28 @@ public: //! @name methods for accessing individual nodes
   }
 
   //! Returns index of first primitive of the given leaf node.
-  int& BegPrimitive (const int theNodeIndex)
-  {
-    return BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex).y();
-  }
+  int& BegPrimitive (int theNodeIndex) { return BegPrimitive (BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex)); }
 
   //! Returns index of last primitive of the given leaf node.
-  int& EndPrimitive (const int theNodeIndex)
-  {
-    return BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex).z();
-  }
+  int& EndPrimitive (int theNodeIndex) { return EndPrimitive (BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex)); }
 
   //! Returns index of first primitive of the given leaf node.
-  int BegPrimitive (const int theNodeIndex) const
-  {
-    return BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex).y();
-  }
+  int BegPrimitive (int theNodeIndex) const { return BegPrimitive (BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex)); }
 
   //! Returns index of last primitive of the given leaf node.
-  int EndPrimitive (const int theNodeIndex) const
-  {
-    return BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex).z();
-  }
+  int EndPrimitive (int theNodeIndex) const { return EndPrimitive (BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex)); }
 
   //! Returns number of primitives in the given leaf node.
-  int NbPrimitives (const int theNodeIndex) const
-  {
-    return EndPrimitive (theNodeIndex) - BegPrimitive (theNodeIndex) + 1;
-  }
+  int NbPrimitives (int theNodeIndex) const { return EndPrimitive (theNodeIndex) - BegPrimitive (theNodeIndex) + 1; }
 
   //! Returns level (depth) of the given node.
-  int& Level (const int theNodeIndex)
-  {
-    return BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex).w();
-  }
+  int& Level (int theNodeIndex) { return BVH::Array<int, 4>::ChangeValue (myNodeInfoBuffer, theNodeIndex).w(); }
 
   //! Returns level (depth) of the given node.
-  int Level (const int theNodeIndex) const
-  {
-    return BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex).w();
-  }
+  int Level (int theNodeIndex) const { return BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex).w(); }
 
   //! Checks whether the given node is outer.
-  bool IsOuter (const int theNodeIndex) const
-  {
-    return BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex).x() != 0;
-  }
+  bool IsOuter (int theNodeIndex) const { return IsOuter (BVH::Array<int, 4>::Value (myNodeInfoBuffer, theNodeIndex)); }
 
 public: //! @name methods for accessing serialized tree data
 

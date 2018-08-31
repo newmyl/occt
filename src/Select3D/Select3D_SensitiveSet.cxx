@@ -104,11 +104,10 @@ Standard_Boolean Select3D_SensitiveSet::matches (SelectBasics_SelectingVolumeMan
   const bool toCheckFullInside = (theMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point);
   for (;;)
   {
-    const BVH_Vec4i& aData = aBVH->NodeInfoBuffer()[aNode.Id];
-
-    if (aData.x() == 0) // is inner node
+    const BVH_Vec4i& aNodeInfo = aBVH->NodeInfoBuffer()[aNode.Id];
+    if (!aBVH->IsOuter (aNodeInfo))
     {
-      NodeInStack aLeft (aData.y(), toCheckFullInside), aRight(aData.z(), toCheckFullInside);
+      NodeInStack aLeft (aBVH->Child<0> (aNodeInfo), toCheckFullInside), aRight (aBVH->Child<1> (aNodeInfo), toCheckFullInside);
       Standard_Boolean toCheckLft = Standard_True, toCheckRgh = Standard_True;
       if (!aNode.IsFullInside)
       {
@@ -158,7 +157,9 @@ Standard_Boolean Select3D_SensitiveSet::matches (SelectBasics_SelectingVolumeMan
     }
     else
     {
-      for (Standard_Integer anElemIdx = aData.y(); anElemIdx <= aData.z(); ++anElemIdx)
+      const Standard_Integer aStartIdx = aBVH->BegPrimitive (aNodeInfo);
+      const Standard_Integer anEndIdx  = aBVH->EndPrimitive (aNodeInfo);
+      for (Standard_Integer anElemIdx = aStartIdx; anElemIdx <= anEndIdx; ++anElemIdx)
       {
         if (!theMgr.IsOverlapAllowed()) // inclusion test
         {
