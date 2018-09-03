@@ -2827,7 +2827,11 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
 					const Standard_Real   vf2,
 					const Standard_Boolean GlobalEnlargeU,
 					const Standard_Boolean GlobalEnlargeVfirst,
-					const Standard_Boolean GlobalEnlargeVlast)
+					const Standard_Boolean GlobalEnlargeVlast,
+                                        const Standard_Real    len_before_ufirst,
+                                        const Standard_Real    len_after_ulast,
+                                        const Standard_Real    len_before_vfirst,
+                                        const Standard_Real    len_after_vlast)
 {
   const Standard_Real coeff = 1.;
   const Standard_Real TolApex = 1.e-5;
@@ -2836,7 +2840,8 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
   if ( S->DynamicType() == STANDARD_TYPE(Geom_RectangularTrimmedSurface)) {
     Handle(Geom_Surface) BS = Handle(Geom_RectangularTrimmedSurface)::DownCast (S)->BasisSurface();
     EnlargeGeometry(BS,U1,U2,V1,V2,IsV1degen,IsV2degen,
-		    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast);
+		    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast,
+                    len_before_ufirst,len_after_ulast,len_before_vfirst,len_after_vlast);
     if (!GlobalEnlargeVfirst)
       V1 = vf1;
     if (!GlobalEnlargeVlast)
@@ -2851,155 +2856,166 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
   else if (S->DynamicType() == STANDARD_TYPE(Geom_OffsetSurface)) {
     Handle(Geom_Surface) Surf = Handle(Geom_OffsetSurface)::DownCast (S)->BasisSurface();
     SurfaceChange = EnlargeGeometry(Surf,U1,U2,V1,V2,IsV1degen,IsV2degen,
-				    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast);
+				    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast,
+                                    len_before_ufirst,len_after_ulast,len_before_vfirst,len_after_vlast);
     Handle(Geom_OffsetSurface)::DownCast(S)->SetBasisSurface(Surf);
   }
   else if (S->DynamicType() == STANDARD_TYPE(Geom_SurfaceOfLinearExtrusion) ||
 	   S->DynamicType() == STANDARD_TYPE(Geom_SurfaceOfRevolution))
+  {
+    Standard_Real du_first = 0., du_last = 0.,
+      dv_first = 0., dv_last = 0.;
+    Handle( Geom_Curve ) uiso, viso, uiso1, uiso2, viso1, viso2;
+    Standard_Real u1, u2, v1, v2;
+    Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
+    Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
+    Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
+    S->Bounds( u1, u2, v1, v2 );
+    if (Precision::IsInfinite(u1) || Precision::IsInfinite(u2))
     {
-      Standard_Real du=0., dv=0.;
-      Handle( Geom_Curve ) uiso, viso, uiso1, uiso2, viso1, viso2;
-      Standard_Real u1, u2, v1, v2;
-      Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
-      Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
-      Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
-      S->Bounds( u1, u2, v1, v2 );
-      if (Precision::IsInfinite(u1) || Precision::IsInfinite(u2))
-	{
-	  du = uf2-uf1;
-	  u1 = uf1-du;
-	  u2 = uf2+du;
-	  enlargeU = Standard_False;
-	}
-      else if (S->IsUClosed())
-	enlargeU = Standard_False;
-      else
-	{
-	  viso = S->VIso( vf1 );
-	  GeomAdaptor_Curve gac( viso );
-	  du = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-	  uiso1 = S->UIso( uf1 );
-	  uiso2 = S->UIso( uf2 );
-	  if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
-	    enlargeUfirst = Standard_False;
-	  if (BRepOffset_Tool::Gabarit( uiso2 ) <= TolApex)
-	    enlargeUlast = Standard_False;
-	}
-      if (Precision::IsInfinite(v1) || Precision::IsInfinite(v2))
-	{
-	  dv = vf2-vf1;
-	  v1 = vf1-dv;
-	  v2 = vf2+dv;
-	  enlargeV = Standard_False;
-	}
-      else if (S->IsVClosed())
-	enlargeV = Standard_False;
-      else
-	{
-	  uiso = S->UIso( uf1 );
-	  GeomAdaptor_Curve gac( uiso );
-	  dv = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-	  viso1 = S->VIso( vf1 );
-	  viso2 = S->VIso( vf2 );
-	  if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
-	    {
-	      enlargeVfirst = Standard_False;
-	      IsV1degen = Standard_True;
-	    }
-	  if (BRepOffset_Tool::Gabarit( viso2 ) <= TolApex)
-	    {
-	      enlargeVlast = Standard_False;
-	      IsV2degen = Standard_True;
-	    }
-	}
-      Handle(Geom_BoundedSurface) aSurf = new Geom_RectangularTrimmedSurface( S, u1, u2, v1, v2 );
-      if (enlargeU)
-	{
-	  if (enlargeUfirst)
-	    GeomLib::ExtendSurfByLength (aSurf, du, 1, Standard_True, Standard_False);
-	  if (enlargeUlast)
-	    GeomLib::ExtendSurfByLength (aSurf, du, 1, Standard_True, Standard_True);
-	}
-      if (enlargeV)
-	{
-	  if (enlargeVfirst)
-	    GeomLib::ExtendSurfByLength (aSurf, dv, 1, Standard_False, Standard_False);
-	  if (enlargeVlast)
-	    GeomLib::ExtendSurfByLength (aSurf, dv, 1, Standard_False, Standard_True);
-	}
-      S = aSurf;
-      S->Bounds( U1, U2, V1, V2 );
-      SurfaceChange = Standard_True;
+      du_first = du_last = uf2-uf1;
+      u1 = uf1 - du_first;
+      u2 = uf2 + du_last;
+      enlargeU = Standard_False;
     }
+    else if (S->IsUClosed())
+      enlargeU = Standard_False;
+    else
+    {
+      viso = S->VIso( vf1 );
+      GeomAdaptor_Curve gac( viso );
+      Standard_Real du_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
+      du_first = (len_before_ufirst == -1)? du_default : len_before_ufirst;
+      du_last  = (len_after_ulast == -1)? du_default : len_after_ulast;
+      uiso1 = S->UIso( uf1 );
+      uiso2 = S->UIso( uf2 );
+      if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
+        enlargeUfirst = Standard_False;
+      if (BRepOffset_Tool::Gabarit( uiso2 ) <= TolApex)
+        enlargeUlast = Standard_False;
+    }
+    if (Precision::IsInfinite(v1) || Precision::IsInfinite(v2))
+    {
+      dv_first = dv_last = vf2-vf1;
+      v1 = vf1 - dv_first;
+      v2 = vf2 + dv_last;
+      enlargeV = Standard_False;
+    }
+    else if (S->IsVClosed())
+      enlargeV = Standard_False;
+    else
+    {
+      uiso = S->UIso( uf1 );
+      GeomAdaptor_Curve gac( uiso );
+      Standard_Real dv_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
+      dv_first = (len_before_vfirst == -1)? dv_default : len_before_vfirst;
+      dv_last  = (len_after_vlast == -1)? dv_default : len_after_vlast;
+      viso1 = S->VIso( vf1 );
+      viso2 = S->VIso( vf2 );
+      if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
+      {
+        enlargeVfirst = Standard_False;
+        IsV1degen = Standard_True;
+      }
+      if (BRepOffset_Tool::Gabarit( viso2 ) <= TolApex)
+      {
+        enlargeVlast = Standard_False;
+        IsV2degen = Standard_True;
+      }
+    }
+    Handle(Geom_BoundedSurface) aSurf = new Geom_RectangularTrimmedSurface( S, u1, u2, v1, v2 );
+    if (enlargeU)
+    {
+      if (enlargeUfirst && du_first != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, du_first, 1, Standard_True, Standard_False);
+      if (enlargeUlast && du_last != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, du_last, 1, Standard_True, Standard_True);
+    }
+    if (enlargeV)
+    {
+      if (enlargeVfirst && dv_first != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, dv_first, 1, Standard_False, Standard_False);
+      if (enlargeVlast && dv_last != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, dv_last, 1, Standard_False, Standard_True);
+    }
+    S = aSurf;
+    S->Bounds( U1, U2, V1, V2 );
+    SurfaceChange = Standard_True;
+  }
   else if (S->DynamicType() == STANDARD_TYPE(Geom_BezierSurface) ||
 	   S->DynamicType() == STANDARD_TYPE(Geom_BSplineSurface))
+  {
+    Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
+    Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
+    Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
+    if (S->IsUClosed())
+      enlargeU = Standard_False;
+    if (S->IsVClosed())
+      enlargeV = Standard_False;
+    
+    Standard_Real duf = uf2-uf1, dvf = vf2-vf1;
+    Standard_Real u1, u2, v1, v2;
+    S->Bounds( u1, u2, v1, v2 );
+    
+    Standard_Real du_first = 0., du_last = 0.,
+      dv_first = 0., dv_last = 0.;
+    Handle( Geom_Curve ) uiso, viso, uiso1, uiso2, viso1, viso2;
+    GeomAdaptor_Curve gac;
+    if (enlargeU)
     {
-      Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
-      Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
-      Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
-      if (S->IsUClosed())
-	enlargeU = Standard_False;
-      if (S->IsVClosed())
-	enlargeV = Standard_False;
-
-      Standard_Real duf = uf2-uf1, dvf = vf2-vf1;
-      Standard_Real u1, u2, v1, v2;
-      S->Bounds( u1, u2, v1, v2 );
-
-      Standard_Real du=0., dv=0.;
-      Handle( Geom_Curve ) uiso, viso, uiso1, uiso2, viso1, viso2;
-      GeomAdaptor_Curve gac;
-      if (enlargeU)
-	{
-	  viso = S->VIso( v1 );
-	  gac.Load( viso );
-	  du = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-	  uiso1 = S->UIso( u1 );
-	  uiso2 = S->UIso( u2 );
-	  if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
-	    enlargeUfirst = Standard_False;
-	  if (BRepOffset_Tool::Gabarit( uiso2 ) <= TolApex)
-	    enlargeUlast = Standard_False;
-	}
-      if (enlargeV)
-	{
-	  uiso = S->UIso( u1 );
-	  gac.Load( uiso );
-	  dv = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-	  viso1 = S->VIso( v1 );
-	  viso2 = S->VIso( v2 );
-	  if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
-	    {
-	      enlargeVfirst = Standard_False;
-	      IsV1degen = Standard_True;
-	    }
-	  if (BRepOffset_Tool::Gabarit( viso2 ) <= TolApex)
-	    {
-	      enlargeVlast = Standard_False;
-	      IsV2degen = Standard_True;
-	    }
-	}
-
-      Handle(Geom_BoundedSurface) aSurf = Handle(Geom_BoundedSurface)::DownCast (S);
-      if (enlargeU)
-	{
-	  if (enlargeUfirst && uf1-u1 < duf)
-	    GeomLib::ExtendSurfByLength (aSurf, du, 1, Standard_True, Standard_False);
-	  if (enlargeUlast && u2-uf2 < duf)
-	    GeomLib::ExtendSurfByLength (aSurf, du, 1, Standard_True, Standard_True);
-	}
-      if (enlargeV)
-	{
-	  if (enlargeVfirst && vf1-v1 < dvf)
-	    GeomLib::ExtendSurfByLength (aSurf, dv, 1, Standard_False, Standard_False);
-	  if (enlargeVlast && v2-vf2 < dvf)
-	    GeomLib::ExtendSurfByLength (aSurf, dv, 1, Standard_False, Standard_True);
-	}
-      S = aSurf;
-
-      S->Bounds( U1, U2, V1, V2 );
-      SurfaceChange = Standard_True;
+      viso = S->VIso( v1 );
+      gac.Load( viso );
+      Standard_Real du_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
+      du_first = (len_before_ufirst == -1)? du_default : len_before_ufirst;
+      du_last  = (len_after_ulast == -1)? du_default : len_after_ulast;
+      uiso1 = S->UIso( u1 );
+      uiso2 = S->UIso( u2 );
+      if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
+        enlargeUfirst = Standard_False;
+      if (BRepOffset_Tool::Gabarit( uiso2 ) <= TolApex)
+        enlargeUlast = Standard_False;
     }
+    if (enlargeV)
+    {
+      uiso = S->UIso( u1 );
+      gac.Load( uiso );
+      Standard_Real dv_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
+      dv_first = (len_before_vfirst == -1)? dv_default : len_before_vfirst;
+      dv_last  = (len_after_vlast == -1)? dv_default : len_after_vlast;
+      viso1 = S->VIso( v1 );
+      viso2 = S->VIso( v2 );
+      if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
+      {
+        enlargeVfirst = Standard_False;
+        IsV1degen = Standard_True;
+      }
+      if (BRepOffset_Tool::Gabarit( viso2 ) <= TolApex)
+      {
+        enlargeVlast = Standard_False;
+        IsV2degen = Standard_True;
+      }
+    }
+    
+    Handle(Geom_BoundedSurface) aSurf = Handle(Geom_BoundedSurface)::DownCast (S);
+    if (enlargeU)
+    {
+      if (enlargeUfirst && uf1-u1 < duf && du_first != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, du_first, 1, Standard_True, Standard_False);
+      if (enlargeUlast && u2-uf2 < duf && du_last != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, du_last, 1, Standard_True, Standard_True);
+    }
+    if (enlargeV)
+    {
+      if (enlargeVfirst && vf1-v1 < dvf && dv_first != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, dv_first, 1, Standard_False, Standard_False);
+      if (enlargeVlast && v2-vf2 < dvf && dv_last != 0.)
+        GeomLib::ExtendSurfByLength (aSurf, dv_last, 1, Standard_False, Standard_True);
+    }
+    S = aSurf;
+    
+    S->Bounds( U1, U2, V1, V2 );
+    SurfaceChange = Standard_True;
+  }
 //  else if (S->DynamicType() == STANDARD_TYPE(Geom_BezierSurface) ||
 //	   S->DynamicType() == STANDARD_TYPE(Geom_BSplineSurface)) {
 //    S->Bounds(U1,U2,V1,V2);
@@ -3247,7 +3263,11 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
  const Standard_Boolean   enlargeU,
  const Standard_Boolean   enlargeVfirst,
  const Standard_Boolean   enlargeVlast,
- const Standard_Boolean   UseInfini)
+ const Standard_Boolean   UseInfini,
+ const Standard_Real      len_before_ufirst,
+ const Standard_Real      len_after_ulast,
+ const Standard_Real      len_before_vfirst,
+ const Standard_Real      len_after_vlast)
 {
   //Detect closedness in U and V
   Standard_Boolean uclosed = Standard_False, vclosed = Standard_False;
@@ -3299,8 +3319,9 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
   }
   
   if (CanExtentSurface) {
-    SurfaceChange = EnlargeGeometry( S, UU1, UU2, VV1, VV2, isVV1degen, isVV2degen, UF1, UF2, VF1, VF2,
-				     enlargeU, enlargeVfirst, enlargeVlast );
+    SurfaceChange = EnlargeGeometry(S, UU1, UU2, VV1, VV2, isVV1degen, isVV2degen, UF1, UF2, VF1, VF2,
+                                    enlargeU, enlargeVfirst, enlargeVlast,
+                                    len_before_ufirst, len_after_ulast, len_before_vfirst, len_after_vlast);
   }
   else {
     UU1 = Max(US1,UU1); UU2 = Min(UU2,US2); 

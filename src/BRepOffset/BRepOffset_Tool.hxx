@@ -115,7 +115,11 @@ public:
                                                        const Standard_Boolean enlargeU = Standard_True,
                                                        const Standard_Boolean enlargeVfirst = Standard_True,
                                                        const Standard_Boolean enlargeVlast = Standard_True,
-                                                       const Standard_Boolean UseInfini = Standard_True);
+                                                       const Standard_Boolean UseInfini = Standard_True,
+                                                       const Standard_Real      len_before_ufirst = -1.,
+                                                       const Standard_Real      len_after_ulast   = -1.,
+                                                       const Standard_Real      len_before_vfirst = -1.,
+                                                       const Standard_Real      len_after_vlast   = -1.);
 
   Standard_EXPORT static void ExtentFace (const TopoDS_Face& F, TopTools_DataMapOfShapeShape& ConstShapes, TopTools_DataMapOfShapeShape& ToBuild, const TopAbs_State Side, const Standard_Real TolConf, TopoDS_Face& NF);
   
