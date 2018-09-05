@@ -20,6 +20,7 @@
 #include <TDataStd_Integer.hxx>
 #include <TDataStd_Real.hxx>
 #include <TDataStd_RealArray.hxx>
+#include <TDataStd_ByteArray.hxx>
 #include <TDataXtd_Axis.hxx>
 #include <TDataXtd_Geometry.hxx>
 #include <TDataXtd_Plane.hxx>
@@ -45,7 +46,10 @@ enum ChildLab
   ChildLab_BackPlaneDistance,
   ChildLab_ViewVolumeSidesClipping,
   ChildLab_ClippingExpression,
-  ChildLab_GDTPoints
+  ChildLab_GDTPoints,
+  ChildLab_Image,
+  ChildLab_EnabledShapes,
+  ChildLab_NotePoints
 };
 
 //=======================================================================
@@ -147,6 +151,32 @@ void XCAFDoc_View::SetObject (const Handle(XCAFView_Object)& theObject)
     TDF_Label aPointsLabel = Label().FindChild(ChildLab_GDTPoints);
     for (Standard_Integer i = 1; i <= theObject->NbGDTPoints(); i++) {
       TDataXtd_Point::Set(aPointsLabel.FindChild(i), theObject->GDTPoint(i));
+    }
+  }
+  //Image
+  if (theObject->HasImage())
+  {
+    Handle(TColStd_HArray1OfByte) image = theObject->Image();
+    Handle(TDataStd_ByteArray) arr = TDataStd_ByteArray::Set(Label().FindChild(ChildLab_Image), image->Lower(), image->Upper());
+    for (Standard_Integer i = image->Lower(); i <= image->Upper(); i++) {
+      arr->SetValue(i, image->Value(i));
+    }
+  }
+  //shapes transparency
+  if (theObject->HasEnabledShapes())
+  {
+    TDF_Label aShapeTranspLabel = Label().FindChild(ChildLab_EnabledShapes);
+    for (Standard_Integer i = 1; i <= theObject->NbEnabledShapes(); i++) {
+      Standard_Integer aValue = theObject->EnabledShape(i) ? 1 : 0;
+      TDataStd_Integer::Set(aShapeTranspLabel.FindChild(i), aValue);
+    }
+  }
+  //note points
+  if (theObject->HasNotePoints())
+  {
+    TDF_Label aPointsLabel = Label().FindChild(ChildLab_NotePoints);
+    for (Standard_Integer i = 1; i <= theObject->NbNotePoints(); i++) {
+      TDataXtd_Point::Set(aPointsLabel.FindChild(i), theObject->NotePoint(i));
     }
   }
 }
@@ -259,7 +289,37 @@ Handle(XCAFView_Object) XCAFDoc_View::GetObject()  const
       anObj->SetGDTPoint(i, aPoint);
     }
   }
+  //Image
+  Handle(TDataStd_ByteArray) anArr;
+  if (Label().FindChild(ChildLab_Image).FindAttribute(TDataStd_ByteArray::GetID(), anArr)) {
+    anObj->SetImage(anArr->InternalArray());
+  }
 
+  // Shapes transparency
+  if (!Label().FindChild(ChildLab_EnabledShapes, Standard_False).IsNull()) {
+    TDF_Label aShapesTranspLabel = Label().FindChild(ChildLab_EnabledShapes);
+    anObj->CreateEnabledShapes(aShapesTranspLabel.NbChildren());
+    for (Standard_Integer i = 1; i <= aShapesTranspLabel.NbChildren(); i++) {
+      gp_Pnt aPoint;
+      Handle(TDataStd_Integer) aTranspAttr;
+      aShapesTranspLabel.FindChild(i).FindAttribute(TDataStd_Integer::GetID(), aTranspAttr);
+      Standard_Boolean aValue = (aTranspAttr->Get() == 1);
+      anObj->SetEnabledShape(i, aValue);
+    }
+  }
+
+  // Note Points
+  if (!Label().FindChild(ChildLab_NotePoints, Standard_False).IsNull()) {
+    TDF_Label aPointsLabel = Label().FindChild(ChildLab_NotePoints);
+    anObj->CreateNotePoints(aPointsLabel.NbChildren());
+    for (Standard_Integer i = 1; i <= aPointsLabel.NbChildren(); i++) {
+      gp_Pnt aPoint;
+      Handle(TDataXtd_Point) aPointAttr;
+      aPointsLabel.FindChild(i).FindAttribute(TDataXtd_Point::GetID(), aPointAttr);
+      TDataXtd_Geometry::Point(aPointAttr->Label(), aPoint);
+      anObj->SetNotePoint(i, aPoint);
+    }
+  }
   return anObj;
 }
 
