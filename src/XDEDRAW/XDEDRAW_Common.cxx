@@ -39,6 +39,7 @@
 #include <XSDRAW_Vars.hxx>
 #include <XSDRAWIGES.hxx>
 #include <XSDRAWSTEP.hxx>
+#include <VrmlAPI_Writer.hxx>
 #include <DDF.hxx>
 
 #include <DBRep.hxx>
@@ -534,6 +535,40 @@ static Standard_Integer Expand (Draw_Interpretor& di, Standard_Integer argc, con
   return 0;
 }
 
+
+//=======================================================================
+//function : WriteVrml
+//purpose  : Write DECAF document to Vrml
+//=======================================================================
+
+static Standard_Integer WriteVrml(Draw_Interpretor& di, Standard_Integer argc, const char** argv)
+{
+  if (argc <3) {
+    di << "Use: " << argv[0] << " Doc filename: write document to Vrml file\n";
+    return 0;
+  }
+
+  Handle(TDocStd_Document) aDoc;
+  DDocStd::GetDocument(argv[1], aDoc);
+  if (aDoc.IsNull()) {
+    di << argv[1] << " is not a document\n";
+    return 1;
+  }
+
+  if (argc < 3 || argc > 5)
+  {
+    di << "wrong number of parameters\n";
+    return 0;
+  }
+
+  VrmlAPI_Writer writer;
+  writer.SetRepresentation(VrmlAPI_ShadedRepresentation);
+  writer.WriteDoc(aDoc, argv[2]);
+
+  return 0;
+}
+
+
 void XDEDRAW_Common::InitCommands(Draw_Interpretor& di)
 {
   static Standard_Boolean initactor = Standard_False;
@@ -557,5 +592,7 @@ void XDEDRAW_Common::InitCommands(Draw_Interpretor& di)
 
   di.Add("XExpand", "XExpand Doc recursively(0/1) or XExpand Doc recursively(0/1) label1 label2 ..."  
           "or XExpand Doc recursively(0/1) shape1 shape2 ...",__FILE__, Expand, g);
+
+  di.Add("WriteVrml", "Doc filename [version VRML#1.0/VRML#2.0 (1/2): 2 by default] [representation shaded/wireframe/both (0/1/2): 0 by default]", __FILE__, WriteVrml, g);
 
 }

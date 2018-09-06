@@ -376,3 +376,24 @@ void VrmlAPI_Writer::write_v2(const TopoDS_Shape& aShape,const Standard_CString 
   if (aFoc.open (aFile, ios::out))
     outStream << aScene;
 }
+
+//=======================================================================
+//function : WriteDoc
+//purpose  : 
+//=======================================================================
+void VrmlAPI_Writer::WriteDoc(
+  const Handle(TDocStd_Document) &theDoc,
+  const Standard_CString theFile) const
+{
+
+  VrmlData_Scene aScene;
+  VrmlData_ShapeConvert aConv(aScene);
+  aConv.ConvertDocument(theDoc);
+
+  filebuf aFoc;
+  ostream outStream(&aFoc);
+  if (aFoc.open(theFile, ios::out))
+    outStream << aScene;
+
+}
+
