@@ -2814,24 +2814,24 @@ static void MakeFace(const Handle(Geom_Surface)& S,
 //purpose  : 
 //=======================================================================
 
-static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
-					Standard_Real&        U1,
-					Standard_Real&        U2,
-					Standard_Real&        V1,
-					Standard_Real&        V2,
-					Standard_Boolean&     IsV1degen,
-					Standard_Boolean&     IsV2degen,
-					const Standard_Real   uf1,
-					const Standard_Real   uf2,
-					const Standard_Real   vf1,
-					const Standard_Real   vf2,
-					const Standard_Boolean GlobalEnlargeU,
-					const Standard_Boolean GlobalEnlargeVfirst,
-					const Standard_Boolean GlobalEnlargeVlast,
-                                        const Standard_Real    len_before_ufirst,
-                                        const Standard_Real    len_after_ulast,
-                                        const Standard_Real    len_before_vfirst,
-                                        const Standard_Real    len_after_vlast)
+static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)&  S,
+					Standard_Real&         U1,
+					Standard_Real&         U2,
+					Standard_Real&         V1,
+					Standard_Real&         V2,
+					Standard_Boolean&      IsV1degen,
+					Standard_Boolean&      IsV2degen,
+					const Standard_Real    uf1,
+					const Standard_Real    uf2,
+					const Standard_Real    vf1,
+					const Standard_Real    vf2,
+					const Standard_Boolean theGlobalEnlargeU,
+					const Standard_Boolean theGlobalEnlargeVfirst,
+					const Standard_Boolean theGlobalEnlargeVlast,
+                                        const Standard_Real    theLenBeforeUfirst,
+                                        const Standard_Real    theLenAfterUlast,
+                                        const Standard_Real    theLenBeforeVfirst,
+                                        const Standard_Real    theLenAfterVlast)
 {
   const Standard_Real coeff = 1.;
   const Standard_Real TolApex = 1.e-5;
@@ -2840,13 +2840,14 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
   if ( S->DynamicType() == STANDARD_TYPE(Geom_RectangularTrimmedSurface)) {
     Handle(Geom_Surface) BS = Handle(Geom_RectangularTrimmedSurface)::DownCast (S)->BasisSurface();
     EnlargeGeometry(BS,U1,U2,V1,V2,IsV1degen,IsV2degen,
-		    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast,
-                    len_before_ufirst,len_after_ulast,len_before_vfirst,len_after_vlast);
-    if (!GlobalEnlargeVfirst)
+		    uf1,uf2,vf1,vf2,
+                    theGlobalEnlargeU, theGlobalEnlargeVfirst, theGlobalEnlargeVlast,
+                    theLenBeforeUfirst, theLenAfterUlast, theLenBeforeVfirst, theLenAfterVlast);
+    if (!theGlobalEnlargeVfirst)
       V1 = vf1;
-    if (!GlobalEnlargeVlast)
+    if (!theGlobalEnlargeVlast)
       V2 = vf2;
-    if (!GlobalEnlargeVfirst || !GlobalEnlargeVlast)
+    if (!theGlobalEnlargeVfirst || !theGlobalEnlargeVlast)
       //Handle(Geom_RectangularTrimmedSurface)::DownCast (S)->SetTrim( U1, U2, V1, V2 );
       S = new Geom_RectangularTrimmedSurface( BS, U1, U2, V1, V2 );
     else
@@ -2856,8 +2857,9 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
   else if (S->DynamicType() == STANDARD_TYPE(Geom_OffsetSurface)) {
     Handle(Geom_Surface) Surf = Handle(Geom_OffsetSurface)::DownCast (S)->BasisSurface();
     SurfaceChange = EnlargeGeometry(Surf,U1,U2,V1,V2,IsV1degen,IsV2degen,
-				    uf1,uf2,vf1,vf2,GlobalEnlargeU,GlobalEnlargeVfirst,GlobalEnlargeVlast,
-                                    len_before_ufirst,len_after_ulast,len_before_vfirst,len_after_vlast);
+				    uf1,uf2,vf1,vf2,
+                                    theGlobalEnlargeU, theGlobalEnlargeVfirst, theGlobalEnlargeVlast,
+                                    theLenBeforeUfirst, theLenAfterUlast, theLenBeforeVfirst, theLenAfterVlast);
     Handle(Geom_OffsetSurface)::DownCast(S)->SetBasisSurface(Surf);
   }
   else if (S->DynamicType() == STANDARD_TYPE(Geom_SurfaceOfLinearExtrusion) ||
@@ -2867,9 +2869,9 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
       dv_first = 0., dv_last = 0.;
     Handle( Geom_Curve ) uiso, viso, uiso1, uiso2, viso1, viso2;
     Standard_Real u1, u2, v1, v2;
-    Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
+    Standard_Boolean enlargeU = theGlobalEnlargeU, enlargeV = Standard_True;
     Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
-    Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
+    Standard_Boolean enlargeVfirst = theGlobalEnlargeVfirst, enlargeVlast = theGlobalEnlargeVlast;
     S->Bounds( u1, u2, v1, v2 );
     if (Precision::IsInfinite(u1) || Precision::IsInfinite(u2))
     {
@@ -2885,8 +2887,8 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
       viso = S->VIso( vf1 );
       GeomAdaptor_Curve gac( viso );
       Standard_Real du_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-      du_first = (len_before_ufirst == -1)? du_default : len_before_ufirst;
-      du_last  = (len_after_ulast == -1)? du_default : len_after_ulast;
+      du_first = (theLenBeforeUfirst == -1)? du_default : theLenBeforeUfirst;
+      du_last  = (theLenAfterUlast == -1)? du_default : theLenAfterUlast;
       uiso1 = S->UIso( uf1 );
       uiso2 = S->UIso( uf2 );
       if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
@@ -2908,8 +2910,8 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
       uiso = S->UIso( uf1 );
       GeomAdaptor_Curve gac( uiso );
       Standard_Real dv_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-      dv_first = (len_before_vfirst == -1)? dv_default : len_before_vfirst;
-      dv_last  = (len_after_vlast == -1)? dv_default : len_after_vlast;
+      dv_first = (theLenBeforeVfirst == -1)? dv_default : theLenBeforeVfirst;
+      dv_last  = (theLenAfterVlast == -1)? dv_default : theLenAfterVlast;
       viso1 = S->VIso( vf1 );
       viso2 = S->VIso( vf2 );
       if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
@@ -2945,9 +2947,9 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
   else if (S->DynamicType() == STANDARD_TYPE(Geom_BezierSurface) ||
 	   S->DynamicType() == STANDARD_TYPE(Geom_BSplineSurface))
   {
-    Standard_Boolean enlargeU = GlobalEnlargeU, enlargeV = Standard_True;
+    Standard_Boolean enlargeU = theGlobalEnlargeU, enlargeV = Standard_True;
     Standard_Boolean enlargeUfirst = enlargeU, enlargeUlast = enlargeU;
-    Standard_Boolean enlargeVfirst = GlobalEnlargeVfirst, enlargeVlast = GlobalEnlargeVlast;
+    Standard_Boolean enlargeVfirst = theGlobalEnlargeVfirst, enlargeVlast = theGlobalEnlargeVlast;
     if (S->IsUClosed())
       enlargeU = Standard_False;
     if (S->IsVClosed())
@@ -2966,8 +2968,8 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
       viso = S->VIso( v1 );
       gac.Load( viso );
       Standard_Real du_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-      du_first = (len_before_ufirst == -1)? du_default : len_before_ufirst;
-      du_last  = (len_after_ulast == -1)? du_default : len_after_ulast;
+      du_first = (theLenBeforeUfirst == -1)? du_default : theLenBeforeUfirst;
+      du_last  = (theLenAfterUlast == -1)? du_default : theLenAfterUlast;
       uiso1 = S->UIso( u1 );
       uiso2 = S->UIso( u2 );
       if (BRepOffset_Tool::Gabarit( uiso1 ) <= TolApex)
@@ -2980,8 +2982,8 @@ static Standard_Boolean EnlargeGeometry(Handle(Geom_Surface)& S,
       uiso = S->UIso( u1 );
       gac.Load( uiso );
       Standard_Real dv_default = GCPnts_AbscissaPoint::Length( gac ) * coeff;
-      dv_first = (len_before_vfirst == -1)? dv_default : len_before_vfirst;
-      dv_last  = (len_after_vlast == -1)? dv_default : len_after_vlast;
+      dv_first = (theLenBeforeVfirst == -1)? dv_default : theLenBeforeVfirst;
+      dv_last  = (theLenAfterVlast == -1)? dv_default : theLenAfterVlast;
       viso1 = S->VIso( v1 );
       viso2 = S->VIso( v2 );
       if (BRepOffset_Tool::Gabarit( viso1 ) <= TolApex)
@@ -3260,14 +3262,14 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
  TopoDS_Face&             BF,
  const Standard_Boolean   CanExtentSurface,
  const Standard_Boolean   UpdatePCurve,
- const Standard_Boolean   enlargeU,
- const Standard_Boolean   enlargeVfirst,
- const Standard_Boolean   enlargeVlast,
- const Standard_Boolean   UseInfini,
- const Standard_Real      len_before_ufirst,
- const Standard_Real      len_after_ulast,
- const Standard_Real      len_before_vfirst,
- const Standard_Real      len_after_vlast)
+ const Standard_Boolean   theEnlargeU,
+ const Standard_Boolean   theEnlargeVfirst,
+ const Standard_Boolean   theEnlargeVlast,
+ const Standard_Boolean   theUseInfini,
+ const Standard_Real      theLenBeforeUfirst,
+ const Standard_Real      theLenAfterUlast,
+ const Standard_Real      theLenBeforeVfirst,
+ const Standard_Real      theLenAfterVlast)
 {
   //Detect closedness in U and V
   Standard_Boolean uclosed = Standard_False, vclosed = Standard_False;
@@ -3303,7 +3305,7 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
   }
 
   S->Bounds            (US1,US2,VS1,VS2);
-  if (UseInfini)
+  if (theUseInfini)
   {
     UU1 = VV1 = - infini;
     UU2 = VV2 =   infini;
@@ -3320,8 +3322,8 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
   
   if (CanExtentSurface) {
     SurfaceChange = EnlargeGeometry(S, UU1, UU2, VV1, VV2, isVV1degen, isVV2degen, UF1, UF2, VF1, VF2,
-                                    enlargeU, enlargeVfirst, enlargeVlast,
-                                    len_before_ufirst, len_after_ulast, len_before_vfirst, len_after_vlast);
+                                    theEnlargeU, theEnlargeVfirst, theEnlargeVlast,
+                                    theLenBeforeUfirst, theLenAfterUlast, theLenBeforeVfirst, theLenAfterVlast);
   }
   else {
     UU1 = Max(US1,UU1); UU2 = Min(UU2,US2); 
@@ -3370,13 +3372,13 @@ Standard_Boolean BRepOffset_Tool::EnLargeFace
 	}
     }
 
-  if (!enlargeU)
+  if (!theEnlargeU)
     {
       UU1 = UF1; UU2 = UF2;
     }
-  if (!enlargeVfirst)
+  if (!theEnlargeVfirst)
     VV1 = VF1;
-  if (!enlargeVlast)
+  if (!theEnlargeVlast)
     VV2 = VF2;
 
   MakeFace(S,UU1,UU2,VV1,VV2,uclosed,vclosed,isVV1degen,isVV2degen,BF);
