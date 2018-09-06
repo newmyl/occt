@@ -16,7 +16,7 @@
 
 #include <BinMXCAFDoc_AnimationDriver.hxx>
 #include <BinObjMgt_Persistent.hxx>
-#include <CDM_MessageDriver.hxx>
+#include <Message_Messenger.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TDF_Attribute.hxx>
@@ -56,7 +56,7 @@ static void putByteArray(BinObjMgt_Persistent& theTarget, const Handle(TColStd_H
 //purpose  : 
 //=======================================================================
 BinMXCAFDoc_AnimationDriver::BinMXCAFDoc_AnimationDriver
-  (const Handle(CDM_MessageDriver)& theMsgDriver)
+  (const Handle(Message_Messenger)& theMsgDriver)
 : BinMDF_ADriver(theMsgDriver, STANDARD_TYPE(XCAFDoc_Animation)->Name())
 {
 }

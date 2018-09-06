@@ -13,7 +13,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <CDM_MessageDriver.hxx>
+#include <Message_Messenger.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_Attribute.hxx>
 #include <XCAFDoc_AnimationTool.hxx>
@@ -27,7 +27,7 @@ IMPLEMENT_STANDARD_RTTIEXT(XmlMXCAFDoc_AnimationToolDriver,XmlMDF_ADriver)
 //purpose  : 
 //=======================================================================
 XmlMXCAFDoc_AnimationToolDriver::XmlMXCAFDoc_AnimationToolDriver
-  (const Handle(CDM_MessageDriver)& theMsgDriver)
+  (const Handle(Message_Messenger)& theMsgDriver)
 : XmlMDF_ADriver (theMsgDriver, "xcaf", "AnimationTool")
 {
 }
