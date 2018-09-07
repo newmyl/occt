@@ -97,3 +97,6 @@ Warning: Some of the edges passed to the Face Builder algorithm have not been cl
 
 .BOPAlgo_AlertUnableToOrientTheShape
 Warning: Unable to orient the shape correctly
+
+.BOPAlgo_AlertUnknownShape
+Error: Shape is unknown for operation

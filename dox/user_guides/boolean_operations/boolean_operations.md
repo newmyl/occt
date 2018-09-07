@@ -2419,6 +2419,21 @@ bcremoveint res
 These examples may last forever. To define any new operation, it is just necessary to define, which Cells should be taken and which should be avoided.
 
 
+@section occt_algorithms_opensolid Boolean operations on open solids
+
+The Boolean operations on open solids are tricky enough that the standard approach ob Boolean operations for building the result, based on the splits of solids does not work.
+It happens because the algorithm for splitting solids (*BOPAlgo_BuilderSolid*) always tries to create the closed loops (shells) and make solids from them. But if the input solid is not closed, what can be expected from its splits?
+For performing Boolean Operations on open solids the new approach has been implemented which does not rely on the splits of the solids to be correct, but tries to select the splits of faces, which are necessary for the given type of operation.
+The point here is that the type of Boolean operation clearly defines the states for the faces to be taken into result:
+- For **COMMON** operation all the faces from the arguments located inside any solid of the opposite group must be taken;
+- For **FUSE** operation all the faces from the arguments located outside of all solids of the opposite group must be taken;
+- For **CUT** operation all the faces from the Objects located outside of all solids of the Tools and all faces from the Tools located inside any solid of the Objects must be taken;
+- For **CUT21** operation all the faces from the Objects located inside any solid of the Tools and all faces from the Tools located outside of all solids of the Objects must be taken.
+From the selected faces the result solids are built. Please note, that the result may contain as normal (closed) solids as the open ones.
+
+Even with this approach, the correct result of Boolean operation on open solids cannot be always guaranteed.
+The problem is in classification of the faces relatively such solids which strongly depends on the point on the face chosen for classification.
+
 @section occt_algorithms_10	Algorithm Limitations 
 
 The chapter describes the problems that are considered as Algorithm limitations. In most cases an Algorithm failure is caused by a combination of various factors, such as self-interfered arguments, inappropriate or ungrounded values of the argument tolerances, adverse mutual position of the arguments, tangency, etc.

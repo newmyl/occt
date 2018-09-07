@@ -1643,3 +1643,69 @@ void BOPAlgo_Tools::ClassifyFaces(const TopTools_ListOfShape& theFaces,
     theInParts.Add(aS, aLFIn);
   }
 }
+
+//=======================================================================
+//function : FillInternals
+//purpose  :
+//=======================================================================
+void BOPAlgo_Tools::FillInternals(const TopTools_ListOfShape& theSolids,
+                                  const TopTools_ListOfShape& theParts,
+                                  const TopTools_DataMapOfShapeListOfShape& theImages,
+                                  const Handle(IntTools_Context)& theContext)
+{
+  if (theSolids.IsEmpty() || theParts.IsEmpty())
+    return;
+
+  // Map the solids to avoid classification of the own shapes of the solids
+  TopTools_IndexedMapOfShape aMSSolids;
+  TopTools_ListOfShape::Iterator itLS(theSolids);
+  for (; itLS.More(); itLS.Next())
+  {
+    const TopoDS_Shape& aSolid = itLS.Value();
+    TopExp::MapShapes(aSolid, TopAbs_EDGE,   aMSSolids);
+    TopExp::MapShapes(aSolid, TopAbs_VERTEX, aMSSolids);
+  }
+
+  // Check the parts for possible splits
+  TopTools_ListOfShape aLParts;
+  TopTools_ListOfShape::Iterator itLP(theParts);
+  for (; itLP.More(); itLP.Next())
+  {
+    const TopoDS_Shape& aPart = itLP.Value();
+    const TopTools_ListOfShape* pIm = theImages.Seek(aPart);
+    if (pIm)
+    {
+      TopTools_ListOfShape::Iterator itIm(*pIm);
+      for (; itIm.More(); itIm.Next())
+      {
+        const TopoDS_Shape& aPIm = itIm.Value();
+        if (!aMSSolids.Contains(aPIm))
+          aLParts.Append(aPIm);
+      }
+    }
+    else if (!aMSSolids.Contains(aPart))
+      aLParts.Append(aPart);
+  }
+
+  itLS.Initialize(theSolids);
+  for (; itLS.More(); itLS.Next())
+  {
+    TopoDS_Solid aSd = *(TopoDS_Solid*)&itLS.Value();
+
+    itLP.Initialize(aLParts);
+    for (; itLP.More();)
+    {
+      TopoDS_Shape aPart = itLP.Value();
+      TopAbs_State aState =
+        BOPTools_AlgoTools::ComputeStateByOnePoint(aPart, aSd, Precision::Confusion(), theContext);
+      if (aState == TopAbs_IN)
+      {
+        aPart.Orientation(TopAbs_INTERNAL);
+        BRep_Builder().Add(aSd, aPart);
+        aLParts.Remove(itLP);
+      }
+      else
+        itLP.Next();
+    }
+  }
+}
