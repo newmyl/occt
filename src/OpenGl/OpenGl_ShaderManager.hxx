@@ -37,6 +37,9 @@ class OpenGl_VertexBuffer;
 //! List of shader programs.
 typedef NCollection_Sequence<Handle(OpenGl_ShaderProgram)> OpenGl_ShaderProgramList;
 
+//! List of variable of shader program.
+typedef NCollection_Vector<TCollection_AsciiString> OpenGl_ShaderVarList;
+
 //! This class is responsible for managing shader programs.
 class OpenGl_ShaderManager : public Standard_Transient
 {
@@ -554,6 +557,11 @@ protected:
 
   //! Prepare standard GLSL program for bounding box.
   Standard_EXPORT Standard_Boolean prepareStdProgramBoundBox();
+
+  //! Prepare GLSL source for shader programs according to variable list.
+  Standard_EXPORT void prepareShadersOutSrc (TCollection_AsciiString&    theSrcVertOut,
+                                             TCollection_AsciiString&    theSrcFragOut,
+                                             const OpenGl_ShaderVarList& theVarList);
 
 protected:
 
