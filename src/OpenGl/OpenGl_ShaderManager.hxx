@@ -34,8 +34,27 @@
 class OpenGl_View;
 class OpenGl_VertexBuffer;
 
+//! Structure for collecting shaders in/out variables and uniforms.
+struct OpenGl_ShaderVar
+{
+  TCollection_AsciiString VarName;
+  Standard_Integer        ShaderStageBits;
+
+  //! Default contructor
+  OpenGl_ShaderVar() { }
+
+  //! Create new shader variable
+  OpenGl_ShaderVar (const TCollection_AsciiString& theVarName,
+                    const Standard_Integer theShaderStageBits)
+    : VarName         (theVarName),
+      ShaderStageBits (theShaderStageBits) { }
+};
+
 //! List of shader programs.
 typedef NCollection_Sequence<Handle(OpenGl_ShaderProgram)> OpenGl_ShaderProgramList;
+
+//! List of variable of shader program.
+typedef NCollection_Sequence<OpenGl_ShaderVar> OpenGl_ShaderVarList;
 
 //! This class is responsible for managing shader programs.
 class OpenGl_ShaderManager : public Standard_Transient
@@ -408,6 +427,12 @@ public:
   {
     return myLastView == theView;
   }
+
+public:
+  //! Creates new shader object from specified source according to list of in/out variables and uniforms.
+  Standard_EXPORT static Handle (Graphic3d_ShaderObject) CreateFromSource (const Graphic3d_TypeOfShaderObject theType,
+                                                                           TCollection_AsciiString&           theSource,
+                                                                           const OpenGl_ShaderVarList&        theVarList);
 
 protected:
 
