@@ -401,11 +401,22 @@ static Standard_Integer reface (Draw_Interpretor& di, Standard_Integer argc, con
 //function : fixshape
 //purpose  : 
 //=======================================================================
-
+#include <ShapeFix_Edge.hxx>
 static Standard_Integer fixshape (Draw_Interpretor& di, Standard_Integer argc, const char** argv)
 {
+  TopoDS_Shape aShF =  DBRep::Get (argv[1]);
+  Handle(ShapeFix_Edge) anEdgeFixer = new ShapeFix_Edge();
+  for (TopExp_Explorer anEdgeIter (aShF, TopAbs_EDGE); anEdgeIter.More(); anEdgeIter.Next())
+  {
+    TopoDS_Edge anEdge = TopoDS::Edge (anEdgeIter.Current());
+    anEdgeFixer->FixAddCurve3d (anEdge);
+  }
+return 0;
+
   Handle(ShapeExtend_MsgRegistrator) msg = new ShapeExtend_MsgRegistrator;
   Handle(ShapeFix_Shape) sfs = new ShapeFix_Shape;
+sfs->FixWireTool()->FixAddCurve3dMode() = 1; ///
+sfs->FixFreeWireMode() = 1; ///
   sfs->SetMsgRegistrator ( msg );
   
   Standard_CString res = 0;
