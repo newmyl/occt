@@ -1601,6 +1601,14 @@ Since OCCT 7.4.0 exception is thrown on the attempt of taking points in case of 
 * *BRepAlgo_DataMapOfShapeInterference* has been removed as unused.
 * *BRepAlgo_EdgeConnector* has been removed as unused.
 * *BRepAlgo_SequenceOfSequenceOfInteger* has been removed as unused.
+* The method *BRepAlgo_Tool::Deboucle3D* has been removed as duplicating. Use the corresponding method from *BRepOffset_Tool* package instead.
+* The API classes from *BRepAlgo* package performing old Boolean operations algorithm have been removed:
+  - *BRepAlgo_BooleanOperation*
+  - *BRepAlgo_Fuse*
+  - *BRepAlgo_Common*
+  - *BRepAlgo_Cut*
+  - *BRepAlgo_Section*
+  The corresponding classes from the *BRepAlgoAPI* package should be used instead.
 
 @subsection upgrade_740_localcontext Local Context removal
 
