@@ -43,6 +43,9 @@ public:
   //! Assign new aspect.
   Standard_EXPORT void SetAspect (const Handle(Graphic3d_AspectMarker3d)& theAspect);
 
+  //! Update presentation aspects parameters after their modification.
+  Standard_EXPORT virtual void UpdateParameters() Standard_OVERRIDE;
+
   //! @return marker size
   Standard_ShortReal MarkerSize() const { return myMarkerSize; }
 
@@ -95,8 +98,8 @@ public:
     return myResources.ShaderProgram();
   }
 
-  Standard_EXPORT virtual void Render  (const Handle(OpenGl_Workspace)& theWorkspace) const;
-  Standard_EXPORT virtual void Release (OpenGl_Context* theContext);
+  Standard_EXPORT virtual void Render  (const Handle(OpenGl_Workspace)& theWorkspace) const Standard_OVERRIDE;
+  Standard_EXPORT virtual void Release (OpenGl_Context* theContext) Standard_OVERRIDE;
 
 protected:
 

@@ -113,6 +113,15 @@ void OpenGl_AspectFace::SetAspect (const Handle(Graphic3d_AspectFillArea3d)& the
 }
 
 // =======================================================================
+// function : UpdateParameters
+// purpose  :
+// =======================================================================
+void OpenGl_AspectFace::UpdateParameters()
+{
+  SetAspect (this->Aspect());
+}
+
+// =======================================================================
 // function : Render
 // purpose  :
 // =======================================================================

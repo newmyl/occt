@@ -94,6 +94,15 @@ void OpenGl_AspectText::Release (OpenGl_Context* theContext)
 }
 
 // =======================================================================
+// function : UpdateParameters
+// purpose  :
+// =======================================================================
+void OpenGl_AspectText::UpdateParameters()
+{
+  SetAspect (this->Aspect());
+}
+
+// =======================================================================
 // function : BuildShader
 // purpose  :
 // =======================================================================

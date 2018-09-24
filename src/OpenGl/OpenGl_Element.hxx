@@ -60,6 +60,9 @@ public:
   //! Return TRUE if primitive type generates shaded triangulation (to be used in filters).
   virtual Standard_Boolean IsFillDrawMode() const { return false; }
 
+  //! Update parameters of the drawable elements.
+  Standard_EXPORT virtual void UpdateParameters();
+
 protected:
 
   Standard_EXPORT virtual ~OpenGl_Element();

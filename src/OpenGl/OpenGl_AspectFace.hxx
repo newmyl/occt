@@ -43,6 +43,9 @@ public:
   //! Assign parameters.
   Standard_EXPORT void SetAspect (const Handle(Graphic3d_AspectFillArea3d)& theAspect);
 
+  //! Update presentation aspects parameters after their modification.
+  Standard_EXPORT virtual void UpdateParameters() Standard_OVERRIDE;
+
   //! Set edge aspect.
   void SetAspectEdge (const OpenGl_AspectLine* theAspectEdge) { myAspectEdge = *theAspectEdge; }
 
@@ -79,8 +82,8 @@ public:
     return myResources.ShaderProgram;
   }
 
-  Standard_EXPORT virtual void Render  (const Handle(OpenGl_Workspace)& theWorkspace) const;
-  Standard_EXPORT virtual void Release (OpenGl_Context* theContext);
+  Standard_EXPORT virtual void Render  (const Handle(OpenGl_Workspace)& theWorkspace) const Standard_OVERRIDE;
+  Standard_EXPORT virtual void Release (OpenGl_Context* theContext) Standard_OVERRIDE;
 
 protected:
 

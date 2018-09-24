@@ -1490,6 +1490,15 @@ void OpenGl_AspectMarker::SetAspect (const Handle(Graphic3d_AspectMarker3d)& the
 }
 
 // =======================================================================
+// function : UpdateParameters
+// purpose  :
+// =======================================================================
+void OpenGl_AspectMarker::UpdateParameters()
+{
+  SetAspect (this->Aspect());
+}
+
+// =======================================================================
 // function : Render
 // purpose  :
 // =======================================================================

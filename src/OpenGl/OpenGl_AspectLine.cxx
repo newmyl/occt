@@ -85,6 +85,15 @@ void OpenGl_AspectLine::Release (OpenGl_Context* theContext)
 }
 
 // =======================================================================
+// function : UpdateParameters
+// purpose  :
+// =======================================================================
+void OpenGl_AspectLine::UpdateParameters()
+{
+  SetAspect (this->Aspect());
+}
+
+// =======================================================================
 // function : BuildShader
 // purpose  :
 // =======================================================================
