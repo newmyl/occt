@@ -41,8 +41,8 @@ IMPLEMENT_STANDARD_RTTIEXT(AIS_PointCloud, AIS_InteractiveObject)
 //=======================================================================
 AIS_PointCloudOwner::AIS_PointCloudOwner (const Handle(AIS_PointCloud)& theOrigin)
 : SelectMgr_EntityOwner ((const Handle(SelectMgr_SelectableObject)& )theOrigin,  5),
-  myDetPoints (new TColStd_HPackedMapOfInteger()),
-  mySelPoints (new TColStd_HPackedMapOfInteger())
+  myDetPoints (new TColStd_HBitField()),
+  mySelPoints (new TColStd_HBitField())
 {
   //
 }
@@ -79,7 +79,7 @@ void AIS_PointCloudOwner::HilightWithColor (const Handle(PrsMgr_PresentationMana
     throw Standard_ProgramError ("Internal Error within AIS_PointCloud::PointsOwner!");
   }
 
-  const Handle(TColStd_HPackedMapOfInteger)& aMap = thePrsMgr->IsImmediateModeOn()
+  const Handle(TColStd_HBitField)& aMap = thePrsMgr->IsImmediateModeOn()
                                                   ? myDetPoints
                                                   : mySelPoints;
   Handle(Prs3d_Presentation) aPrs = thePrsMgr->IsImmediateModeOn()

@@ -12,6 +12,7 @@ TColStd_Array2OfCharacter.hxx
 TColStd_Array2OfInteger.hxx
 TColStd_Array2OfReal.hxx
 TColStd_Array2OfTransient.hxx
+TColStd_BitField.hxx
 TColStd_DataMapIteratorOfDataMapOfAsciiStringInteger.hxx
 TColStd_DataMapIteratorOfDataMapOfIntegerInteger.hxx
 TColStd_DataMapIteratorOfDataMapOfIntegerListOfInteger.hxx
@@ -39,6 +40,7 @@ TColStd_HArray2OfBoolean.hxx
 TColStd_HArray2OfCharacter.hxx
 TColStd_HArray2OfInteger.hxx
 TColStd_HArray2OfReal.hxx
+TColStd_HBitField.hxx
 TColStd_HArray2OfTransient.hxx
 TColStd_HPackedMapOfInteger.cxx
 TColStd_HPackedMapOfInteger.hxx

@@ -19,8 +19,6 @@
 #include <OSD_Parallel.hxx>
 #include <Standard_Atomic.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(Select3D_SensitivePrimitiveArray, Select3D_SensitiveSet)
-
 namespace
 {
 
@@ -193,7 +191,7 @@ void Select3D_SensitivePrimitiveArray::SetDetectElementMap (bool theToDetect)
 
   if (myDetectedElemMap.IsNull())
   {
-    myDetectedElemMap = new TColStd_HPackedMapOfInteger();
+    myDetectedElemMap = new TColStd_HBitField();
   }
   else
   {
@@ -215,7 +213,7 @@ void Select3D_SensitivePrimitiveArray::SetDetectNodeMap (bool theToDetect)
 
   if (myDetectedNodeMap.IsNull())
   {
-    myDetectedNodeMap = new TColStd_HPackedMapOfInteger();
+    myDetectedNodeMap = new TColStd_HBitField();
   }
   else
   {
@@ -891,6 +889,8 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::Matches (SelectBasics_Selecti
   if (!myDetectedElemMap.IsNull())
   {
     myDetectedElemMap->ChangeMap().Clear();
+    int nbTriangles = myIndices->NbElements / 3;
+    myDetectedElemMap->ChangeMap().Reserve(nbTriangles);
   }
   if (!myDetectedNodeMap.IsNull())
   {
@@ -939,11 +939,11 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::Matches (SelectBasics_Selecti
       hasResults = true;
       if (!myDetectedElemMap.IsNull())
       {
-        myDetectedElemMap->ChangeMap().Unite (aChild->myDetectedElemMap->Map());
+        myDetectedElemMap->ChangeMap().Unite(aChild->myDetectedElemMap->Map());
       }
       if (!myDetectedNodeMap.IsNull())
       {
-        myDetectedNodeMap->ChangeMap().Unite (aChild->myDetectedNodeMap->Map());
+        myDetectedNodeMap->ChangeMap().Unite(aChild->myDetectedNodeMap->Map());
       }
       if (thePickResult.Depth() > aPickResult.Depth())
       {
@@ -1013,11 +1013,11 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
             {
               if (!myDetectedElemMap.IsNull())
               {
-                myDetectedElemMap->ChangeMap().Add (aPointIndex);
+                myDetectedElemMap->ChangeMap().Add(aPointIndex);
               }
               if (!myDetectedNodeMap.IsNull())
               {
-                myDetectedNodeMap->ChangeMap().Add (aPointIndex);
+                myDetectedNodeMap->ChangeMap().Add(aPointIndex);
               }
             }
             aResult = Standard_True;
@@ -1063,7 +1063,7 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
           if (!myDetectedElemMap.IsNull()
             && theMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point)
           {
-            myDetectedElemMap->ChangeMap().Add (aTriIndex);
+            myDetectedElemMap->ChangeMap().Add(aTriIndex);
           }
         }
         if (myToDetectNode)
@@ -1080,7 +1080,7 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
               if (!myDetectedNodeMap.IsNull()
                 && theMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point)
               {
-                myDetectedNodeMap->ChangeMap().Add (aTriNodes[aNodeIter]);
+                myDetectedNodeMap->ChangeMap().Add(aTriNodes[aNodeIter]);
               }
               aResult = Standard_True;
             }
@@ -1170,11 +1170,11 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::elementIsInside (SelectBasics
         {
           if (!myDetectedElemMap.IsNull())
           {
-            myDetectedElemMap->ChangeMap().Add (aPointIndex);
+            myDetectedElemMap->ChangeMap().Add(aPointIndex);
           }
           if (!myDetectedNodeMap.IsNull())
           {
-            myDetectedNodeMap->ChangeMap().Add (aPointIndex);
+            myDetectedNodeMap->ChangeMap().Add(aPointIndex);
           }
         }
       }
@@ -1213,13 +1213,13 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::elementIsInside (SelectBasics
         {
           if (!myDetectedElemMap.IsNull())
           {
-            myDetectedElemMap->ChangeMap().Add (aTriIndex);
+            myDetectedElemMap->ChangeMap().Add(aTriIndex);
           }
           if (!myDetectedNodeMap.IsNull())
           {
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[0]);
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[1]);
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[2]);
+            myDetectedNodeMap->ChangeMap().Add(aTriNodes[0]);
+            myDetectedNodeMap->ChangeMap().Add(aTriNodes[1]);
+            myDetectedNodeMap->ChangeMap().Add(aTriNodes[2]);
           }
         }
       }

@@ -43,6 +43,8 @@ public:
 
   Standard_EXPORT static void CommandsHandle (Draw_Interpretor& DI);
 
+  Standard_EXPORT static void CommandsBitField(Draw_Interpretor& DI);
+
 };
 
 

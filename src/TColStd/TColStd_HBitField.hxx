@@ -1,6 +1,6 @@
-// Created on: 2004-03-05
-// Created by: Mikhail KUZMITCHEV
-// Copyright (c) 2004-2014 OPEN CASCADE SAS
+// Created on: 2018-09-27
+// Created by: Alexander SOLOVYOV
+// Copyright (c) 2018 OPEN CASCADE SAS
 //
 // This file is part of Open CASCADE Technology software library.
 //
@@ -13,17 +13,20 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <QANCollection.hxx>
-#include <Draw_Interpretor.hxx>
+#ifndef TColStd_HBitField_HeaderFile
+#define TColStd_HBitField_HeaderFile
 
-#include <gp_Pnt.hxx>
+#include <Standard_Transient.hxx>
+#include <TColStd_BitField.hxx>
 
-void QANCollection::Commands (Draw_Interpretor& theCommands)
+class TColStd_HBitField : public Standard_Transient
 {
-  QANCollection::CommandsTest (theCommands);
-  QANCollection::CommandsPerf (theCommands);
-  QANCollection::CommandsAlloc (theCommands);
-  QANCollection::CommandsHandle(theCommands);
-  QANCollection::CommandsStl (theCommands);
-  QANCollection::CommandsBitField (theCommands);
-}
+public:
+  const TColStd_BitField& Map() const { return myField; }
+  TColStd_BitField& ChangeMap() const { return const_cast<TColStd_BitField&>(myField); }
+
+private:
+  TColStd_BitField myField;
+};
+
+#endif

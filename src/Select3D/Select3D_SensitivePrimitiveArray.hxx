@@ -22,7 +22,7 @@
 #include <NCollection_Shared.hxx>
 #include <Select3D_SensitiveSet.hxx>
 #include <Select3D_BVHIndexBuffer.hxx>
-#include <TColStd_HPackedMapOfInteger.hxx>
+#include <TColStd_HBitField.hxx>
 
 //! Sensitive for triangulation or point set defined by Primitive Array.
 //! The primitives can be optionally combined into patches within BVH tree
@@ -183,13 +183,13 @@ public:
   Standard_Integer LastDetectedElement() const { return myDetectedElem; }
 
   //! Return the index map of last detected elements (rectangle selection).
-  const Handle(TColStd_HPackedMapOfInteger)& LastDetectedElementMap() const { return myDetectedElemMap; }
+  const Handle(TColStd_HBitField)& LastDetectedElementMap() const { return myDetectedElemMap; }
 
   //! Return last topmost detected node or -1 if undefined (axis picking).
   Standard_Integer LastDetectedNode() const { return myDetectedNode; }
 
   //! Return the index map of last detected nodes (rectangle selection).
-  const Handle(TColStd_HPackedMapOfInteger)& LastDetectedNodeMap() const { return myDetectedNodeMap; }
+  const Handle(TColStd_HBitField)& LastDetectedNodeMap() const { return myDetectedNodeMap; }
 
   //! Return the first node of last topmost detected edge or -1 if undefined (axis picking).
   Standard_Integer LastDetectedEdgeNode1() const { return myDetectedEdgeNode1; }
@@ -315,8 +315,8 @@ private:
   Select3D_BVHIndexBuffer             myBvhIndices;         //!< Indexes of edges or triangles for BVH tree
   mutable Select3D_BndBox3d           myBndBox;             //!< Bounding box of the whole triangulation
   gp_GTrsf                            myInvInitLocation;
-  Handle(TColStd_HPackedMapOfInteger) myDetectedElemMap;    //!< index map of last detected elements
-  Handle(TColStd_HPackedMapOfInteger) myDetectedNodeMap;    //!< index map of last detected nodes
+  Handle(TColStd_HBitField)           myDetectedElemMap;    //!< index map of last detected elements
+  Handle(TColStd_HBitField)           myDetectedNodeMap;    //!< index map of last detected nodes
   Standard_Real                       myMinDepthElem;       //!< the depth of nearest detected element
   Standard_Real                       myMinDepthNode;       //!< the depth of nearest detected node
   Standard_Real                       myMinDepthEdge;       //!< the depth of nearest detected edge

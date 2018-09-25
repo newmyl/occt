@@ -1,0 +1,4 @@
+puts "Check BitField functionality"
+
+QANBitField
+

@@ -25,7 +25,7 @@
 #include <TColgp_HArray1OfDir.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 
-class TColStd_HPackedMapOfInteger;
+class TColStd_HBitField;
 
 //! Interactive object for set of points.
 //! The presentation supports two display modes:
@@ -136,11 +136,11 @@ public:
 
   //! Return selected points.
   //! WARNING! Indexation starts with 0 (shifted by -1 comparing to Graphic3d_ArrayOfPoints::Vertice()).
-  const Handle(TColStd_HPackedMapOfInteger)& SelectedPoints() const { return mySelPoints; }
+  const Handle(TColStd_HBitField)& SelectedPoints() const { return mySelPoints; }
 
   //! Return last detected points.
   //! WARNING! Indexation starts with 0 (shifted by -1 comparing to Graphic3d_ArrayOfPoints::Vertice()).
-  const Handle(TColStd_HPackedMapOfInteger)& DetectedPoints() const { return myDetPoints; }
+  const Handle(TColStd_HBitField)& DetectedPoints() const { return myDetPoints; }
 
   //! Always update dynamic highlighting.
   Standard_EXPORT virtual Standard_Boolean IsForcedHilight() const Standard_OVERRIDE;
@@ -156,8 +156,8 @@ public:
   //! Clears presentation.
   Standard_EXPORT virtual void Clear (const Handle(PrsMgr_PresentationManager)& thePrsMgr, const Standard_Integer theMode) Standard_OVERRIDE;
 protected:
-  Handle(TColStd_HPackedMapOfInteger) myDetPoints; //!< last detected points
-  Handle(TColStd_HPackedMapOfInteger) mySelPoints; //!< selected points
+  Handle(TColStd_HBitField) myDetPoints; //!< last detected points
+  Handle(TColStd_HBitField) mySelPoints; //!< selected points
 };
 
 #endif // _AIS_PointCloud_HeaderFile
