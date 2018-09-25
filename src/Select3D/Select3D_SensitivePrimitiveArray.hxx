@@ -24,6 +24,23 @@
 #include <Select3D_BVHIndexBuffer.hxx>
 #include <TColStd_HPackedMapOfInteger.hxx>
 
+class Select3D_BitField : public Standard_Transient
+{
+public:
+  Standard_EXPORT const Select3D_BitField& Map() const;
+  Standard_EXPORT Select3D_BitField& ChangeMap() const;
+
+  Standard_EXPORT void Clear();
+  Standard_EXPORT void Add(const Standard_Integer);
+  Standard_EXPORT void Reserve(const Standard_Integer);
+  Standard_EXPORT void Unite(const Select3D_BitField&);
+  Standard_EXPORT void ToVector(std::vector<unsigned int>&) const;
+
+private:
+  std::vector<unsigned int> myData;
+};
+
+
 //! Sensitive for triangulation or point set defined by Primitive Array.
 //! The primitives can be optionally combined into patches within BVH tree
 //! to reduce its building time in expense of extra traverse time.
@@ -33,10 +50,13 @@ class Select3D_SensitivePrimitiveArray : public Select3D_SensitiveSet
 public:
 
   //! Constructs an empty sensitive object.
-  Standard_EXPORT Select3D_SensitivePrimitiveArray (const Handle(SelectBasics_EntityOwner)& theOwnerId);
+  Standard_EXPORT Select3D_SensitivePrimitiveArray (const Handle(SelectBasics_EntityOwner)& theOwnerId,
+                                                    const Standard_Boolean theIsFastMap = Standard_False);
 
   //! Return patch size limit (1 by default).
   Standard_Integer PatchSizeMax() const { return myPatchSizeMax; }
+
+  Standard_Boolean IsFastMap() const { return myIsFastMap; }
 
   //! Assign patch size limit.
   //! Should be set before initialization.
@@ -184,12 +204,14 @@ public:
 
   //! Return the index map of last detected elements (rectangle selection).
   const Handle(TColStd_HPackedMapOfInteger)& LastDetectedElementMap() const { return myDetectedElemMap; }
+  const Handle(Select3D_BitField)& LastDetectedElementMapFast() const { return myDetectedElemMapFast; }
 
   //! Return last topmost detected node or -1 if undefined (axis picking).
   Standard_Integer LastDetectedNode() const { return myDetectedNode; }
 
   //! Return the index map of last detected nodes (rectangle selection).
   const Handle(TColStd_HPackedMapOfInteger)& LastDetectedNodeMap() const { return myDetectedNodeMap; }
+  const Handle(Select3D_BitField)& LastDetectedNodeMapFast() const { return myDetectedNodeMapFast; }
 
   //! Return the first node of last topmost detected edge or -1 if undefined (axis picking).
   Standard_Integer LastDetectedEdgeNode1() const { return myDetectedEdgeNode1; }
@@ -317,6 +339,8 @@ private:
   gp_GTrsf                            myInvInitLocation;
   Handle(TColStd_HPackedMapOfInteger) myDetectedElemMap;    //!< index map of last detected elements
   Handle(TColStd_HPackedMapOfInteger) myDetectedNodeMap;    //!< index map of last detected nodes
+  Handle(Select3D_BitField) myDetectedElemMapFast;    //!< index map of last detected elements
+  Handle(Select3D_BitField) myDetectedNodeMapFast;    //!< index map of last detected nodes
   Standard_Real                       myMinDepthElem;       //!< the depth of nearest detected element
   Standard_Real                       myMinDepthNode;       //!< the depth of nearest detected node
   Standard_Real                       myMinDepthEdge;       //!< the depth of nearest detected edge
@@ -327,6 +351,7 @@ private:
   bool                                myToDetectElem;       //!< flag to keep info about last detected element
   bool                                myToDetectNode;       //!< flag to keep info about last detected node
   bool                                myToDetectEdge;       //!< flag to keep info about last detected edge
+  Standard_Boolean                    myIsFastMap;          //!< flag to use optimized (bit field) map
 
 public:
 

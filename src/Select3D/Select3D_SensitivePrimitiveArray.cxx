@@ -21,6 +21,72 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(Select3D_SensitivePrimitiveArray, Select3D_SensitiveSet)
 
+const int Stride = sizeof(unsigned int) * 8; // number of bits in unsigned int
+
+const Select3D_BitField& Select3D_BitField::Map() const
+{
+  return *this;
+}
+
+Select3D_BitField& Select3D_BitField::ChangeMap() const
+{
+  return *const_cast<Select3D_BitField*>(this);
+}
+
+void Select3D_BitField::Clear()
+{
+  if (!myData.empty())
+    memset(&myData[0], 0, sizeof(unsigned int)*myData.size());
+}
+
+void Select3D_BitField::Reserve(const Standard_Integer theMax)
+{
+  myData.resize(theMax / Stride + 1, 0);
+}
+
+void Select3D_BitField::Add(const Standard_Integer theIndex)
+{
+  myData[theIndex / Stride] |= (1 << (theIndex % Stride));
+}
+
+void Select3D_BitField::Unite(const Select3D_BitField& theField)
+{
+  size_t aSize = myData.size();
+  if (theField.myData.size() > aSize)
+    aSize = theField.myData.size();
+  Reserve((int)aSize);
+
+  for (int i = 0; i < aSize; i++)
+    myData[i] |= theField.myData[i];
+}
+
+inline void bits_to_vector(unsigned int v, std::vector<unsigned int>& theVector, size_t& s, size_t& j)
+{
+  for (size_t k = 0; k < Stride && v != 0; k++)
+  {
+    if (v % 2 == 1)
+    {
+      theVector[j++] = (unsigned int)(s + k);
+    }
+    v = v >> 1;
+  }
+  s += Stride;
+}
+
+void Select3D_BitField::ToVector(std::vector<unsigned int>& theVector) const
+{
+  size_t n = myData.size();
+  theVector.resize(n*Stride);
+  size_t j = 0, s = 0;
+  for (size_t i = 0; i < n; i++)
+  {
+    bits_to_vector(myData[i], theVector, s, j);
+  }
+  theVector.resize(j);
+}
+
+
+
 namespace
 {
 
@@ -155,7 +221,8 @@ private:
 // function : Select3D_SensitivePrimitiveArray
 // purpose  :
 // =======================================================================
-Select3D_SensitivePrimitiveArray::Select3D_SensitivePrimitiveArray (const Handle(SelectBasics_EntityOwner)& theOwnerId)
+Select3D_SensitivePrimitiveArray::Select3D_SensitivePrimitiveArray (const Handle(SelectBasics_EntityOwner)& theOwnerId,
+                                                                    const Standard_Boolean theIsFastMap)
 : Select3D_SensitiveSet (theOwnerId),
   myPrimType (Graphic3d_TOPA_UNDEFINED),
   myIndexLower (0),
@@ -174,7 +241,8 @@ Select3D_SensitivePrimitiveArray::Select3D_SensitivePrimitiveArray (const Handle
   myDetectedEdgeNode2 (-1),
   myToDetectElem (true),
   myToDetectNode (false),
-  myToDetectEdge (false)
+  myToDetectEdge (false),
+  myIsFastMap(theIsFastMap)
 {
   //
 }
@@ -188,16 +256,19 @@ void Select3D_SensitivePrimitiveArray::SetDetectElementMap (bool theToDetect)
   if (!theToDetect)
   {
     myDetectedElemMap.Nullify();
+    myDetectedElemMapFast.Nullify();
     return;
   }
 
   if (myDetectedElemMap.IsNull())
   {
     myDetectedElemMap = new TColStd_HPackedMapOfInteger();
+    myDetectedElemMapFast = new Select3D_BitField();
   }
   else
   {
     myDetectedElemMap->ChangeMap().Clear();
+    myDetectedElemMapFast->ChangeMap().Clear();
   }
 }
 
@@ -210,16 +281,19 @@ void Select3D_SensitivePrimitiveArray::SetDetectNodeMap (bool theToDetect)
   if (!theToDetect)
   {
     myDetectedNodeMap.Nullify();
+    myDetectedNodeMapFast.Nullify();
     return;
   }
 
   if (myDetectedNodeMap.IsNull())
   {
     myDetectedNodeMap = new TColStd_HPackedMapOfInteger();
+    myDetectedNodeMapFast = new Select3D_BitField();
   }
   else
   {
     myDetectedNodeMap->ChangeMap().Clear();
+    myDetectedNodeMapFast->ChangeMap().Clear();
   }
 }
 
@@ -891,10 +965,16 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::Matches (SelectBasics_Selecti
   if (!myDetectedElemMap.IsNull())
   {
     myDetectedElemMap->ChangeMap().Clear();
+    myDetectedElemMapFast->ChangeMap().Clear();
+    int nbTriangles = myIndices->NbElements / 3;
+    myDetectedElemMapFast->Reserve(nbTriangles);
   }
   if (!myDetectedNodeMap.IsNull())
   {
     myDetectedNodeMap->ChangeMap().Clear();
+    myDetectedNodeMapFast->ChangeMap().Clear();
+    int nbPoints = myVerts->NbElements;
+    myDetectedNodeMapFast->Reserve(nbPoints);
   }
   myMinDepthElem      = RealLast();
   myMinDepthNode      = RealLast();
@@ -939,11 +1019,17 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::Matches (SelectBasics_Selecti
       hasResults = true;
       if (!myDetectedElemMap.IsNull())
       {
-        myDetectedElemMap->ChangeMap().Unite (aChild->myDetectedElemMap->Map());
+        if (myIsFastMap)
+          myDetectedElemMapFast->ChangeMap().Unite(aChild->myDetectedElemMapFast->Map());
+        else
+          myDetectedElemMap->ChangeMap().Unite(aChild->myDetectedElemMap->Map());
       }
       if (!myDetectedNodeMap.IsNull())
       {
-        myDetectedNodeMap->ChangeMap().Unite (aChild->myDetectedNodeMap->Map());
+        if (myIsFastMap)
+          myDetectedNodeMapFast->ChangeMap().Unite(aChild->myDetectedNodeMapFast->Map());
+        else
+          myDetectedNodeMap->ChangeMap().Unite(aChild->myDetectedNodeMap->Map());
       }
       if (thePickResult.Depth() > aPickResult.Depth())
       {
@@ -1013,11 +1099,17 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
             {
               if (!myDetectedElemMap.IsNull())
               {
-                myDetectedElemMap->ChangeMap().Add (aPointIndex);
+                if (myIsFastMap)
+                  myDetectedElemMapFast->ChangeMap().Add(aPointIndex);
+                else
+                  myDetectedElemMap->ChangeMap().Add(aPointIndex);
               }
               if (!myDetectedNodeMap.IsNull())
               {
-                myDetectedNodeMap->ChangeMap().Add (aPointIndex);
+                if (myIsFastMap)
+                  myDetectedNodeMapFast->ChangeMap().Add(aPointIndex);
+                else
+                  myDetectedNodeMap->ChangeMap().Add(aPointIndex);
               }
             }
             aResult = Standard_True;
@@ -1062,7 +1154,10 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
             if (!myDetectedElemMap.IsNull()
               && theMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point)
             {
-              myDetectedElemMap->ChangeMap().Add(aTriIndex);
+              if (myIsFastMap)
+                myDetectedElemMapFast->ChangeMap().Add(aTriIndex);
+              else
+                myDetectedElemMap->ChangeMap().Add(aTriIndex);
             }
           }
         }
@@ -1080,7 +1175,10 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::overlapsElement (SelectBasics
               if (!myDetectedNodeMap.IsNull()
                 && theMgr.GetActiveSelectionType() != SelectBasics_SelectingVolumeManager::Point)
               {
-                myDetectedNodeMap->ChangeMap().Add (aTriNodes[aNodeIter]);
+                if (myIsFastMap)
+                  myDetectedNodeMapFast->ChangeMap().Add(aTriNodes[aNodeIter]);
+                else
+                  myDetectedNodeMap->ChangeMap().Add(aTriNodes[aNodeIter]);
               }
               aResult = Standard_True;
             }
@@ -1170,11 +1268,17 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::elementIsInside (SelectBasics
         {
           if (!myDetectedElemMap.IsNull())
           {
-            myDetectedElemMap->ChangeMap().Add (aPointIndex);
+            if (myIsFastMap)
+              myDetectedElemMapFast->ChangeMap().Add(aPointIndex);
+            else
+              myDetectedElemMap->ChangeMap().Add(aPointIndex);
           }
           if (!myDetectedNodeMap.IsNull())
           {
-            myDetectedNodeMap->ChangeMap().Add (aPointIndex);
+            if (myIsFastMap)
+              myDetectedNodeMapFast->ChangeMap().Add(aPointIndex);
+            else
+              myDetectedNodeMap->ChangeMap().Add(aPointIndex);
           }
         }
       }
@@ -1213,13 +1317,25 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::elementIsInside (SelectBasics
         {
           if (!myDetectedElemMap.IsNull())
           {
-            myDetectedElemMap->ChangeMap().Add (aTriIndex);
+            if (myIsFastMap)
+              myDetectedElemMapFast->ChangeMap().Add(aTriIndex);
+            else
+              myDetectedElemMap->ChangeMap().Add(aTriIndex);
           }
           if (!myDetectedNodeMap.IsNull())
           {
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[0]);
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[1]);
-            myDetectedNodeMap->ChangeMap().Add (aTriNodes[2]);
+            if (myIsFastMap)
+            {
+              myDetectedNodeMapFast->ChangeMap().Add(aTriNodes[0]);
+              myDetectedNodeMapFast->ChangeMap().Add(aTriNodes[1]);
+              myDetectedNodeMapFast->ChangeMap().Add(aTriNodes[2]);
+            }
+            else
+            {
+              myDetectedNodeMap->ChangeMap().Add(aTriNodes[0]);
+              myDetectedNodeMap->ChangeMap().Add(aTriNodes[1]);
+              myDetectedNodeMap->ChangeMap().Add(aTriNodes[2]);
+            }
           }
         }
       }
