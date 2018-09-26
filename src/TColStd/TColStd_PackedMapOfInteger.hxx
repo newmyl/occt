@@ -46,8 +46,8 @@ private:
   class TColStd_intMapNode
   {
   public:
-    TColStd_intMapNode (TColStd_intMapNode* thePtr = NULL)
-    : myNext (thePtr), myMask (0), myData (0) {}
+    TColStd_intMapNode()
+    : myNext (NULL), myMask (0), myData (0) {}
 
     TColStd_intMapNode (Standard_Integer theValue, TColStd_intMapNode*& thePtr)
     : myNext (thePtr),
@@ -105,6 +105,13 @@ private:
         return Standard_True;
       }
       return Standard_False;
+    }
+
+    //! Delete all integer keys from this packed node but without invalidating the mask.
+    void ClearValues()
+    {
+      myMask -= (Standard_Integer )NbValues();
+      myData = 0;
     }
 
     //! Find the smallest non-zero bit under the given mask. Outputs the new mask
@@ -218,20 +225,29 @@ public:
       {
         return;
       }
-
-      if (myNode != NULL)
+      else if (myNode != NULL)
       {
         myNode = myNode->Next();
       }
 
-      while (myNode == NULL)
+      for (;;)
       {
-        ++myBucket;
-        if (myBucket > myNbBuckets)
+        if (myNode == NULL)
         {
-          return;
+          if (++myBucket > myNbBuckets)
+          {
+            return;
+          }
+          myNode = myBuckets[myBucket];
         }
-        myNode = myBuckets[myBucket];
+
+        for (; myNode != NULL; myNode = myNode->Next())
+        {
+          if (myNode->HasValues())
+          {
+            return;
+          }
+        }
       }
     }
 
@@ -250,16 +266,20 @@ public:
   //! Constructor
   TColStd_PackedMapOfInteger (const Standard_Integer theNbBuckets = 1)
   : myData1 (NULL),
+    myData2 (NULL),
+    myExtent (0),
     myNbBuckets (theNbBuckets),
     myNbPackedMapNodes (0),
-    myExtent (0) {}
+    myIsSparseAlloc (Standard_True) {}
 
   //! Copy constructor
   TColStd_PackedMapOfInteger (const TColStd_PackedMapOfInteger& theOther)
   : myData1 (NULL),
+    myData2 (NULL),
+    myExtent (0),
     myNbBuckets (1),
     myNbPackedMapNodes (0),
-    myExtent (0)
+    myIsSparseAlloc (Standard_True)
   {
     Assign (theOther);
   }
@@ -271,8 +291,20 @@ public:
   Standard_EXPORT TColStd_PackedMapOfInteger&
                           Assign        (const TColStd_PackedMapOfInteger&);
   Standard_EXPORT  void   ReSize        (const Standard_Integer NbBuckets);
-  Standard_EXPORT  void   Clear         ();
-  ~TColStd_PackedMapOfInteger() { Clear(); }
+
+  //! Clear map and release memory.
+  void Clear()
+  {
+    clear (myIsSparseAlloc);
+  }
+
+  //! Clear map and optionally release memory.
+  void Clear (Standard_Boolean theToReleaseMemory)
+  {
+    clear (theToReleaseMemory);
+  }
+
+  ~TColStd_PackedMapOfInteger() { clear (Standard_True); }
   Standard_EXPORT  Standard_Boolean
                           Add           (const Standard_Integer aKey);
   Standard_EXPORT  Standard_Boolean
@@ -298,6 +330,32 @@ public:
    * Query the maximal contained key value.
    */
   Standard_EXPORT Standard_Integer GetMaximalMapped () const;
+
+  //! Returns TRUE if sparse memory allocation is active; TRUE by default.
+  //!
+  //! Sparse memory allocation would keep memory usage low for a small amount of values,
+  //! but woulds require regular memory reallocations on adding/removing key operations.
+  //!
+  //! Opposite to sparse memory allocation will be allocation of map as array of (packed) Boolean flags,
+  //! so that map containing only small amount of keys would still occupy memory
+  //! enough for storing an array [0, GetMaximalMapped()],
+  //! but adding/removing key will be done with lesser amount of memory reallocations.
+  //!
+  //! WARNING! Only positive keys are allowed when sparse allocation is disabled!
+  Standard_Boolean SparseAllocation() const { return myIsSparseAlloc; }
+
+  //! Set flag for sparse memory allocation.
+  //! Should be called BEFORE map usage.
+  void SetSparseAllocation (Standard_Boolean theIsSparse)
+  {
+    if (myIsSparseAlloc != theIsSparse)
+    {
+      const TColStd_PackedMapOfInteger aCopy (*this);
+      clear (Standard_True);
+      myIsSparseAlloc = theIsSparse;
+      Assign (aCopy);
+    }
+  }
 
 public:
   //!@name Boolean operations with maps as sets of integers
@@ -427,15 +485,25 @@ public:
 
   //!@}
   
- protected:
-
-   //! Returns TRUE if resizing the map should be considered.
-   Standard_Boolean Resizable() const { return IsEmpty() || (myNbPackedMapNodes > myNbBuckets); }
-
-   //! Return an integer index for specified key.
-   static Standard_Integer packedKeyIndex (Standard_Integer theKey) { return (unsigned)theKey >> 5; }
-
 private:
+
+  //! Clear map and release memory.
+  Standard_EXPORT void clear (Standard_Boolean theToReleaseMemory);
+
+  //! Resize map to fit at least one more element.
+  Standard_Boolean autoReSize (Standard_Integer theNewMax)
+  {
+    const Standard_Integer aNbBuckets = myIsSparseAlloc ? myNbPackedMapNodes : theNewMax;
+    if (IsEmpty() || (aNbBuckets > myNbBuckets))
+    {
+      ReSize (aNbBuckets);
+      return Standard_True;
+    }
+    return Standard_False;
+  }
+
+  //! Return an integer index for specified key.
+  static Standard_Integer packedKeyIndex (Standard_Integer theKey) { return (unsigned)theKey >> 5; }
 
   //! Find the smallest non-zero bit under the given mask.
   //! Outputs the new mask that does not contain the detected bit.
@@ -461,12 +529,60 @@ private:
     return size_t(aRes & 0x3f);
   }
 
+  //! Allocate a new packed node within the map.
+  void allocateNode (Standard_Integer theHashCode, Standard_Integer theValue)
+  {
+    if (myData2 != NULL)
+    {
+      myData1[theHashCode] = &myData2[theHashCode];
+      myData1[theHashCode]->ChangeMask() = (unsigned int) (theValue & MASK_HIGH);
+      myData1[theHashCode]->ChangeData() = 1 << (theValue & MASK_LOW);
+    }
+    else
+    {
+      myData1[theHashCode] = new TColStd_intMapNode (theValue, myData1[theHashCode]);
+    }
+    ++myNbPackedMapNodes;
+  }
+
+  //! Allocate a new packed node within the map.
+  void allocateNode (Standard_Integer theHashCode, unsigned int theMask, unsigned int theData)
+  {
+    if (myData2 != NULL)
+    {
+      myData1[theHashCode] = &myData2[theHashCode];
+      myData1[theHashCode]->ChangeMask() = theMask;
+      myData1[theHashCode]->ChangeData() = theData;
+    }
+    else
+    {
+      myData1[theHashCode] = new TColStd_intMapNode (theMask, theData, myData1[theHashCode]);
+    }
+    ++myNbPackedMapNodes;
+  }
+
+  //! Release a packed node from the map.
+  void deleteNode (Standard_Integer theHashCode, TColStd_intMapNode* theNode)
+  {
+    if (myData2 != NULL)
+    {
+      myData1[theHashCode] = NULL;
+    }
+    else
+    {
+      delete theNode;
+    }
+    --myNbPackedMapNodes;
+  }
+
 private:
 
-  TColStd_intMapNode** myData1;            //!< data array
+  TColStd_intMapNode** myData1;            //!< data array of buckets
+  TColStd_intMapNode*  myData2;            //!< data array of pre-allocated buckets
+  Standard_Size        myExtent;           //!< extent of this map (number of unpacked integer keys)
   Standard_Integer     myNbBuckets;        //!< number of buckets (size of data array)
   Standard_Integer     myNbPackedMapNodes; //!< amount of packed map nodes
-  Standard_Size        myExtent;           //!< extent of this map (number of unpacked integer keys)
+  Standard_Boolean     myIsSparseAlloc;    //!< use sparse memory allocation - the number of
 };
 
 #endif
