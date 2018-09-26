@@ -151,6 +151,65 @@ private:
   NCollection_Array1<Handle(Select3D_SensitivePrimitiveArray)>& myGroups;
 };
 
+//! Functor for performing Matches in parallel threads.
+struct Select3D_SensitivePrimitiveArray::Select3D_SensitivePrimitiveArray_MatchesFunctor
+{
+  struct PickResult
+  {
+    SelectBasics_PickResult Result;
+    bool IsFound;
+
+    PickResult() : IsFound (false) {}
+  };
+
+  Select3D_SensitivePrimitiveArray_MatchesFunctor (Select3D_SensitivePrimitiveArray& thePrimSens,
+                                                   SelectBasics_SelectingVolumeManager& theSelMgr)
+  : myPickResults (thePrimSens.myGroups->Lower(), thePrimSens.myGroups->Upper()),
+    myPrimSens (thePrimSens),
+    mySelMgr (theSelMgr) {}
+
+  void operator()(Standard_Integer theIndex) const
+  {
+    const Handle(Select3D_SensitivePrimitiveArray)& aGroup = myPrimSens.myGroups->ChangeValue (theIndex);
+    myPickResults.ChangeValue (theIndex).IsFound = aGroup->Matches (mySelMgr, myPickResults.ChangeValue (theIndex).Result);
+  }
+
+  bool MergeResults (SelectBasics_PickResult& thePickResult) const
+  {
+    bool hasResults = false;
+    for (Standard_Integer aGroupIter = myPickResults.Lower(); aGroupIter <= myPickResults.Upper(); ++aGroupIter)
+    {
+      const PickResult& aPickRes = myPickResults.Value (aGroupIter);
+      if (aPickRes.IsFound)
+      {
+        const Handle(Select3D_SensitivePrimitiveArray)& aGroup = myPrimSens.myGroups->Value (aGroupIter);
+        hasResults = true;
+        if (!myPrimSens.myDetectedElemMap.IsNull())
+        {
+          myPrimSens.myDetectedElemMap->ChangeMap().Unite (aGroup->myDetectedElemMap->Map());
+        }
+        if (!myPrimSens.myDetectedNodeMap.IsNull())
+        {
+          myPrimSens.myDetectedNodeMap->ChangeMap().Unite (aGroup->myDetectedNodeMap->Map());
+        }
+        if (thePickResult.Depth() > aPickRes.Result.Depth())
+        {
+          myPrimSens.myDetectedIdx = aGroupIter;
+          thePickResult = aPickRes.Result;
+        }
+      }
+    }
+    return hasResults;
+  }
+
+private:
+  Select3D_SensitivePrimitiveArray_MatchesFunctor operator= (Select3D_SensitivePrimitiveArray_MatchesFunctor& );
+private:
+  mutable NCollection_Array1<PickResult> myPickResults;
+  Select3D_SensitivePrimitiveArray& myPrimSens;
+  SelectBasics_SelectingVolumeManager& mySelMgr;
+};
+
 // =======================================================================
 // function : Select3D_SensitivePrimitiveArray
 // purpose  :
@@ -185,6 +244,14 @@ Select3D_SensitivePrimitiveArray::Select3D_SensitivePrimitiveArray (const Handle
 // =======================================================================
 void Select3D_SensitivePrimitiveArray::SetDetectElementMap (bool theToDetect)
 {
+  if (!myGroups.IsNull())
+  {
+    for (Select3D_PrimArraySubGroupArray::Iterator aGroupIter (*myGroups); aGroupIter.More(); aGroupIter.Next())
+    {
+      aGroupIter.Value()->SetDetectElementMap (theToDetect);
+    }
+  }
+
   if (!theToDetect)
   {
     myDetectedElemMap.Nullify();
@@ -207,6 +274,14 @@ void Select3D_SensitivePrimitiveArray::SetDetectElementMap (bool theToDetect)
 // =======================================================================
 void Select3D_SensitivePrimitiveArray::SetDetectNodeMap (bool theToDetect)
 {
+  if (!myGroups.IsNull())
+  {
+    for (Select3D_PrimArraySubGroupArray::Iterator aGroupIter (*myGroups); aGroupIter.More(); aGroupIter.Next())
+    {
+      aGroupIter.Value()->SetDetectNodeMap (theToDetect);
+    }
+  }
+
   if (!theToDetect)
   {
     myDetectedNodeMap.Nullify();
@@ -928,31 +1003,9 @@ Standard_Boolean Select3D_SensitivePrimitiveArray::Matches (SelectBasics_Selecti
     return Standard_True;
   }
 
-  SelectBasics_PickResult aPickResult;
-  bool hasResults = false;
-  for (Standard_Integer aGroupIter = 0; aGroupIter < myBvhIndices.NbElements; ++aGroupIter)
-  {
-    const Standard_Integer anElemIdx = myBvhIndices.Index (aGroupIter);
-    Handle(Select3D_SensitivePrimitiveArray)& aChild = myGroups->ChangeValue (anElemIdx);
-    if (aChild->Matches (theMgr, aPickResult))
-    {
-      hasResults = true;
-      if (!myDetectedElemMap.IsNull())
-      {
-        myDetectedElemMap->ChangeMap().Unite (aChild->myDetectedElemMap->Map());
-      }
-      if (!myDetectedNodeMap.IsNull())
-      {
-        myDetectedNodeMap->ChangeMap().Unite (aChild->myDetectedNodeMap->Map());
-      }
-      if (thePickResult.Depth() > aPickResult.Depth())
-      {
-        myDetectedIdx = aGroupIter;
-        thePickResult = aPickResult;
-      }
-    }
-  }
-  if (!hasResults)
+  Select3D_SensitivePrimitiveArray_MatchesFunctor aFunctor (*this, theMgr);
+  OSD_Parallel::For (myGroups->Lower(), myGroups->Upper() + 1, aFunctor);
+  if (!aFunctor.MergeResults (thePickResult))
   {
     return Standard_False;
   }

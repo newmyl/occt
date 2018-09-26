@@ -296,6 +296,7 @@ private:
   typedef NCollection_Shared<NCollection_Array1<Handle(Select3D_SensitivePrimitiveArray)> > Select3D_PrimArraySubGroupArray;
   struct Select3D_SensitivePrimitiveArray_InitFunctor;
   struct Select3D_SensitivePrimitiveArray_BVHFunctor;
+  struct Select3D_SensitivePrimitiveArray_MatchesFunctor;
 
 private:
 
