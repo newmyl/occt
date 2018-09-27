@@ -1249,11 +1249,11 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramFont()
        EOL"}";
 
   TCollection_AsciiString
-    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occSamplerBaseColor, TexCoord.st).a; }";
+    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occActiveSampler, TexCoord.st).a; }";
 #if !defined(GL_ES_VERSION_2_0)
   if (myContext->core11 == NULL)
   {
-    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occSamplerBaseColor, TexCoord.st).r; }";
+    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occActiveSampler, TexCoord.st).r; }";
   }
 #endif
 
@@ -1468,12 +1468,12 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramOitCompositing (const St
 // =======================================================================
 TCollection_AsciiString OpenGl_ShaderManager::pointSpriteAlphaSrc (const Standard_Integer theBits)
 {
-  TCollection_AsciiString aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occSamplerBaseColor, " THE_VEC2_glPointCoord ").a; }";
+  TCollection_AsciiString aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occActiveSampler, " THE_VEC2_glPointCoord ").a; }";
 #if !defined(GL_ES_VERSION_2_0)
   if (myContext->core11 == NULL
    && (theBits & OpenGl_PO_TextureA) != 0)
   {
-    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occSamplerBaseColor, " THE_VEC2_glPointCoord ").r; }";
+    aSrcGetAlpha = EOL"float getAlpha(void) { return occTexture2D(occActiveSampler, " THE_VEC2_glPointCoord ").r; }";
   }
 #else
   (void )theBits;
@@ -1516,7 +1516,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
     if ((theBits & OpenGl_PO_TextureRGB) != 0)
     {
       aSrcFragGetColor =
-        EOL"vec4 getColor(void) { return occTexture2D(occSamplerBaseColor, " THE_VEC2_glPointCoord "); }";
+        EOL"vec4 getColor(void) { return occTexture2D(occActiveSampler, " THE_VEC2_glPointCoord "); }";
     }
 
     if (textureUsed (theBits))
@@ -1554,7 +1554,10 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
       aSrcVertExtraMain += THE_VARY_TexCoord_Trsf;
 
       aSrcFragGetColor =
-        EOL"vec4 getColor(void) { return occTexture2D(occSamplerBaseColor, TexCoord.st / TexCoord.w); }";
+        EOL"vec4 getColor(void)"
+        EOL"{"
+        EOL"  return occTexture2D(occActiveSampler, TexCoord.st / TexCoord.w) * occColor;"
+        EOL"}";
     }
     else if ((theBits & OpenGl_PO_TextureEnv) != 0)
     {
@@ -1571,7 +1574,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramUnlit (Handle(OpenGl_Sha
         EOL"  TexCoord = vec4(aReflect.xy * inversesqrt (dot (aReflect, aReflect)) * 0.5 + vec2 (0.5), 0.0, 1.0);";
 
       aSrcFragGetColor =
-        EOL"vec4 getColor(void) { return occTexture2D (occSamplerBaseColor, TexCoord.st); }";
+        EOL"vec4 getColor(void) { return occTexture2D (occActiveSampler, TexCoord.st); }";
     }
   }
   if ((theBits & OpenGl_PO_VertColor) != 0)
@@ -1752,7 +1755,7 @@ TCollection_AsciiString OpenGl_ShaderManager::pointSpriteShadingSrc (const TColl
       EOL"vec4 getColor(void)"
       EOL"{"
       EOL"  vec4 aColor = " + theBaseColorSrc + ";"
-      EOL"  aColor = occTexture2D(occSamplerBaseColor, " THE_VEC2_glPointCoord ") * aColor;"
+      EOL"  aColor = occTexture2D(occActiveSampler, " THE_VEC2_glPointCoord ") * aColor;"
       EOL"  if (aColor.a <= 0.1) discard;"
       EOL"  return aColor;"
       EOL"}";
@@ -1939,7 +1942,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramGouraud (Handle(OpenGl_S
         EOL"vec4 getColor(void)"
         EOL"{"
         EOL"  vec4 aColor = gl_FrontFacing ? FrontColor : BackColor;"
-        EOL"  return occTexture2D(occSamplerBaseColor, TexCoord.st / TexCoord.w) * aColor;"
+        EOL"  return occTexture2D(occActiveSampler, TexCoord.st / TexCoord.w) * aColor;"
         EOL"}";
     }
   }
@@ -2109,7 +2112,7 @@ Standard_Boolean OpenGl_ShaderManager::prepareStdProgramPhong (Handle(OpenGl_Sha
         EOL"vec4 getColor(void)"
         EOL"{"
         EOL"  vec4 aColor = " thePhongCompLight ";"
-        EOL"  return occTexture2D(occSamplerBaseColor, TexCoord.st / TexCoord.w) * aColor;"
+        EOL"  return occTexture2D(occActiveSampler, TexCoord.st / TexCoord.w) * aColor;"
         EOL"}";
     }
   }
