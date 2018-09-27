@@ -291,7 +291,7 @@ public:
 
   //! Compute per-element multiplication.
   //! @param theFactor [in] the scale factor.
-  //! @return the result of multiplicaton.
+  //! @return the result of multiplication.
   NCollection_Mat4 operator* (const Element_t theFactor) const
   {
     return Multiplied (theFactor);
@@ -299,7 +299,7 @@ public:
 
   //! Compute per-element multiplication.
   //! @param theFactor [in] the scale factor.
-  //! @return the result of multiplicaton.
+  //! @return the result of multiplication.
   NCollection_Mat4 Multiplied (const Element_t theFactor) const
   {
     NCollection_Mat4 aTempMat (*this);
