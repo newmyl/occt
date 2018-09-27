@@ -310,6 +310,12 @@ public:
   //! Removes the setting for material.
   Standard_EXPORT virtual void UnsetMaterial();
   
+  //! Set style of filling capping section created by clipping planes.
+  Standard_EXPORT virtual void SetCappingStyle (const Handle(Graphic3d_AspectFillCapping)& theStyle);
+
+  //! Returns style for filling capping section created by clipping planes.
+  const Handle(Graphic3d_AspectFillCapping)& CappingStyle() const { return myCappingStyle; }
+
   //! Attributes a setting aValue for transparency.
   //! The transparency value should be between 0.0 and 1.0.
   //! At 0.0 an object will be totally opaque, and at 1.0, fully transparent.
@@ -416,6 +422,7 @@ protected:
   Standard_Boolean hasOwnColor;
   Standard_Boolean hasOwnMaterial;
   Standard_Boolean myRecomputeEveryPrs;
+  Handle(Graphic3d_AspectFillCapping) myCappingStyle;
 
 };
 

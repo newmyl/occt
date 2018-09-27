@@ -231,10 +231,11 @@ Standard_Boolean Graphic3d_Group::IsGroupPrimitivesAspectSet (const Graphic3d_Gr
 // function : GroupPrimitivesAspect
 // purpose  :
 // =======================================================================
-void Graphic3d_Group::GroupPrimitivesAspect (const Handle(Graphic3d_AspectLine3d)&     theAspLine,
-                                             const Handle(Graphic3d_AspectText3d)&     theAspText,
-                                             const Handle(Graphic3d_AspectMarker3d)&   theAspMarker,
-                                             const Handle(Graphic3d_AspectFillArea3d)& theAspFill) const
+void Graphic3d_Group::GroupPrimitivesAspect (const Handle(Graphic3d_AspectLine3d)&      theAspLine,
+                                             const Handle(Graphic3d_AspectText3d)&      theAspText,
+                                             const Handle(Graphic3d_AspectMarker3d)&    theAspMarker,
+                                             const Handle(Graphic3d_AspectFillArea3d)&  theAspFill,
+                                             const Handle(Graphic3d_AspectFillCapping)& theAspCapping) const
 {
   if (!theAspLine.IsNull())
   {
@@ -269,6 +270,15 @@ void Graphic3d_Group::GroupPrimitivesAspect (const Handle(Graphic3d_AspectLine3d
     if (!aFillAspect.IsNull())
     {
       *theAspFill.operator->() = *aFillAspect;
+    }
+  }
+
+  if (!theAspCapping.IsNull())
+  {
+    Handle(Graphic3d_AspectFillCapping) aCappingAspect = FillCappingAspect();
+    if (!aCappingAspect.IsNull())
+    {
+      *theAspCapping.operator->() = *aCappingAspect;
     }
   }
 }

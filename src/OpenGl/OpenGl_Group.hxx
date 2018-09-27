@@ -24,9 +24,11 @@
 #include <OpenGl_AspectFace.hxx>
 #include <OpenGl_AspectMarker.hxx>
 #include <OpenGl_AspectText.hxx>
+#include <OpenGl_CappingPlaneResource.hxx>
 #include <OpenGl_Element.hxx>
 
 class OpenGl_Group;
+class OpenGl_CappingPlaneResource;
 class OpenGl_Structure;
 
 struct OpenGl_ElementNode
@@ -103,6 +105,17 @@ public:
   //! Append text aspect as an element.
   Standard_EXPORT virtual void SetPrimitivesAspect (const Handle(Graphic3d_AspectText3d)& theAspect) Standard_OVERRIDE;
 
+  //! Update section style aspect.
+  Standard_EXPORT virtual void SetGroupPrimitivesAspect (const Handle(Graphic3d_AspectFillCapping)& theAspect) Standard_OVERRIDE;
+
+  //! Returns section style aspect.
+  virtual Handle(Graphic3d_AspectFillCapping) FillCappingAspect() const Standard_OVERRIDE
+  {
+    return myAspectFillCapping != NULL
+         ? myAspectFillCapping->Aspect()
+         : Handle(Graphic3d_AspectFillCapping)();
+  }
+
   //! Add primitive array element
   Standard_EXPORT virtual void AddPrimitiveArray (const Graphic3d_TypeOfPrimitiveArray theType,
                                                   const Handle(Graphic3d_IndexBuffer)& theIndices,
@@ -153,6 +166,9 @@ public:
   //! Returns OpenGL face aspect.
   const OpenGl_AspectFace* AspectFace() const { return myAspectFace; }
 
+  //! Returns OpenGL capping filling aspect.
+  const OpenGl_CappingPlaneResource* AspectFillCapping() const { return myAspectFillCapping; }
+
   //! Is the group ray-tracable (contains ray-tracable elements)?
   Standard_Boolean IsRaytracable() const { return myIsRaytracable; }
 
@@ -166,6 +182,7 @@ protected:
   OpenGl_AspectFace*     myAspectFace;
   OpenGl_AspectMarker*   myAspectMarker;
   OpenGl_AspectText*     myAspectText;
+  OpenGl_CappingPlaneResource* myAspectFillCapping;
 
   OpenGl_ElementNode*    myFirst;
   OpenGl_ElementNode*    myLast;
