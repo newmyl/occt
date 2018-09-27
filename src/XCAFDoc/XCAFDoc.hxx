@@ -128,7 +128,13 @@ public:
  
   //! Return GUIDs for TreeNode representing specified types of View
   Standard_EXPORT static Standard_GUID ViewRefEnabledShapesGUID();
+  
+  //! Return GUIDs for clipping plane capping
+  Standard_EXPORT static Standard_GUID ClipPlaneCappingRefGUID();
 
+  //! Return GUIDs for clipping plane visibility
+  Standard_EXPORT static Standard_GUID ClipPlaneVisibleRefGUID();
+  
   //! Return GUIDs for GraphNode representing specified types of View
   Standard_EXPORT static Standard_GUID ViewRefAnnotationGUID();
 
