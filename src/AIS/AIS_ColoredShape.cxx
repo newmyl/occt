@@ -124,8 +124,8 @@ Handle(AIS_ColoredDrawer) AIS_ColoredShape::CustomAspects (const TopoDS_Shape& t
   {
     aDrawer = new AIS_ColoredDrawer (myDrawer);
     myShapeColors.Bind (theShape, aDrawer);
-    LoadRecomputable (AIS_WireFrame);
-    LoadRecomputable (AIS_Shaded);
+    SetToUpdate (AIS_WireFrame);
+    SetToUpdate (AIS_Shaded);
   }
   return aDrawer;
 }
@@ -141,8 +141,8 @@ void AIS_ColoredShape::ClearCustomAspects()
     return;
   }
   myShapeColors.Clear();
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
 }
 
 //=======================================================================
@@ -157,8 +157,8 @@ void AIS_ColoredShape::UnsetCustomAspects (const TopoDS_Shape&    theShape,
     return;
   }
 
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
   if (theToUnregister)
   {
     myShapeColors.UnBind (theShape);
@@ -183,8 +183,8 @@ void AIS_ColoredShape::SetCustomColor (const TopoDS_Shape&   theShape,
   const Handle(AIS_ColoredDrawer)& aDrawer = CustomAspects (theShape);
   setColor (aDrawer, theColor);
   aDrawer->SetOwnColor (theColor);
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
 }
 
 //=======================================================================
@@ -202,8 +202,8 @@ void AIS_ColoredShape::SetCustomWidth (const TopoDS_Shape& theShape,
   const Handle(AIS_ColoredDrawer)& aDrawer = CustomAspects (theShape);
   setWidth (CustomAspects (theShape), theLineWidth);
   aDrawer->SetOwnWidth (theLineWidth);
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
 }
 
 //=======================================================================
@@ -216,8 +216,8 @@ void AIS_ColoredShape::SetColor (const Quantity_Color&  theColor)
   setColor (myDrawer, theColor);
   myDrawer->SetColor (theColor);
   hasOwnColor = Standard_True;
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
   for (AIS_DataMapOfShapeDrawer::Iterator anIter (myShapeColors); anIter.More(); anIter.Next())
   {
     const Handle(AIS_ColoredDrawer)& aDrawer = anIter.Value();
@@ -254,8 +254,8 @@ void AIS_ColoredShape::SetWidth (const Standard_Real    theLineWidth)
 {
   setWidth (myDrawer, theLineWidth);
   myOwnWidth = theLineWidth;
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
   for (AIS_DataMapOfShapeDrawer::Iterator anIter (myShapeColors); anIter.More(); anIter.Next())
   {
     const Handle(AIS_ColoredDrawer)& aDrawer = anIter.Value();
@@ -288,8 +288,8 @@ void AIS_ColoredShape::SetTransparency (const Standard_Real theValue)
 {
   setTransparency (myDrawer, theValue);
   myDrawer->SetTransparency ((Standard_ShortReal )theValue);
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (AIS_Shaded);
   for (AIS_DataMapOfShapeDrawer::Iterator anIter (myShapeColors); anIter.More(); anIter.Next())
   {
     const Handle(Prs3d_Drawer)& aDrawer = anIter.Value();
@@ -339,7 +339,7 @@ void AIS_ColoredShape::SetMaterial (const Graphic3d_MaterialAspect& theMaterial)
   setMaterial (myDrawer, theMaterial, HasColor(), IsTransparent());
   //myOwnMaterial = theMaterial;
   hasOwnMaterial = Standard_True;
-  LoadRecomputable (AIS_Shaded);
+  SetToUpdate (AIS_Shaded);
   for (AIS_DataMapOfShapeDrawer::Iterator anIter (myShapeColors); anIter.More(); anIter.Next())
   {
     const Handle(AIS_ColoredDrawer)& aDrawer = anIter.Value();

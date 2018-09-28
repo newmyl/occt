@@ -47,18 +47,23 @@ void ISession2D_Shape::SetProjector (HLRAlgo_Projector& aProjector)
 
 
 void ISession2D_Shape::SetNbIsos(Standard_Integer& aNbIsos)
-{ 
-	myNbIsos= aNbIsos; 
-	myAlgo.Nullify(); 
-    
-	// declare the mode 100 to 110 as non valid
-	for (int i=100;i<=110;i++)
-       Update(i,Standard_False); // protected method used to specify that the presentation are not up to date 
+{
+  myNbIsos= aNbIsos;
+  myAlgo.Nullify();
 
-	// declare the mode 1100 to 1110 as non valid
-	for (int i=1100;i<=1110;i++)
-       Update(i,Standard_False); // protected method used to specify that the presentation are not up to date 
+  //! declare the mode 100 to 110 as non valid
+  for (int i = 100; i <= 110; i++)
+  {
+    SetToUpdate (i);
+  }
 
+  //! declare the mode 1100 to 1110 as non valid
+  for (int i = 1100; i <= 1110; i++)
+  {
+    SetToUpdate (i);
+  }
+
+  Update(); //< protected method used to specify that the presentation are not up to date
 };
 
 void ISession2D_Shape::BuildAlgo() 

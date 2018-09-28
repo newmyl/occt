@@ -68,15 +68,6 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(AIS_Shape,AIS_InteractiveObject)
 
-static Standard_Boolean IsInList(const TColStd_ListOfInteger& LL, const Standard_Integer aMode)
-{
-  TColStd_ListIteratorOfListOfInteger It(LL);
-  for(;It.More();It.Next()){
-    if(It.Value()==aMode) 
-      return Standard_True;}
-  return Standard_False;
-}
-
 //==================================================
 // Function: AIS_Shape
 // Purpose :
@@ -447,8 +438,6 @@ void AIS_Shape::SetColor (const Quantity_Color& theColor)
   hasOwnColor = Standard_True;
   if (!toRecompute)
   {
-    myToRecomputeModes.Clear();
-    myRecomputeEveryPrs = false;
     SynchronizeAspects();
     return;
   }
@@ -489,8 +478,8 @@ void AIS_Shape::SetColor (const Quantity_Color& theColor)
     }
   }
 
-  LoadRecomputable (AIS_WireFrame);
-  LoadRecomputable (2);
+  SetToUpdate (AIS_WireFrame);
+  SetToUpdate (2);
 }
 
 //=======================================================================
@@ -502,8 +491,6 @@ void AIS_Shape::UnsetColor()
 {
   if (!HasColor())
   {
-    myToRecomputeModes.Clear();
-    myRecomputeEveryPrs = false;
     return;
   }
 
@@ -603,7 +590,7 @@ void AIS_Shape::UnsetColor()
     myDrawer->SetShadingAspect (Handle(Prs3d_ShadingAspect)());
   }
   myDrawer->SetPointAspect (Handle(Prs3d_PointAspect)());
-  myRecomputeEveryPrs = true;
+  SetToUpdate();
 }
 
 //=======================================================================
@@ -690,12 +677,10 @@ void AIS_Shape::SetWidth (const Standard_Real theLineWidth)
   myOwnWidth = theLineWidth;
   if (setWidth (myDrawer, theLineWidth))
   {
-    myRecomputeEveryPrs = true;
+    SetToUpdate();
   }
   else
   {
-    myRecomputeEveryPrs = false;
-    myToRecomputeModes.Clear();
     SynchronizeAspects();
   }
 }
@@ -709,8 +694,6 @@ void AIS_Shape::UnsetWidth()
 {
   if (myOwnWidth == 0.0)
   {
-    myToRecomputeModes.Clear();
-    myRecomputeEveryPrs = false;
     return;
   }
 
@@ -724,7 +707,7 @@ void AIS_Shape::UnsetWidth()
     myDrawer->SetUnFreeBoundaryAspect(anEmptyAsp);
     myDrawer->SetSeenLineAspect      (anEmptyAsp);
     myDrawer->SetFaceBoundaryAspect  (anEmptyAsp);
-    myRecomputeEveryPrs = true;
+    SetToUpdate();
   }
   else
   {
@@ -741,8 +724,6 @@ void AIS_Shape::UnsetWidth()
     myDrawer->FaceBoundaryAspect()      ->SetWidth (myDrawer->HasLink() ?
       AIS_GraphicTool::GetLineWidth (myDrawer->Link(), AIS_TOA_FaceBoundary) : 1.);
     SynchronizeAspects();
-    myToRecomputeModes.Clear();
-    myRecomputeEveryPrs = false;
   }
 }
 
@@ -813,9 +794,6 @@ void AIS_Shape::SetMaterial (const Graphic3d_MaterialAspect& theMat)
       }
     }
   }
-
-  myRecomputeEveryPrs = Standard_False; // no mode to recalculate  :only viewer update
-  myToRecomputeModes.Clear();
 }
 
 //=======================================================================
@@ -876,9 +854,6 @@ void AIS_Shape::UnsetMaterial()
       }
     }
   }
-
-  myRecomputeEveryPrs = Standard_False; // no mode to recalculate :only viewer update
-  myToRecomputeModes.Clear();  
 }
 
 //=======================================================================
@@ -933,9 +908,6 @@ void AIS_Shape::SetTransparency (const Standard_Real theValue)
       }
     }
   }
-
-  myRecomputeEveryPrs = Standard_False; // no mode to recalculate - only viewer update
-  myToRecomputeModes.Clear();
 }
 
 //=======================================================================
@@ -982,21 +954,6 @@ void AIS_Shape::UnsetTransparency()
       }
     }
   }
-
-  myRecomputeEveryPrs = Standard_False; // no mode to recalculate :only viewer update
-  myToRecomputeModes.Clear();
-}
-
-//=======================================================================
-//function : LoadRecomputable
-//purpose  : 
-//=======================================================================
-
-void AIS_Shape::LoadRecomputable(const Standard_Integer TheMode)
-{
-  myRecomputeEveryPrs = Standard_False;
-  if(!IsInList(myToRecomputeModes,TheMode))
-    myToRecomputeModes.Append(TheMode);
 }
 
 //=======================================================================

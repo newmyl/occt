@@ -1188,10 +1188,6 @@ protected: //! @name internal methods
   //! UNKNOWN
   Standard_EXPORT void redisplayPrsModes (const Handle(AIS_InteractiveObject)& theIObj,
                                           const Standard_Boolean               theToUpdateViewer);
-  
-  //! UNKNOWN
-  Standard_EXPORT void redisplayPrsRecModes (const Handle(AIS_InteractiveObject)& theIObj,
-                                             const Standard_Boolean               theToUpdateViewer);
 
   //! Helper function to unhighlight all entity owners currently highlighted with seleciton color.
   Standard_EXPORT void unhighlightOwners (const Handle(AIS_InteractiveObject)& theObject);
