@@ -114,9 +114,6 @@ void AIS_Triangulation::updatePresentation()
         }
       }
     }
-
-    myRecomputeEveryPrs = Standard_False; // no mode to recalculate - only viewer update
-    myToRecomputeModes.Clear();
   }
 }
 

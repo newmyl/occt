@@ -297,12 +297,10 @@ Standard_EXPORT virtual ~PrsMgr_PresentableObject();
   //! object before computation.
   Standard_EXPORT virtual void Compute (const Handle(Prs3d_Projector)& aProjector, const Handle(Geom_Transformation)& aTrsf, const Handle(Prs3d_Presentation)& aPresentation);
   
-  //! recomputes all presentations of the object.
-  Standard_EXPORT void Update (const Standard_Boolean AllModes = Standard_False);
-  
-  //! Recomputes the presentation in the given mode.
+  //! Recomputes presentations of the object.
   //! If ClearOther is true, other presentation will be cleared.
-  Standard_EXPORT void Update (const Standard_Integer aMode, const Standard_Boolean ClearOther);
+  Standard_EXPORT void Update (const Standard_Boolean theAllModes   = Standard_False,
+                               const Standard_Boolean theClearOther = Standard_False);
   
   //! High-level interface for controlling polygon offsets
   Standard_EXPORT virtual void Fill (const Handle(PrsMgr_PresentationManager)& aPresentationManager, const Handle(PrsMgr_Presentation)& aPresentation, const Standard_Integer aMode);

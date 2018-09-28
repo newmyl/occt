@@ -56,8 +56,7 @@ AIS_InteractiveObject::AIS_InteractiveObject (const PrsMgr_TypeOfPresentation3d 
   myCurrentFacingModel (Aspect_TOFM_BOTH_SIDE),
   myInfiniteState (Standard_False),
   hasOwnColor (Standard_False),
-  hasOwnMaterial (Standard_False),
-  myRecomputeEveryPrs (Standard_True)
+  hasOwnMaterial (Standard_False)
 {
   SetCurrentFacingModel();
 }
@@ -89,14 +88,6 @@ AIS_KindOfInteractive AIS_InteractiveObject::Type() const
 
 Standard_Integer AIS_InteractiveObject::Signature() const 
 {return -1;}
-
-//=======================================================================
-//function : RecomputeEveryPrs
-//purpose  : 
-//=======================================================================
-
-Standard_Boolean  AIS_InteractiveObject::RecomputeEveryPrs() const 
-{return myRecomputeEveryPrs;}
 
 //=======================================================================
 //function : 
@@ -336,28 +327,6 @@ void AIS_InteractiveObject::UnsetAttributes()
   myOwnWidth     = 0.0;
   myDrawer->SetTransparency (0.0f);
 }
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-void AIS_InteractiveObject::MustRecomputePrs(const Standard_Integer ) const 
-{}
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-const TColStd_ListOfInteger& AIS_InteractiveObject::ListOfRecomputeModes() const 
-{return myToRecomputeModes;}
-
-//=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-void AIS_InteractiveObject::SetRecomputeOk()
-{myToRecomputeModes.Clear();}
-
 
 //=======================================================================
 //function : AcceptDisplayMode

@@ -118,55 +118,45 @@ void PrsMgr_PresentableObject::Compute(const Handle(Prs3d_Projector)& /* aProjec
 //function : Update
 //purpose  : 
 //=======================================================================
-void PrsMgr_PresentableObject::Update (const Standard_Boolean AllModes) {
-  Standard_Integer l = myPresentations.Length();
-  Handle(PrsMgr_PresentationManager) PM; 
-  for (Standard_Integer i=1; i <= l; i++) {
-    PM = myPresentations(i).Presentation()->PresentationManager();
-    if(AllModes) 
-      PM->Update(this,myPresentations(i).Mode());
-    else{
-      if(PM->IsDisplayed(this,myPresentations(i).Mode()) ||
-	 PM->IsHighlighted(this,myPresentations(i).Mode())){
-	PM->Update(this,myPresentations(i).Mode());
+void PrsMgr_PresentableObject::Update (const Standard_Boolean theAllModes,
+                                       const Standard_Boolean theClearOther)
+{
+  const Standard_Integer aPrsSeqLength = myPresentations.Length();
+  if (theClearOther)
+  {
+    PrsMgr_Presentations aTmpPrsSeq = myPresentations;
+    myPresentations.Clear();
+    for (Standard_Integer aPrsIndex = 1; aPrsIndex <= aPrsSeqLength; ++aPrsIndex)
+    {
+      const PrsMgr_ModedPresentation& aModedPrs = aTmpPrsSeq (aPrsIndex);
+      if (aModedPrs.Presentation()->MustBeUpdated())
+      {
+        myPresentations.Append (aModedPrs);
+      }
+    }
+  }
+
+  for (Standard_Integer aPrsIndex = 1; aPrsIndex <= aPrsSeqLength; ++aPrsIndex)
+  {
+    const PrsMgr_ModedPresentation& aModedPrs = myPresentations (aPrsIndex);
+    Handle(PrsMgr_PresentationManager) aPrsMgr = aModedPrs.Presentation()->PresentationManager();
+    if (theAllModes)
+    {
+      aPrsMgr->Update (this, aModedPrs.Mode());
+    }
+    else if (aModedPrs.Presentation()->MustBeUpdated())
+    {
+      if (aPrsMgr->IsDisplayed (this, aModedPrs.Mode())
+       || aPrsMgr->IsHighlighted (this, aModedPrs.Mode()))
+      {
+        aPrsMgr->Update (this, aModedPrs.Mode());
       }
       else
-	SetToUpdate(myPresentations(i).Mode());
+      {
+        SetToUpdate (aModedPrs.Mode());
+      }
     }
   }
-}
-
-//=======================================================================
-//function : Update
-//purpose  : 
-//=======================================================================
-void PrsMgr_PresentableObject::Update (const Standard_Integer aMode, const Standard_Boolean ClearOther) {
-  Standard_Integer l = myPresentations.Length();
-  for (Standard_Integer i=1; i <= l; i++) {
-    if( myPresentations(i).Mode() == aMode){
-       Handle(PrsMgr_PresentationManager) PM=
-	 myPresentations(i).Presentation()->PresentationManager();
-       
-       if(PM->IsDisplayed(this,aMode) ||
-	  PM->IsHighlighted(this,aMode)){
-	 PM->Update(this,aMode);
-	 myPresentations(i).Presentation()->SetUpdateStatus(Standard_False);
-	 
-       }
-       else
-	 SetToUpdate(myPresentations(i).Mode());
-     }
-    
-  }
-  if(ClearOther) {
-    PrsMgr_Presentations save;
-    save =  myPresentations; 
-    myPresentations.Clear();
-    for (Standard_Integer i=1; i <= l; i++) {
-      if( save(i).Mode() == aMode) myPresentations.Append(save(i));
-    }
-  }
-
 }
 
 //=======================================================================
