@@ -170,6 +170,19 @@ void PrsMgr_PresentableObject::Update (const Standard_Integer aMode, const Stand
 }
 
 //=======================================================================
+//function : Update
+//purpose  : 
+//=======================================================================
+void PrsMgr_PresentableObject::Update (const TColStd_ListOfInteger& theModesList,
+                                       const Standard_Boolean       theClearOther)
+{
+  for (TColStd_ListIteratorOfListOfInteger aPrsModesIt (theModesList); aPrsModesIt.More(); aPrsModesIt.Next())
+  {
+    Update (aPrsModesIt.Value(), theClearOther);
+  }
+}
+
+//=======================================================================
 //function : SetToUpdate
 //purpose  : 
 //=======================================================================

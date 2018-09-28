@@ -386,16 +386,6 @@ public:
   //! so that modifications will take effect on already computed presentation groups (thus avoiding re-displaying the object).
   Standard_EXPORT void SynchronizeAspects();
 
-private:
-
-  Standard_EXPORT virtual Standard_Boolean RecomputeEveryPrs() const;
-
-  Standard_EXPORT void MustRecomputePrs (const Standard_Integer aMode) const;
-
-  Standard_EXPORT const TColStd_ListOfInteger& ListOfRecomputeModes() const;
-
-  Standard_EXPORT void SetRecomputeOk();
-
 protected:
 
   //! The TypeOfPresention3d means that the interactive object
@@ -415,7 +405,6 @@ protected:
   Standard_Boolean myInfiniteState;
   Standard_Boolean hasOwnColor;
   Standard_Boolean hasOwnMaterial;
-  Standard_Boolean myRecomputeEveryPrs;
 
 };
 

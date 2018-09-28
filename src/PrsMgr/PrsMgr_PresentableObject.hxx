@@ -304,6 +304,10 @@ Standard_EXPORT virtual ~PrsMgr_PresentableObject();
   //! Recomputes the presentation in the given mode.
   //! If ClearOther is true, other presentation will be cleared.
   Standard_EXPORT void Update (const Standard_Integer aMode, const Standard_Boolean ClearOther);
+
+  //! Recomputes the presentation in the given list of modes.
+  //! If ClearOther is true, other presentation will be cleared.
+  Standard_EXPORT void Update (const TColStd_ListOfInteger& theModesList, const Standard_Boolean theClearOther);
   
   //! High-level interface for controlling polygon offsets
   Standard_EXPORT virtual void Fill (const Handle(PrsMgr_PresentationManager)& aPresentationManager, const Handle(PrsMgr_Presentation)& aPresentation, const Standard_Integer aMode);
