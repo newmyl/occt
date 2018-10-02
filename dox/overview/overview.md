@@ -189,7 +189,7 @@ To generate Reference manual:
 
 Run this command without arguments to get help on supported options.
 
-@section OCCT_OVW_SECTION_5 Requirements
+@section OCCT_OVW_SECTION_4 Requirements
 
 Open CASCADE Technology is designed to be highly portable and is known to 
 work on wide range of platforms. 
@@ -246,14 +246,14 @@ Therefore, if you observe some unexpected visual issues - first check for OpenGL
 but beware that driver update might also come with new bugs.
 Don't forget to report these bugs to vendors.
 
-@section OCCT_OVW_SECTION_4 Installation
+@section OCCT_OVW_SECTION_5 Installation
 
 In most cases you need to rebuild OCCT on your platform (OS, compiler) before
 using it in your project, to ensure binary compatibility.
 See @ref occt_dev_guides__building for instructions on
 building OCCT from sources on supported platforms.
 
-@subsection OCCT_OVW_SECTION_4_1 Using Windows installer
+@subsection OCCT_OVW_SECTION_5_1 Using Windows installer
 
 On Windows Open CASCADE Technology can be installed with binaries precompiled by 
 Visual C++ 2010 with installation procedure.
@@ -288,6 +288,7 @@ The contents of the OCCT-7.3.0 directory (called further "OCCT root", or $CASROO
   * **adm**   This folder contains administration files, which allow rebuilding OCCT;
   * **adm/cmake**  This folder contains files of CMake building procedure;
   * **adm/msvc**  This folder contains Visual Studio projects for Visual C++ 2010, 2012, 2013, 2015 and 2017 which allow rebuilding OCCT under Windows platform in 32 and 64-bit mode;
+  * **cmake** This folder contains CMake configuration files intended for use by projects that are based on OCCT;
   * **data**  This folder contains CAD files in different formats, which can be used to test the OCCT functionality;
   * **doc**  This folder contains OCCT documentation in HTML and PDF format;
   * **dox**  This folder contains sources of OCCT documentation in plain text (MarkDown) format;
@@ -298,7 +299,42 @@ The contents of the OCCT-7.3.0 directory (called further "OCCT root", or $CASROO
   * **tools**  This folder contains sources of Inspector tool.
   * **win64/vc10**  This folder contains executable and library files built in optimize mode for Windows platform by Visual C++  2010;
 
-@section OCCT_OVW_SECTION_4_2 Environment Variables
+@section OCCT_OVW_SECTION_6 Use of OCCT in CMake-based projects
+
+CMake provides a way to export project's targets, configuration properties, compile definitions and flags into the dedicated files, 
+which can be then used in dependent project which build procedure is written with CMake.
+
+@subsection OCCT_OVW_SECTION_6_1 CMake configuration files
+
+@subsubsection OCCT_OVW_SECTION_6_1_1 OpenCASCADEConfig.cmake file
+
+CMake provides standard mechanism for the package to specify its configuration (location of components, build settings etc.) for dependent projects.
+
+The configuration file indicates:
+
+  * version of OCCT;
+  * paths to headers, binaries, libraries, resources;
+  * list of installed modules and  libraries for each module;
+  * used third-party libraries;
+  * other compiler and build options (e.g. compiler, static / dynamic build, etc.)
+
+This file can then be used by the find_package() command in config-mode to provide information about include-directories, libraries and their dependencies, 
+required compile-flags or locations of executables.
+
+@subsubsection OCCT_OVW_SECTION_6_1_2 OpenCASCADEConfigVersion.cmake file
+
+This is a basic version file for the Config-mode of find_package().
+It is used by write_basic_package_version_file() as input file for configure_file() to create a version-file which can be installed along a config.cmake file.
+
+@subsubsection OCCT_OVW_SECTION_6_1_3 OpenCASCADECompileDefinitionsAndFlags.cmake file
+
+This is OpenCASCADE CMake file with compile definitions (e.g. HAVE_TBB, HAVE_VTK, HAVE_FREEIMAGE, etc.) and C/C++ flags for each configuration.
+
+@subsubsection OCCT_OVW_SECTION_6_1_4 OpenCASCADETargets.cmake file
+
+Target files are created for each built OCCT module during installation procedure.
+
+@section OCCT_OVW_SECTION_7 Environment Variables
 
 To run any Open CASCADE Technology application you need to set the environment variables.
 
@@ -356,9 +392,9 @@ The scripts are located in the OCCT root folder.
   * **CSF_XmlOcafResource** is required in order to set the path to **XSD** resources, which defines XML grammar.
   * **CSF_MIGRATION_TYPES** is required in order to read documents that contain old data types, such as *TDataStd_Shape*;
 
-@section OCCT_OVW_SECTION_7 Getting Started
+@section OCCT_OVW_SECTION_8 Getting Started
 
-@subsection OCCT_OVW_SECTION_7_1 Draw Test Harness
+@subsection OCCT_OVW_SECTION_8_1 Draw Test Harness
 
 Draw is a command interpreter based on TCL and a graphical system used for testing and demonstrating OCCT modeling libraries.
 
@@ -403,7 +439,7 @@ Remarks:
 * The DRAWEXE executable is delivered with the installation procedure on Windows platform only.
 * To start it, launch DRAWEXE executable from Open CASCADE Technology/Draw Test Harness item of the Start\\Programs menu.
 
-@subsection OCCT_OVW_SECTION_7_2 Experimenting with Draw Test Harness
+@subsection OCCT_OVW_SECTION_8_2 Experimenting with Draw Test Harness
 
  Running Draw
 ------------
@@ -462,9 +498,9 @@ Type pload ALL
 1. Type *help* to see all available commands
 2. Type *help \<command_name\>* to find out the arguments for a given command
 
-@subsection OCCT_OVW_SECTION_7_3 Programming Samples
+@subsection OCCT_OVW_SECTION_8_3 Programming Samples
 
-@subsubsection OCCT_OVW_SECTION_7_3_1 MFC 
+@subsubsection OCCT_OVW_SECTION_8_3_1 MFC 
 
 Visual C++ programming samples containing 10 Visual C++ projects 
 illustrating how to use a particular module or functionality.
@@ -492,7 +528,7 @@ The list of MFC samples:
 
 See \subpage samples_mfc_standard "Readme" for details.
 
-@subsubsection OCCT_OVW_SECTION_7_3_2 Qt
+@subsubsection OCCT_OVW_SECTION_8_3_2 Qt
 
 OCCT contains three samples based on Qt application framework
 
@@ -522,7 +558,7 @@ The combination of these resources allows creating substantial applications.
   * Qt samples are available on all supported platforms;
   * To start a sample on Windows use Open CASCADE Technology\\Samples\\Qt\\ item of the Start\\Programs menu.
 
-@subsubsection OCCT_OVW_SECTION_7_3_3 C#
+@subsubsection OCCT_OVW_SECTION_8_3_3 C#
 
 C# sample demonstrates integration of OCCT 3D Viewer and Import / Export functionality into .NET applications (using Windows Forms and WPF front ends).
 
@@ -548,7 +584,7 @@ There is also another C# example with the same functionality, which demonstrates
 
 See \subpage samples_csharp_direct3d "Direct3D C# sample Readme" for details.
 
-@subsubsection OCCT_OVW_SECTION_7_3_4 Android
+@subsubsection OCCT_OVW_SECTION_8_3_4 Android
 
 There are two samples are representing usage OCCT framework on Android mobile platform. They represent an OCCT-based 3D-viewer with CAD import support in formats BREP, STEP and IGES: jniviewer (java) and AndroidQt (qt+qml)
 
@@ -560,7 +596,7 @@ AndroidQt
 @figure{/overview/images/samples_qml_android_occt.jpg}
 Qt -- See \subpage samples_qml_android_occt "Android Qt sample Readme" for details.
 
-@subsubsection OCCT_OVW_SECTION_7_3_5 iOS
+@subsubsection OCCT_OVW_SECTION_8_3_5 iOS
 
 There is a sample demonstrating usage of OCCT on iOS with Apple UIKit framework.
 
