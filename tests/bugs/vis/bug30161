@@ -1,0 +1,23 @@
+puts "========"
+puts "OCC30161: Visualization, Select3D_SensitivePrimitiveArray - selection map is not fast enough"
+puts "========"
+
+# generate (spherical) face with 12 M triangles
+psphere s 10
+explode s f
+tessellate r s_1 3000 2000
+trinfo r
+
+# display it as primitive array
+vinit
+
+dchrono t1 restart
+vdrawparray a -shapedm r
+vfit
+dchrono t1 stop show
+
+# select all
+dchrono t2 restart
+vselect 0 0 410 410 -allowoverlap 1
+                    
+dchrono t2 stop show

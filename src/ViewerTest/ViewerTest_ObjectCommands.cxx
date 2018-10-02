@@ -3279,7 +3279,9 @@ class MyPArrayObject : public AIS_InteractiveObject
 
 public:
 
-  MyPArrayObject (const Handle(Graphic3d_ArrayOfPrimitives)& thePArray) : myPArray (thePArray) {}
+  MyPArrayObject (const Handle(Graphic3d_ArrayOfPrimitives)& thePArray,
+                  const Standard_Boolean theIsDetectMap = Standard_False)
+    : myPArray (thePArray), myDetectMap(theIsDetectMap) {}
 
   MyPArrayObject (Handle(TColStd_HArray1OfAsciiString) theArrayDescription,
                   Handle(Graphic3d_AspectMarker3d) theMarkerAspect = NULL);
@@ -3308,7 +3310,7 @@ protected:
   Handle(TColStd_HArray1OfAsciiString) myArrayDescription;
   Handle(Graphic3d_AspectMarker3d) myMarkerAspect;
   Handle(Graphic3d_ArrayOfPrimitives) myPArray;
-
+  Standard_Boolean myDetectMap;
 };
 
 void MyPArrayObject::Compute (const Handle(PrsMgr_PresentationManager3d)& /*aPresentationManager*/,
@@ -3495,6 +3497,11 @@ void MyPArrayObject::ComputeSelection (const Handle(SelectMgr_Selection)& theSel
   if (Handle(Graphic3d_ArrayOfTriangles) aTris = Handle(Graphic3d_ArrayOfTriangles)::DownCast (myPArray))
   {
     Handle(Select3D_SensitivePrimitiveArray) aSensitive = new Select3D_SensitivePrimitiveArray (anOwner);
+    if (myDetectMap)
+    {
+      aSensitive->SetDetectNodeMap(Standard_True);
+      aSensitive->SetDetectElementMap(Standard_True);
+    }
     aSensitive->InitTriangulation (myPArray->Attributes(), myPArray->Indices(), TopLoc_Location(), true);
     theSelection->Add (aSensitive);
   }
@@ -3523,6 +3530,11 @@ void MyPArrayObject::ComputeSelection (const Handle(SelectMgr_Selection)& theSel
   {
     Handle(Select3D_SensitivePrimitiveArray) aSensitive = new Select3D_SensitivePrimitiveArray (anOwner);
     aSensitive->SetSensitivityFactor (8);
+    if (myDetectMap)
+    {
+      aSensitive->SetDetectNodeMap(Standard_True);
+      aSensitive->SetDetectElementMap(Standard_True);
+    }
     aSensitive->InitPoints (myPArray->Attributes(), myPArray->Indices(), TopLoc_Location(), true);
     theSelection->Add (aSensitive);
   }
@@ -3581,7 +3593,7 @@ static int VDrawPArray (Draw_Interpretor& di, Standard_Integer argc, const char*
   Standard_Integer aArgIndex = 1;
   TCollection_AsciiString aName (argv[aArgIndex++]);
   TCollection_AsciiString anArrayType (argv[aArgIndex++]);
-  if (anArrayType == "-shape")
+  if (anArrayType == "-shape" || anArrayType == "-shapedm")
   {
     Standard_CString aShapeName = argv[aArgIndex++];
     TopoDS_Shape aShape = DBRep::Get (aShapeName);
@@ -3597,7 +3609,8 @@ static int VDrawPArray (Draw_Interpretor& di, Standard_Integer argc, const char*
       return 1;
     }
 
-    Handle(MyPArrayObject) aPObject = new MyPArrayObject (aTris);
+    Standard_Boolean isDetectMap = anArrayType == "-shapedm";
+    Handle(MyPArrayObject) aPObject = new MyPArrayObject (aTris, isDetectMap);
     ViewerTest::Display (aName, aPObject);
     return 0;
   }
