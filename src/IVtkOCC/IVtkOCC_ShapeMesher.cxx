@@ -128,7 +128,8 @@ void IVtkOCC_ShapeMesher::meshShape()
     Handle(BRepMesh_DiscretRoot) anAlgo;
     anAlgo = BRepMesh_DiscretFactory::Get().Discret (anOcctShape,
                                                      aDeflection,
-                                                     GetDeviationAngle());
+                                                     GetDeviationAngle(),
+                                                     GetTDOldBehavior());
     if (!anAlgo.IsNull())
     {
       anAlgo->Perform();
@@ -455,12 +456,13 @@ static void FindLimits (const Adaptor3d_Curve& theCurve,
 //! @param [in] theU2 maximal curve parameter value
 //! @param [out] thePoints the container for generated polyline
 //================================================================
-static void DrawCurve (Adaptor3d_Curve&    theCurve,
-                       const Standard_Real theDeflection,
-                       const Standard_Real theAngle,
-                       const Standard_Real theU1,
-                       const Standard_Real theU2,
-                       IVtk_Polyline&      thePoints)
+static void DrawCurve (Adaptor3d_Curve&       theCurve,
+                       const Standard_Real    theDeflection,
+                       const Standard_Real    theAngle,
+                       const Standard_Boolean theTDOldBehavior,
+                       const Standard_Real    theU1,
+                       const Standard_Real    theU2,
+                       IVtk_Polyline&         thePoints)
 {
   switch (theCurve.GetType())
   {
@@ -493,7 +495,7 @@ static void DrawCurve (Adaptor3d_Curve&    theCurve,
           anU1 = Max(anU1, anU1);
           anU2 = Min(anU2, anU2);
 
-          GCPnts_TangentialDeflection anAlgo (theCurve, anU1, anU2, theAngle, theDeflection);
+          GCPnts_TangentialDeflection anAlgo (theCurve, anU1, anU2, theAngle, theDeflection, theTDOldBehavior);
           NumberOfPoints = anAlgo.NbPoints();
 
           if (NumberOfPoints > 0)
@@ -766,7 +768,7 @@ void IVtkOCC_ShapeMesher::buildIsoLines (const Handle(BRepAdaptor_HSurface)& the
         if (aB2 - aB1 > Precision::Confusion())
         {
           IVtk_Polyline aPoints;
-          DrawCurve (aGeomCurve, aDeflection, anAngle, aB1, aB2, aPoints);
+          DrawCurve (aGeomCurve, aDeflection, anAngle, GetTDOldBehavior(), aB1, aB2, aPoints);
           thePolylines.Append (aPoints);
         }
       }
@@ -784,7 +786,7 @@ void IVtkOCC_ShapeMesher::buildIsoLines (const Handle(BRepAdaptor_HSurface)& the
         if (aB2 - aB1>Precision::Confusion())
         {
           IVtk_Polyline aPoints;
-          DrawCurve (anIso, aDeflection, anAngle, aB1, aB2, aPoints);
+          DrawCurve (anIso, aDeflection, anAngle, GetTDOldBehavior(), aB1, aB2, aPoints);
           thePolylines.Append (aPoints);
         }
       }

@@ -75,21 +75,21 @@ public:
   
   Standard_EXPORT GCPnts_TangentialDeflection();
   
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor3d_Curve& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor3d_Curve& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor3d_Curve& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor3d_Curve& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT void Initialize (const Adaptor3d_Curve& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT void Initialize (const Adaptor3d_Curve& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT void Initialize (const Adaptor3d_Curve& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT void Initialize (const Adaptor3d_Curve& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT void Initialize (const Adaptor2d_Curve2d& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT void Initialize (const Adaptor2d_Curve2d& C, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
-  Standard_EXPORT void Initialize (const Adaptor2d_Curve2d& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7);
+  Standard_EXPORT void Initialize (const Adaptor2d_Curve2d& C, const Standard_Real FirstParameter, const Standard_Real LastParameter, const Standard_Real AngularDeflection, const Standard_Real CurvatureDeflection, const Standard_Integer MinimumOfPoints = 2, const Standard_Real UTol = 1.0e-9, const Standard_Real theMinLen = 1.0e-7, const Standard_Boolean ACompOldBehavior = Standard_False);
   
   //! Add point to already calculated points (or replace existing)
   //! Returns index of new added point
@@ -109,6 +109,12 @@ public:
   gp_Pnt Value (const Standard_Integer I) const
   {
     return points.Value (I);
+  }
+
+  //! Returns if the old behavior for angle comparison (based on sin) or the new one (based on cos) should be used.
+  Standard_Boolean ACompOldBehavior()
+  {
+      return aCompOldBehavior;
   }
   
   //! Computes angular step for the arc using the given parameters.
@@ -148,6 +154,7 @@ private:
   Standard_Real firstu;
   TColgp_SequenceOfPnt points;
   TColStd_SequenceOfReal parameters;
+  Standard_Boolean aCompOldBehavior;
 };
 
 #endif // _GCPnts_TangentialDeflection_HeaderFile

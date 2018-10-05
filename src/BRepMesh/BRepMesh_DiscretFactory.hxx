@@ -89,9 +89,11 @@ public:
   //! @param theShape shape to be meshed.
   //! @param theLinDeflection linear deflection to be used for meshing.
   //! @param theAngDeflection angular deflection to be used for meshing.
+  //! @param theTDOldBehavior tangential deflection behavior for default algorithm.
   Standard_EXPORT Handle(BRepMesh_DiscretRoot) Discret(const TopoDS_Shape& theShape,
                                                        const Standard_Real theLinDeflection,
-                                                       const Standard_Real theAngDeflection);
+                                                       const Standard_Real theAngDeflection,
+                                                       const Standard_Boolean theTDOldBehavior = Standard_True);
 
 protected:
   

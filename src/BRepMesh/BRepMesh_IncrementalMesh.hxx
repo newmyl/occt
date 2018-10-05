@@ -57,7 +57,8 @@ public: //! @name mesher API
     const Standard_Boolean isRelative = Standard_False,
     const Standard_Real    theAngDeflection = 0.5,
     const Standard_Boolean isInParallel = Standard_False,
-    const Standard_Boolean adaptiveMin = Standard_False);  
+    const Standard_Boolean adaptiveMin = Standard_False,
+    const Standard_Boolean theTdOldBehavior = Standard_True);
 
   //! Constructor.
   //! Automatically calls method Perform.
@@ -107,6 +108,19 @@ public: //! @name plugin API
   Standard_EXPORT static Standard_Integer Discret(const TopoDS_Shape&    theShape,
                                                   const Standard_Real    theLinDeflection,
                                                   const Standard_Real    theAngDeflection,
+                                                  BRepMesh_DiscretRoot* &theAlgo);
+
+  //! Plugin interface for the Mesh Factories.
+  //! Initializes meshing algorithm with the given parameters.
+  //! @param theShape shape to be meshed.
+  //! @param theLinDeflection linear deflection.
+  //! @param theAngDeflection angular deflection.
+  //! @param theTdOldBehavior angle comparison mode for tangential deflection
+  //! @param[out] theAlgo pointer to initialized algorithm.
+  Standard_EXPORT static Standard_Integer Discret(const TopoDS_Shape&    theShape,
+                                                  const Standard_Real    theLinDeflection,
+                                                  const Standard_Real    theAngDeflection,
+                                                  const Standard_Boolean theTdOldBehavior,
                                                   BRepMesh_DiscretRoot* &theAlgo);
   
   //! Returns multi-threading usage flag set by default in 

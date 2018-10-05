@@ -42,7 +42,7 @@ void GCPnts_TangentialDeflection::EvaluateDu (
     Standard_Real Lc = N.CrossMagnitude (T);
     Standard_Real Ln = Lc/Lt;
     if (Ln > LTol) {
-      Du = sqrt (8.0 * Max(curvatureDeflection, myMinLen) / Ln);
+      Du = Sqrt (8.0 * Max(curvatureDeflection, myMinLen) / Ln);
       NotDone = Standard_False;
     }
   }
@@ -60,10 +60,11 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection (
  const Standard_Real    CurvatureDeflection,
  const Standard_Integer MinimumOfPoints,
  const Standard_Real    UTol,
- const Standard_Real    theMinLen)
+ const Standard_Real    theMinLen, 
+ const Standard_Boolean ACompOldBehavior)
 
 { 
-  Initialize (C,AngularDeflection,CurvatureDeflection,MinimumOfPoints,UTol,theMinLen); 
+  Initialize (C,AngularDeflection,CurvatureDeflection,MinimumOfPoints,UTol,theMinLen, ACompOldBehavior);
 }
 
 
@@ -80,7 +81,8 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection (
  const Standard_Real    CurvatureDeflection,
  const Standard_Integer MinimumOfPoints,
  const Standard_Real    UTol,
- const Standard_Real    theMinLen)
+ const Standard_Real    theMinLen,
+ const Standard_Boolean ACompOldBehavior)
 
 { 
   Initialize (C, 
@@ -89,7 +91,8 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection (
         AngularDeflection, 
         CurvatureDeflection, 
         MinimumOfPoints,
-        UTol, theMinLen);
+        UTol, theMinLen,
+        ACompOldBehavior);
 }
 
 
@@ -105,7 +108,8 @@ void GCPnts_TangentialDeflection::Initialize (
  const Standard_Real    CurvatureDeflection,
  const Standard_Integer MinimumOfPoints,
  const Standard_Real    UTol,
- const Standard_Real    theMinLen)
+ const Standard_Real    theMinLen,
+ const Standard_Boolean ACompOldBehavior)
 
 {
   Initialize (C, 
@@ -114,7 +118,8 @@ void GCPnts_TangentialDeflection::Initialize (
               AngularDeflection, 
               CurvatureDeflection,
               MinimumOfPoints,
-              UTol, theMinLen);
+              UTol, theMinLen,
+              ACompOldBehavior);
 }
 
 
@@ -131,12 +136,14 @@ void GCPnts_TangentialDeflection::Initialize (
  const Standard_Real    CurvatureDeflection,
  const Standard_Integer MinimumOfPoints,
  const Standard_Real    UTol,
- const Standard_Real    theMinLen)
+ const Standard_Real    theMinLen,
+ const Standard_Boolean ACompOldBehavior)
 
 {
   
   Standard_ConstructionError_Raise_if (CurvatureDeflection <= Precision::Confusion () || AngularDeflection   <= Precision::Angular (), "GCPnts_TangentialDeflection::Initialize - Zero Deflection")
 
+ aCompOldBehavior = ACompOldBehavior;
  parameters.Clear ();
  points    .Clear ();
  if (FirstParameter < LastParameter) {
@@ -462,7 +469,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
       L2 = V2.SquareModulus ();
       if (L1 > MinLen2 && L2 > MinLen2)
       {
-        Standard_Real angg = V1.CrossMagnitude(V2) / (Sqrt(L1 * L2));
+        Standard_Real angg = V1.CrossMagnitude(V2) / Sqrt(L1 * L2);
         ACoef = angg / AngleMax;
       }
       else
@@ -607,7 +614,7 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
   //Additional check for intervals
   Standard_Integer MaxNbp = 10 * Nbp;
 
-  Standard_Real CosAngleMax = Sqrt(1.0 - AngleMax * AngleMax);
+  const Standard_Real AngleMaxFixed = aCompOldBehavior ? AngleMax : Sqrt(1.0 - AngleMax * AngleMax);
 
   for(i = 1; i < Nbp; ++i)
   {
@@ -616,14 +623,16 @@ void GCPnts_TangentialDeflection::PerformCurve (const TheCurve& C)
     // Check maximal deflection on interval;
     Standard_Real dmax = 0.;
     Standard_Real umax = 0.;
-    Standard_Real amax = 0.;
     EstimDefl(C, U1, U2, dmax, umax);
     const gp_Pnt& P1 = points(i);
     const gp_Pnt& P2 = points(i+1);
     D0(C, umax, MiddlePoint);
-    amax = EstimAngl(P1, MiddlePoint, P2);
-    if(dmax > curvatureDeflection || amax < CosAngleMax)
+
+    Standard_Real amax = aCompOldBehavior ? EstimAnglOld(P1, MiddlePoint, P2) : EstimAngl(P1, MiddlePoint, P2);
+
+    if(dmax > curvatureDeflection || (aCompOldBehavior ? amax - AngleMaxFixed : AngleMaxFixed - amax) > ATol)
     {
+      
       if(umax - U1 > uTol && U2 - umax > uTol)
       {
         if (P1.SquareDistance(MiddlePoint) > MinLen2 && P2.SquareDistance(MiddlePoint) > MinLen2)
@@ -660,7 +669,7 @@ void GCPnts_TangentialDeflection::EstimDefl (const TheCurve& C,
   Standard_Real reltol = Max(1.e-3, 2.*uTol/((Abs(U1) + Abs(U2))));
   //
   math_BrentMinimum anOptLoc(reltol, aNbIter, uTol);
-  anOptLoc.Perform(aFunc, U1, (U1+U2)/2., U2);
+  anOptLoc.Perform(aFunc, U1, (U1+U2)*0.5, U2);
   if(anOptLoc.IsDone())
   {
     MaxDefl = Sqrt(-anOptLoc.Minimum());

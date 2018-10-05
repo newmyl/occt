@@ -84,7 +84,8 @@ BRepMesh_IncrementalMesh::BRepMesh_IncrementalMesh( const TopoDS_Shape&    theSh
                                                     const Standard_Boolean isRelative,
                                                     const Standard_Real    theAngDeflection,
                                                     const Standard_Boolean isInParallel,
-                                                    const Standard_Boolean adaptiveMin)
+                                                    const Standard_Boolean adaptiveMin,
+                                                    const Standard_Boolean theTdOldBehavior)
 : myMaxShapeSize(0.),
   myModified(Standard_False),
   myStatus(0)
@@ -94,6 +95,7 @@ BRepMesh_IncrementalMesh::BRepMesh_IncrementalMesh( const TopoDS_Shape&    theSh
   myParameters.Angle = theAngDeflection;
   myParameters.InParallel = isInParallel;
   myParameters.AdaptiveMin = adaptiveMin;
+  myParameters.TDOldBehavior = theTdOldBehavior;
 
   myShape = theShape;
   Perform();
@@ -262,7 +264,7 @@ void BRepMesh_IncrementalMesh::discretizeFreeEdges()
     BRepAdaptor_Curve aCurve(aEdge);
     GCPnts_TangentialDeflection aDiscret(aCurve, aCurve.FirstParameter(),
       aCurve.LastParameter(), myParameters.Angle, aEdgeDeflection, 2,
-      Precision::PConfusion(), myParameters.MinSize);
+      Precision::PConfusion(), myParameters.MinSize, myParameters.TDOldBehavior);
 
     Standard_Integer aNodesNb = aDiscret.NbPoints();
     TColgp_Array1OfPnt   aNodes  (1, aNodesNb);
@@ -570,6 +572,23 @@ Standard_Integer BRepMesh_IncrementalMesh::Discret(
   anAlgo->SetShape     (theShape);
   theAlgo = anAlgo;
   return 0; // no error
+}
+
+Standard_Integer BRepMesh_IncrementalMesh::Discret(
+  const TopoDS_Shape&    theShape,
+  const Standard_Real    theDeflection,
+  const Standard_Real    theAngle,
+  const Standard_Boolean theTdOldBehavior,
+  BRepMesh_DiscretRoot* &theAlgo)
+{
+    BRepMesh_IncrementalMesh* anAlgo = new BRepMesh_IncrementalMesh();
+    anAlgo->ChangeParameters().Deflection = theDeflection;
+    anAlgo->ChangeParameters().Angle = theAngle;
+    anAlgo->ChangeParameters().InParallel = IS_IN_PARALLEL;
+    anAlgo->ChangeParameters().TDOldBehavior = theTdOldBehavior;
+    anAlgo->SetShape(theShape);
+    theAlgo = anAlgo;
+    return 0; // no error
 }
 
 //=======================================================================

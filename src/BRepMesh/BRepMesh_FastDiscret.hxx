@@ -68,7 +68,8 @@ public:
      Relative(Standard_False),
      AdaptiveMin(Standard_False),
      InternalVerticesMode(Standard_True),
-     ControlSurfaceDeflection(Standard_True)
+     ControlSurfaceDeflection(Standard_True),
+     TDOldBehavior(Standard_True)
      {
      }
     
@@ -103,6 +104,10 @@ public:
     //! Prameter to check the deviation of triangulation and interior of
     //! the face
     Standard_Boolean                                 ControlSurfaceDeflection;
+
+    //! Prameter to set tangential deflection behavior
+    //! (old - for backward compatibility, may produce incorrect results in several cases)
+    Standard_Boolean                                 TDOldBehavior;
   };
 
 public:

@@ -71,7 +71,22 @@ static Standard_Real EstimAngl(const gp_Pnt& P1, const gp_Pnt& Pm, const gp_Pnt&
   //
   if(L > gp::Resolution())
   {
-    return V1.Dot(V2)/L;
+    return V1.Dot(V2) / L;
+  }
+  else
+  {
+    return 0.;
+  }
+}
+
+static Standard_Real EstimAnglOld(const gp_Pnt& P1, const gp_Pnt& Pm, const gp_Pnt& P2)
+{
+    gp_Vec V1(P1, Pm), V2(Pm, P2);
+    Standard_Real L = Sqrt(V1.SquareMagnitude() * V2.SquareMagnitude());
+    //
+    if(L > gp::Resolution())
+    {
+        return V1.CrossMagnitude(V2) / L;
   }
   else
   {

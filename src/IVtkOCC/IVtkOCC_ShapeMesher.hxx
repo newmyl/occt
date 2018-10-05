@@ -50,9 +50,11 @@ public:
   IVtkOCC_ShapeMesher (const Standard_Real& theDevCoeff = 0.0001,
                        const Standard_Real& theDevAngle = 12.0 * M_PI / 180.0,
                        const Standard_Integer theNbUIsos = 1,
-                       const Standard_Integer theNbVIsos = 1)
+                       const Standard_Integer theNbVIsos = 1,
+                       const Standard_Boolean theTDOldBehavior = Standard_True)
  : myDevCoeff (theDevCoeff),
    myDevAngle (theDevAngle),
+   myTDOldBehavior(theTDOldBehavior),
    myDeflection (0.0)
   {
     myNbIsos[0] = theNbUIsos;
@@ -83,6 +85,13 @@ public:
   Standard_Real GetDeviationAngle() const
   {
     return myDevAngle;
+  }
+
+  //! Returns tangential deflection behavior used in the algorithm
+  //! @return tangential deflection behavior
+  Standard_Boolean GetTDOldBehavior() const
+  {
+      return myTDOldBehavior;
   }
 
 protected:
@@ -186,6 +195,7 @@ private:
   Standard_Real         myDevAngle;
   mutable Standard_Real myDeflection;
   Standard_Integer      myNbIsos[2];
+  Standard_Boolean      myTDOldBehavior;
 };
 
 #endif //  __IVTKOCC_SHAPEMESHER_H__
