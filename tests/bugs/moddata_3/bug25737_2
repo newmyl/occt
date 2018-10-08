@@ -16,7 +16,7 @@ donly a_1
 fit
 
 set deflection 1.
-set angular_deflection [dval 0.349/pi*180]
+set angular_deflection 20
 set info [crvtpoints r c ${deflection} ${angular_deflection}]
 
 set str1 "Nb points +: +(\[-0-9.+eE\]+)\n"
