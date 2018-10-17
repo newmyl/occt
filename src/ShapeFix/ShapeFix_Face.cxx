@@ -499,17 +499,25 @@ Standard_Boolean ShapeFix_Face::Perform()
     }
   }
   
-  myResult = myFace;
-  TopoDS_Shape savShape = myFace; //gka BUG 6555
+  
 
   // Specific case for conic surfaces
   if ( NeedFix(myFixPeriodicDegenerated) )
     this->FixPeriodicDegenerated();
 
-  // fix missing seam
-  if ( NeedFix ( myFixMissingSeamMode ) ) {
+
+  if ( NeedFix ( myFixSmallAreaWireMode ) )
+  {
+    if (FixSmallAreaWire(Standard_False))
+      myStatus |= ShapeExtend::EncodeStatus(ShapeExtend_DONE4);
+  }
+
+  myResult = myFace;
+  TopoDS_Shape savShape = myFace; //gka BUG 6555
+ // fix missing seam
+  if ( NeedFix ( myFixMissingSeamMode )) {
     if ( FixMissingSeam() ) {
-      myStatus |= ShapeExtend::EncodeStatus ( ShapeExtend_DONE3 );
+      myStatus |= ShapeExtend::EncodeStatus( ShapeExtend_DONE3 );
     }
   }
 
