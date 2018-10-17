@@ -107,16 +107,6 @@ public: //! @name accessing to parameters.
   
 private:
 
-  //! Converts deprecated data to the new ones
-  Standard_DEPRECATED("Deprecated method initParameters(const BRepMesh_FastDiscret::Parameters& theParameters)")
-  inline void initParameters(const BRepMesh_FastDiscret::Parameters& theParameters)
-  {
-    myParameters = reinterpret_cast<const IMeshTools_Parameters&>(theParameters);
-    myParameters.AngleInterior      = -1.0;
-    myParameters.DeflectionInterior = -1.0;
-    initParameters();
-  }
-
   //! Initializes specific parameters
   inline void initParameters()
   {

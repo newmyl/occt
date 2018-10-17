@@ -51,12 +51,10 @@ BRepMesh_IncrementalMesh::BRepMesh_IncrementalMesh( const TopoDS_Shape&    theSh
 : myModified(Standard_False),
   myStatus(IMeshData_NoError)
 {
-  BRepMesh_FastDiscret::Parameters aParams;
-  aParams.Deflection = theLinDeflection;
-  aParams.Angle      = theAngDeflection;
-  aParams.Relative   = isRelative;
-  aParams.InParallel = isInParallel;
-  initParameters (aParams);
+  myParameters.DeflectionBorder = theLinDeflection;
+  myParameters.AngleBorder      = theAngDeflection;
+  myParameters.Relative         = isRelative;
+  myParameters.InParallel       = isInParallel;
 
   myShape = theShape;
   Perform();
@@ -85,7 +83,11 @@ BRepMesh_IncrementalMesh::BRepMesh_IncrementalMesh(
 {
   myShape = theShape;
 
-  initParameters(theParameters);
+  myParameters = reinterpret_cast<const IMeshTools_Parameters&>(theParameters);
+  myParameters.AngleInterior      = -1.0;
+  myParameters.DeflectionInterior = -1.0;
+
+  initParameters();
   Perform();
 }
 
