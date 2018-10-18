@@ -505,13 +505,6 @@ Standard_Boolean ShapeFix_Face::Perform()
   if ( NeedFix(myFixPeriodicDegenerated) )
     this->FixPeriodicDegenerated();
 
-
-  if ( NeedFix ( myFixSmallAreaWireMode ) )
-  {
-    if (FixSmallAreaWire(Standard_False))
-      myStatus |= ShapeExtend::EncodeStatus(ShapeExtend_DONE4);
-  }
-
   myResult = myFace;
   TopoDS_Shape savShape = myFace; //gka BUG 6555
  // fix missing seam
@@ -1715,6 +1708,11 @@ Standard_Boolean ShapeFix_Face::FixMissingSeam()
     else if ( wire.IsSame ( w2 ) ) wire = w21;
     else
     {
+      Handle(ShapeAnalysis_Wire) anAnalyzer = new ShapeAnalysis_Wire(wire, myFace, Precision());
+      //To avoid addition of holes with null area (OCCT issue 0030250)
+      if (anAnalyzer->CheckSmallArea(wire))
+        continue;
+     
       // other wires (not boundary) are considered as holes; make sure to have them oriented accordingly
       TopoDS_Shape curface = tmpF.EmptyCopied();
       B.Add(curface,wire);
