@@ -23,6 +23,7 @@
 
 #include <inspector/TInspectorAPI_PluginParameters.hxx>
 #include <inspector/VInspector_CallBack.hxx>
+#include <inspector/VInspector_DisplayActionType.hxx>
 
 #include <Standard_WarningsDisable.hxx>
 #include <QObject>
@@ -30,14 +31,19 @@
 #include <QMainWindow>
 #include <Standard_WarningsRestore.hxx>
 
+class OpenGl_Element;
+
+class VInspector_PrsOpenGlElement;
+
 class ViewControl_MessageDialog;
+class ViewControl_PropertyView;
 
 class VInspector_ToolBar;
 class View_Window;
 
 class QAbstractItemModel;
 class QAction;
-class QMainWindow;
+class QDockWidget;
 class QTreeView;
 class QWidget;
 
@@ -82,6 +88,21 @@ public:
   //! Returns main control
   QWidget* GetMainWindow() const { return myMainWindow; }
 
+  //! Returns presentations of selected items in tree model
+  //! \param theModel selection model
+  //! \return container of presentations
+  NCollection_List<Handle(AIS_InteractiveObject)> GetSelectedPresentations (QItemSelectionModel* theModel);
+
+  //! Returns selected shapes
+  //! \param theModel selection model
+  //! \return container of shapes
+  NCollection_List<TopoDS_Shape> GetSelectedShapes (QItemSelectionModel* theModel);
+
+  //! Returns selected elements
+  //! \param theModel selection model
+  //! \return container of OpenGl elements
+  NCollection_List<OpenGl_Element*> GetSelectedElements (QItemSelectionModel* theModel);
+
 private:
 
   //! Fills controls of the plugin by parameters:
@@ -103,6 +124,15 @@ private slots:
   //! \param theActionId an action identifier in tool bar
   void onToolBarActionClicked (const int theActionId);
 
+  //! Display content of selected tree view item if isToggled is true
+  //! \param isToggled true if the property dock widget is shown
+  void onPropertyPanelShown (bool isToggled);
+
+  //! Update presentation of the selected tree view item using information about selection in property view
+  //! \param theSelected container of selected table cells
+  //! \param theDeselected container of selected table cells
+  void onPropertyViewSelectionChanged();
+
   //! Synchronization selection between history and tree view. Selection by history view
   //! \param theSelected a selected items
   //! \param theDeselected a deselected items
@@ -113,16 +143,13 @@ private slots:
   //! check box is checked
   //! \param theSelected a selected items
   //! \param theDeselected a deselected items
-  void onSelectionChanged (const QItemSelection& theSelected, const QItemSelection& theDeselected);
+  void onTreeViewSelectionChanged (const QItemSelection& theSelected, const QItemSelection& theDeselected);
 
   //! Exports the first selected shape into ShapeViewer plugin.
   void onExportToShapeView();
 
-  //! Shows selected presentation if it is not shown yet
-  void onShow();
-
-  //! Erase selected presentation if it is shown
-  void onHide();
+  //! Apply activated display action
+  void onDisplayActionTypeClicked();
 
 private:
 
@@ -133,14 +160,25 @@ private:
   //! Updates tree model
   void UpdateTreeModel();
 
+  //! Updates property panel content by item selected in tree view.
+  void updatePropertyPanelBySelection();
+
   //! Set selected in tree view presentations displayed or erased in the current context. Note that erased presentations
   //! still belongs to the current context until Remove is called.
-  //! \param theToDisplay if true, presentation is displayed otherwise erased
-  void displaySelectedPresentations (const bool theToDisplay);
+  //! \param theType display action type
+  void displaySelectedPresentations (const VInspector_DisplayActionType theType);
 
   //! Creates an istance of 3D view to initialize context.
   //! \return a context of created view.
   Handle(AIS_InteractiveContext) createView();
+
+  //!< Updates presentation of preview for parameter shapes. Creates a compound of the shapes
+  //!< \param theShape container of shapes
+  void updatePreviewPresentation (const NCollection_List<TopoDS_Shape>& theShapes);
+
+  //!< Updates presentation of preview for OpenGl elements.
+  //!< \param theElements container of elements
+  void updatePreviewPresentation (const NCollection_List<OpenGl_Element*>& theElements);
 
 private:
 
@@ -148,6 +186,10 @@ private:
 
   QMainWindow* myMainWindow; //!< main control
   VInspector_ToolBar* myToolBar; //!< tool bar actions
+
+  QDockWidget* myPropertyPanelWidget; //!< property pane dockable widget
+  ViewControl_PropertyView* myPropertyView; //!< property control to display model item values if exist
+
   QTreeView* myTreeView; //!< tree view of AIS content
   QTreeView* myHistoryView; //!< history of AIS context calls
   Handle(VInspector_CallBack) myCallBack; //!< AIS context call back, if set
@@ -156,6 +198,8 @@ private:
   View_Window* myViewWindow; //!< temporary view window, it is created if Open is called but context is still NULL
 
   Handle(TInspectorAPI_PluginParameters) myParameters; //!< plugins parameters container
+  Handle(AIS_InteractiveObject) myPreviewPresentation; //!< presentation of preview for a selected object
+  Handle(VInspector_PrsOpenGlElement) myOpenGlPreviewPresentation; //!< presentation of preview for OpenGl elements
 };
 
 #endif

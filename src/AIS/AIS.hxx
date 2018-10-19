@@ -27,6 +27,7 @@
 #include <AIS_KindOfSurface.hxx>
 #include <Prs3d_Drawer.hxx>
 #include <Quantity_NameOfColor.hxx>
+#include <AIS_DisplayStatus.hxx>
 #include <Aspect_TypeOfLine.hxx>
 #include <Aspect_TypeOfMarker.hxx>
 class gp_Pnt;
@@ -249,6 +250,28 @@ public:
   Standard_EXPORT static void ComputeProjEdgePresentation (const Handle(Prs3d_Presentation)& aPres, const Handle(Prs3d_Drawer)& aDrawer, const TopoDS_Edge& anEdge, const Handle(Geom_Curve)& ProjCurve, const gp_Pnt& FirstP, const gp_Pnt& LastP, const Quantity_NameOfColor aColor = Quantity_NOC_PURPLE, const Standard_Real aWidth = 2, const Aspect_TypeOfLine aProjTOL = Aspect_TOL_DASH, const Aspect_TypeOfLine aCallTOL = Aspect_TOL_DOT);
   
   Standard_EXPORT static void ComputeProjVertexPresentation (const Handle(Prs3d_Presentation)& aPres, const Handle(Prs3d_Drawer)& aDrawer, const TopoDS_Vertex& aVertex, const gp_Pnt& ProjPoint, const Quantity_NameOfColor aColor = Quantity_NOC_PURPLE, const Standard_Real aWidth = 2, const Aspect_TypeOfMarker aProjTOM = Aspect_TOM_PLUS, const Aspect_TypeOfLine aCallTOL = Aspect_TOL_DOT);
+
+  //! Returns the string name for a given enum type.
+  //! @param theType display status
+  //! @return string identifier
+  Standard_EXPORT static Standard_CString DisplayStatusToString (AIS_DisplayStatus theType);
+
+  //! Returns the display status from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @return status type or AIS_DS_None if string identifier is invalid
+  static AIS_DisplayStatus DisplayStatusFromString (Standard_CString theTypeString)
+  {
+    AIS_DisplayStatus aType = AIS_DS_None;
+    DisplayStatusFromString (theTypeString, aType);
+    return aType;
+  }
+
+  //! Determines the shape type from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @param theType detected display status
+  //! @return TRUE if string identifier is known
+  Standard_EXPORT static Standard_Boolean DisplayStatusFromString (const Standard_CString theTypeString,
+                                                                   AIS_DisplayStatus& theType);
 
 };
 

@@ -45,7 +45,11 @@ void View_Tools::SaveState (View_Window* theView, QMap<QString, QString>& theIte
 {
   QStringList aCameraDirection;
   Standard_Real aVX, aVY, aVZ;
-  theView->GetView()->GetViewer()->GetView()->Proj (aVX, aVY, aVZ);
+  Handle(V3d_View) aView = theView->GetView()->GetViewer()->GetView();
+  if (aView.IsNull())
+    return;
+
+  aView->Proj (aVX, aVY, aVZ);
   aCameraDirection << QString::number (aVX) << QString::number (aVY) << QString::number (aVZ);
 
   theItems[thePrefix + "view_camera_direction"] = aCameraDirection.join (",");

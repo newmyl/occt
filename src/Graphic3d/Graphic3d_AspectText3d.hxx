@@ -80,6 +80,9 @@ public:
   //! Modifies the color.
   void SetColor (const Quantity_ColorRGBA& theColor) { myColor = theColor; }
 
+  //! Returns the expansion factor.
+  Standard_Real ExpansionFactor() const { return myFactor; }
+
   //! Modifies the expansion factor (height/width ratio)
   //! If the factor is less than 1, the characters will
   //! be higher than they are wide.

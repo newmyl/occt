@@ -18,7 +18,10 @@
 
 #include <AIS_InteractiveContext.hxx>
 #include <Standard.hxx>
+#include <TopoDS_Shape.hxx>
+
 #include <inspector/TreeModel_ItemBase.hxx>
+#include <inspector/ViewControl_EditType.hxx>
 
 class VInspector_ItemBase;
 typedef QExplicitlySharedDataPointer<VInspector_ItemBase> VInspector_ItemBasePtr;
@@ -29,7 +32,7 @@ class VInspector_ItemBase : public TreeModel_ItemBase
 {
 public:
   //! Resets cached values
-  virtual void Reset() Standard_OVERRIDE { TreeModel_ItemBase::Reset(); }
+  virtual void Reset() Standard_OVERRIDE;
 
   //! Sets the context 
   //! \param theLabel an object where the child items structure is found
@@ -42,6 +45,46 @@ public:
   //! Returns the current contex. It iterates up by list of parents to found context item and return context
   //! \return a context
   Standard_EXPORT Handle(AIS_InteractiveContext) GetContext() const;
+
+  //! Returns presentation of the attribute to be visualized in the view
+  //! \thePresentations [out] container of presentation handles to be visualized
+  virtual void GetPresentations (NCollection_List<Handle(Standard_Transient)>& thePresentations)
+  { (void)thePresentations; }
+
+  //! Returns shape of the item parameters
+  //! \return generated shape of the item parameters
+  virtual TopoDS_Shape GetPresentationShape() const { initItem(); return myPresentationShape; }
+
+  //! Returns number of table rows
+  //! \return an integer value
+  virtual int GetTableRowCount() const { return 0; }
+
+  //! Returns type of edit control for the model index. By default, it is an empty control
+  //! \param theRow a model index row
+  //! \param theColumn a model index column
+  //! \return edit type
+  virtual ViewControl_EditType GetTableEditType (const int theRow, const int theColumn) const
+    { (void)theRow; (void)theColumn; return ViewControl_EditType_None; }
+
+  //! Returns container of string values for enumeration in the model row
+  //! \param theRow table model row index
+  //! \param theColumn a model index column
+  //! \return string values for the enumeration presented in the row or an empty container
+  virtual QList<QVariant> GetTableEnumValues (const int theRow, const int theColumn) const
+    { (void)theRow; (void)theColumn; return QList<QVariant>(); }
+
+  //! Returns table value for the row in form: <function name> <function value>
+  //! \param theRow a model index row
+  //! \param theColumn a model index column
+  virtual QVariant GetTableData (const int theRow, const int theColumn, const int theRole) const
+  {  (void)theRow; (void)theColumn; (void)theRole; return QVariant(); }
+
+  //! Sets the value into the table cell. Only 1st column value might be modified.
+  //! \param theRow a model index row
+  //! \param theColumn a model index column
+  //! \param theValue a new cell value
+  virtual bool SetTableData (const int theRow, const int theColumn, const QVariant& theValue)
+    { (void)theRow; (void)theColumn; (void)theValue; return false; }
 
 protected:
 
@@ -60,6 +103,7 @@ protected:
 protected:
 
   Handle(AIS_InteractiveContext) myContext; //!< the current context
+  TopoDS_Shape myPresentationShape; //!< item presentation shape
 };
 
 #endif

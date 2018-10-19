@@ -207,21 +207,32 @@ void TreeModel_ModelBase::EmitDataChanged (const QModelIndex& theTopLeft, const 
 }
 
 // =======================================================================
+// function : GetSelected
+// purpose :
+// =======================================================================
+QModelIndexList TreeModel_ModelBase::GetSelected (const QModelIndexList& theIndices, const int theCellId,
+                                                  const Qt::Orientation theOrientation)
+{
+  QModelIndexList aSelected;
+  for (QModelIndexList::const_iterator anIndicesIt = theIndices.begin(); anIndicesIt != theIndices.end(); anIndicesIt++)
+  {
+    QModelIndex anIndex = *anIndicesIt;
+    if ((theOrientation == Qt::Horizontal && anIndex.column() == theCellId) ||
+        (theOrientation == Qt::Vertical && anIndex.row() == theCellId))
+      aSelected.append (anIndex);
+  }
+  return aSelected;
+}
+
+// =======================================================================
 // function : SingleSelected
 // purpose :
 // =======================================================================
 QModelIndex TreeModel_ModelBase::SingleSelected (const QModelIndexList& theIndices, const int theCellId,
                                                  const Qt::Orientation theOrientation)
 {
-  QModelIndexList aFirstColumnSelectedIndices;
-  for (QModelIndexList::const_iterator anIndicesIt = theIndices.begin(); anIndicesIt != theIndices.end(); anIndicesIt++)
-  {
-    QModelIndex anIndex = *anIndicesIt;
-    if ((theOrientation == Qt::Horizontal && anIndex.column() == theCellId) ||
-        (theOrientation == Qt::Vertical && anIndex.row() == theCellId))
-      aFirstColumnSelectedIndices.append (anIndex);
-  }
-  return aFirstColumnSelectedIndices.size() == 1 ? aFirstColumnSelectedIndices.first() : QModelIndex();
+  QModelIndexList aSelected = GetSelected (theIndices, theCellId, theOrientation);
+  return aSelected.size() == 1 ? aSelected.first() : QModelIndex();
 }
 
 // =======================================================================

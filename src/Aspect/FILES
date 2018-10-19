@@ -1,3 +1,5 @@
+Aspect.cxx
+Aspect.hxx
 Aspect_AspectFillAreaDefinitionError.hxx
 Aspect_AspectLineDefinitionError.hxx
 Aspect_AspectMarkerDefinitionError.hxx

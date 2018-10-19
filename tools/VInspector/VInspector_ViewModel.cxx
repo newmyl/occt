@@ -17,9 +17,9 @@
 
 #include <inspector/TreeModel_Tools.hxx>
 #include <inspector/VInspector_ItemContext.hxx>
-#include <inspector/VInspector_ItemEntityOwner.hxx>
+#include <inspector/VInspector_ItemSelectBasicsEntityOwner.hxx>
 #include <inspector/VInspector_ItemPresentableObject.hxx>
-#include <inspector/VInspector_ItemSensitiveEntity.hxx>
+#include <inspector/VInspector_ItemSelectMgrSensitiveEntity.hxx>
 #include <SelectBasics_EntityOwner.hxx>
 
 #include <Standard_WarningsDisable.hxx>
@@ -64,6 +64,8 @@ VInspector_ViewModel::VInspector_ViewModel (QObject* theParent)
   SetHeaderItem (19, TreeModel_HeaderSection ("Location", -1, true)); // ItemEntityOwner
 
   SetHeaderItem (20, TreeModel_HeaderSection ("Color", -1)); // ItemPresentableObject
+
+  SetHeaderItem (21, TreeModel_HeaderSection ("Owner Location", -1, true)); // ItemEntityOwner
 }
 
 // =======================================================================
@@ -95,7 +97,8 @@ void VInspector_ViewModel::SetContext (const Handle(AIS_InteractiveContext)& the
   // fill root item by the application
   for (int aColId = 0, aNbColumns = columnCount(); aColId < aNbColumns; aColId++)
     itemDynamicCast<VInspector_ItemContext>(myRootItems[aColId])->SetContext (theContext);
-  EmitLayoutChanged();
+
+  UpdateTreeModel();
 }
 
 // =======================================================================
@@ -166,11 +169,11 @@ void VInspector_ViewModel::GetSelectedOwners (QItemSelectionModel* theSelectionM
   {
     TreeModel_ItemBasePtr anItem = *anItemIt;
     Handle(SelectBasics_EntityOwner) anEntityOwner;
-    if (VInspector_ItemEntityOwnerPtr anOwnerItem = itemDynamicCast<VInspector_ItemEntityOwner>(anItem))
+    if (VInspector_ItemSelectBasicsEntityOwnerPtr anOwnerItem = itemDynamicCast<VInspector_ItemSelectBasicsEntityOwner>(anItem))
     {
       anEntityOwner = anOwnerItem->EntityOwner();
     }
-    else if (VInspector_ItemSensitiveEntityPtr aSensItem = itemDynamicCast<VInspector_ItemSensitiveEntity>(anItem))
+    else if (VInspector_ItemSelectMgrSensitiveEntityPtr aSensItem = itemDynamicCast<VInspector_ItemSelectMgrSensitiveEntity>(anItem))
     {
       anEntityOwner = aSensItem->GetSensitiveEntity()->BaseSensitive()->OwnerId();
     }
