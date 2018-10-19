@@ -15,14 +15,27 @@
 
 #include <inspector/VInspector_Tools.hxx>
 
+#include <inspector/ViewControl_TableModelValues.hxx>
+#include <inspector/VInspector_ItemFolderObject.hxx>
+#include <inspector/VInspector_TableModelValues.hxx>
+
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
 #include <AIS_ListOfInteractive.hxx>
+#include <Standard_Version.hxx>
+#if OCC_VERSION_HEX < 0x060901
+#include <AIS_LocalContext.hxx>
+#endif
 #include <AIS_Selection.hxx>
 #include <AIS_Shape.hxx>
 #include <AIS_Trihedron.hxx>
 #include <BRep_Builder.hxx>
+#include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepTools.hxx>
-#include <gp_Trsf.hxx>
+#include <Graphic3d.hxx>
+#include <Graphic3d_IndexBuffer.hxx>
+#include <Graphic3d_Buffer.hxx>
+#include <Graphic3d_BoundBuffer.hxx>
+
 #include <SelectMgr_StateOfSelection.hxx>
 #include <SelectMgr_TypeOfUpdate.hxx>
 #include <SelectMgr_TypeOfBVHUpdate.hxx>
@@ -234,11 +247,23 @@ void VInspector_Tools::AddOrRemoveSelectedShapes (const Handle(AIS_InteractiveCo
 
   theContext->UnhilightSelected(Standard_False);
 
+  //TODO: processing in local context only
+#if OCC_VERSION_HEX < 0x060901
+  Handle(AIS_LocalContext) aLContext = theContext->LocalContext();
+  TCollection_AsciiString aSelectionName = aLContext->SelectionName();
+  aLContext->UnhilightPicked(Standard_False);
+#endif
+
   for (NCollection_List<Handle(SelectBasics_EntityOwner)>::Iterator anOwnersIt(theOwners);
        anOwnersIt.More(); anOwnersIt.Next())
   {
     Handle(SelectMgr_EntityOwner) anOwner = Handle(SelectMgr_EntityOwner)::DownCast (anOwnersIt.Value());
+#if OCC_VERSION_HEX > 0x060901
     theContext->AddOrRemoveSelected (anOwner, Standard_False);
+#else
+    AIS_Selection::Selection(aSelectionName.ToCString())->Select(anOwner);
+    anOwner->SetSelected(Standard_True);
+#endif
   }
   theContext->UpdateCurrentViewer();
 }
@@ -468,28 +493,6 @@ TCollection_AsciiString VInspector_Tools::OrientationToName (const TopAbs_Orient
 }
 
 // =======================================================================
-// function : LocationToName
-// purpose :
-// =======================================================================
-TCollection_AsciiString VInspector_Tools::LocationToName (const TopLoc_Location& theLocation)
-{
-  gp_Trsf aTrsf = theLocation.Transformation();
-
-  TCollection_AsciiString aValues;
-  for (int aRowId = 1; aRowId <= 3; aRowId++)
-  {
-    for (int aColId = 1; aColId <= 4; aColId++) {
-      aValues += TCollection_AsciiString (aTrsf.Value(aRowId, aColId));
-      if (aColId != 4)
-        aValues += ",";
-    }
-    if (aRowId != 3)
-      aValues += "  ";
-  }
-  return aValues;
-}
-
-// =======================================================================
 // function : ReadShape
 // purpose :
 // =======================================================================
@@ -501,4 +504,148 @@ TopoDS_Shape VInspector_Tools::ReadShape (const TCollection_AsciiString& theFile
   BRepTools::Read (aShape, theFileName.ToCString(), aBuilder);
 
   return aShape;
+}
+
+// =======================================================================
+// function : GetPropertyTableValues
+// purpose :
+// =======================================================================
+void VInspector_Tools::GetPropertyTableValues (const TreeModel_ItemBasePtr& theItem,
+                                               QList<ViewControl_TableModelValues*>& theTableValues)
+{
+  TreeModel_ItemBasePtr anItem = theItem;
+  VInspector_ItemFolderObjectPtr aFolderItem = itemDynamicCast<VInspector_ItemFolderObject>(anItem);
+  if (aFolderItem)
+  {
+    VInspector_ItemFolderObject::ParentKind aParentKind = aFolderItem->GetParentItemKind();
+    if (aParentKind == VInspector_ItemFolderObject::ParentKind_ContextItem ||
+        aParentKind == VInspector_ItemFolderObject::ParentKind_PresentationItem)
+      anItem = theItem->Parent();
+  }
+
+  theTableValues.append (new VInspector_TableModelValues (anItem));
+}
+
+namespace
+{
+  static Standard_CString VInspector_Table_PrintDisplayActionType[5] =
+  {
+    "None", "Display", "Redisplay", "Erase", "Remove"
+  };
+}
+
+//=======================================================================
+//function : DisplayActionTypeToString
+//purpose  :
+//=======================================================================
+Standard_CString VInspector_Tools::DisplayActionTypeToString (VInspector_DisplayActionType theType)
+{
+  return VInspector_Table_PrintDisplayActionType[theType];
+}
+
+//=======================================================================
+//function : DisplayActionTypeFromString
+//purpose  :
+//=======================================================================
+Standard_Boolean VInspector_Tools::DisplayActionTypeFromString (Standard_CString theTypeString,
+                                                                VInspector_DisplayActionType& theType)
+{
+  TCollection_AsciiString aName (theTypeString);
+  for (Standard_Integer aTypeIter = 0; aTypeIter <= VInspector_DisplayActionType_RemoveId; ++aTypeIter)
+  {
+    Standard_CString aTypeName = VInspector_Table_PrintDisplayActionType[aTypeIter];
+    if (aName == aTypeName)
+    {
+      theType = VInspector_DisplayActionType (aTypeIter);
+      return Standard_True;
+    }
+  }
+  return Standard_False;
+}
+
+//=======================================================================
+//function : ToVariant
+//purpose  :
+//=======================================================================
+QVariant VInspector_Tools::ToVariant (const Select3D_BndBox3d& theBoundingBox)
+{
+  return QString ("(%1, %2, %3), (%4, %5, %6)")
+    .arg (theBoundingBox.CornerMin().x()).arg (theBoundingBox.CornerMin().y()).arg (theBoundingBox.CornerMin().z())
+    .arg (theBoundingBox.CornerMax().x()).arg (theBoundingBox.CornerMax().y()).arg (theBoundingBox.CornerMax().z());
+}
+
+//=======================================================================
+//function : CreateShape
+//purpose  :
+//=======================================================================
+TopoDS_Shape VInspector_Tools::CreateShape (const Bnd_Box& theBoundingBox)
+{
+  if (theBoundingBox.IsVoid() || theBoundingBox.IsWhole() ||
+      theBoundingBox.IsXThin (Precision::Confusion()) ||
+      theBoundingBox.IsYThin (Precision::Confusion()) ||
+      theBoundingBox.IsZThin (Precision::Confusion()))
+    return TopoDS_Shape();
+
+  BRepPrimAPI_MakeBox aBoxBuilder(theBoundingBox.CornerMin(), theBoundingBox.CornerMax());
+  return aBoxBuilder.Shape();
+}
+
+//=======================================================================
+//function : ToVariant
+//purpose  :
+//=======================================================================
+QVariant VInspector_Tools::ToVariant (const Handle(Graphic3d_IndexBuffer)& theIndexBuffer)
+{
+  const Handle(Graphic3d_Buffer)& aBuffer = theIndexBuffer;
+  return VInspector_Tools::ToVariant (aBuffer);
+}
+
+//=======================================================================
+//function : ToVariant
+//purpose  :
+//=======================================================================
+QVariant VInspector_Tools::ToVariant (const Handle(Graphic3d_Buffer)& theBuffer)
+{
+  if (theBuffer.IsNull())
+    return QVariant();
+
+  QString anInfo;
+  anInfo = "NbElements = " + QString::number (theBuffer->NbElements) + ",";
+  anInfo = "NbAttributes = " + QString::number (theBuffer->NbAttributes) + ",";
+  anInfo = "Stride = " + QString::number (theBuffer->Stride) + ",";
+  QStringList anAttributes;
+  for (Standard_Integer anAttribIter = 0; anAttribIter < theBuffer->NbAttributes; ++anAttribIter)
+  {
+    const Graphic3d_Attribute& anAttrib = theBuffer->Attribute (anAttribIter);
+    anAttributes.append(VInspector_Tools::ToString (anAttrib));
+  }
+  return anInfo + " (" + anAttributes.join(", ") + ")";
+}
+
+//=======================================================================
+//function : ToVariant
+//purpose  :
+//=======================================================================
+QVariant VInspector_Tools::ToVariant (const Handle(Graphic3d_BoundBuffer)& theBoundBuffer)
+{
+  //const Handle(Graphic3d_Buffer)& aBuffer = theBoundBuffer;
+  //Handle(Graphic3d_Buffer) aBuffer = Handle(Graphic3d_Buffer)::DownCast (theBoundBuffer);
+  //return VInspector_Tools::ToVariant (aBuffer);
+  return QVariant();
+}
+
+//=======================================================================
+//function : ToString
+//purpose  :
+//=======================================================================
+QString VInspector_Tools::ToString (const Graphic3d_Attribute& theAttribute)
+{
+  Graphic3d_TypeOfAttribute anId = theAttribute.Id;
+  Graphic3d_TypeOfData aDataType = theAttribute.DataType;
+
+  QString anInfo = Graphic3d::TypeOfAttributeToString (anId);
+  anInfo += ": ";
+  anInfo += Graphic3d::TypeOfDataToString (aDataType);
+
+  return anInfo;
 }

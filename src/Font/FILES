@@ -1,3 +1,5 @@
+Font.cxx
+Font.hxx
 Font_BRepFont.cxx
 Font_BRepFont.hxx
 Font_BRepTextBuilder.cxx

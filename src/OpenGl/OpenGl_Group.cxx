@@ -64,7 +64,8 @@ OpenGl_Group::OpenGl_Group (const Handle(Graphic3d_Structure)& theStruct)
   myAspectText(NULL),
   myFirst(NULL),
   myLast(NULL),
-  myIsRaytracable (Standard_False)
+  myIsRaytracable (Standard_False),
+  myIsDestroyElements (Standard_True)
 {
   Handle(OpenGl_Structure) aStruct = Handle(OpenGl_Structure)::DownCast (myStructure->CStructure());
   if (aStruct.IsNull())
@@ -499,12 +500,15 @@ void OpenGl_Group::Clear (const Standard_Boolean theToUpdateStructureMgr)
 void OpenGl_Group::Release (const Handle(OpenGl_Context)& theGlCtx)
 {
   // Delete elements
-  while (myFirst != NULL)
+  if (myIsDestroyElements)
   {
-    OpenGl_ElementNode* aNext = myFirst->next;
-    OpenGl_Element::Destroy (theGlCtx.operator->(), myFirst->elem);
-    delete myFirst;
-    myFirst = aNext;
+    while (myFirst != NULL)
+    {
+      OpenGl_ElementNode* aNext = myFirst->next;
+      OpenGl_Element::Destroy (theGlCtx.operator->(), myFirst->elem);
+      delete myFirst;
+      myFirst = aNext;
+    }
   }
   myLast = NULL;
 

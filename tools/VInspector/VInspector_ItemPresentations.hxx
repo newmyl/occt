@@ -13,36 +13,35 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement. 
 
-#ifndef VInspector_ItemSensitiveEntity_H
-#define VInspector_ItemSensitiveEntity_H
+#ifndef VInspector_ItemPresentations_H
+#define VInspector_ItemPresentations_H
 
-#include <SelectMgr_SensitiveEntity.hxx>
-#include <SelectBasics_SensitiveEntity.hxx>
 #include <Standard.hxx>
 #include <inspector/VInspector_ItemBase.hxx>
 
-class SelectBasics_EntityOwner;
-class VInspector_ItemSensitiveEntity;
+#include <TCollection_AsciiString.hxx>
+#include <Prs3d_Presentation.hxx>
 
-typedef QExplicitlySharedDataPointer<VInspector_ItemSensitiveEntity> VInspector_ItemSensitiveEntityPtr;
+class VInspector_ItemPresentations;
+typedef QExplicitlySharedDataPointer<VInspector_ItemPresentations> VInspector_ItemPresentationsPtr;
 
-//! \class VInspector_ItemSensitiveEntity
-//! The item shows information about SelectBasics_EntityOwner.
-//! The parent is item selection, children are item entity owners
-class VInspector_ItemSensitiveEntity : public VInspector_ItemBase
+//! \class VInspector_ItemPresentations
+//! Item presents information about AIS_InteractiveObject.
+//! Parent is item context, children are item selections.
+class VInspector_ItemPresentations : public VInspector_ItemBase
 {
 
 public:
 
   //! Creates an item wrapped by a shared pointer
-  static VInspector_ItemSensitiveEntityPtr CreateItem (TreeModel_ItemBasePtr theParent, const int theRow, const int theColumn)
-  { return VInspector_ItemSensitiveEntityPtr (new VInspector_ItemSensitiveEntity (theParent, theRow, theColumn)); }
-
+  static VInspector_ItemPresentationsPtr CreateItem (TreeModel_ItemBasePtr theParent, const int theRow, const int theColumn)
+  { return VInspector_ItemPresentationsPtr (new VInspector_ItemPresentations (theParent, theRow, theColumn)); }
   //! Destructor
-  virtual ~VInspector_ItemSensitiveEntity() Standard_OVERRIDE {};
+  virtual ~VInspector_ItemPresentations() Standard_OVERRIDE {};
 
-  //! \return the current sensitive entity
-  Standard_EXPORT Handle(SelectMgr_SensitiveEntity) GetSensitiveEntity() const;
+  //! Returns presentation of the parent interactive object
+  //! \return presentation object
+  Standard_EXPORT Handle(Prs3d_Presentation) GetPresentation (const int theRowId, TCollection_AsciiString& theName) const;
 
   //! Inits the item, fills internal containers
   Standard_EXPORT virtual void Init() Standard_OVERRIDE;
@@ -55,15 +54,14 @@ protected:
   //! Initialize the current item. It is empty because Reset() is also empty.
   virtual void initItem() const Standard_OVERRIDE;
 
-  //! \return number of children.
-  virtual int initRowCount() const Standard_OVERRIDE { return !GetSensitiveEntity()->BaseSensitive().IsNull() ? 1 : 0; }
+  //! Returns number of item selected
+  //! \return rows count
+  virtual int initRowCount() const Standard_OVERRIDE;
 
   //! Returns item information for the given role. Fills internal container if it was not filled yet
   //! \param theItemRole a value role
   //! \return the value
   virtual QVariant initValue (const int theItemRole) const Standard_OVERRIDE;
-
-protected:
 
   //! Creates a child item in the given position.
   //! \param theRow the child row position
@@ -71,20 +69,13 @@ protected:
   //! \return the created item
   virtual TreeModel_ItemBasePtr createChild (int theRow, int theColumn) Standard_OVERRIDE;
 
-  //! Returns owner of the current sensitive entity
-  //! \return owner
-  Handle(SelectBasics_EntityOwner) getEntityOwner() const;
-
 private:
 
   //! Constructor
   //! param theParent a parent item
-  VInspector_ItemSensitiveEntity(TreeModel_ItemBasePtr theParent, const int theRow, const int theColumn)
+  VInspector_ItemPresentations(TreeModel_ItemBasePtr theParent, const int theRow, const int theColumn)
   : VInspector_ItemBase(theParent, theRow, theColumn) {}
 
-private:
-
-  Handle(SelectMgr_SensitiveEntity) myEntity; //!< the current entity owner
 };
 
 #endif

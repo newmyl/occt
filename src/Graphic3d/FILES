@@ -1,3 +1,5 @@
+Graphic3d.cxx
+Graphic3d.hxx
 Graphic3d_AlphaMode.hxx
 Graphic3d_ArrayFlags.hxx
 Graphic3d_ArrayOfPoints.hxx

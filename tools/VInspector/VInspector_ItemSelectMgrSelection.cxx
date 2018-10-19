@@ -13,7 +13,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement. 
 
-#include <inspector/VInspector_ItemSelection.hxx>
+#include <inspector/VInspector_ItemSelectMgrSelection.hxx>
 
 #include <AIS_ListOfInteractive.hxx>
 #include <SelectMgr_EntityOwner.hxx>
@@ -22,7 +22,7 @@
 #include <Standard_Version.hxx>
 #include <inspector/VInspector_ItemContext.hxx>
 #include <inspector/VInspector_ItemPresentableObject.hxx>
-#include <inspector/VInspector_ItemSensitiveEntity.hxx>
+#include <inspector/VInspector_ItemSelectMgrSensitiveEntity.hxx>
 #include <inspector/VInspector_Tools.hxx>
 
 #include <Standard_WarningsDisable.hxx>
@@ -35,7 +35,7 @@
 // function : getSelection
 // purpose :
 // =======================================================================
-Handle(SelectMgr_Selection) VInspector_ItemSelection::getSelection() const
+Handle(SelectMgr_Selection) VInspector_ItemSelectMgrSelection::getSelection() const
 {
   initItem();
   return mySelection;
@@ -45,7 +45,7 @@ Handle(SelectMgr_Selection) VInspector_ItemSelection::getSelection() const
 // function : initRowCount
 // purpose :
 // =======================================================================
-int VInspector_ItemSelection::initRowCount() const
+int VInspector_ItemSelectMgrSelection::initRowCount() const
 {
   Handle(SelectMgr_Selection) aSelection = getSelection();
 #if OCC_VERSION_HEX < 0x070201
@@ -62,7 +62,7 @@ int VInspector_ItemSelection::initRowCount() const
 // function : initValue
 // purpose :
 // =======================================================================
-QVariant VInspector_ItemSelection::initValue (int theItemRole) const
+QVariant VInspector_ItemSelectMgrSelection::initValue (int theItemRole) const
 {
   switch (theItemRole)
   {
@@ -140,22 +140,23 @@ QVariant VInspector_ItemSelection::initValue (int theItemRole) const
 // function : createChild
 // purpose :
 // =======================================================================
-TreeModel_ItemBasePtr VInspector_ItemSelection::createChild (int theRow, int theColumn)
+TreeModel_ItemBasePtr VInspector_ItemSelectMgrSelection::createChild (int theRow, int theColumn)
 {
-  return VInspector_ItemSensitiveEntity::CreateItem (currentItem(), theRow, theColumn);
+  return VInspector_ItemSelectMgrSensitiveEntity::CreateItem (currentItem(), theRow, theColumn);
 }
 
 // =======================================================================
 // function : Init
 // purpose :
 // =======================================================================
-void VInspector_ItemSelection::Init()
+void VInspector_ItemSelectMgrSelection::Init()
 {
   VInspector_ItemPresentableObjectPtr aParentItem = itemDynamicCast<VInspector_ItemPresentableObject>(Parent());
 
   Handle(AIS_InteractiveObject) anIO = aParentItem->GetInteractiveObject();
 
   int aRowId = Row();
+  int aDeltaIndex = 2; // properties, presentation items
   int aCurrentId = 0;
 #if OCC_VERSION_HEX < 0x070201
   for (anIO->Init(); anIO->More(); anIO->Next(), aCurrentId++)
@@ -163,7 +164,7 @@ void VInspector_ItemSelection::Init()
   for (SelectMgr_SequenceOfSelection::Iterator aSelIter (anIO->Selections()); aSelIter.More(); aSelIter.Next(), aCurrentId++)
 #endif
   {
-    if (aCurrentId != aRowId)
+    if (aCurrentId != aRowId - aDeltaIndex)
       continue;
 #if OCC_VERSION_HEX < 0x070201
     mySelection = anIO->CurrentSelection();
@@ -179,7 +180,7 @@ void VInspector_ItemSelection::Init()
 // function : Reset
 // purpose :
 // =======================================================================
-void VInspector_ItemSelection::Reset()
+void VInspector_ItemSelectMgrSelection::Reset()
 {
   // an empty method to don't clear the main label, otherwise the model will be empty
   TreeModel_ItemBase::Reset();
@@ -191,10 +192,10 @@ void VInspector_ItemSelection::Reset()
 // function : initItem
 // purpose :
 // =======================================================================
-void VInspector_ItemSelection::initItem() const
+void VInspector_ItemSelectMgrSelection::initItem() const
 {
   if (IsInitialized())
     return;
-  const_cast<VInspector_ItemSelection*>(this)->Init();
+  const_cast<VInspector_ItemSelectMgrSelection*>(this)->Init();
   // an empty method to don't initialize the main label, as it was not cleared in Reset()
 }
