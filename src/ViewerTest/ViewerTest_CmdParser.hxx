@@ -31,7 +31,7 @@ class ViewerTest_CmdParser
 public:
 
   //! Initializes default option.
-  ViewerTest_CmdParser();
+  Standard_EXPORT ViewerTest_CmdParser();
 
   //! Sets description for command.
   void AddDescription (const std::string& theDescription)
@@ -40,47 +40,47 @@ public:
   }
 
   //! Adds option to available option list. Several names may be provided if separated with '|'.
-  void AddOption (const std::string& theOptionNames, const std::string& theOptionDescription = "");
+  Standard_EXPORT void AddOption (const std::string& theOptionNames, const std::string& theOptionDescription = "");
 
   //! Prints help message based on provided command and options descriptions.
-  void Help();
+  Standard_EXPORT void Help();
 
   //! Parses argument list; assignes local arguments to each option.
-  void Parse (Standard_Integer  theArgsNb,
-              const char**      theArgVec);
+  Standard_EXPORT void Parse (Standard_Integer  theArgsNb,
+                              const char**      theArgVec);
 
   //! Checks if option was set with given minimal argument number.
   //! Prints error message if isFatal flag was set.
-  Standard_Boolean HasOption (const std::string& theOptionName,
-                              Standard_Integer theMandatoryArgsNb = 0,
-                              Standard_Boolean isFatal = Standard_False);
+  Standard_EXPORT Standard_Boolean HasOption (const std::string& theOptionName,
+                                              Standard_Integer theMandatoryArgsNb = 0,
+                                              Standard_Boolean isFatal = Standard_False);
 
   //! Accesses local argument of option 'theOptionName' with index 'theArgumentIndex'.
-  std::string Arg (const std::string& theOptionName, Standard_Integer theArgumentIndex);
+  Standard_EXPORT std::string Arg (const std::string& theOptionName, Standard_Integer theArgumentIndex);
 
   // Interprets arguments of option 'theOptionName' as float vector starting with index 'theArgumentIndex'.
-  Graphic3d_Vec3 ArgVec3f (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Graphic3d_Vec3 ArgVec3f (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as double vector starting with index 'theArgumentIndex'.
-  Graphic3d_Vec3d ArgVec3d (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Graphic3d_Vec3d ArgVec3d (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as gp vector starting with index 'theArgumentIndex'.
-  gp_Vec ArgVec (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT gp_Vec ArgVec (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as gp vector starting with index 'theArgumentIndex'.
-  gp_Pnt ArgPnt (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT gp_Pnt ArgPnt (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as double at index 'theArgumentIndex'.
-  Standard_Real ArgDouble (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Standard_Real ArgDouble (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as float at index 'theArgumentIndex'.
-  Standard_ShortReal ArgFloat (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Standard_ShortReal ArgFloat (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as integer at index 'theArgumentIndex'.
-  Standard_Integer ArgInt (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Standard_Integer ArgInt (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
   // Interprets arguments of option 'theOptionName' as boolean at index 'theArgumentIndex'.
-  Standard_Boolean ArgBool (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
+  Standard_EXPORT Standard_Boolean ArgBool (const std::string& theOptionName, const Standard_Integer theArgumentIndex = 0);
 
 private:
 
