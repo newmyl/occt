@@ -79,9 +79,6 @@ public:
   //! Check if meta data driver was successfully loaded
   //! by the application constructor
   Standard_EXPORT Standard_Boolean IsDriverLoaded() const;
-
-  //! Redefines message driver, by default outputs to cout.
-  Standard_EXPORT virtual Handle(Message_Messenger) MessageDriver() Standard_OVERRIDE;
   
   //! Returns resource manager defining supported persistent formats.
   //!
@@ -267,12 +264,20 @@ public:
   //! Notification that is fired at each AbortTransaction event.
   Standard_EXPORT virtual void OnAbortTransaction (const Handle(TDocStd_Document)& theDoc);
 
-  DEFINE_STANDARD_RTTIEXT(TDocStd_Application,CDF_Application)
+  //! Remove this application from the current session
+  Standard_EXPORT Standard_Boolean RemoveFromSession();
+
+  DEFINE_STANDARD_RTTIEXT(TDocStd_Application, CDF_Application)
 
 protected:
-  Handle(Message_Messenger) myMessageDriver;
+
   Handle(Resource_Manager) myResources;
   Standard_Boolean myIsDriverLoaded;
+
+private:
+
+  //! Add this application to the current session (register in internal container)
+  void AddToSession();
 };
 
 #endif // _TDocStd_Application_HeaderFile

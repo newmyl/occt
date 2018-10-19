@@ -216,21 +216,6 @@ public:
   //! the comment is an empty string.
   Standard_EXPORT Standard_ExtString Comment() const;
   
-  //! Returns an alphanumeric string identifying this document
-  //! in a unique manner in the current process. The presentation
-  //! may change when the document is stored.
-  //! Tries to get the 'FileFormat`.Presentation resource
-  //! This item is used to give a default presentation
-  //! to the document.
-  Standard_EXPORT Standard_ExtString Presentation();
-  
-  //! returns the document having the given alphanumeric presentation.
-  Standard_EXPORT static Handle(CDM_Document) FindFromPresentation (const TCollection_ExtendedString& aPresentation);
-  
-  //! indicates whether a document having the given presentation
-  //! does exist.
-  Standard_EXPORT static Standard_Boolean FindPresentation (const TCollection_ExtendedString& aPresentation);
-  
   Standard_EXPORT Standard_Boolean IsStored() const;
   
   //! returns  the value of  the modification counter at the
@@ -371,10 +356,6 @@ private:
   //! the manager returned by  this method will be
   //! used to search for the following resource items.
   Standard_EXPORT Handle(Resource_Manager) StorageResource();
-
-  Standard_EXPORT void ComputePresentation();
-  
-  Standard_EXPORT void UnvalidPresentation();
   
   Standard_EXPORT void AddToReference (const Handle(CDM_Reference)& aReference);
   
@@ -382,9 +363,9 @@ private:
   
   Standard_EXPORT void RemoveFromReference (const Standard_Integer aReferenceIdentifier);
 
+
+
   TColStd_SequenceOfExtendedString myComments;
-  TCollection_ExtendedString myPresentation;
-  Standard_Boolean myValidPresentation;
   CDM_ListOfReferences myFromReferences;
   CDM_ListOfReferences myToReferences;
   Standard_Integer myVersion;

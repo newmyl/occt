@@ -33,6 +33,7 @@
 #include <TDocStd_Document.hxx>
 #include <TDocStd_Owner.hxx>
 #include <TDocStd_PathParser.hxx>
+#include <OSD_Thread.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(TDocStd_Application,CDF_Application)
 
@@ -44,20 +45,9 @@ IMPLEMENT_STANDARD_RTTIEXT(TDocStd_Application,CDF_Application)
 TDocStd_Application::TDocStd_Application()
         : myIsDriverLoaded (Standard_True)
 {
-  myMessageDriver = CDM_Application::MessageDriver();
-  Handle(CDF_Session) S;
-  if (!CDF_Session::Exists()) S = new CDF_Session();
-  else S = CDF_Session::CurrentSession();
-  S->SetCurrentApplication(this);
-  try
-  {
-    OCC_CATCH_SIGNALS
-    S->LoadDriver();
-  }
-  catch (Plugin_Failure)
-  {
+  AddToSession();
+  if(myMetaDataDriver.IsNull())
     myIsDriverLoaded = Standard_False;
-  }
 }
 
 
@@ -68,15 +58,6 @@ TDocStd_Application::TDocStd_Application()
 Standard_Boolean TDocStd_Application::IsDriverLoaded() const
 {
   return myIsDriverLoaded;
-}
-
-//=======================================================================
-//function : MessageDriver
-//purpose  :
-//=======================================================================
-Handle(Message_Messenger) TDocStd_Application::MessageDriver()
-{
-  return myMessageDriver;
 }
 
 //=======================================================================
@@ -176,8 +157,7 @@ Standard_Integer TDocStd_Application::NbDocuments() const
 {
   if (!CDF_Session::Exists())
     throw Standard_DomainError("TDocStd_Application::NbDocuments");
-  Handle(CDF_Session) S = CDF_Session::CurrentSession();
-  return S->Directory()->Length();
+  return this->myDirectory->Length();
 }
 
 //=======================================================================
@@ -189,8 +169,7 @@ void TDocStd_Application::GetDocument(const Standard_Integer index,Handle(TDocSt
 {
   if (!CDF_Session::Exists())
     throw Standard_DomainError("TDocStd_Application::NbDocuments");
-  Handle(CDF_Session) S = CDF_Session::CurrentSession();
-  CDF_DirectoryIterator it (S->Directory());
+  CDF_DirectoryIterator it (myDirectory);
   Standard_Integer current = 0;
   for (;it.MoreDocument();it.NextDocument()) {
     current++;
@@ -596,4 +575,21 @@ void TDocStd_Application::OnAbortTransaction (const Handle(TDocStd_Document)&)
 void TDocStd_Application::OnCommitTransaction (const Handle(TDocStd_Document)&)
 {
   // nothing to do on this level
+}
+
+//
+void TDocStd_Application::AddToSession()
+{
+  Handle(CDF_Session) S;
+  if (!CDF_Session::Exists()) S = new CDF_Session();
+  else S = CDF_Session::CurrentSession();
+  S->AddApplication(this, OSD_Thread::Current());
+}
+
+Standard_Boolean TDocStd_Application::RemoveFromSession()
+{
+  Handle(CDF_Session) aSession;
+  if (!CDF_Session::Exists()) aSession = new CDF_Session();
+  else aSession = CDF_Session::CurrentSession();
+    return aSession->RemoveApplication(OSD_Thread::Current());
 }
