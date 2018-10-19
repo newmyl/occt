@@ -141,6 +141,14 @@ public:
   //! Add stencil test element
   Standard_EXPORT virtual void SetStencilTestOptions (const Standard_Boolean theIsEnabled) Standard_OVERRIDE;
 
+  //! Sets possibility to destroy or not OpenGl_Elements by Release() of the group. The default value is Standard_True
+  //! \param theIsEnabled state whether destroy element or not
+  void SetDestroyElements (const Standard_Boolean& theIsEnabled) { myIsDestroyElements = theIsEnabled; }
+
+  //! Returns flag whether OpenGl_Elements are to be destroyed by Release() of the group.
+  //! \return state whether elements are destroyed or not
+  Standard_Boolean DestroyElements() const { return myIsDestroyElements; }
+
 public:
 
   OpenGl_Structure* GlStruct() const { return (OpenGl_Structure* )(myStructure->CStructure().operator->()); }
@@ -174,6 +182,7 @@ protected:
   OpenGl_ElementNode*    myLast;
 
   Standard_Boolean       myIsRaytracable;
+  Standard_Boolean       myIsDestroyElements;
 
 public:
 

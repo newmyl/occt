@@ -18,15 +18,22 @@
 #include <AIS_Shape.hxx>
 #include <AIS_ListOfInteractive.hxx>
 #include <AIS_ListIteratorOfListOfInteractive.hxx>
+#include <Aspect.hxx>
+
 #include <inspector/VInspector_ItemContext.hxx>
-#include <inspector/VInspector_ItemEntityOwner.hxx>
-#include <inspector/VInspector_ItemSelection.hxx>
+#include <inspector/VInspector_ItemSelectBasicsEntityOwner.hxx>
+#include <inspector/VInspector_ItemFolderObject.hxx>
+#include <inspector/VInspector_ItemPresentations.hxx>
+#include <inspector/VInspector_ItemSelectMgrSelection.hxx>
+#include <inspector/ViewControl_Table.hxx>
+#include <inspector/ViewControl_Tools.hxx>
 #include <inspector/VInspector_Tools.hxx>
 #include <inspector/VInspector_ViewModel.hxx>
 
 #include <NCollection_List.hxx>
 #include <Prs3d.hxx>
 #include <Prs3d_Drawer.hxx>
+#include <PrsMgr.hxx>
 #include <SelectBasics_EntityOwner.hxx>
 #include <StdSelect_BRepOwner.hxx>
 #include <Standard_Version.hxx>
@@ -155,7 +162,7 @@ QVariant VInspector_ItemPresentableObject::initValue (int theItemRole) const
 
         return Column() == 17 ? VInspector_Tools::GetPointerInfo (aShape.TShape(), true).ToCString()
               : Column() == 18 ? VInspector_Tools::OrientationToName (aShape.Orientation()).ToCString()
-              :           /*19*/ VInspector_Tools::LocationToName (aShape.Location()).ToCString();
+              :           /*19*/ ViewControl_Tools::ToString (aShape.Location()).ToCString();
       }
       default: break;
     }
@@ -192,6 +199,11 @@ QVariant VInspector_ItemPresentableObject::initValue (int theItemRole) const
 // =======================================================================
 int VInspector_ItemPresentableObject::initRowCount() const
 {
+  if (Column() != 0)
+    return 0;
+
+  int aNbProperties = 2; // "Properties", "Presentations"
+
   Handle(AIS_InteractiveObject) anIO = GetInteractiveObject();
 #if OCC_VERSION_HEX < 0x070201
   int aRows = 0;
@@ -200,12 +212,12 @@ int VInspector_ItemPresentableObject::initRowCount() const
   // iteration through sensitive privitives
   for (anIO->Init(); anIO->More(); anIO->Next())
     aRows++;
-  return aRows;
+  int aNbSelected = aRows;
 #else
-  return !anIO.IsNull()
-        ? anIO->Selections().Size()
-        : 0;
+  int aNbSelected = !anIO.IsNull() ? anIO->Selections().Size() : 0;
 #endif
+
+  return aNbProperties + aNbSelected;
 }
 
 // =======================================================================
@@ -214,7 +226,12 @@ int VInspector_ItemPresentableObject::initRowCount() const
 // =======================================================================
 TreeModel_ItemBasePtr VInspector_ItemPresentableObject::createChild (int theRow, int theColumn)
 {
-  return VInspector_ItemSelection::CreateItem(currentItem(), theRow, theColumn);
+  if (theRow == 0)
+    return VInspector_ItemFolderObject::CreateItem (currentItem(), theRow, theColumn);
+  if (theRow == 1)
+    return VInspector_ItemPresentations::CreateItem (currentItem(), theRow, theColumn);
+  else
+    return VInspector_ItemSelectMgrSelection::CreateItem(currentItem(), theRow, theColumn);
 }
 
 // =======================================================================
@@ -246,6 +263,11 @@ void VInspector_ItemPresentableObject::Init()
   }
 
   setInteractiveObject (anIO);
+
+  Handle(AIS_Shape) aShape = Handle(AIS_Shape)::DownCast (anIO);
+  if (!aShape.IsNull())
+    myPresentationShape = aShape->Shape();
+
   TreeModel_ItemBase::Init(); // to use getIO() without circling initialization
 }
 
@@ -292,40 +314,147 @@ QString VInspector_ItemPresentableObject::PointerInfo() const
 }
 
 // =======================================================================
-// function : GetSelectedPresentations
+// function : GetPresentations
 // purpose :
 // =======================================================================
-NCollection_List<Handle(AIS_InteractiveObject)> VInspector_ItemPresentableObject::GetSelectedPresentations
-                                                                  (QItemSelectionModel* theSelectionModel)
+void VInspector_ItemPresentableObject::GetPresentations (NCollection_List<Handle(Standard_Transient)>& thePresentations)
 {
-  NCollection_List<Handle(AIS_InteractiveObject)> aResultList;
-  if (!theSelectionModel)
-    return aResultList;
-  
-  QList<TreeModel_ItemBasePtr> anItems;
-  
-  QModelIndexList anIndices = theSelectionModel->selectedIndexes();
-  for (QModelIndexList::const_iterator anIndicesIt = anIndices.begin(); anIndicesIt != anIndices.end(); anIndicesIt++)
-  {
-    TreeModel_ItemBasePtr anItem = TreeModel_ModelBase::GetItemByIndex (*anIndicesIt);
-    if (!anItem || anItems.contains (anItem))
-      continue;
-    anItems.append (anItem);
-  }
+  if (Column() != 0)
+    return;
 
-  QList<size_t> aSelectedIds; // Remember of selected address in order to avoid duplicates
-  for (QList<TreeModel_ItemBasePtr>::const_iterator anItemIt = anItems.begin(); anItemIt != anItems.end(); anItemIt++)
+  thePresentations.Append (GetInteractiveObject());
+}
+
+// =======================================================================
+// function : GetTableRowCount
+// purpose :
+// =======================================================================
+int VInspector_ItemPresentableObject::GetTableRowCount() const
+{
+  return 23;
+}
+
+// =======================================================================
+// function : GetTableEditType
+// purpose :
+// =======================================================================
+ViewControl_EditType VInspector_ItemPresentableObject::GetTableEditType (const int theRow, const int) const
+{
+  switch (theRow)
   {
-    TreeModel_ItemBasePtr anItem = *anItemIt;
-    VInspector_ItemPresentableObjectPtr aPrsItem = itemDynamicCast<VInspector_ItemPresentableObject>(anItem);
-    if (!aPrsItem)
-      continue;
-    Handle(AIS_InteractiveObject) aPresentation = aPrsItem->GetInteractiveObject();
-    if (aSelectedIds.contains ((size_t)aPresentation.operator->()))
-      continue;
-    aSelectedIds.append ((size_t)aPresentation.operator->());
-    if (!aPresentation.IsNull())
-      aResultList.Append (aPresentation);
+    case 4: return ViewControl_EditType_Line;
+    case 5: return ViewControl_EditType_Combo;
+    case 6: return ViewControl_EditType_Bool;
+    case 12: return ViewControl_EditType_Bool;
+    case 17: return ViewControl_EditType_Combo;
+    case 18: return ViewControl_EditType_Bool;
+    case 22: return ViewControl_EditType_Bool;
+    default: return ViewControl_EditType_None;
   }
-  return aResultList;
+}
+
+// =======================================================================
+// function : GetTableEnumValues
+// purpose :
+// =======================================================================
+QList<QVariant> VInspector_ItemPresentableObject::GetTableEnumValues (const int theRow, const int) const
+{
+  QList<QVariant> aValues;
+  switch (theRow)
+  {
+    case 5:
+    {
+      for (int i = 0; i <= Aspect_TOFM_FRONT_SIDE; i++)
+        aValues.append (Aspect::TypeOfFacingModelToString((Aspect_TypeOfFacingModel)i));
+    }
+    break;
+    case 17:
+    {
+      for (int i = 0; i <= PrsMgr_TOP_ProjectorDependant; i++)
+        aValues.append (PrsMgr::TypeOfPresentation3dToString ((PrsMgr_TypeOfPresentation3d)i));
+    }
+    break;
+    default: break;
+  }
+  return aValues;
+}
+
+// =======================================================================
+// function : GetTableData
+// purpose :
+// =======================================================================
+QVariant VInspector_ItemPresentableObject::GetTableData (const int theRow, const int theColumn, const int theRole) const
+{
+  if (theRole != Qt::DisplayRole)
+    return QVariant();
+
+  bool isFirstColumn = theColumn == 0;
+
+  Handle(AIS_InteractiveObject) aPrs = GetInteractiveObject();
+  switch (theRow)
+  {
+    case 0: return ViewControl_Table::SeparatorData();
+    case 1: return isFirstColumn ? QVariant (STANDARD_TYPE (AIS_InteractiveObject)->Name())
+                                 : ViewControl_Tools::GetPointerInfo (aPrs).ToCString();
+    case 2: return ViewControl_Table::SeparatorData();
+    case 3: return isFirstColumn ? QVariant ("HasWidth") : QVariant (aPrs->HasWidth());
+    case 4: return isFirstColumn ? QVariant ("Width") : QVariant (aPrs->Width());
+    case 5: return isFirstColumn ? QVariant ("CurrentFacingModel")
+                                 : QVariant (Aspect::TypeOfFacingModelToString (aPrs->CurrentFacingModel()));
+    case 6: return isFirstColumn ? QVariant ("IsInfinite") : QVariant (aPrs->IsInfinite());
+    case 7: return isFirstColumn ? QVariant ("HasColor") : QVariant (aPrs->HasColor());
+    case 8: return isFirstColumn ? QVariant ("HasMaterial") : QVariant (aPrs->HasMaterial());
+
+    case 9: return ViewControl_Table::SeparatorData();
+    case 10: return isFirstColumn ? QVariant (STANDARD_TYPE (SelectMgr_SelectableObject)->Name())
+                                 : ViewControl_Tools::GetPointerInfo (aPrs).ToCString();
+    case 11: return ViewControl_Table::SeparatorData();
+    case 12: return isFirstColumn ? QVariant ("IsAutoHilight") : QVariant (aPrs->IsAutoHilight());
+    case 13: return isFirstColumn ? QVariant ("GlobalSelectionMode") : QVariant (aPrs->GlobalSelectionMode());
+
+    case 14: return ViewControl_Table::SeparatorData();
+    case 15: return isFirstColumn ? QVariant (STANDARD_TYPE (PrsMgr_PresentableObject)->Name())
+                                 : ViewControl_Tools::GetPointerInfo (aPrs).ToCString();
+    case 16: return ViewControl_Table::SeparatorData();
+    case 17: return isFirstColumn ? QVariant ("TypeOfPresentation3d")
+                                  : QVariant (PrsMgr::TypeOfPresentation3dToString (aPrs->TypeOfPresentation3d()));
+    case 18: return isFirstColumn ? QVariant ("IsMutable") : QVariant (aPrs->IsMutable());
+    case 19: return isFirstColumn ? QVariant ("HasOwnPresentations") : QVariant (aPrs->HasOwnPresentations());
+    case 20: return isFirstColumn ? QVariant ("TransformationGeom")
+      : (!aPrs->TransformationGeom().IsNull()
+        ? QVariant (ViewControl_Tools::ToString(aPrs->TransformationGeom()->Trsf()).ToCString()) : QVariant());
+    case 21: return isFirstColumn ? QVariant ("LocalTransformationGeom")
+      : (!aPrs->LocalTransformationGeom().IsNull()
+        ? QVariant (ViewControl_Tools::ToString(aPrs->LocalTransformationGeom()->Trsf()).ToCString()) : QVariant());
+    case 22: return isFirstColumn ? QVariant ("ResetTransformation") : (!aPrs->LocalTransformationGeom().IsNull());
+    default: return QVariant();
+  }
+  return QVariant();
+}
+
+// =======================================================================
+// function : SetTableData
+// purpose :
+// =======================================================================
+bool VInspector_ItemPresentableObject::SetTableData (const int theRow, const int, const QVariant& theValue)
+{
+  Handle(AIS_InteractiveObject) aPrs = GetInteractiveObject();
+  switch (theRow)
+  {
+    case 4:
+    {
+      double aValue = theValue.toDouble();
+      if (aValue > 0) aPrs->SetWidth (aValue);
+      else aPrs->UnsetWidth();
+    }
+    break;
+    case 5: aPrs->SetCurrentFacingModel (Aspect::TypeOfFacingModelFromString (theValue.toString().toStdString().c_str()));
+    case 6: aPrs->SetInfiniteState (theValue.toBool());
+    case 12: aPrs->SetAutoHilight(theValue.toBool());
+    case 17: aPrs->SetTypeOfPresentation (PrsMgr::TypeOfPresentation3dFromString (theValue.toString().toStdString().c_str()));
+    case 18: aPrs->SetMutable (theValue.toBool());
+    case 22: if (!theValue.toBool()) aPrs->ResetTransformation();
+    default: return false;
+  }
+  return true;
 }
