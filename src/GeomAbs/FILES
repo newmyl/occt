@@ -1,3 +1,5 @@
+GeomAbs.cxx
+GeomAbs.hxx
 GeomAbs_BSplKnotDistribution.hxx
 GeomAbs_CurveForm.hxx
 GeomAbs_CurveType.hxx

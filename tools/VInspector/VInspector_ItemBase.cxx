@@ -18,6 +18,16 @@
 #include <inspector/VInspector_ItemContext.hxx>
 
 // =======================================================================
+// function : Reset
+// purpose :
+// =======================================================================
+void VInspector_ItemBase::Reset()
+{
+  myPresentationShape = TopoDS_Shape();
+  TreeModel_ItemBase::Reset();
+}
+
+// =======================================================================
 // function : GetContext
 // purpose :
 // =======================================================================

@@ -146,6 +146,14 @@ public:
   //! \return integer value
   static int ColumnVisibilityWidth() { return 20; }
 
+  //! Returns selected items in the cell of given orientation.
+  //! \param theIndices a container of selected indices
+  //! \param theCellId column index if orientation is horizontal, row index otherwise
+  //! \param theOrientation an orientation to apply the cell index
+  //! \return model indices from the list
+  Standard_EXPORT static QModelIndexList GetSelected (const QModelIndexList& theIndices, const int theCellId,
+                                                      const Qt::Orientation theOrientation = Qt::Horizontal);
+
   //! Returns single selected item in the cell of given orientation. If the orientation is Horizontal,
   //! in the cell id colum, one row should be selected.
   //! \param theIndices a container of selected indices

@@ -16,6 +16,8 @@
 #include <inspector/VInspector_Window.hxx>
 
 #include <AIS_Shape.hxx>
+#include <BRep_Builder.hxx>
+#include <TopoDS_Compound.hxx>
 
 #include <inspector/TreeModel_ColumnType.hxx>
 #include <inspector/TreeModel_ContextMenu.hxx>
@@ -24,19 +26,23 @@
 #include <inspector/ViewControl_MessageDialog.hxx>
 #include <inspector/ViewControl_Tools.hxx>
 
-#include <inspector/VInspector_ItemPresentableObject.hxx>
 #include <inspector/VInspector_ToolBar.hxx>
 #include <inspector/VInspector_Tools.hxx>
 #include <inspector/VInspector_ViewModel.hxx>
 #include <inspector/VInspector_CallBack.hxx>
 #include <inspector/VInspector_Communicator.hxx>
-#include <inspector/VInspector_ItemEntityOwner.hxx>
+#include <inspector/VInspector_ItemContext.hxx>
+#include <inspector/VInspector_ItemSelectBasicsEntityOwner.hxx>
+#include <inspector/VInspector_ItemFolderObject.hxx>
+#include <inspector/VInspector_ItemOpenGlElement.hxx>
 #include <inspector/VInspector_ItemPresentableObject.hxx>
+#include <inspector/VInspector_PrsOpenGlElement.hxx>
 #include <inspector/VInspector_ToolBar.hxx>
 #include <inspector/VInspector_Tools.hxx>
 #include <inspector/VInspector_ViewModel.hxx>
 #include <inspector/VInspector_ViewModelHistory.hxx>
 
+#include <inspector/ViewControl_PropertyView.hxx>
 #include <inspector/ViewControl_TreeView.hxx>
 
 #include <inspector/View_Widget.hxx>
@@ -55,6 +61,9 @@
 #include <QTreeView>
 #include <QWidget>
 #include <Standard_WarningsRestore.hxx>
+
+const int VINSPECTOR_DEFAULT_PROPERTY_VIEW_WIDTH = 300;//600;
+const int VINSPECTOR_DEFAULT_PROPERTY_VIEW_HEIGHT = 1000;
 
 const int VINSPECTOR_DEFAULT_WIDTH  = 1250;
 const int VINSPECTOR_DEFAULT_HEIGHT = 800;
@@ -96,6 +105,8 @@ VInspector_Window::VInspector_Window()
   myTreeView->setSelectionMode (QAbstractItemView::ExtendedSelection);
   myTreeView->header()->setStretchLastSection (true);
   myTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+  //((ViewControl_TreeView*)myTreeView)->SetPredefinedSize (QSize (VINSPECTOR_DEFAULT_TREE_VIEW_WIDTH,
+  //                                                               VINSPECTOR_DEFAULT_TREE_VIEW_HEIGHT));
   VInspector_ViewModel* aTreeModel = new VInspector_ViewModel (myTreeView);
   myTreeView->setModel (aTreeModel);
   // hide Visibility column
@@ -110,11 +121,22 @@ VInspector_Window::VInspector_Window()
   QItemSelectionModel* aSelModel = new QItemSelectionModel (myTreeView->model(), myTreeView);
   myTreeView->setSelectionModel (aSelModel);
   connect (aSelModel, SIGNAL (selectionChanged (const QItemSelection&, const QItemSelection&)),
-           this, SLOT (onSelectionChanged (const QItemSelection&, const QItemSelection&)));
+           this, SLOT (onTreeViewSelectionChanged (const QItemSelection&, const QItemSelection&)));
 
   aParentLay->addWidget(myTreeView, 1, 0);
   aParentLay->setRowStretch (1, 1);
   myMainWindow->setCentralWidget (aCentralWidget);
+
+  // property view
+  myPropertyView = new ViewControl_PropertyView (myMainWindow,
+    QSize(VINSPECTOR_DEFAULT_PROPERTY_VIEW_WIDTH, VINSPECTOR_DEFAULT_PROPERTY_VIEW_HEIGHT));
+  myPropertyPanelWidget = new QDockWidget (tr ("PropertyPanel"), myMainWindow);
+  myPropertyPanelWidget->setObjectName (myPropertyPanelWidget->windowTitle());
+  myPropertyPanelWidget->setTitleBarWidget (new QWidget(myMainWindow));
+  myPropertyPanelWidget->setWidget (myPropertyView->GetControl());
+  myMainWindow->addDockWidget (Qt::RightDockWidgetArea, myPropertyPanelWidget);
+  connect (myPropertyPanelWidget->toggleViewAction(), SIGNAL(toggled(bool)), this, SLOT (onPropertyPanelShown (bool)));
+  connect (myPropertyView, SIGNAL (propertyViewSelectionChanged()), this, SLOT (onPropertyViewSelectionChanged ()));
 
   myHistoryView = new ViewControl_TreeView (myMainWindow);
   myHistoryView->setSelectionBehavior (QAbstractItemView::SelectRows);
@@ -281,6 +303,123 @@ void VInspector_Window::UpdateContent()
 }
 
 // =======================================================================
+// function : GetSelectedPresentations
+// purpose :
+// =======================================================================
+NCollection_List<Handle(AIS_InteractiveObject)> VInspector_Window::GetSelectedPresentations (QItemSelectionModel* theModel)
+{
+  NCollection_List<Handle(AIS_InteractiveObject)> aSelectedPresentations;
+
+  QList<TreeModel_ItemBasePtr> anItems;
+  QModelIndexList anIndices = theModel->selectedIndexes();
+  for (QModelIndexList::const_iterator anIndicesIt = anIndices.begin(); anIndicesIt != anIndices.end(); anIndicesIt++)
+  {
+    TreeModel_ItemBasePtr anItem = TreeModel_ModelBase::GetItemByIndex (*anIndicesIt);
+    if (!anItem || anItems.contains (anItem))
+      continue;
+    anItems.append (anItem);
+  }
+
+  QList<size_t> aSelectedIds; // Remember of selected address in order to avoid duplicates
+  NCollection_List<Handle(Standard_Transient)> anItemPresentations;
+  for (QList<TreeModel_ItemBasePtr>::const_iterator anItemIt = anItems.begin(); anItemIt != anItems.end(); anItemIt++)
+  {
+    TreeModel_ItemBasePtr anItem = *anItemIt;
+    VInspector_ItemBasePtr aVItem = itemDynamicCast<VInspector_ItemBase>(anItem);
+    if (!aVItem)
+      continue;
+
+    anItemPresentations.Clear();
+    aVItem->GetPresentations (anItemPresentations);
+
+    for (NCollection_List<Handle(Standard_Transient)>::Iterator anIt (anItemPresentations); anIt.More(); anIt.Next())
+    {
+      Handle(AIS_InteractiveObject) aPresentation = Handle(AIS_InteractiveObject)::DownCast (anIt.Value());
+      if (aSelectedIds.contains ((size_t)aPresentation.operator->()))
+        continue;
+      aSelectedIds.append ((size_t)aPresentation.operator->());
+      if (!aPresentation.IsNull())
+        aSelectedPresentations.Append (aPresentation);
+    }
+  }
+  return aSelectedPresentations;
+}
+
+// =======================================================================
+// function : GetSelectedShapes
+// purpose :
+// =======================================================================
+NCollection_List<TopoDS_Shape> VInspector_Window::GetSelectedShapes (QItemSelectionModel* theModel)
+{
+  NCollection_List<TopoDS_Shape> aSelectedShapes;
+
+  QList<TreeModel_ItemBasePtr> anItems;
+  QModelIndexList anIndices = theModel->selectedIndexes();
+  for (QModelIndexList::const_iterator anIndicesIt = anIndices.begin(); anIndicesIt != anIndices.end(); anIndicesIt++)
+  {
+    TreeModel_ItemBasePtr anItem = TreeModel_ModelBase::GetItemByIndex (*anIndicesIt);
+    if (!anItem || anItems.contains (anItem))
+      continue;
+    anItems.append (anItem);
+  }
+
+  QList<size_t> aSelectedIds; // Remember of selected address in order to avoid duplicates
+  for (QList<TreeModel_ItemBasePtr>::const_iterator anItemIt = anItems.begin(); anItemIt != anItems.end(); anItemIt++)
+  {
+    TreeModel_ItemBasePtr anItem = *anItemIt;
+    VInspector_ItemBasePtr aVItem = itemDynamicCast<VInspector_ItemBase>(anItem);
+    if (!aVItem)
+      continue;
+
+    TopoDS_Shape aShape = aVItem->GetPresentationShape();
+    if (aShape.IsNull())
+      continue;
+
+    aSelectedShapes.Append (aShape);
+  }
+  return aSelectedShapes;
+}
+
+// =======================================================================
+// function : GetSelectedElements
+// purpose :
+// =======================================================================
+NCollection_List<OpenGl_Element*> VInspector_Window::GetSelectedElements (QItemSelectionModel* theModel)
+{
+  NCollection_List<OpenGl_Element*> anElements;
+  QList<TreeModel_ItemBasePtr> anItems;
+  QModelIndexList anIndices = theModel->selectedIndexes();
+  for (QModelIndexList::const_iterator anIndicesIt = anIndices.begin(); anIndicesIt != anIndices.end(); anIndicesIt++)
+  {
+    QModelIndex anIndex = *anIndicesIt;
+    TreeModel_ItemBasePtr anItem = TreeModel_ModelBase::GetItemByIndex (anIndex);
+     if (anIndex.column() != 0)
+       continue;
+
+    if (!anItem || anItems.contains (anItem))
+      continue;
+    anItems.append (anItem);
+  }
+
+  QList<size_t> aSelectedIds; // Remember of selected address in order to avoid duplicates
+  for (QList<TreeModel_ItemBasePtr>::const_iterator anItemIt = anItems.begin(); anItemIt != anItems.end(); anItemIt++)
+  {
+    TreeModel_ItemBasePtr anItem = *anItemIt;
+    VInspector_ItemOpenGlElementPtr aVItem = itemDynamicCast<VInspector_ItemOpenGlElement>(anItem);
+    if (!aVItem)
+      continue;
+
+    OpenGl_Element* anElement = aVItem->GetElement();
+    if (!anElement)
+      continue;
+
+    anElements.Append (anElement);
+  }
+
+  return anElements;
+}
+
+// =======================================================================
 // function : Init
 // purpose :
 // =======================================================================
@@ -372,8 +511,12 @@ void VInspector_Window::onTreeViewContextMenuRequested(const QPoint& thePosition
 {
   QMenu* aMenu = new QMenu (GetMainWindow());
   aMenu->addAction (ViewControl_Tools::CreateAction (tr ("Export to ShapeView"), SLOT (onExportToShapeView()), GetMainWindow(), this));
-  aMenu->addAction (ViewControl_Tools::CreateAction (tr ("Show"), SLOT (onShow()), GetMainWindow(), this));
-  aMenu->addAction (ViewControl_Tools::CreateAction (tr ("Hide"), SLOT (onHide()), GetMainWindow(), this));
+
+  aMenu->addSeparator();
+  for (int aTypeId = (int)VInspector_DisplayActionType_DisplayId; aTypeId <= (int)VInspector_DisplayActionType_RemoveId; aTypeId++)
+    aMenu->addAction (ViewControl_Tools::CreateAction (VInspector_Tools::DisplayActionTypeToString ((VInspector_DisplayActionType) aTypeId),
+                      SLOT (onDisplayActionTypeClicked()), GetMainWindow(), this));
+  aMenu->addSeparator();
   QPoint aPoint = myTreeView->mapToGlobal (thePosition);
   aMenu->exec(aPoint);
 }
@@ -397,12 +540,12 @@ void VInspector_Window::onToolBarActionClicked (const int theActionId)
     }
     case VInspector_ToolActionType_SelectPresentationsId:
     {
-      bool isChecked = myToolBar->GetToolButton((VInspector_ToolActionType)theActionId)->isChecked();
+      bool isChecked = myToolBar->GetToolButton ((VInspector_ToolActionType)theActionId)->isChecked();
       NCollection_List<Handle(AIS_InteractiveObject)> aPresentationsForViewer;
       if (isChecked)
-        aPresentationsForViewer = VInspector_ItemPresentableObject::GetSelectedPresentations(myTreeView->selectionModel());
+        aPresentationsForViewer = GetSelectedPresentations (myTreeView->selectionModel());
       Handle(AIS_InteractiveContext) aContext = aViewModel->GetContext();
-      VInspector_Tools::AddOrRemovePresentations(aContext, aPresentationsForViewer);
+      VInspector_Tools::AddOrRemovePresentations (aContext, aPresentationsForViewer);
       UpdateTreeModel();
       break;
     }
@@ -421,11 +564,85 @@ void VInspector_Window::onToolBarActionClicked (const int theActionId)
 }
 
 // =======================================================================
-// function : onSelectionChanged
+// function : onPropertyPanelShown
 // purpose :
 // =======================================================================
-void VInspector_Window::onSelectionChanged (const QItemSelection&,
-                                            const QItemSelection&)
+void VInspector_Window::onPropertyPanelShown (bool isToggled)
+{
+  if (!isToggled)
+    return;
+
+  updatePropertyPanelBySelection();
+}
+
+// =======================================================================
+// function : onPropertyViewSelectionChanged
+// purpose :
+// =======================================================================
+void VInspector_Window::onPropertyViewSelectionChanged()
+{
+  /*QItemSelectionModel* aModel = myTreeView->selectionModel();
+  if (!aModel)
+    return;
+  QModelIndex aSelectedIndex = TreeModel_ModelBase::SingleSelected (aModel->selectedIndexes(), 0);
+  QModelIndex anIndex = myTreeView->model()->index (aSelectedIndex.row(), TreeModel_ColumnType_Visibility, aSelectedIndex.parent());
+
+  TreeModel_ItemBasePtr anItemBase = TreeModel_ModelBase::GetItemByIndex (anIndex);
+  if (!anItemBase)
+    return;
+  MessageModel_ItemAlertPtr anAlertItem = itemDynamicCast<MessageModel_ItemAlert>(anItemBase);
+  if (!anAlertItem)
+    return;
+
+  QList<ViewControl_Table*> aPropertyTables;
+  myPropertyView->GetActiveTables (aPropertyTables);
+  if (aPropertyTables.isEmpty())
+    return;
+
+  ViewControl_Table* aFirstTable = aPropertyTables[0]; // TODO: implement for several tables
+
+  QMap<int, QList<int>> aSelectedIndices;
+  aFirstTable->GetSelectedIndices (aSelectedIndices);
+
+  // clear presentation if selection is empty
+  MessageModel_TreeModel* aTreeModel = dynamic_cast<MessageModel_TreeModel*> (myTreeView->model());
+  TreeModel_VisibilityState* aVisibilityState = aTreeModel->GetVisibilityState();
+  if (aSelectedIndices.isEmpty() && aVisibilityState->IsVisible (anIndex))
+  {
+    aVisibilityState->SetVisible (anIndex, false, true);
+    anAlertItem->SetCustomShape (TopoDS_Shape());
+    return;
+  }
+
+  TopoDS_Shape aShapeOfSelection = MessageModel_Tools::BuildShape (anAlertItem->GetAlert(), aSelectedIndices[0], aFirstTable);
+  if (aShapeOfSelection.IsNull())
+    return;
+
+  if (aVisibilityState->IsVisible (anIndex))
+  {
+    View_Displayer* aDisplayer = myViewWindow->GetDisplayer();
+
+    Handle(AIS_InteractiveObject) aPresentation = myViewWindow->GetDisplayer()->FindPresentation (anAlertItem->GetCustomShape());
+
+    Handle(AIS_Shape) aShapePresentation = Handle(AIS_Shape)::DownCast (aPresentation);
+    aShapePresentation->Set (aShapeOfSelection);
+
+    aDisplayer->RedisplayPresentation (aPresentation);
+    anAlertItem->SetCustomShape (aShapeOfSelection);
+  }
+  else
+  {
+    anAlertItem->SetCustomShape (aShapeOfSelection);
+    aVisibilityState->SetVisible (anIndex, true);
+  }*/
+}
+
+// =======================================================================
+// function : onTreeViewSelectionChanged
+// purpose :
+// =======================================================================
+void VInspector_Window::onTreeViewSelectionChanged (const QItemSelection&,
+                                                    const QItemSelection&)
 {
   QApplication::setOverrideCursor (Qt::WaitCursor);
 
@@ -433,6 +650,15 @@ void VInspector_Window::onSelectionChanged (const QItemSelection&,
     onToolBarActionClicked(VInspector_ToolActionType_SelectPresentationsId);
   else if (myToolBar->GetToolButton(VInspector_ToolActionType_SelectOwnersId)->isChecked())
     onToolBarActionClicked(VInspector_ToolActionType_SelectOwnersId);
+
+  if (myPropertyPanelWidget->toggleViewAction()->isChecked())
+    updatePropertyPanelBySelection();
+
+  NCollection_List<TopoDS_Shape> aSelectedShapes = GetSelectedShapes (myTreeView->selectionModel());
+  updatePreviewPresentation(aSelectedShapes);
+
+  NCollection_List<OpenGl_Element*> aSelectedElements = GetSelectedElements (myTreeView->selectionModel());
+  updatePreviewPresentation(aSelectedElements);
 
   QApplication::restoreOverrideCursor();
 }
@@ -475,8 +701,7 @@ void VInspector_Window::onHistoryViewSelectionChanged (const QItemSelection& the
 // =======================================================================
 void VInspector_Window::onExportToShapeView()
 {
-  NCollection_List<Handle(AIS_InteractiveObject)> aSelectedPresentations =
-            VInspector_ItemPresentableObject::GetSelectedPresentations(myTreeView->selectionModel());
+  NCollection_List<Handle(AIS_InteractiveObject)> aSelectedPresentations = GetSelectedPresentations (myTreeView->selectionModel());
   if (aSelectedPresentations.Extent() <= 0)
     return;
 
@@ -523,21 +748,14 @@ void VInspector_Window::onExportToShapeView()
 }
 
 // =======================================================================
-// function : onShow
+// function : onDisplayActionTypeClicked
 // purpose :
 // =======================================================================
-void VInspector_Window::onShow()
+void VInspector_Window::onDisplayActionTypeClicked()
 {
-  displaySelectedPresentations (true);
-}
+  QAction* anAction = (QAction*)sender();
 
-// =======================================================================
-// function : onHide
-// purpose :
-// =======================================================================
-void VInspector_Window::onHide()
-{
-  displaySelectedPresentations (false);
+  displaySelectedPresentations (VInspector_Tools::DisplayActionTypeFromString (anAction->text().toStdString().c_str()));
 }
 
 // =======================================================================
@@ -552,10 +770,32 @@ void VInspector_Window::UpdateTreeModel()
 }
 
 // =======================================================================
+// function : updatePropertyPanelBySelection
+// purpose :
+// =======================================================================
+void VInspector_Window::updatePropertyPanelBySelection()
+{
+  QItemSelectionModel* aModel = myTreeView->selectionModel();
+  if (!aModel)
+    return;
+
+  QModelIndexList aSelected = TreeModel_ModelBase::GetSelected (aModel->selectedIndexes(), 0);
+  QList<ViewControl_TableModelValues*> aTableValues;
+
+  if (aSelected.size() == 1)
+  {
+    TreeModel_ItemBasePtr aSelectedItem = TreeModel_ModelBase::GetItemByIndex(aSelected.first());
+    VInspector_Tools::GetPropertyTableValues (aSelectedItem, aTableValues);
+  }
+  myPropertyView->Init (aTableValues);
+}
+
+// =======================================================================
 // function : displaySelectedPresentations
 // purpose :
 // =======================================================================
-void VInspector_Window::displaySelectedPresentations(const bool theToDisplay)
+
+void VInspector_Window::displaySelectedPresentations (const VInspector_DisplayActionType theType)
 {
   VInspector_ViewModel* aViewModel = dynamic_cast<VInspector_ViewModel*> (myTreeView->model());
   if (!aViewModel)
@@ -565,28 +805,37 @@ void VInspector_Window::displaySelectedPresentations(const bool theToDisplay)
   if (aContext.IsNull())
     return;
 
-  NCollection_List<Handle(AIS_InteractiveObject)> aSelectedPresentations =
-    VInspector_ItemPresentableObject::GetSelectedPresentations(myTreeView->selectionModel());
+  QItemSelectionModel* aSelectionModel = myTreeView->selectionModel();
+  if (!aSelectionModel)
+    return;
+
+  NCollection_List<Handle(AIS_InteractiveObject)> aSelectedPresentations = GetSelectedPresentations (aSelectionModel);
   if (aSelectedPresentations.Extent() <= 0)
     return;
+
+  // the order of objects returned by AIS_InteractiveContext is changed because the processed object is moved from
+  // Erased to Displayed container or back
+  aSelectionModel->clear();
 
   for (NCollection_List<Handle(AIS_InteractiveObject)>::Iterator anIOIt(aSelectedPresentations); anIOIt.More(); anIOIt.Next())
   {
     Handle(AIS_InteractiveObject) aPresentation = anIOIt.Value();
-    if (theToDisplay)
+    switch (theType)
     {
-      aContext->Display(aPresentation, false);
-      aContext->Load(aPresentation, -1);
+      case VInspector_DisplayActionType_DisplayId:
+      {
+        aContext->Display(aPresentation, false);
+        aContext->Load(aPresentation, -1);
+      }
+      break;
+
+      case VInspector_DisplayActionType_RedisplayId: aContext->Redisplay (aPresentation, false); break;
+      case VInspector_DisplayActionType_EraseId: aContext->Erase (aPresentation, false); break;
+      case VInspector_DisplayActionType_RemoveId: aContext->Remove (aPresentation, false); break;
+      default: break;
     }
-    else
-      aContext->Erase(aPresentation, false);
   }
   aContext->UpdateCurrentViewer();
-
-  // the order of objects returned by AIS_InteractiveContext is changed because the processed object is moved from
-  // Erased to Displayed container or back
-  QItemSelectionModel* aSelectionModel = myTreeView->selectionModel();
-  aSelectionModel->clear();
 
   UpdateTreeModel();
 }
@@ -603,4 +852,84 @@ Handle(AIS_InteractiveContext) VInspector_Window::createView()
   myViewWindow->show();
 
   return myViewWindow->GetView()->GetViewer()->GetContext();
+}
+
+// =======================================================================
+// function : updatePreviewPresentation
+// purpose :
+// =======================================================================
+void VInspector_Window::updatePreviewPresentation (const NCollection_List<TopoDS_Shape>& theShapes)
+{
+  Handle(AIS_InteractiveContext) aContext;
+  VInspector_ViewModel* aViewModel = dynamic_cast<VInspector_ViewModel*> (myTreeView->model());
+  if (aViewModel)
+    aContext = aViewModel->GetContext();
+
+  if (theShapes.IsEmpty())
+  {
+    if (!aContext.IsNull())
+      aContext->Remove (myPreviewPresentation, Standard_True);
+    myPreviewPresentation = NULL;
+    return;
+  }
+
+  BRep_Builder aBuilder;
+  TopoDS_Compound aCompound;
+  aBuilder.MakeCompound (aCompound);
+  for (NCollection_List<TopoDS_Shape>::Iterator anIterator (theShapes); anIterator.More(); anIterator.Next())
+  {
+    aBuilder.Add (aCompound, anIterator.Value());
+  }
+
+  if (myPreviewPresentation.IsNull())
+  {
+    myPreviewPresentation = new AIS_Shape (aCompound);
+    myPreviewPresentation->SetColor (Quantity_Color (Quantity_NOC_BLUE1));
+    myPreviewPresentation->SetZLayer (Graphic3d_ZLayerId_Topmost);
+    if (!aContext.IsNull())
+      aContext->Display (myPreviewPresentation, Standard_True);
+  }
+  else
+  {
+    Handle(AIS_Shape)::DownCast (myPreviewPresentation)->Set (aCompound);
+    if (!aContext.IsNull())
+      aContext->Redisplay (myPreviewPresentation, Standard_True);
+  }
+}
+
+// =======================================================================
+// function : updatePreviewPresentation
+// purpose :
+// =======================================================================
+void VInspector_Window::updatePreviewPresentation (const NCollection_List<OpenGl_Element*>& theElements)
+{
+  Handle(AIS_InteractiveContext) aContext;
+  VInspector_ViewModel* aViewModel = dynamic_cast<VInspector_ViewModel*> (myTreeView->model());
+  if (aViewModel)
+    aContext = aViewModel->GetContext();
+
+  if (theElements.IsEmpty())
+  {
+    if (!aContext.IsNull())
+      aContext->Remove (myOpenGlPreviewPresentation, Standard_False);
+    myOpenGlPreviewPresentation = NULL;
+    return;
+  }
+
+  if (myOpenGlPreviewPresentation.IsNull())
+  {
+    myOpenGlPreviewPresentation = new VInspector_PrsOpenGlElement();
+    myOpenGlPreviewPresentation->Set (theElements);
+
+    myOpenGlPreviewPresentation->SetColor (Quantity_Color (Quantity_NOC_BLUE1));
+    myOpenGlPreviewPresentation->SetZLayer (Graphic3d_ZLayerId_Topmost);
+    if (!aContext.IsNull())
+      aContext->Display (myOpenGlPreviewPresentation, Standard_True);
+  }
+  else
+  {
+    Handle(VInspector_PrsOpenGlElement)::DownCast (myOpenGlPreviewPresentation)->Set (theElements);
+    if (!aContext.IsNull())
+      aContext->Redisplay (myOpenGlPreviewPresentation, Standard_True);
+  }
 }

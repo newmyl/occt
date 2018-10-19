@@ -1,3 +1,5 @@
+Quantity.cxx
+Quantity.hxx
 Quantity_AbsorbedDose.hxx
 Quantity_Acceleration.hxx
 Quantity_AcousticIntensity.hxx

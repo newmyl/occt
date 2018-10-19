@@ -15,7 +15,9 @@
 
 #include <inspector/VInspector_ItemContext.hxx>
 
+#include <AIS.hxx>
 #include <AIS_ListOfInteractive.hxx>
+#include <SelectMgr.hxx>
 #include <SelectMgr_EntityOwner.hxx>
 #include <inspector/VInspector_ItemFolderObject.hxx>
 #include <inspector/VInspector_ItemPresentableObject.hxx>
@@ -107,6 +109,115 @@ QVariant VInspector_ItemContext::initValue (const int theItemRole) const
       break;
   }
   return QVariant();
+}
+
+// =======================================================================
+// function : GetTableRowCount
+// purpose :
+// =======================================================================
+int VInspector_ItemContext::GetTableRowCount() const
+{
+  return 11;
+}
+
+// =======================================================================
+// function : GetTableEditType
+// purpose :
+// =======================================================================
+ViewControl_EditType VInspector_ItemContext::GetTableEditType (const int theRow, const int) const
+{
+  switch (theRow)
+  {
+    case 0: return ViewControl_EditType_Spin;
+    case 1: return ViewControl_EditType_Combo;
+    case 2: return ViewControl_EditType_Bool;
+    case 3: return ViewControl_EditType_Bool;
+    case 4: return ViewControl_EditType_Bool;
+    default: return ViewControl_EditType_None;
+  }
+}
+
+// =======================================================================
+// function : GetTableEnumValues
+// purpose :
+// =======================================================================
+QList<QVariant> VInspector_ItemContext::GetTableEnumValues (const int theRow, const int) const
+{
+  QList<QVariant> aValues;
+  switch (theRow)
+  {
+    case 1:
+    {
+      for (int i = 0; i <= SelectMgr_PickingStrategy_OnlyTopmost; i++)
+        aValues.append (SelectMgr::PickingStrategyToString ((SelectMgr_PickingStrategy)i));
+    }
+    break;
+    default: break;
+  }
+
+  return aValues;
+}
+
+// =======================================================================
+// function : GetTableData
+// purpose :
+// =======================================================================
+QVariant VInspector_ItemContext::GetTableData (const int theRow, const int theColumn, const int theRole) const
+{
+  if (theRole != Qt::DisplayRole)
+    return QVariant();
+
+  bool isFirstColumn = theColumn == 0;
+  switch (theRow)
+  {
+    case 0: return isFirstColumn ? QVariant ("PixelTolerance") : QVariant (myContext->PixelTolerance());
+    case 1: return isFirstColumn ? QVariant ("PickingStrategy") : QVariant (SelectMgr::PickingStrategyToString (myContext->PickingStrategy()));
+    case 2: return isFirstColumn ? QVariant ("AutomaticHilight") : QVariant (myContext->AutomaticHilight());
+    case 3: return isFirstColumn ? QVariant ("ToHilightSelected") : QVariant (myContext->ToHilightSelected());
+    case 4: return isFirstColumn ? QVariant ("AutoActivateSelection") : QVariant (myContext->GetAutoActivateSelection());
+    case 5:
+    case 6:
+    case 7:
+    {
+      AIS_DisplayStatus aDisplayStatus = (AIS_DisplayStatus)(theRow - 5);
+      if (isFirstColumn)
+        return QString ("ObjectsByDisplayStatus: %1").arg (AIS::DisplayStatusToString (aDisplayStatus));
+      AIS_ListOfInteractive anObjects;
+      myContext->ObjectsByDisplayStatus(aDisplayStatus, anObjects);
+      return QVariant (anObjects.Extent());
+    }
+    break;
+    case 8: return isFirstColumn ? QVariant ("DetectedOwner") : QVariant (VInspector_Tools::GetPointerInfo (myContext->DetectedOwner()).ToCString());
+    case 9:
+    {
+      if (isFirstColumn)
+        return QVariant ("DetectedOwners");
+      int aNbOfDetected = 0;
+      for (myContext->InitDetected(); myContext->MoreDetected(); myContext->NextDetected())
+        aNbOfDetected++;
+      return aNbOfDetected;
+    }
+    case 10: return isFirstColumn ? QVariant ("NbSelected") : QVariant (myContext->NbSelected());
+    default: return QVariant();
+  }
+}
+
+// =======================================================================
+// function : SetTableData
+// purpose :
+// =======================================================================
+bool VInspector_ItemContext::SetTableData (const int theRow, const int, const QVariant& theValue)
+{
+  switch (theRow)
+  {
+    case 0: myContext->SetPixelTolerance (theValue.toInt()); break;
+    case 1: myContext->SetPickingStrategy (SelectMgr::PickingStrategyFromString (theValue.toString().toStdString().c_str())); break;
+    case 2: myContext->SetAutomaticHilight (theValue.toBool()); break;
+    case 3: myContext->SetToHilightSelected (theValue.toBool()); break;
+    case 4: myContext->SetAutoActivateSelection (theValue.toBool()); break;
+    default: return false;
+  }
+  return true;
 }
 
 // =======================================================================

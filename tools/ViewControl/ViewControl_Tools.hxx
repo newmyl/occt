@@ -16,15 +16,22 @@
 #ifndef ViewControl_Tools_H
 #define ViewControl_Tools_H
 
+#include <gp_Pnt.hxx>
+#include <gp_Trsf.hxx>
+#include <Bnd_Box.hxx>
 #include <Standard.hxx>
 #include <Standard_Macro.hxx>
+#include <TColgp_HArray1OfPnt.hxx>
+#include <TCollection_AsciiString.hxx>
 
 #include <Standard_WarningsDisable.hxx>
 #include <QString>
+#include <QVariant>
 #include <Standard_WarningsRestore.hxx>
 
 class QAction;
 class QObject;
+class QTableView;
 class QWidget;
 
 //! \class ViewControl_Tools
@@ -45,6 +52,65 @@ public:
   //! Change palette of the widget to have white foreground
   //! \param theControl a widget to be modified
   Standard_EXPORT static void SetWhiteBackground (QWidget* theControl);
+
+  //! Fills tree view by default sections parameters obtained in view's table model
+  //! \param theTableView table view instance
+  //! \param theOrientation header orientation
+  Standard_EXPORT static void SetDefaultHeaderSections (QTableView* theTableView, const Qt::Orientation theOrientation);
+
+  //! Convert handle pointer to string value
+  //! \param thePointer a pointer
+  //! \param isShortInfo if true, all '0' symbols in the beginning of the pointer are skipped
+  //! \return the string value
+  Standard_EXPORT static TCollection_AsciiString GetPointerInfo (const Handle(Standard_Transient)& thePointer,
+                                                                 const bool isShortInfo = true);
+
+  //! Convert pointer to string value
+  //! \param thePointer a pointer
+  //! \param isShortInfo if true, all '0' symbols in the beginning of the pointer are skipped
+  //! \return the string value
+  Standard_EXPORT static TCollection_AsciiString GetPointerInfo (const void* thePointer,
+                                                                 const bool isShortInfo = true);
+
+  //! Convert real value to string value
+  //! \param theValue a short real value
+  //! \return the string value
+  Standard_EXPORT static QVariant ToVariant (const Standard_ShortReal theValue);
+
+  //! Convert real value to string value
+  //! \param theValue a real value
+  //! \return the string value
+  Standard_EXPORT static QVariant ToVariant (const Standard_Real theValue);
+
+  //! Convert real value to real value
+  //! \param theValue a string value
+  //! \return the real value
+  Standard_EXPORT static Standard_ShortReal ToShortRealValue (const QVariant& theValue);
+
+  //! Convert real value to string value
+  //! \param theValue a string value
+  //! \return the real value
+  Standard_EXPORT static Standard_Real ToRealValue (const QVariant& theValue);
+
+  //! Returns text of orientation
+  //! \param theLocation a location value
+  //! \return text value
+  Standard_EXPORT static TCollection_AsciiString ToString (const gp_Trsf& theValue);
+
+  //! Returns text of point
+  //! \param theValue a 3D point
+  //! \return text value
+  Standard_EXPORT static TCollection_AsciiString ToString (const gp_Pnt& theValue);
+
+  //! Returns text of bounding box in form: (xmin, ymin, zmin), (xmax, ymax, zmax)
+  //! \param theValue a bounding box
+  //! \return text value
+  Standard_EXPORT static TCollection_AsciiString ToString (const Bnd_Box& theValue);
+
+  //! Returns text of array of points
+  //! \param thePoints points
+  //! \return text value
+  Standard_EXPORT static TCollection_AsciiString ToString (const Handle(TColgp_HArray1OfPnt)& thePoints);
 
 };
 

@@ -14,6 +14,7 @@
 // commercial license or contractual agreement.
 
 #include <Quantity_Color.hxx>
+#include <Quantity.hxx>
 
 #include <Quantity_ColorDefinitionError.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -47,6 +48,8 @@ static Standard_Real TheEpsilon = 0.0001;
 Standard_Boolean Quantity_Color::ColorFromName (const Standard_CString theName,
                                                 Quantity_NameOfColor&  theColor)
 {
+  return Quantity::NameOfColorFromString (theName, theColor);
+  /*
   TCollection_AsciiString aName (theName);
   aName.UpperCase();
   if (aName.Search("QUANTITY_NOC_") == 1)
@@ -63,7 +66,7 @@ Standard_Boolean Quantity_Color::ColorFromName (const Standard_CString theName,
       return Standard_True;
     }
   }
-  return Standard_False;
+  return Standard_False;*/
 }
 
 Quantity_Color::Quantity_Color () {
@@ -2040,6 +2043,8 @@ switch (AName) {
 Standard_CString Quantity_Color::StringName (
                                  const Quantity_NameOfColor AName) {
 
+  return Quantity::NameOfColorToString (AName);
+/*
 Standard_CString TheName;
  
 switch (AName) {
@@ -3600,7 +3605,7 @@ switch (AName) {
 		throw Standard_OutOfRange("Bad name");
 	break;
 }
-return (TheName);
+return (TheName);*/
 }
 
 //

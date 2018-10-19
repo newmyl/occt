@@ -1,3 +1,5 @@
+PrsMgr.cxx
+PrsMgr.hxx
 PrsMgr_ListOfPresentableObjects.hxx
 PrsMgr_ListOfPresentations.hxx
 PrsMgr_ModedPresentation.cxx
