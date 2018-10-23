@@ -81,7 +81,7 @@
 #include <TopOpeBRepDS_PointIterator.hxx>
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopTools_ListOfShape.hxx>
-#include <BOPCol_MapOfOrientedShape.hxx>
+#include <TopTools_MapOfOrientedShape.hxx>
 
 #ifdef OCCT_DEBUG
 #include <OSD_Chronometer.hxx>
@@ -129,7 +129,7 @@ TopoDS_Wire BuildNewWire(const TopoDS_Wire& theWire,
   TopoDS_Edge   StartEdge, SecondEdge;
   Standard_Real MinDist = RealLast();
   TopTools_ListIteratorOfListOfShape itl;
-  BOPCol_MapOfOrientedShape Emap;
+  TopTools_MapOfOrientedShape Emap;
   for (Standard_Integer i = 1; i <= OldVertices.Extent(); i++)
   {
     TopoDS_Vertex aVertex = TopoDS::Vertex(OldVertices(i));
@@ -621,7 +621,8 @@ void  ChFi3d_Builder::Compute()
         GenFuse.Perform();
         TopoDS_Shape aNewFace = aFace.EmptyCopied();
         const TopoDS_Shape& aResFuse = GenFuse.Shape();
-        const BOPCol_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
+        //const BOPCol_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
+        const TopTools_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
         TopTools_IndexedDataMapOfShapeListOfShape VEmapOfNewFace;
         TopExp::MapShapesAndAncestors(aResFuse, TopAbs_VERTEX, TopAbs_EDGE, VEmapOfNewFace);
         TopoDS_Iterator itw(aFace);
