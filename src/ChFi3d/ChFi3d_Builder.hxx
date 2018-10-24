@@ -31,6 +31,7 @@
 #include <TopTools_ListOfShape.hxx>
 #include <TopTools_DataMapOfShapeListOfInteger.hxx>
 #include <TopTools_IndexedMapOfShape.hxx>
+#include <TColStd_MapOfInteger.hxx>
 #include <Standard_Boolean.hxx>
 #include <Standard_Integer.hxx>
 #include <ChFiDS_ErrorStatus.hxx>
@@ -327,6 +328,7 @@ protected:
   //NCollection_IndexedDataMap<Standard_Integer, ChFi3d_ListOfQualifiedEdge> myFaceNewEdges;
   TopTools_IndexedMapOfShape myNewFaces;
   TopTools_IndexedMapOfShape myNewEdges;
+  TColStd_MapOfInteger myIndsChFiFaces;
   Handle(TopOpeBRepBuild_HBuilder) myCoup;
   ChFiDS_ListOfStripe myListStripe;
   ChFiDS_StripeMap myVDataMap;

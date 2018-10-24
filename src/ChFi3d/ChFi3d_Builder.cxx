@@ -82,6 +82,7 @@
 #include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <TopTools_ListOfShape.hxx>
 #include <TopTools_MapOfOrientedShape.hxx>
+#include <BRepTools_ReShape.hxx>
 
 #ifdef OCCT_DEBUG
 #include <OSD_Chronometer.hxx>
@@ -108,6 +109,44 @@ extern void ChFi3d_InitChron(OSD_Chronometer& ch);
 extern void ChFi3d_ResultChron(OSD_Chronometer & ch, Standard_Real& time);
 extern Standard_Boolean ChFi3d_GettraceCHRON();
 #endif
+
+//=======================================================================
+//function : FindProperSubShape
+//purpose  : 
+//=======================================================================
+
+TopoDS_Shape FindProperSubShape(const TopoDS_Shape& theNewFace,
+                                const TopoDS_Shape& theShape)
+{
+  TopoDS_Shape NullShape;
+
+  TopTools_IndexedMapOfShape Emap;
+  TopExp::MapShapes(theNewFace, TopAbs_EDGE, Emap);
+
+  TopoDS_Iterator iter(theShape);
+  for (; iter.More(); iter.Next())
+  {
+    const TopoDS_Shape& aShape = iter.Value();
+    if (aShape.ShapeType() == TopAbs_FACE)
+    {
+      TopExp_Explorer Explo(aShape, TopAbs_EDGE);
+      for (; Explo.More(); Explo.Next())
+      {
+        const TopoDS_Shape& anEdge = Explo.Current();
+        if (Emap.Contains(anEdge))
+          return theShape;
+      }
+    }
+    else
+    {
+      TopoDS_Shape aResult = FindProperSubShape(theNewFace, aShape);
+      if (!aResult.IsNull())
+        return aResult;
+    }
+  }
+
+  return NullShape;
+}
 
 //=======================================================================
 //function : BuildNewWire
@@ -599,6 +638,14 @@ void  ChFi3d_Builder::Compute()
       //general fuse (compound of wires from a face, compound of new edges for this face)
       //method building new face from old and new edges
       //assembling of resulting shape from modified and unmodified faces.
+
+      TopTools_ListOfShape aChFiFaces;
+      TopTools_IndexedDataMapOfShapeShape aFacesModifiedFaces;
+
+      //Temporary
+      TopoDS_Shell aShell;
+      BB.MakeShell(aShell);
+      
       for (Standard_Integer i = 1; i <= myNewFaces.Extent(); i++)
       {
         TopoDS_Face aFace = TopoDS::Face(myNewFaces(i));
@@ -618,36 +665,83 @@ void  ChFi3d_Builder::Compute()
           aNewEdge.Orientation(anOr);
           BB.Add(aNewEdges, aNewEdge);
         }
-        //BRepAlgoAPI_Fuse aFuse(aWires, aNewEdges);
-        BOPAlgo_Builder GenFuse;
-        GenFuse.AddArgument(aFace);
-        GenFuse.AddArgument(aNewEdges);
-        GenFuse.Perform();
-        TopoDS_Shape aNewFace = aFace.EmptyCopied();
-        const TopoDS_Shape& aResFuse = GenFuse.Shape();
-        //const BOPCol_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
-        const TopTools_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
-        TopTools_IndexedDataMapOfShapeListOfShape VEmapOfNewFace;
-        TopExp::MapShapesAndAncestors(aResFuse, TopAbs_VERTEX, TopAbs_EDGE, VEmapOfNewFace);
-        TopoDS_Iterator itw(aFace);
-        for (; itw.More(); itw.Next())
+
+        if (myIndsChFiFaces.Contains(i)) //absolutely new face
         {
-          const TopoDS_Shape& aWire = itw.Value();
-          if (!ModifiedShapes.IsBound(aWire))
-            continue;
-          const TopTools_ListOfShape& aListOfModified = ModifiedShapes(aWire);
-          TopTools_ListIteratorOfListOfShape itwm(aListOfModified);
-          for (; itwm.More(); itwm.Next())
+          TopoDS_Wire aWire;
+          BB.MakeWire(aWire);
+          TopoDS_Iterator iter(aNewEdges);
+          for (; iter.More(); iter.Next())
+            BB.Add(aWire, iter.Value());
+          BB.Add(aFace, aWire);
+          aChFiFaces.Append(aFace);
+          //Temporary
+          BB.Add(aShell, aFace);
+        }
+        else //a modified old face
+        {
+          //BRepAlgoAPI_Fuse aFuse(aWires, aNewEdges);
+          BOPAlgo_Builder GenFuse;
+          GenFuse.AddArgument(aFace);
+          GenFuse.AddArgument(aNewEdges);
+          GenFuse.Perform();
+          TopoDS_Shape aNewFace = aFace.EmptyCopied();
+          const TopoDS_Shape& aResFuse = GenFuse.Shape();
+          //const BOPCol_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
+          const TopTools_DataMapOfShapeListOfShape& ModifiedShapes = GenFuse.Images();
+          TopTools_IndexedDataMapOfShapeListOfShape VEmapOfNewFace;
+          TopExp::MapShapesAndAncestors(aResFuse, TopAbs_VERTEX, TopAbs_EDGE, VEmapOfNewFace);
+          TopoDS_Iterator itw(aFace);
+          for (; itw.More(); itw.Next())
           {
-            const TopoDS_Wire& aModifiedWire = TopoDS::Wire(itwm.Value());
-            cout<<"a Modified Wire ..."<<endl;
-            TopoDS_Wire aNewWire = BuildNewWire(aModifiedWire, VEmapOfNewFace, aNewEdges, aFace);
-            cout<<"a New Wire ..."<<endl;
-            BB.Add(aNewFace, aNewWire);
-            cout<<"a New Face ..."<<endl;
+            const TopoDS_Shape& aWire = itw.Value();
+            if (!ModifiedShapes.IsBound(aWire))
+              continue;
+            const TopTools_ListOfShape& aListOfModified = ModifiedShapes(aWire);
+            TopTools_ListIteratorOfListOfShape itwm(aListOfModified);
+            for (; itwm.More(); itwm.Next())
+            {
+              const TopoDS_Wire& aModifiedWire = TopoDS::Wire(itwm.Value());
+              cout<<"a Modified Wire ..."<<endl;
+              TopoDS_Wire aNewWire = BuildNewWire(aModifiedWire, VEmapOfNewFace, aNewEdges, aFace);
+              cout<<"a New Wire ..."<<endl;
+              BB.Add(aNewFace, aNewWire);
+              cout<<"a New Face ..."<<endl;
+              aFacesModifiedFaces.Add(aFace, aNewFace);
+              //Temporary
+              BB.Add(aShell, aNewFace);
+            }
           }
         }
       }
+
+      //Modify the original shape using ReShape
+      BRepTools_ReShape aReshape;
+      for (Standard_Integer i = 1; i <= aFacesModifiedFaces.Extent(); i++)
+      {
+        const TopoDS_Shape& aFace = aFacesModifiedFaces.FindKey(i);
+        const TopoDS_Shape& aNewFace = aFacesModifiedFaces(i);
+        aReshape.Replace(aFace, aNewFace);
+      }
+      myShapeResult = aReshape.Apply(myShape);
+      //Add ChFiFaces
+      while (!aChFiFaces.IsEmpty())
+      {
+        TopTools_ListIteratorOfListOfShape itl(aChFiFaces);
+        while (itl.More())
+        {
+          const TopoDS_Shape& aChFiFace = itl.Value();
+          TopoDS_Shape aTargetShape = FindProperSubShape(aChFiFace, myShapeResult); //recursive method
+          if (!aTargetShape.IsNull())
+          {
+            BB.Add(aTargetShape, aChFiFace);
+            aChFiFaces.Remove(itl);
+          }
+          else
+            itl.Next();
+        }
+      }
+      /////////////////////////////////////////
 
       myCoup->Perform(myDS);
       //jgv//

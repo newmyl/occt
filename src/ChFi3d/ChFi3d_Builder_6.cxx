@@ -722,6 +722,7 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
   TopLoc_Location aLoc;
   BB.UpdateFace(aNewFace, Surf, aLoc, Precision::Confusion());
   Standard_Integer IndNewFace = myNewFaces.Add(aNewFace);
+  myIndsChFiFaces.Add(IndNewFace);
   //ChFi3d_ListOfQualifiedEdge aList;
   TColStd_ListOfInteger aList;
   myFaceNewEdges.Add(IndNewFace, aList);
