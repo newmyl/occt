@@ -722,6 +722,10 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
   TopLoc_Location aLoc;
   BB.UpdateFace(aNewFace, Surf, aLoc, Precision::Confusion());
   Standard_Integer IndNewFace = myNewFaces.Add(aNewFace);
+  //ChFi3d_ListOfQualifiedEdge aList;
+  TColStd_ListOfInteger aList;
+  myFaceNewEdges.Add(IndNewFace, aList);
+  Data->ChangeIndexOfFace(IndNewFace);
   /////
 
 #ifdef DRAW
@@ -818,14 +822,18 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
   IndF1 = myNewFaces.FindIndex(BS1->ChangeSurface().Face());
   if (!myFaceNewEdges.Contains(IndF1))
   {
-    ChFi3d_ListOfQualifiedEdge aList;
+    //ChFi3d_ListOfQualifiedEdge aList;
+    TColStd_ListOfInteger aList;
     myFaceNewEdges.Add(IndF1, aList);
   }
   Standard_Integer IndE1 = myNewEdges.FindIndex(Boundary1);
   Data->ChangeIndexOfE1(IndE1);
   TopAbs_Orientation Et = (Reversed)? TopAbs_REVERSED : TopAbs_FORWARD;
-  QualifiedEdge aQE1(IndE1, Et);
-  myFaceNewEdges.ChangeFromKey(IndF1).Append(aQE1);
+  //QualifiedEdge aQE1(IndE1, Et);
+  if (Et == TopAbs_REVERSED)
+    IndE1 *= -1;
+  myFaceNewEdges.ChangeFromKey(IndF1).Append(IndE1);
+  myFaceNewEdges.ChangeFromKey(IndNewFace).Append(-IndE1);
   /////
   
   // SurfData is filled in what concerns S2,
@@ -894,13 +902,18 @@ Standard_Boolean ChFi3d_Builder::StoreData(Handle(ChFiDS_SurfData)& Data,
     IndF2 = myNewFaces.FindIndex(BS2->ChangeSurface().Face());
     if (!myFaceNewEdges.Contains(IndF2))
     {
-     ChFi3d_ListOfQualifiedEdge aList;
-     myFaceNewEdges.Add(IndF2, aList);
+      //ChFi3d_ListOfQualifiedEdge aList;
+      TColStd_ListOfInteger aList;
+      myFaceNewEdges.Add(IndF2, aList);
     }
     Standard_Integer IndE2 = myNewEdges.FindIndex(Boundary2);
     Data->ChangeIndexOfE2(IndE2);
-    QualifiedEdge aQE2(IndE2, TopAbs::Reverse(Et));
-    myFaceNewEdges.ChangeFromKey(IndF2).Append(aQE2);
+    //QualifiedEdge aQE2(IndE2, TopAbs::Reverse(Et));
+    TopAbs_Orientation RevEt = TopAbs::Reverse(Et);
+    if (RevEt == TopAbs_REVERSED)
+      IndE2 *= -1;
+    myFaceNewEdges.ChangeFromKey(IndF2).Append(IndE2);
+    myFaceNewEdges.ChangeFromKey(IndNewFace).Append(-IndE2);
     /////
   }
   else {

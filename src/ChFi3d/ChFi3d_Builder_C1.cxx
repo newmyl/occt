@@ -599,6 +599,9 @@ void ChFi3d_Builder::PerformOneCorner(const Standard_Integer Index,
   }
 
   Handle(ChFiDS_SurfData)& Fd = SeqFil.ChangeValue(num);
+  //jgv
+  Standard_Integer IndexOfNewFace = Fd->IndexOfFace();
+  /////
   ChFiDS_CommonPoint& CV1 = Fd->ChangeVertex(isfirst,1);
   ChFiDS_CommonPoint& CV2 = Fd->ChangeVertex(isfirst,2);
   //To evaluate the new points.
@@ -981,12 +984,16 @@ void ChFi3d_Builder::PerformOneCorner(const Standard_Integer Index,
   IndFv = myNewFaces.FindIndex(Fv);
   if (!myFaceNewEdges.Contains(IndFv))
   {
-    ChFi3d_ListOfQualifiedEdge aList;
+    //ChFi3d_ListOfQualifiedEdge aList;
+    TColStd_ListOfInteger aList;
     myFaceNewEdges.Add(IndFv, aList);
   }
   Standard_Integer IndE = myNewEdges.FindIndex(aNewEdge);
-  QualifiedEdge aQE(IndE, Et);
-  myFaceNewEdges.ChangeFromKey(IndFv).Append(aQE);
+  //QualifiedEdge aQE(IndE, Et);
+  if (Et == TopAbs_REVERSED)
+    IndE *= -1;
+  myFaceNewEdges.ChangeFromKey(IndFv).Append(IndE);
+  myFaceNewEdges.ChangeFromKey(IndexOfNewFace).Append(-IndE);
 
 #ifdef OCCT_DEBUG
   ChFi3d_ResultChron(ch ,t_inter); //result perf condition if (inter)
@@ -1359,16 +1366,19 @@ void ChFi3d_Builder::PerformOneCorner(const Standard_Integer Index,
     IndFop = myNewFaces.FindIndex(Fop);
     if (!myFaceNewEdges.Contains(IndFop))
     {
-      ChFi3d_ListOfQualifiedEdge aList;
+      //ChFi3d_ListOfQualifiedEdge aList;
+      TColStd_ListOfInteger aList;
       myFaceNewEdges.Add(IndFop, aList);
     }
     for (itl.Initialize(aNewZobList); itl.More(); itl.Next())
     {
       Standard_Integer IndZobE = myNewEdges.FindIndex(itl.Value());
-      QualifiedEdge aQzobE(IndZobE, Et);
-      myFaceNewEdges.ChangeFromKey(IndFv).Append(aQzobE);
-      QualifiedEdge aQzopEonFop(IndZobE, TopAbs::Reverse(Et));
-      myFaceNewEdges.ChangeFromKey(IndFop).Append(aQzopEonFop);
+      //QualifiedEdge aQzobE(IndZobE, Et);
+      if (Et == TopAbs_REVERSED)
+        IndZobE *= -1;
+      myFaceNewEdges.ChangeFromKey(IndFv).Append(IndZobE);
+      //QualifiedEdge aQzopEonFop(IndZobE, TopAbs::Reverse(Et));
+      myFaceNewEdges.ChangeFromKey(IndFop).Append(-IndZobE);
     }
     
     Handle(TopOpeBRepDS_SurfaceCurveInterference)

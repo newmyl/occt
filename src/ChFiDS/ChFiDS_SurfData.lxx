@@ -99,6 +99,16 @@ inline void ChFiDS_SurfData::SetIndexOfC2 (const Standard_Integer theIndex)
 }
 
 //=======================================================================
+//function : IndexOfFace
+//purpose  : 
+//=======================================================================
+
+inline Standard_Integer  ChFiDS_SurfData::IndexOfFace()const 
+{
+  return indexOfFace;
+}
+
+//=======================================================================
 //function : Surf
 //purpose  : 
 //=======================================================================
@@ -199,6 +209,16 @@ inline void ChFiDS_SurfData::ChangeIndexOfS1(const Standard_Integer Index)
 inline void ChFiDS_SurfData::ChangeIndexOfS2(const Standard_Integer Index) 
 {
   indexOfS2 = Index;
+}
+
+//=======================================================================
+//function : ChangeIndexOfFace
+//purpose  : 
+//=======================================================================
+
+inline void ChFiDS_SurfData::ChangeIndexOfFace(const Standard_Integer Index) 
+{
+  indexOfFace = Index;
 }
 
 //=======================================================================

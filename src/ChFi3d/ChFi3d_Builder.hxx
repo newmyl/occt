@@ -323,8 +323,8 @@ protected:
   ChFiDS_Map myVEMap;
   Handle(TopOpeBRepDS_HDataStructure) myDS;
   //TopTools_IndexedDataMapOfShapeListOfShape myFaceNewEdges;
-  //NCollection_IndexedDataMap<Standard_Integer, TColStd_ListOfInteger> myFaceNewEdges;
-  NCollection_IndexedDataMap<Standard_Integer, ChFi3d_ListOfQualifiedEdge> myFaceNewEdges;
+  NCollection_IndexedDataMap<Standard_Integer, TColStd_ListOfInteger> myFaceNewEdges;
+  //NCollection_IndexedDataMap<Standard_Integer, ChFi3d_ListOfQualifiedEdge> myFaceNewEdges;
   TopTools_IndexedMapOfShape myNewFaces;
   TopTools_IndexedMapOfShape myNewEdges;
   Handle(TopOpeBRepBuild_HBuilder) myCoup;

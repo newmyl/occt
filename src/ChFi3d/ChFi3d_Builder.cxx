@@ -606,12 +606,16 @@ void  ChFi3d_Builder::Compute()
 
         TopoDS_Compound aNewEdges;
         BB.MakeCompound(aNewEdges);
-        ChFi3d_ListIteratorOfListOfQualifiedEdge itl(myFaceNewEdges.FindFromKey(i));
+        //ChFi3d_ListIteratorOfListOfQualifiedEdge itl(myFaceNewEdges.FindFromKey(i));
+        TColStd_ListIteratorOfListOfInteger itl(myFaceNewEdges.FindFromKey(i));
         for (; itl.More(); itl.Next())
         {
-          Standard_Integer anIndex = itl.Value().Index;
+          Standard_Integer aSignedIndex = itl.Value();
+          Standard_Integer anIndex = Abs(aSignedIndex);
           TopoDS_Shape aNewEdge = myNewEdges(anIndex);
-          aNewEdge.Orientation(itl.Value().Orientation);
+          TopAbs_Orientation anOr = (aSignedIndex > 0)?
+            TopAbs_FORWARD : TopAbs_REVERSED;
+          aNewEdge.Orientation(anOr);
           BB.Add(aNewEdges, aNewEdge);
         }
         //BRepAlgoAPI_Fuse aFuse(aWires, aNewEdges);

@@ -81,6 +81,8 @@ public:
   
     void ChangeIndexOfS2 (const Standard_Integer Index);
   
+    void ChangeIndexOfFace (const Standard_Integer Index);
+  
     void ChangeIndexOfE1 (const Standard_Integer Index);
   
     void ChangeIndexOfE2 (const Standard_Integer Index);
@@ -108,6 +110,8 @@ public:
   Standard_EXPORT const ChFiDS_FaceInterference& Interference (const Standard_Integer OnS) const;
   
   Standard_EXPORT ChFiDS_FaceInterference& ChangeInterference (const Standard_Integer OnS);
+  
+  Standard_EXPORT Standard_Integer IndexOfFace () const;
   
   Standard_EXPORT Standard_Integer Index (const Standard_Integer OfS) const;
   
@@ -195,6 +199,7 @@ private:
   Standard_Integer indexOfC2;
   Standard_Integer indexOfE1;
   Standard_Integer indexOfE2;
+  Standard_Integer indexOfFace;
   Standard_Integer indexOfConge;
   
   Standard_Boolean isoncurv1;
