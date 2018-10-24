@@ -107,7 +107,8 @@ QVariant VInspector_ItemGraphic3dGroup::initValue (const int theItemRole) const
 
   switch (Column())
   {
-    case 0: return aGroup->DynamicType()->Name();
+    case 0: return theItemRole == Qt::DisplayRole ? aGroup->DynamicType()->Name()
+                                                  : STANDARD_TYPE (Graphic3d_Group)->Name();
     case 1:
       return rowCount();
     case 2:

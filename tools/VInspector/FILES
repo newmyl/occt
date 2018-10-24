@@ -17,6 +17,8 @@ VInspector_ItemGraphic3dCStructure.cxx
 VInspector_ItemGraphic3dCStructure.hxx
 VInspector_ItemGraphic3dGroup.cxx
 VInspector_ItemGraphic3dGroup.hxx
+VInspector_ItemGraphic3dTransformPers.cxx
+VInspector_ItemGraphic3dTransformPers.hxx
 VInspector_ItemHistoryElement.cxx
 VInspector_ItemHistoryElement.hxx
 VInspector_ItemHistoryRoot.cxx

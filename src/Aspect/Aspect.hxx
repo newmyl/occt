@@ -24,6 +24,7 @@
 #include <Aspect_TypeOfLine.hxx>
 #include <Aspect_TypeOfMarker.hxx>
 #include <Aspect_TypeOfStyleText.hxx>
+#include <Aspect_TypeOfTriedronPosition.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Macro.hxx>
 #include <Standard_Type.hxx>
@@ -255,6 +256,28 @@ public:
   //! @return TRUE if string identifier is known
   Standard_EXPORT static Standard_Boolean HatchStyleFromString (const Standard_CString theTypeString,
                                                                 Aspect_HatchStyle& theType);
+
+  //! Returns the string name for a given type.
+  //! @param theType an enumeration type
+  //! @return string identifier from the enumeration list
+  Standard_EXPORT static Standard_CString TypeOfTriedronPositionToString (Aspect_TypeOfTriedronPosition theType);
+
+  //! Returns the orientation type from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @return enumeration type or Aspect_TOTP_CENTER if string identifier is invalid
+  static Aspect_TypeOfTriedronPosition TypeOfTriedronPositionFromString (Standard_CString theTypeString)
+  {
+    Aspect_TypeOfTriedronPosition aType = Aspect_TOTP_CENTER;
+    TypeOfTriedronPositionFromString (theTypeString, aType);
+    return aType;
+  }
+
+  //! Determines the type from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @param theType detected type
+  //! @return TRUE if string identifier is known
+  Standard_EXPORT static Standard_Boolean TypeOfTriedronPositionFromString (const Standard_CString theTypeString,
+                                                                            Aspect_TypeOfTriedronPosition& theType);
 
 };
 

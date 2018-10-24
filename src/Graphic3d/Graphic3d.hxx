@@ -19,6 +19,7 @@
 #include <Graphic3d_HorizontalTextAlignment.hxx>
 #include <Graphic3d_VerticalTextAlignment.hxx>
 #include <Graphic3d_TextPath.hxx>
+#include <Graphic3d_TransModeFlags.hxx>
 #include <Graphic3d_TypeOfShadingModel.hxx>
 
 #include <Graphic3d_ZLayerId.hxx>
@@ -210,6 +211,27 @@ public:
   Standard_EXPORT static Standard_Boolean TypeOfDataFromString (const Standard_CString theTypeString,
                                                                 Graphic3d_TypeOfData& theType);
 
+  //! Returns the string name for a given type.
+  //! @param theType an enumeration type
+  //! @return string identifier from the enumeration list
+  Standard_EXPORT static Standard_CString TransModeFlagsToString (Graphic3d_TransModeFlags theType);
+
+  //! Returns the orientation type from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @return enumeration type or Graphic3d_TOSM_DEFAULT if string identifier is invalid
+  static Graphic3d_TransModeFlags TransModeFlagsFromString (Standard_CString theTypeString)
+  {
+    Graphic3d_TransModeFlags aType = Graphic3d_TMF_None;
+    TransModeFlagsFromString (theTypeString, aType);
+    return aType;
+  }
+
+  //! Determines the type from the given string identifier (using case-insensitive comparison).
+  //! @param theTypeString string identifier
+  //! @param theType detected type
+  //! @return TRUE if string identifier is known
+  Standard_EXPORT static Standard_Boolean TransModeFlagsFromString (const Standard_CString theTypeString,
+                                                                    Graphic3d_TransModeFlags& theType);
 };
 
 #endif // _Graphic3d_HeaderFile
