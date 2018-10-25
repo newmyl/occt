@@ -136,6 +136,13 @@ void BRepBndLib::Add(const TopoDS_Shape& S, Bnd_Box& B, Standard_Boolean useTria
   for (ex.Init(S,TopAbs_EDGE,TopAbs_FACE); ex.More(); ex.Next())
   {
     const TopoDS_Edge& E = TopoDS::Edge(ex.Current());
+    if (!useTriangulation && BRep_Tool::IsGeometric(E))
+    {
+      BC.Initialize(E);
+      BndLib_Add3dCurve::Add(BC, BRep_Tool::Tolerance(E), B);
+      continue;
+    }
+
     Handle(Poly_Polygon3D) P3d = BRep_Tool::Polygon3D(E, l);
     if (!P3d.IsNull())
     {
@@ -152,7 +159,7 @@ void BRepBndLib::Add(const TopoDS_Shape& S, Bnd_Box& B, Standard_Boolean useTria
     else
     {
       BRep_Tool::PolygonOnTriangulation(E, Poly, T, l);
-      if (useTriangulation && !Poly.IsNull())
+      if (!Poly.IsNull())
       {
         const TColStd_Array1OfInteger& Indices = Poly->Nodes();
         const TColgp_Array1OfPnt& Nodes = T->Nodes();
