@@ -342,7 +342,7 @@ int VInspector_ItemPrs3dAspect::getTableRowCount (const TCollection_AsciiString&
   else if (theAspectKind == STANDARD_TYPE (Prs3d_IsoAspect)->Name())
     return 1 + getTableRowCount (STANDARD_TYPE (Prs3d_LineAspect)->Name());
   else if (theAspectKind == STANDARD_TYPE (Prs3d_LineAspect)->Name())
-    return 3; // TODO: add Graphic3d_ShaderProgram
+    return 4; // TODO: add Graphic3d_ShaderProgram
   else if (theAspectKind == STANDARD_TYPE (Prs3d_PointAspect)->Name())
     return 3; // TODO: add Graphic3d_ShaderProgram, Graphic3d_MarkerImage
   else if (theAspectKind == STANDARD_TYPE (Prs3d_TextAspect)->Name())
@@ -399,9 +399,10 @@ ViewControl_EditType VInspector_ItemPrs3dAspect::getTableEditType (const int the
   {
     switch (aRow)
     {
-      case 0: return ViewControl_EditType_Color;
-      case 1: return ViewControl_EditType_Combo;
-      case 2: return ViewControl_EditType_Double;
+      case 0: return ViewControl_EditType_None;
+      case 1: return ViewControl_EditType_Color;
+      case 2: return ViewControl_EditType_Combo;
+      case 3: return ViewControl_EditType_Double;
       default: break;
     }
   }
@@ -536,7 +537,7 @@ QList<QVariant> VInspector_ItemPrs3dAspect::getTableEnumValues (const int theRow
   }
   else if (theAspectKind == STANDARD_TYPE (Prs3d_LineAspect)->Name())
   {
-    if (aRow == 1)
+    if (aRow == 2)
     {
       for (int i = 0; i <= Aspect_TOL_USERDEFINED; i++)
         aValues.append (Aspect::TypeOfLineToString ((Aspect_TypeOfLine)i));
@@ -714,16 +715,18 @@ QVariant VInspector_ItemPrs3dAspect::getTableData (const int theRow,
   else if (theAspectKind == STANDARD_TYPE (Prs3d_LineAspect)->Name())
   {
     if (theRole != Qt::DisplayRole && theRole != Qt::BackgroundRole ||
-        (theRole == Qt::BackgroundRole && (isFirstColumn || aRow != 0)))
+        (theRole == Qt::BackgroundRole && (isFirstColumn || aRow != 1)))
       return QVariant();
 
     Handle(Prs3d_LineAspect) aCustomAspect = Handle(Prs3d_LineAspect)::DownCast (anAspect);
     switch (aRow)
     {
-      case 0: return getColorData("ColorRGBA", aCustomAspect->Aspect()->ColorRGBA(), isFirstColumn, theRole);
-      case 1: return isFirstColumn ? QVariant ("Type")
-                                  : QVariant (Aspect::TypeOfLineToString (aCustomAspect->Aspect()->Type()));
-      case 2: return isFirstColumn ? QVariant ("Width") : ViewControl_Tools::ToVariant (aCustomAspect->Aspect()->Width());
+      case 0: return isFirstColumn ? QVariant ("Aspect") :
+                                     QVariant (ViewControl_Tools::GetPointerInfo (aCustomAspect->Aspect()).ToCString());
+      case 1: return getColorData("ColorRGBA", aCustomAspect->Aspect()->ColorRGBA(), isFirstColumn, theRole);
+      case 2: return isFirstColumn ? QVariant ("Type")
+                                   : QVariant (Aspect::TypeOfLineToString (aCustomAspect->Aspect()->Type()));
+      case 3: return isFirstColumn ? QVariant ("Width") : ViewControl_Tools::ToVariant (aCustomAspect->Aspect()->Width());
       default: break;
     }
   }
@@ -936,9 +939,10 @@ bool VInspector_ItemPrs3dAspect::setTableData (const int theRow,
     Handle(Graphic3d_AspectLine3d) anAspect = aCustomAspect->Aspect();
     switch (aRow)
     {
-      case 0: anAspect->SetColor (ViewControl_ColorSelector::StringToColor (theValue.toString())); break;
-      case 1: anAspect->SetType (Aspect::TypeOfLineFromString (theValue.toString().toStdString().c_str())); break;
-      case 2: anAspect->SetWidth (ViewControl_Tools::ToShortRealValue (theValue)); break;
+      case 0: break;
+      case 1: anAspect->SetColor (ViewControl_ColorSelector::StringToColor (theValue.toString())); break;
+      case 2: anAspect->SetType (Aspect::TypeOfLineFromString (theValue.toString().toStdString().c_str())); break;
+      case 3: anAspect->SetWidth (ViewControl_Tools::ToShortRealValue (theValue)); break;
       default: break;
     }
   }

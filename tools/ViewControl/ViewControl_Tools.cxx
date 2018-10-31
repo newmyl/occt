@@ -91,6 +91,9 @@ void ViewControl_Tools::SetDefaultHeaderSections(QTableView* theTableView, const
 // =======================================================================
 TCollection_AsciiString ViewControl_Tools::GetPointerInfo (const Handle(Standard_Transient)& thePointer, const bool isShortInfo)
 {
+  if (thePointer.IsNull())
+    return TCollection_AsciiString();
+
   return GetPointerInfo(thePointer.operator->(), isShortInfo);
 }
 

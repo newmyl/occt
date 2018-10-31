@@ -146,7 +146,7 @@ OpenGl_Element* VInspector_ItemGraphic3dGroup::GetElementNode (const int theRowI
 // =======================================================================
 int VInspector_ItemGraphic3dGroup::GetTableRowCount() const
 {
-  return 40;
+  return 10;
 }
 
 // =======================================================================
@@ -163,38 +163,41 @@ QVariant VInspector_ItemGraphic3dGroup::GetTableData (const int theRow, const in
     return QVariant();
 
   bool isFirstColumn = theColumn == 0;
-  //switch (theRow)
-  //{
-  //  case 0: return isFirstColumn ? QVariant ("PixelTolerance") : QVariant (myContext->PixelTolerance());
-  //  case 1: return isFirstColumn ? QVariant ("PickingStrategy") : QVariant (SelectMgr::PickingStrategyToString (myContext->PickingStrategy()));
-  //  case 2: return isFirstColumn ? QVariant ("AutomaticHilight") : QVariant (myContext->AutomaticHilight());
-  //  case 3: return isFirstColumn ? QVariant ("ToHilightSelected") : QVariant (myContext->ToHilightSelected());
-  //  case 4: return isFirstColumn ? QVariant ("AutoActivateSelection") : QVariant (myContext->GetAutoActivateSelection());
-  //  case 5:
-  //  case 6:
-  //  case 7:
-  //  {
-  //    AIS_DisplayStatus aDisplayStatus = (AIS_DisplayStatus)(theRow - 5);
-  //    if (isFirstColumn)
-  //      return QString ("ObjectsByDisplayStatus: %1").arg (AIS::DisplayStatusToString (aDisplayStatus));
-  //    AIS_ListOfInteractive anObjects;
-  //    myContext->ObjectsByDisplayStatus(aDisplayStatus, anObjects);
-  //    return QVariant (anObjects.Extent());
-  //  }
-  //  break;
-  //  case 8: return isFirstColumn ? QVariant ("DetectedOwner") : QVariant (VInspector_Tools::GetPointerInfo (myContext->DetectedOwner()).ToCString());
-  //  case 9:
-  //  {
-  //    if (isFirstColumn)
-  //      return QVariant ("DetectedOwners");
-  //    int aNbOfDetected = 0;
-  //    for (myContext->InitDetected(); myContext->MoreDetected(); myContext->NextDetected())
-  //      aNbOfDetected++;
-  //    return aNbOfDetected;
-  //  }
-  //  case 10: return isFirstColumn ? QVariant ("NbSelected") : QVariant (myContext->NbSelected());
-  //  default: return QVariant();
-  //}
+  switch (theRow)
+  {
+    case 0: return isFirstColumn ? QVariant ("LineAspect") : QVariant (ViewControl_Tools::GetPointerInfo (aGroup->LineAspect()).ToCString());
+    case 1: return isFirstColumn ? QVariant ("FillAreaAspect") : QVariant (ViewControl_Tools::GetPointerInfo (aGroup->FillAreaAspect()).ToCString());
+    case 2: return isFirstColumn ? QVariant ("TextAspect") : QVariant (ViewControl_Tools::GetPointerInfo (aGroup->TextAspect()).ToCString());
+    case 3: return isFirstColumn ? QVariant ("MarkerAspect") : QVariant (ViewControl_Tools::GetPointerInfo (aGroup->MarkerAspect()).ToCString());
+    case 4: return isFirstColumn ? QVariant ("ContainsFacet") : QVariant (aGroup->ContainsFacet());
+    case 5: return isFirstColumn ? QVariant ("IsDeleted") : QVariant (aGroup->IsDeleted());
+    case 6: return isFirstColumn ? QVariant ("IsEmpty") : QVariant (aGroup->IsEmpty());
+    case 7: return isFirstColumn ? QVariant ("IsClosed") : QVariant (aGroup->IsClosed());
+    case 8:
+    {
+      if (isFirstColumn)
+        return QVariant ("MinMaxValues");
+      Standard_Real aXMin, anYMin, aZMin, aXMax, anYMax, aZMax;
+      aGroup->MinMaxValues (aXMin, anYMin, aZMin, aXMax, anYMax, aZMax);
+      Bnd_Box aBox;
+      aBox.Update(aXMin, anYMin, aZMin, aXMax, anYMax, aZMax);
+      return QVariant (ViewControl_Tools::ToString (aBox).ToCString());
+    }
+    case 9:
+    {
+      if (isFirstColumn)
+        return QVariant ("BoundingBox");
+      const Graphic3d_BndBox4f& aBndBox = aGroup->BoundingBox();
+      Bnd_Box aBox;
+      aBox.Update((Standard_Real )aBndBox.CornerMin().x(),
+                  (Standard_Real )aBndBox.CornerMin().y(),
+                  (Standard_Real )aBndBox.CornerMin().z(),
+                  (Standard_Real )aBndBox.CornerMax().x(),
+                  (Standard_Real )aBndBox.CornerMax().y(),
+                  (Standard_Real )aBndBox.CornerMax().z());
+      return QVariant (ViewControl_Tools::ToString (aBox).ToCString());
+    }
+  }
   return QVariant();
 }
 
