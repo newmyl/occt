@@ -95,7 +95,7 @@ public:
   Standard_EXPORT Standard_Boolean IsRational() const Standard_OVERRIDE;
   
   //! Returns the length of the maximum section
-  Standard_EXPORT Standard_Real GetSectionSize() const = 0;
+  Standard_EXPORT Standard_Real GetSectionSize() const Standard_OVERRIDE = 0;
   
   //! Compute the minimal value of weight for each poles
   //! of all sections.
