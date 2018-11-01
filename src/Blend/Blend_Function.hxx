@@ -179,7 +179,7 @@ public:
                                              const Standard_Real SurfTol,
                                              const Standard_Real AngleTol,
                                              math_Vector& Tol3d,
-                                             math_Vector& Tol1D) const = 0;
+                                             math_Vector& Tol1D) const Standard_OVERRIDE = 0;
   
   Standard_EXPORT virtual void Knots (TColStd_Array1OfReal& TKnots) Standard_OVERRIDE = 0;
   
