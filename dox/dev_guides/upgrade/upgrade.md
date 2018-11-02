@@ -1632,6 +1632,8 @@ Obsolete methods: *static void SetDocumentVersion (const Standard_Integer DocVer
 
 The entire structure of *BRepMesh* component has been revised and separated into several logically connected classes.
 
+In new version, deflection is controlled more accurately, this may be necessary to tune parameters of call of the BRepMesh algorithm on the application side to obtain the same quality of presentation and/or performance as before.
+
 *BRepMesh_FastDiscret* and *BRepMesh_FastDiscretFace* classes have been removed.
 
 The following changes have been introduced in the API of *BRepMesh_IncrementalMesh*, component entry point:
