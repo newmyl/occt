@@ -1,0 +1,17 @@
+PRODUCTS_PATH = c:/3rdparty/vc14
+
+#HAVE_FREEIMAGE = true
+#HAVE_FFMPEG    = false
+#HAVE_TBB       = false
+#HAVE_GLES2     = false
+#HAVE_D3D       = true
+#HAVE_VTK       = false
+
+aFreeType = $$PRODUCTS_PATH/freetype-2.5.5-vc14-64
+aTclTk    = $$PRODUCTS_PATH/tcltk-86-64
+
+INCLUDEPATH += $$aFreeType/include
+LIBS        += -L$$aFreeType/lib
+
+INCLUDEPATH += $$aTclTk/include
+LIBS        += -L$$aTclTk/lib
