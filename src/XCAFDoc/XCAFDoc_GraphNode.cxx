@@ -356,7 +356,7 @@ void XCAFDoc_GraphNode::Paste(const Handle(TDF_Attribute)& into,
     if (!RT->HasRelocation(myChildren(i), func) && RT->AfterRelocate()) {
       func.Nullify();
     }
-    intof->SetFather(func);
+    intof->SetChild(func);
   }
   intof->SetGraphID(myGraphID);
 }
