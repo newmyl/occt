@@ -952,11 +952,12 @@ void AIS_ViewCube::Compute (const Handle(PrsMgr_PresentationManager3d)& thePrsMg
   // Display box
   aGroup = Prs3d_Root::NewGroup (thePrs);
   aGroup->SetGroupPrimitivesAspect (myDrawer->ShadingAspect()->Aspect());
+  Handle(Graphic3d_Group) aTextGroup = Prs3d_Root::NewGroup (thePrs);
   Standard_Integer anIt = 1;
   for (; anIt < SIDE_INDEX; anIt++)
   {
     Handle(Side) aPart = Handle(Side)::DownCast (myParts.ChangeFromIndex (anIt));
-    aPart->Display (thePrsMgr, aGroup, myDrawer->TextAspect());
+    aPart->Display (thePrsMgr, aGroup, aTextGroup, myDrawer->TextAspect());
     aPart->SetTransformPersistence (TransformPersistence());
   }
 
@@ -1591,8 +1592,9 @@ void AIS_ViewCube::ToolRectangle::FillArray (Handle(Graphic3d_ArrayOfTriangles)&
 //purpose  :
 //=======================================================================
 void AIS_ViewCube::Side::Display (const Handle(PrsMgr_PresentationManager)& thePrsMgr,
-                                   const Handle(Graphic3d_Group)& theGroup,
-                                   const Handle(Prs3d_TextAspect)& theTextAspect)
+                                  const Handle(Graphic3d_Group)& theGroup,
+                                  const Handle(Graphic3d_Group)& theTextGroup,
+                                  const Handle(Prs3d_TextAspect)& theTextAspect)
 {
   Reset();
 
@@ -1654,7 +1656,7 @@ void AIS_ViewCube::Side::Display (const Handle(PrsMgr_PresentationManager)& theP
   aTool.FillArray (anArray, aTri);
   theGroup->AddPrimitiveArray (anArray);
 
-  Prs3d_Text::Draw (theGroup, theTextAspect, myText, aTextPosition);
+  Prs3d_Text::Draw (theTextGroup, theTextAspect, myText, aTextPosition);
 
   if (myHighlightPresentation.IsNull())
   {

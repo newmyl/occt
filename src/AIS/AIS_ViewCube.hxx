@@ -672,6 +672,7 @@ protected: //! @name Auxilliary classes to fill presentation with proper primiti
     //! @param theTextAspect [in] text style.
     void Display (const Handle(PrsMgr_PresentationManager)& thePrsMgr,
                   const Handle(Graphic3d_Group)& theGroup,
+                  const Handle(Graphic3d_Group)& theTextGroup,
                   const Handle(Prs3d_TextAspect)& theTextAspect);
 
   protected:
