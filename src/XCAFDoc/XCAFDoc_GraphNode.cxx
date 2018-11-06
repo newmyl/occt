@@ -93,7 +93,6 @@ XCAFDoc_GraphNode::XCAFDoc_GraphNode ()
 { 
 }  
 
-
 //=======================================================================
 //function : SetGraphID
 //purpose  : 
@@ -104,8 +103,6 @@ void XCAFDoc_GraphNode::SetGraphID (const Standard_GUID& explicitID)
   Backup();
   myGraphID = explicitID;
 }
-
-
 
 //=======================================================================
 //function : SetFather
@@ -142,8 +139,10 @@ void XCAFDoc_GraphNode::UnSetFather(const Handle(XCAFDoc_GraphNode)& F)
 {
   Standard_Integer Findex = FatherIndex(F);
   if (Findex != 0)
-  F->UnSetChildlink(this);
-  UnSetFatherlink(F);
+  {
+    F->UnSetChildlink(this);
+    UnSetFatherlink(F);
+  }
 }
 
 
@@ -155,9 +154,10 @@ void XCAFDoc_GraphNode::UnSetFather(const Handle(XCAFDoc_GraphNode)& F)
 void XCAFDoc_GraphNode::UnSetFather(const Standard_Integer Findex) 
 {
   if (Findex != 0)
-  UnSetFather( GetFather(Findex) );
+  {
+    UnSetFather( GetFather(Findex) );
+  }
 }
-
 
 //=======================================================================
 //function : UnSetFatherlink
@@ -167,7 +167,11 @@ void XCAFDoc_GraphNode::UnSetFather(const Standard_Integer Findex)
 void XCAFDoc_GraphNode::UnSetFatherlink(const Handle(XCAFDoc_GraphNode)& F) 
 {
   Backup();
-  myFathers.Remove( FatherIndex(F) );
+  Standard_Integer Findex = FatherIndex(F);
+  if (Findex != 0)
+  {
+    myFathers.Remove(Findex);
+  }
 }
 
 //=======================================================================
@@ -178,11 +182,12 @@ void XCAFDoc_GraphNode::UnSetFatherlink(const Handle(XCAFDoc_GraphNode)& F)
 void XCAFDoc_GraphNode::UnSetChild(const Handle(XCAFDoc_GraphNode)& Ch) 
 {
   Standard_Integer Chindex = ChildIndex(Ch);
-  if (Chindex != 0) 
-  Ch->UnSetFatherlink(this);
-  UnSetChildlink(Ch);
+  if (Chindex != 0)
+  {
+    Ch->UnSetFatherlink(this);
+    UnSetChildlink(Ch);
+  }
 }
-
 
 //=======================================================================
 //function : UnSetChild
@@ -191,10 +196,11 @@ void XCAFDoc_GraphNode::UnSetChild(const Handle(XCAFDoc_GraphNode)& Ch)
 
  void XCAFDoc_GraphNode::UnSetChild(const Standard_Integer Chindex) 
 {
-  if (Chindex != 0 )
-  UnSetChild( GetChild(Chindex) );
+  if (Chindex != 0)
+  {
+    UnSetChild( GetChild(Chindex) );
+  }
 }
-
 
 //=======================================================================
 //function : UnSetChildlink
@@ -204,7 +210,11 @@ void XCAFDoc_GraphNode::UnSetChild(const Handle(XCAFDoc_GraphNode)& Ch)
 void XCAFDoc_GraphNode::UnSetChildlink(const Handle(XCAFDoc_GraphNode)& Ch) 
 {
   Backup();
-  myChildren.Remove( ChildIndex(Ch) );
+  Standard_Integer Chindex = ChildIndex(Ch);
+  if (Chindex != 0)
+  {
+    myChildren.Remove(Chindex);
+  }
 }
 
 //=======================================================================
@@ -348,7 +358,9 @@ void XCAFDoc_GraphNode::Paste(const Handle(TDF_Attribute)& into,
     if (!RT->HasRelocation(myFathers(i), func) && RT->AfterRelocate()) {
       func.Nullify();
     }
-    intof->SetFather(func);
+    if (!func.IsNull()) {
+      intof->SetFather(func);
+    }
   }
 
   i = 1;
@@ -356,7 +368,9 @@ void XCAFDoc_GraphNode::Paste(const Handle(TDF_Attribute)& into,
     if (!RT->HasRelocation(myChildren(i), func) && RT->AfterRelocate()) {
       func.Nullify();
     }
-    intof->SetFather(func);
+    if (!func.IsNull()) {
+      intof->SetChild(func);
+    }
   }
   intof->SetGraphID(myGraphID);
 }
