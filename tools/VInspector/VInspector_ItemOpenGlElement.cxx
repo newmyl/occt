@@ -104,6 +104,9 @@ QVariant VInspector_ItemOpenGlElement::initValue (const int theItemRole) const
   {
     case 0:
     {
+      if (theItemRole != Qt::ToolTipRole)
+        return "OpenGl_Element";
+
       VInspector_ElementKind aKind = GetElementKind();
       if (aKind == VInspector_ElementKind_PrimitiveArray) return "OpenGl_PrimitiveArray";
       else if (aKind == VInspector_ElementKind_Text) return "OpenGl_Text";

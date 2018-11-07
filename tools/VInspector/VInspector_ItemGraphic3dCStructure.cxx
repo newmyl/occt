@@ -123,7 +123,8 @@ QVariant VInspector_ItemGraphic3dCStructure::initValue (const int theItemRole) c
 
   switch (Column())
   {
-    case 0: return aCStructure->DynamicType()->Name();
+    case 0: return theItemRole == Qt::DisplayRole ? aCStructure->DynamicType()->Name()
+                                                  : STANDARD_TYPE (Graphic3d_CStructure)->Name();
     case 1: return rowCount();
     default:
       break;

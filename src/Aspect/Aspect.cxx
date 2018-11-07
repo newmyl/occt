@@ -69,6 +69,11 @@ namespace
     "DIAGONAL_45", "DIAGONAL_45_WIDE", "DIAGONAL_135", "DIAGONAL_135_WIDE",
     "GRID", "GRID_WIDE", "GRID_DIAGONAL", "GRID_DIAGONAL_WIDE", "NB"
   };
+
+  static Standard_CString Aspect_Table_PrintTypeOfTriedronPosition[9] =
+  {
+    "CENTER", "TOP", "BOTTOM", "LEFT", "RIGHT", "LEFT_LOWER", "LEFT_UPPER", "RIGHT_LOWER", "RIGHT_UPPER"
+  };
 }
 
 //=======================================================================
@@ -403,3 +408,45 @@ Standard_Boolean Aspect::HatchStyleFromString (Standard_CString theTypeString,
   return Standard_False;
 }
 
+//=======================================================================
+//function : TypeOfTriedronPositionToString
+//purpose  :
+//=======================================================================
+Standard_CString Aspect::TypeOfTriedronPositionToString (Aspect_TypeOfTriedronPosition theType)
+{
+  return Aspect_Table_PrintTypeOfTriedronPosition[theType];
+  switch (theType)
+  {
+    case Aspect_TOTP_CENTER: return Aspect_Table_PrintTypeOfTriedronPosition[0];
+    case Aspect_TOTP_TOP: return Aspect_Table_PrintTypeOfTriedronPosition[1];
+    case Aspect_TOTP_BOTTOM: return Aspect_Table_PrintTypeOfTriedronPosition[2];
+    case Aspect_TOTP_LEFT: return Aspect_Table_PrintTypeOfTriedronPosition[3];
+    case Aspect_TOTP_RIGHT: return Aspect_Table_PrintTypeOfTriedronPosition[4];
+    case Aspect_TOTP_LEFT_LOWER: return Aspect_Table_PrintTypeOfTriedronPosition[5];
+    case Aspect_TOTP_LEFT_UPPER: return Aspect_Table_PrintTypeOfTriedronPosition[6];
+    case Aspect_TOTP_RIGHT_LOWER: return Aspect_Table_PrintTypeOfTriedronPosition[7];
+    case Aspect_TOTP_RIGHT_UPPER: return Aspect_Table_PrintTypeOfTriedronPosition[8];
+  }
+  return "";
+}
+
+//=======================================================================
+//function : TypeOfTriedronPositionFromString
+//purpose  :
+//=======================================================================
+Standard_Boolean Aspect::TypeOfTriedronPositionFromString (Standard_CString theTypeString,
+                                                           Aspect_TypeOfTriedronPosition& theType)
+{
+  TCollection_AsciiString aName (theTypeString);
+  aName.UpperCase();
+  if (aName == Aspect_Table_PrintTypeOfTriedronPosition[0]) { theType = Aspect_TOTP_CENTER; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[1]) { theType = Aspect_TOTP_TOP; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[2]) { theType = Aspect_TOTP_BOTTOM; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[3]) { theType = Aspect_TOTP_LEFT; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[4]) { theType = Aspect_TOTP_RIGHT; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[5]) { theType = Aspect_TOTP_LEFT_LOWER; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[6]) { theType = Aspect_TOTP_LEFT_UPPER; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[7]) { theType = Aspect_TOTP_RIGHT_LOWER; return Standard_True; }
+  else if (aName == Aspect_Table_PrintTypeOfTriedronPosition[8]) { theType = Aspect_TOTP_RIGHT_UPPER; return Standard_True; }
+  return Standard_False;
+}

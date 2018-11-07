@@ -56,6 +56,11 @@ namespace
   {
     "USHORT", "UINT", "VEC2", "VEC3", "VEC4", "VEC4UB", "FLOAT"
   };
+
+  static Standard_CString Graphic3d_Table_PrintTransModeFlags[6] =
+  {
+    "NONE", "ZOOM_PERS", "ROTATE_PERS", "TRIEDRON_PERS", "2d", "ZOOM_ROTATE_PERS"
+  };
 }
 
 //=======================================================================
@@ -311,6 +316,53 @@ Standard_Boolean Graphic3d::TypeOfDataFromString (Standard_CString theTypeString
     if (aName == aTypeName)
     {
       theType = Graphic3d_TypeOfData (aTypeIter);
+      return Standard_True;
+    }
+  }
+  return Standard_False;
+}
+
+//=======================================================================
+//function : TransModeFlagsToString
+//purpose  :
+//=======================================================================
+Standard_CString Graphic3d::TransModeFlagsToString (Graphic3d_TransModeFlags theType)
+{
+  switch (theType)
+  {
+    case Graphic3d_TMF_None: return Graphic3d_Table_PrintTransModeFlags[0]; break;
+    case Graphic3d_TMF_ZoomPers: return Graphic3d_Table_PrintTransModeFlags[1]; break;
+    case Graphic3d_TMF_RotatePers: return Graphic3d_Table_PrintTransModeFlags[2]; break;
+    case Graphic3d_TMF_TriedronPers: return Graphic3d_Table_PrintTransModeFlags[3]; break;
+    case Graphic3d_TMF_2d: return Graphic3d_Table_PrintTransModeFlags[4]; break;
+    case Graphic3d_TMF_ZoomRotatePers: return Graphic3d_Table_PrintTransModeFlags[5]; break;
+  }
+  return "";
+}
+
+//=======================================================================
+//function : ZLayerIdFromString
+//purpose  :
+//=======================================================================
+Standard_Boolean Graphic3d::TransModeFlagsFromString (Standard_CString theTypeString,
+                                                      Graphic3d_TransModeFlags& theType)
+{
+  TCollection_AsciiString aName (theTypeString);
+  aName.UpperCase();
+  for (Standard_Integer aTypeIter = 0; aTypeIter <= 5; ++aTypeIter)
+  {
+    Standard_CString aTypeName = Graphic3d_Table_PrintTransModeFlags[aTypeIter];
+    if (aName == aTypeName)
+    {
+      switch (aTypeIter)
+      {
+        case 0: theType = Graphic3d_TMF_None; break;
+        case 1: theType = Graphic3d_TMF_ZoomPers; break;
+        case 2: theType = Graphic3d_TMF_RotatePers; break;
+        case 3: theType = Graphic3d_TMF_TriedronPers; break;
+        case 4: theType = Graphic3d_TMF_2d; break;
+        case 5: theType = Graphic3d_TMF_ZoomRotatePers; break;
+      }
       return Standard_True;
     }
   }

@@ -16,6 +16,7 @@
 #include <inspector/VInspector_ItemFolderObject.hxx>
 
 #include <inspector/VInspector_ItemContext.hxx>
+#include <inspector/VInspector_ItemGraphic3dTransformPers.hxx>
 #include <inspector/VInspector_ItemPresentableObject.hxx>
 #include <inspector/VInspector_ItemPrs3dDrawer.hxx>
 #include <inspector/VInspector_ItemSelectMgrFilter.hxx>
@@ -66,7 +67,7 @@ int VInspector_ItemFolderObject::initRowCount() const
     }
     case ParentKind_PresentationItem:
     {
-      return 3; // Attributes, HilightAttributes and DynamicHilightAttributes
+      return 4; // TransformPers, Attributes, HilightAttributes and DynamicHilightAttributes
     }
     case ParentKind_FolderItem:
       return (GetContext().IsNull() ? 0 : GetContext()->Filters().Extent());
@@ -94,7 +95,12 @@ TreeModel_ItemBasePtr VInspector_ItemFolderObject::createChild (int theRow, int 
         return VInspector_ItemPrs3dDrawer::CreateItem (currentItem(), theRow, theColumn);
     }
     case ParentKind_PresentationItem:
-      return VInspector_ItemPrs3dDrawer::CreateItem (currentItem(), theRow, theColumn);
+    {
+      if (theRow == 0)
+        return VInspector_ItemGraphic3dTransformPers::CreateItem (currentItem(), theRow, theColumn);
+      else
+        return VInspector_ItemPrs3dDrawer::CreateItem (currentItem(), theRow, theColumn);
+    }
     case ParentKind_FolderItem:
       return VInspector_ItemSelectMgrFilter::CreateItem (currentItem(), theRow, theColumn);
     default: return TreeModel_ItemBasePtr();
@@ -160,9 +166,10 @@ Handle(Prs3d_Drawer) VInspector_ItemFolderObject::GetPrs3dDrawer (const int theR
       Handle(AIS_InteractiveObject) aPrs = aParentPrsItem->GetInteractiveObject();
       switch (theRow)
       {
-        case 0: theName = "Attributes"; return aPrs->Attributes();
-        case 1: theName = "HilightAttributes"; return aPrs->HilightAttributes();
-        case 2: theName = "DynamicHilightAttributes"; return aPrs->DynamicHilightAttributes();
+        case 0: return 0; // "TransformPers"
+        case 1: theName = "Attributes"; return aPrs->Attributes();
+        case 2: theName = "HilightAttributes"; return aPrs->HilightAttributes();
+        case 3: theName = "DynamicHilightAttributes"; return aPrs->DynamicHilightAttributes();
         default: break;
       }
     }
