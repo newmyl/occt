@@ -31,7 +31,7 @@ class V3d_View;
 class ViewerTest_EventManager;
 DEFINE_STANDARD_HANDLE(ViewerTest_EventManager, Standard_Transient)
 
-//! used to manage mouse event (move,select,shiftselect)
+//! used to manage mouse event (move,press,release). There is an interface to select, shiftselect in view.
 //! By default the events are transmitted to interactive context.
 class ViewerTest_EventManager : public Standard_Transient
 {
@@ -41,6 +41,38 @@ public:
   
   Standard_EXPORT ViewerTest_EventManager(const Handle(V3d_View)& aView, const Handle(AIS_InteractiveContext)& aCtx);
   
+  //! Processing key button pressed
+  //! \param buf_ret key button symbol
+  //! \return true if processed
+  Standard_EXPORT virtual Standard_Boolean ProcessKeyPress (const char* buf_ret) { (void)buf_ret; return Standard_False; }
+
+  //! Processing mouse button pressed
+  //! \param theXPressed X pixel coordinate
+  //! \param theXPressed Y pixel coordinate
+  //! \param theIsShift state if the SHIFT key modifier is ON
+  //! \return true if processed
+  Standard_EXPORT virtual Standard_Boolean ProcessButton1Press (const Standard_Integer theXPressed,
+                                                                const Standard_Integer theYPressed,
+                                                                Standard_Boolean theIsShift)
+  { (void)theXPressed; (void)theYPressed; (void)theIsShift; return Standard_False; }
+
+  //! Processing mouse button released
+  //! \param theXPressed X pixel coordinate
+  //! \param theXPressed Y pixel coordinate
+  //! \param theIsShift state if the SHIFT key modifier is ON
+  //! \return true if processed
+  Standard_EXPORT virtual Standard_Boolean ProcessButton1Release (const Standard_Integer theXPressed,
+                                                                  const Standard_Integer theYPressed,
+                                                                  Standard_Boolean theIsShift)
+  { (void)theXPressed; (void)theYPressed; (void)theIsShift; return Standard_False; }
+
+  //! Processing mouse move over the viewer
+  //! \param theXPressed X pixel coordinate
+  //! \param theXPressed Y pixel coordinate
+  Standard_EXPORT virtual Standard_Boolean ProcessMouseMove (const Standard_Integer theXPressed,
+                                                             const Standard_Integer theYPressed)
+  { (void)theXPressed; (void)theYPressed; return Standard_False; }
+
   Standard_EXPORT virtual void MoveTo (const Standard_Integer xpix, const Standard_Integer ypix);
   
   Standard_EXPORT virtual void Select();
