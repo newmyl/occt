@@ -2198,6 +2198,8 @@ static LRESULT WINAPI AdvViewerWindowProc( HWND hwnd,
       break;
 
     case WM_LBUTTONUP:
+      ViewerTest::CurrentEventManager()->ProcessButton1Release (X_Motion, Y_Motion, (fwKeys & MK_SHIFT) != 0);
+
       if (IsDragged && !DragFirst)
       {
         if (!GetActiveAISManipulator().IsNull())
@@ -2230,6 +2232,8 @@ static LRESULT WINAPI AdvViewerWindowProc( HWND hwnd,
       return ViewerWindowProc (hwnd, Msg, wParam, lParam);
 
     case WM_LBUTTONDOWN:
+      ViewerTest::CurrentEventManager()->ProcessButton1Press (LOWORD(lParam), HIWORD(lParam), (fwKeys & MK_SHIFT) != 0);
+
       if (!GetActiveAISManipulator().IsNull())
       {
         IsDragged = ( fwKeys == MK_LBUTTON );
@@ -2248,6 +2252,8 @@ static LRESULT WINAPI AdvViewerWindowProc( HWND hwnd,
       return ViewerWindowProc( hwnd, Msg, wParam, lParam );
 
     case WM_MOUSEMOVE:
+      ViewerTest::CurrentEventManager()->ProcessMouseMove (LOWORD (lParam), HIWORD (lParam));
+
       if (IsDragged)
       {
         X_Motion = LOWORD (lParam);
@@ -2374,6 +2380,8 @@ static LRESULT WINAPI ViewerWindowProc( HWND hwnd,
         {
           c[0] = '*';
         }
+        ViewerTest::CurrentEventManager()->ProcessKeyPress (c);
+
         VT_ProcessKeyPress (c);
       }
       break;
