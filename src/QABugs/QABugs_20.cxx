@@ -3303,9 +3303,7 @@ static Standard_Integer OCC29195(Draw_Interpretor&, Standard_Integer theArgC, co
     anEnv.SetValue("OK");
     anEnv.Build();
   }
-  // Delete all allocated data.
-  delete[] threads;
-  delete[] args;
+
   return 0;
 }
 void QABugs::Commands_20(Draw_Interpretor& theCommands) {

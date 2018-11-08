@@ -26,6 +26,8 @@
 #include <Standard_Boolean.hxx>
 #include <XmlObjMgt_Element.hxx>
 #include <Standard_Integer.hxx>
+#include <TColStd_MapOfTransient.hxx>
+
 class XmlMDF_ADriverTable;
 class TCollection_ExtendedString;
 class CDM_Document;
@@ -68,8 +70,8 @@ protected:
   Standard_EXPORT virtual Standard_Boolean WriteShapeSection (XmlObjMgt_Element& thePDoc);
 
   Handle(XmlMDF_ADriverTable) myDrivers;
-  XmlObjMgt_SRelocationTable myRelocTable;
-
+  XmlObjMgt_SRelocationTable  myRelocTable;
+  TColStd_MapOfTransient      myMapUnsupported;
 
 private:
 

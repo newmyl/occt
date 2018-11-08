@@ -31,12 +31,10 @@
 #include <Standard_NoSuchObject.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_ExtendedString.hxx>
-#include <Standard_Mutex.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(CDF_Session,Standard_Transient)
 
 static Handle(CDF_Session) CS;
-static Standard_Mutex gMutex;
 //=======================================================================
 //function : 
 //purpose  : 
@@ -74,12 +72,11 @@ Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)& theA
   Standard_Boolean aRetValue(Standard_False);
   if (!theApp.IsNull())
   {
-    gMutex.Lock();
+    Standard_Mutex::Sentry aLocker(myMutex);
     if (!myAppDirectory.IsBound(theID))
     {
       aRetValue = myAppDirectory.Bind(theID, theApp);        
     }
-    gMutex.Unlock();
   }
   return aRetValue;
 }
@@ -90,6 +87,7 @@ Standard_Boolean CDF_Session::AddApplication(const Handle(CDF_Application)& theA
 //=======================================================================
 Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theID, Handle(CDF_Application)& theApp) const
 {
+  Standard_Mutex::Sentry aLocker(myMutex);
   if (myAppDirectory.IsBound(theID))
   {
     return myAppDirectory.Find(theID, theApp);
@@ -103,11 +101,10 @@ Standard_Boolean CDF_Session::FindApplication(const Standard_ThreadId theID, Han
 Standard_Boolean CDF_Session::RemoveApplication(const Standard_ThreadId theID)
 {
   Standard_Boolean aRetValue(Standard_False);
-  gMutex.Lock();
+  Standard_Mutex::Sentry aLocker(myMutex);
   if (myAppDirectory.IsBound(theID))
   {
     aRetValue = myAppDirectory.UnBind(theID);
   }
-  gMutex.Unlock();
   return aRetValue;
 }

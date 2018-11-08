@@ -22,6 +22,7 @@
 
 #include <Standard_Boolean.hxx>
 #include <Standard_Transient.hxx>
+#include <Standard_Mutex.hxx>
 #include <CDM_ApplicationDirectory.hxx>
 class CDF_Directory;
 class CDF_Application;
@@ -73,7 +74,7 @@ private:
 
   CDM_ApplicationDirectory myAppDirectory;
   Handle(CDF_MetaDataDriver) myMetaDataDriver;
-
+  mutable Standard_Mutex myMutex;
 
 };
 

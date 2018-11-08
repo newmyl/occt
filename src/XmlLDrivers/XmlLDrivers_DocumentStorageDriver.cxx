@@ -385,7 +385,7 @@ Standard_Integer XmlLDrivers_DocumentStorageDriver::MakeDocument
     if (myDrivers.IsNull()) myDrivers = AttributeDrivers (aMessageDriver);
 
 //      Retrieve from DOM_Document
-    XmlMDF::FromTo (aTDF, theElement, myRelocTable, myDrivers); 
+    XmlMDF::FromTo (aTDF, theElement, myRelocTable, myDrivers, myMapUnsupported);
 #ifdef OCCT_DEBUGXML
     aMessage = "First step successfull";
     aMessageDriver -> Send (aMessage.ToExtString(), Message_Warning);
