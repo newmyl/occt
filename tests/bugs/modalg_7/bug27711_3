@@ -1,5 +1,5 @@
 puts "TODO CR27711 Linux: Tcl Exception: tolerance ang : 0.01"
-puts "TODO CR27711 Linux: FAILED (no final message is found)"
+puts "TODO CR27711 Linux: TEST INCOMPLETE"
 
 puts "========"
 puts "OCC27711"
