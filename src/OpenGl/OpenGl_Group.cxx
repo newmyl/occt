@@ -294,6 +294,29 @@ void OpenGl_Group::SynchronizeAspects()
 }
 
 // =======================================================================
+// function : SetGroupPrimitivesAspect
+// purpose  :
+// =======================================================================
+void OpenGl_Group::SetGroupPrimitivesAspect (const Handle(Graphic3d_AspectFillCapping)& theAspect)
+{
+  if (IsDeleted())
+  {
+    return;
+  }
+
+  if (myAspectFillCapping == NULL)
+  {
+    myAspectFillCapping = new OpenGl_CappingPlaneResource (theAspect);
+  }
+  else
+  {
+    myAspectFillCapping->SetAspect (theAspect);
+  }
+  Update();
+}
+
+
+// =======================================================================
 // function : AddPrimitiveArray
 // purpose  :
 // =======================================================================

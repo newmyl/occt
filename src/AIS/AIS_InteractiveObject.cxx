@@ -649,10 +649,10 @@ void AIS_InteractiveObject::SynchronizeAspects()
     {
       if (!aGroupIter.Value().IsNull())
       {
-        Handle(Graphic3d_AspectFillCapping) aCappingAspect = aGrp->FillCappingAspect();
+        Handle(Graphic3d_AspectFillCapping) aCappingAspect = aGroupIter.Value()->FillCappingAspect();
           if (!aCappingAspect.IsNull())
           {
-            aGrp->SetGroupPrimitivesAspect (aCappingAspect);
+            aGroupIter.Value()->SetGroupPrimitivesAspect (aCappingAspect);
           }
         aGroupIter.ChangeValue()->SynchronizeAspects();
       }
