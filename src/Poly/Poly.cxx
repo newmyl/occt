@@ -616,3 +616,60 @@ Standard_Real Poly::PointOnTriangle (const gp_XY& theP1, const gp_XY& theP2, con
   }
 }
 
+//=======================================================================
+//function : ComputeProps
+//purpose  : 
+//=======================================================================
+template <class SeqType>
+static Standard_Boolean ComputeProps(const SeqType& theSeqPnts,
+                                     Standard_Real& theArea,
+                                     Standard_Real& thePerimeter)
+{
+  if (theSeqPnts.Length() < 2)
+  {
+    theArea = thePerimeter = 0.0;
+    return Standard_True;
+  }
+
+  Standard_Integer aStartIndex = theSeqPnts.Lower();
+  const gp_XY &aRefPnt = theSeqPnts.Value(aStartIndex++).XY();
+  gp_XY aPrevPt = theSeqPnts.Value(aStartIndex++).XY() - aRefPnt, aCurrPt;
+
+  theArea = 0.0;
+  thePerimeter = aPrevPt.Modulus();
+
+  for (Standard_Integer i = aStartIndex; i <= theSeqPnts.Upper(); i++)
+  {
+    aCurrPt = theSeqPnts.Value(i).XY() - aRefPnt;
+    const Standard_Real aDelta = aPrevPt.Crossed(aCurrPt);
+
+    theArea += aDelta;
+    thePerimeter += (aPrevPt - aCurrPt).Modulus();
+    aPrevPt = aCurrPt;
+  }
+
+  thePerimeter += aPrevPt.Modulus();
+  theArea *= 0.5;
+  return Standard_True;
+}
+
+//=======================================================================
+//function : PolygonProperties
+//purpose  : 
+//=======================================================================
+Standard_Boolean Poly::PolygonProperties(const TColgp_Array1OfPnt2d& theSeqPnts,
+                                         Standard_Real& theArea,
+                                         Standard_Real& thePerimeter)
+{
+  return ComputeProps(theSeqPnts, theArea, thePerimeter);
+}
+//=======================================================================
+//function : PolygonProperties
+//purpose  :
+//=======================================================================
+Standard_Boolean Poly::PolygonProperties(const TColgp_SequenceOfPnt2d& theSeqPnts,
+                                         Standard_Real& theArea,
+                                         Standard_Real& thePerimeter)
+{
+  return ComputeProps(theSeqPnts, theArea, thePerimeter);
+}

@@ -20,12 +20,13 @@
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
-
 #include <Poly_ListOfTriangulation.hxx>
 #include <Standard_OStream.hxx>
 #include <Standard_Boolean.hxx>
 #include <Standard_IStream.hxx>
 #include <Standard_Real.hxx>
+#include <TColgp_SequenceOfPnt2d.hxx>
+
 class Poly_Triangulation;
 class Poly_Polygon3D;
 class Poly_Polygon2D;
@@ -125,7 +126,23 @@ public:
   Standard_EXPORT static Standard_Real PointOnTriangle (const gp_XY& P1, const gp_XY& P2, const gp_XY& P3, const gp_XY& P, gp_XY& UV);
 
 
+  //! Returns area and perimeter of 2D-polygon given by its vertices.
+  //! theArea will be negative if the polygon is bypassed clockwise
+  //! and will be positive, otherwise. thePerimeter will always be positive.
+  Standard_EXPORT static
+    Standard_Boolean PolygonProperties(const TColgp_Array1OfPnt2d & theSeqPnts,
+                                       Standard_Real& theArea,
+                                       Standard_Real& thePerimeter);
 
+  //! Returns area and perimeter of 2D-polygon given by its vertices.
+  //! theArea will be negative if the polygon is bypassed clockwise
+  //! and will be positive, otherwise. thePerimeter will always be positive.
+  //! Preliminary initialization of arguments theArea and thePerimeter is
+  //! not required.
+  Standard_EXPORT static
+    Standard_Boolean PolygonProperties(const TColgp_SequenceOfPnt2d& theSeqPnts,
+                                       Standard_Real& theArea,
+                                       Standard_Real& thePerimeter);
 
 protected:
 
