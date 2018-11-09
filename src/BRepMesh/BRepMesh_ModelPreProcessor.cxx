@@ -168,25 +168,25 @@ namespace
     Standard_Boolean splitEdge(const IMeshData::IEdgePtr& theDEdge,
                                const Standard_Real        theDU) const
     {
-      if (!splitCurve (theDEdge->GetCurve (), theDU))
+      if (!splitCurve<gp_XYZ> (theDEdge->GetCurve (), theDU))
       {
         return Standard_False;
       }
 
       for (Standard_Integer aPCurveIdx = 0; aPCurveIdx < theDEdge->PCurvesNb(); ++aPCurveIdx)
       {
-        splitCurve(theDEdge->GetPCurve (aPCurveIdx), theDU);
+        splitCurve<gp_XY> (theDEdge->GetPCurve (aPCurveIdx), theDU);
       }
 
       return Standard_True;
     }
 
     //! Splits the given curve using the specified step.
-    template<class Curve>
+    template<class PointType, class Curve>
     Standard_Boolean splitCurve(Curve& theCurve, const Standard_Real theDU) const
     {
       Standard_Boolean isUpdated = Standard_False;
-      auto aDir = theCurve->GetPoint(theCurve->ParametersNb() - 1).Coord() - theCurve->GetPoint(0).Coord();
+      PointType aDir = theCurve->GetPoint(theCurve->ParametersNb() - 1).Coord() - theCurve->GetPoint(0).Coord();
       const Standard_Real aModulus = aDir.Modulus();
       if (aModulus < gp::Resolution())
       {
