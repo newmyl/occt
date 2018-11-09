@@ -29,6 +29,8 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_SequenceOfReal.hxx>
+#include <TColgp_SequenceOfPnt2d.hxx>
+
 class Geom_Curve;
 class gp_Ax2;
 class Geom2d_Curve;
@@ -222,6 +224,13 @@ public:
                                                         const Standard_Real V1,
                                                         const Standard_Real V2,
                                                         const Standard_Real Tol);
+
+  //! Returns area and perimeter of 2D-polygon given by its vertices.
+  //! theArea will be negative if the polygon is bypassed clockwise
+  //! and will be positive, otherwise. thePerimeter will always be positive.
+  Standard_EXPORT static Standard_Boolean PolygonProperties(const TColgp_SequenceOfPnt2d& theSeqPnts,
+                                                            Standard_Real& theArea,
+                                                            Standard_Real& thePerimeter);
 
 protected:
 

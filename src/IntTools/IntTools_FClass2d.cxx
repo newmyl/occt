@@ -43,6 +43,7 @@
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Wire.hxx>
+#include <GeomLib.hxx>
 
 #include <stdio.h>
 
@@ -390,81 +391,13 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace,
       gp_Pnt2d anInitPnt(0., 0.);
       //
       PClass.Init(anInitPnt);
-      if(nbpnts>3) { 
-        Standard_Integer im2=nbpnts-2;
-        Standard_Integer im1=nbpnts-1;
-        Standard_Integer im0=1;
-        Standard_Real    angle = 0.0;
-        Standard_Real aX0, aY0, aX1, aY1, aS;
-        //
-        aS=0.;
-        //
-        Standard_Integer iFlag=1;
-	//
-        PClass(im2)=SeqPnt2d.Value(im2);
-        PClass(im1)=SeqPnt2d.Value(im1);
-        PClass(nbpnts)=SeqPnt2d.Value(nbpnts);
-        Standard_Real aPer = 0.;
-        for (Standard_Integer ii = 1; ii<nbpnts; ii++, im0++, im1++, im2++)
+      if (nbpnts > 3)
+      {
+        for (Standard_Integer ii = 1; ii <= nbpnts; ii++)
         {
-          if(im2>=nbpnts) im2=1;
-          if(im1>=nbpnts) im1=1;
-          PClass(ii)=SeqPnt2d.Value(ii);
-          //
-          const gp_Pnt2d& aP2D1=PClass(im1);
-          const gp_Pnt2d& aP2D0=PClass(im0);
-          //aP2D0 is next to aP2D1
-          aP2D0.Coord(aX0, aY0);
-          aP2D1.Coord(aX1, aY1);
-          aS=aS+(aY0+aY1)*(aX1-aX0); 
-          aPer += aP2D1.Distance(aP2D0);
-
-          gp_Vec2d A(PClass(im2),PClass(im1));
-          gp_Vec2d B(PClass(im1),PClass(im0));
-
-          Standard_Real N = A.Magnitude() * B.Magnitude();
-          if(N>1e-16) { 
-            Standard_Real a=A.Angle(B);
-            //  
-            if (anIndexMap.IsBound(im1)) {
-              Standard_Integer  anInd  = anIndexMap.Find(im1);
-              const gp_Vec2d   &aVPrev = aD1Prev.Value(anInd);
-              const gp_Vec2d   &aVNext = aD1Next.Value(anInd);
-
-              Standard_Real aN = aVPrev.Magnitude() * aVNext.Magnitude();
-              if(aN > 1e-16) { 
-                Standard_Real aDerivAngle, aAbsDA, aProduct, aPA;
-                //ifv 23.08.06
-		aPA=Precision::Angular();
-		aDerivAngle = aVPrev.Angle(aVNext);
-		aAbsDA=Abs(aDerivAngle);
-                if(aAbsDA <= aPA) {
-		  aDerivAngle = 0.; 
-		}
-		//
-		aProduct=aDerivAngle * a;
-		//
-	        if(Abs(aAbsDA - M_PI) <= aPA) {
-		  if (aProduct > 0.) {
-		    aProduct=-aProduct; 
-		  }
-		}
-                //ifv 23.08.06 : if edges continuity > G1, |aDerivAngle| ~0,
-                //but can has wrong sign and causes condition aDerivAngle * a < 0.
-                //that is wrong in such situation
-                if (iFlag && aProduct < 0.) {
-                  iFlag=0;
-                  // Bad case.
-                  angle = 0.;
-                }
-              }
-            }
-            angle+=a;
-          }
-        }//for(ii=1; ii<nbpnts; ii++,im0++,im1++,im2++) { 
-        if (!iFlag) {
-          angle = 0.; 
+          PClass(ii) = SeqPnt2d.Value(ii);
         }
+
 #ifdef DEBUG_PCLASS_POLYGON
         TColStd_Array1OfReal aKnots(1, nbpnts);
         TColStd_Array1OfInteger aMults(1, nbpnts);
@@ -477,6 +410,10 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace,
         Handle(Geom2d_BSplineCurve) aPol = new Geom2d_BSplineCurve(PClass, aKnots, aMults, 1);
         DrawTrSurf::Set("pol", aPol);
 #endif
+
+        Standard_Real aS = 0.;
+        Standard_Real aPer = 0.;
+        GeomLib::PolygonProperties(SeqPnt2d, aS, aPer);
 
         Standard_Real anExpThick = Max(2. * Abs(aS) / aPer, 1e-7);
         Standard_Real aDefl = Max(FlecheU, FlecheV);
@@ -534,40 +471,17 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace,
           }
           nbpnts = SeqPnt2d.Length();
           PClass.Resize(1, nbpnts, Standard_False);
-          im1 = nbpnts - 1;
-          im0 = 1;
-          PClass(im1) = SeqPnt2d.Value(im1);
-          PClass(nbpnts) = SeqPnt2d.Value(nbpnts);
-          aS = 0.;
-          aPer = 0.;
-          for (Standard_Integer ii = 1; ii<nbpnts; ii++, im0++, im1++)
+          for (Standard_Integer ii = 1; ii <= nbpnts; ii++)
           {
-            if (im1 >= nbpnts) im1 = 1;
             PClass(ii) = SeqPnt2d.Value(ii);
-            aS += (PClass(im1).X() - PClass(im0).X())*(PClass(im0).Y() + PClass(im1).Y())*.5;
-            aPer += (PClass(im0).XY() - PClass(im1).XY()).Modulus();
           }
-#ifdef DEBUG_PCLASS_POLYGON
-          TColStd_Array1OfReal aKnots(1, nbpnts);
-          TColStd_Array1OfInteger aMults(1, nbpnts);
-          for (int i = 1; i <= nbpnts; i++)
-          {
-            aKnots(i) = i;
-            aMults(i) = 1;
-          }
-          aMults(1) = aMults(nbpnts) = 2;
-          Handle(Geom2d_BSplineCurve) aPol = new Geom2d_BSplineCurve(PClass, aKnots, aMults, 1);
-          DrawTrSurf::Set("pol1", aPol);
-#endif
-
           anExpThick = Max(2. * Abs(aS) / aPer, 1e-7);
           aDefl = Max(FlecheU, FlecheV);
           aDiscrDefl = Min(aDiscrDefl * 0.1, anExpThick * 10.);
         }
 
-        if(aS>0.){
-          myIsHole=Standard_False;
-        }
+        aS = aPer = 0.0;
+        GeomLib::PolygonProperties(SeqPnt2d, aS, aPer);
         //
         if(FlecheU<Toluv)
           FlecheU = Toluv;
@@ -580,12 +494,18 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace,
 						  FlecheV,
 						  Umin,Vmin,Umax,Vmax));
         //
-        if((angle<2 && angle>-2)||(angle>10)||(angle<-10)) { 
+        if(Abs(aS) < Precision::SquareConfusion()) { 
           BadWire=1;
           TabOrien.Append(-1);
         } 
-        else {         
-          TabOrien.Append((angle>0.0)? 1 : 0);
+        else
+        {
+          if (aS > 0.)
+          {
+            myIsHole = Standard_False;
+          }
+
+          TabOrien.Append((aS > 0.0) ? 1 : 0);
         }
       } 
       else { 

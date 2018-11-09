@@ -2783,3 +2783,40 @@ static Standard_Boolean CompareWeightPoles(const TColgp_Array1OfPnt& thePoles1,
   //
   return Standard_True;
 }
+
+//=======================================================================
+//function : PolygonProperties
+//purpose  : 
+//=======================================================================
+Standard_Boolean GeomLib::PolygonProperties(const TColgp_SequenceOfPnt2d& theSeqPnts,
+                                            Standard_Real& theArea,
+                                            Standard_Real& thePerimeter)
+{
+  if (theSeqPnts.Length() < 2)
+  {
+    theArea = thePerimeter = 0.0;
+    return Standard_True;
+  }
+
+  Standard_Integer aStartIndex = theSeqPnts.Lower();
+  const gp_Pnt2d &uv0 = theSeqPnts.Value(aStartIndex++);
+  gp_Pnt2d fuv = theSeqPnts.Value(aStartIndex++), luv;
+
+  theArea = 0.0;
+  thePerimeter = fuv.Distance(uv0);
+
+  for (Standard_Integer i = aStartIndex; i <= theSeqPnts.Upper(); i++)
+  {
+    luv = theSeqPnts.Value(i);
+    const gp_XY aF = fuv.XY() - uv0.XY();
+    const gp_XY aL = luv.XY() - uv0.XY();
+    const Standard_Real aDelta = aF.Crossed(aL);
+
+    theArea += aDelta;
+    thePerimeter += fuv.Distance(luv);
+
+    fuv = luv;
+  }
+
+  return Standard_True;
+}
