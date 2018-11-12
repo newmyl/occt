@@ -384,8 +384,7 @@ Standard_Boolean OpenGl_GraphicDriver::InitEglContext (Aspect_Display          t
 #endif
 
   if ((EGLDisplay )theEglDisplay == EGL_NO_DISPLAY
-   || (EGLContext )theEglContext == EGL_NO_CONTEXT
-   || theEglConfig == NULL)
+   || (EGLContext )theEglContext == EGL_NO_CONTEXT)
   {
     return Standard_False;
   }

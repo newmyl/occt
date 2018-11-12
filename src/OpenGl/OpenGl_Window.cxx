@@ -181,14 +181,15 @@ OpenGl_Window::OpenGl_Window (const Handle(OpenGl_GraphicDriver)& theDriver,
   EGLConfig  anEglConfig  = (EGLConfig  )theDriver->getRawGlConfig();
   if (anEglDisplay == EGL_NO_DISPLAY
    || anEglContext == EGL_NO_CONTEXT
-   || anEglConfig == NULL)
+   || (anEglConfig == NULL
+    && (EGLContext )theGContext == EGL_NO_CONTEXT))
   {
     throw Aspect_GraphicDeviceDefinitionError("OpenGl_Window, EGL does not provide compatible configurations!");
     return;
   }
 
   EGLSurface anEglSurf = EGL_NO_SURFACE;
-  if (theGContext == (EGLContext )EGL_NO_CONTEXT)
+  if ((EGLContext )theGContext == EGL_NO_CONTEXT)
   {
     // create new surface
     anEglSurf = eglCreateWindowSurface (anEglDisplay,
@@ -211,8 +212,10 @@ OpenGl_Window::OpenGl_Window (const Handle(OpenGl_GraphicDriver)& theDriver,
     anEglSurf = eglGetCurrentSurface(EGL_DRAW);
     if (anEglSurf == EGL_NO_SURFACE)
     {
-      throw Aspect_GraphicDeviceDefinitionError("OpenGl_Window, EGL is unable to retrieve current surface!");
-      return;
+      // window-less EGL context (off-screen)
+      myGlContext->PushMessage (GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_PORTABILITY, 0, GL_DEBUG_SEVERITY_LOW,
+                                "OpenGl_Window::CreateWindow: WARNING, a Window is created without a EGL Surface!");
+      //throw Aspect_GraphicDeviceDefinitionError("OpenGl_Window, EGL is unable to retrieve current surface!");
     }
   }
 
