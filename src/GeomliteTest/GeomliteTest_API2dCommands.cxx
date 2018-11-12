@@ -30,6 +30,7 @@
 #include <Geom2dAPI_InterCurveCurve.hxx>
 #include <Geom2d_Line.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
+#include <GeomLib_Tool.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <gp_Pnt.hxx>
 #include <Draw_Marker2D.hxx>
@@ -548,7 +549,99 @@ static Standard_Integer intconcon(Draw_Interpretor& di, Standard_Integer n, cons
   return 0;
 }
 
+//=======================================================================
+//function : deviation
+//purpose  : 
+//=======================================================================
+static Standard_Integer deviation(Draw_Interpretor& theDI, Standard_Integer theNArg, const char** theArgv)
+{
+  if (theNArg < 3)
+  {
+    theDI << "Use: deviation2d result curve [U0]\n";
+    return 1;
+  }
 
+  const Handle(Geom2d_Curve) aC = DrawTrSurf::GetCurve2d(theArgv[2]);
+
+  if (aC.IsNull())
+  {
+    theDI << "Error: " << theArgv[2] << " is not a 2D-curve.\n";
+    return 1;
+  }
+
+  Geom2dAdaptor_Curve anAC(aC);
+
+  Standard_Integer aNbInterv = 2;
+  Standard_Real aU0 = RealLast();
+
+  for (Standard_Integer aCurrArg = 3; aCurrArg < theNArg; aCurrArg++)
+  {
+    if (!strcmp(theArgv[aCurrArg], "-i"))
+    {
+      aU0 = Draw::Atof(theArgv[++aCurrArg]);
+    }
+    else if (!strcmp(theArgv[aCurrArg], "-d"))
+    {
+      aNbInterv = Draw::Atoi(theArgv[++aCurrArg]);
+    }
+    else
+    {
+      theDI << "Error: Wrong option " << theArgv[aCurrArg] << "\n";
+      return 1;
+    }
+  }
+
+  const Standard_Real aU1 = anAC.FirstParameter();
+  const Standard_Real aU2 = anAC.LastParameter();
+  
+  Standard_Real aRetCurvParam = aU0;
+  gp_Pnt2d aPtOnCurv;
+  gp_Vec2d aRetVec;
+  gp_Lin2d aLinSegm;
+
+  Standard_Real aDefl = RealLast();
+
+  if (aU0 == RealLast())
+  {
+    aDefl = GeomLib_Tool::ComputeDevation(anAC, aU1, aU2,
+                                          aNbInterv, 10, &aU0);
+
+    if (aDefl < 0.0)
+    {
+      theDI << "Error: Cannot compute deviation on interval.\n";
+      return 0;
+    }
+  }
+
+  aDefl = GeomLib_Tool::ComputeDevation(anAC, aU1, aU2, aU0, 100,
+                                        &aRetCurvParam, &aPtOnCurv,
+                                        &aRetVec, &aLinSegm);
+
+  if (aDefl < 0.0)
+  {
+    theDI << "Error: Cannot compute a deviation!\n";
+    return 0;
+  }
+
+  char aBuff[1000];
+  theDI << "Computed value is: " << aDefl << "\n";
+
+  Sprintf(aBuff, "%s_pnt", theArgv[1]);
+  DrawTrSurf::Set(aBuff, aPtOnCurv);
+  theDI << "From point " << aBuff << " (with parameter " << aRetCurvParam << ") to ";
+  Sprintf(aBuff, "%s_lin", theArgv[1]);
+
+  Handle(Geom2d_Curve) aLine = new Geom2d_Line(aLinSegm);
+  DrawTrSurf::Set(aBuff, aLine);
+  theDI << "the line " << aBuff << ".\n";
+  Sprintf(aBuff, "%s_norm", theArgv[1]);
+  aLine = new Geom2d_Line(aPtOnCurv, aRetVec);
+  aLine = new Geom2d_TrimmedCurve(aLine, 0.0, aDefl);
+  DrawTrSurf::Set(aBuff, aLine);
+  theDI << "The deflection is measured along the line " << aBuff << ".\n";
+
+  return 0;
+}
 
 void GeomliteTest::API2dCommands(Draw_Interpretor& theCommands)
 {
@@ -588,4 +681,10 @@ void GeomliteTest::API2dCommands(Draw_Interpretor& theCommands)
 		  intersect_ana,g);
   theCommands.Add("intconcon", "intersect conic curve1 and conic curve2 using IntAna", __FILE__,
     intconcon, g);
+
+  theCommands.Add("2ddeviation", "deviation2d result curve [-i U0] [-d N]\n"
+                  "\"-i\" sets an initial parameter for computation by iterative method;\n"
+                  "\"-d\" sets number of sub-intervals for searching. Default val is 2.",
+                  __FILE__, deviation, g);
+
 }
