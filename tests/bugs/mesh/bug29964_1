@@ -1,0 +1,26 @@
+puts "================"
+puts "OCC29964"
+puts "================"
+puts ""
+#######################################################################################
+# Bad arc discretization
+######################################################################################
+
+set BugNumber OCC29964
+
+restore [locate_data_file partition.brep] a
+
+tclean a
+explode a f
+compound a_5 a_6 a_9 a_10 result
+donly result
+
+incmesh result 0.1 -a 1
+
+isos result 0
+triangles result
+top
+fit
+
+checkview -screenshot -2d -path ${imagedir}/${test_image}.png
+checktrinfo result -tri 15 -nod 23
