@@ -61,7 +61,7 @@ public:
   
   Standard_EXPORT void Set (const Standard_Real Dist1,
                             const Standard_Real Dist2,
-                            const Standard_Integer Choix) Standard_OVERRIDE;
+                            const Standard_Integer Choix);
 
 
 

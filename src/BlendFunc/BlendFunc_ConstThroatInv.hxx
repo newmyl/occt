@@ -57,7 +57,7 @@ public:
   
   Standard_EXPORT void Set (const Standard_Real theThroat,
                             const Standard_Real,
-                            const Standard_Integer Choix) Standard_OVERRIDE;
+                            const Standard_Integer Choix);
 
 
 
